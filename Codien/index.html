@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Form Nhập Công Việc Phòng Cơ Điện</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background-color: #f7f7f7;
+    }
+    form {
+      background-color: #fff;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 15px;
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <form action="#" method="post">
+    <h2>Nhập Công Việc Phòng Cơ Điện</h2>
+
+    <label for="tencongviec">Tên công việc:</label>
+    <input type="text" id="tencongviec" name="tencongviec" required>
+
+    <label for="nguoithuchien">Người thực hiện:</label>
+    <input type="text" id="nguoithuchien" name="nguoithuchien" required>
+
+    <label for="ngaybatdau">Ngày bắt đầu:</label>
+    <input type="date" id="ngaybatdau" name="ngaybatdau" required>
+
+    <label for="ngayketthuc">Ngày kết thúc dự kiến:</label>
+    <input type="date" id="ngayketthuc" name="ngayketthuc">
+
+    <label for="trangthai">Trạng thái:</label>
+    <select id="trangthai" name="trangthai">
+      <option value="Chưa làm">Chưa làm</option>
+      <option value="Đang làm">Đang làm</option>
+      <option value="Hoàn thành">Hoàn thành</option>
+    </select>
+
+    <label for="ghichu">Ghi chú:</label>
+    <textarea id="ghichu" name="ghichu" rows="4"></textarea>
+
+    <button type="submit">Lưu công việc</button>
+  </form>
+</body>
+</html>
+
