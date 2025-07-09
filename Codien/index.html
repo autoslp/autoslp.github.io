@@ -10,14 +10,14 @@
       font-family: Arial, sans-serif;
       background-color: #e6ebf1;
       background-image: url("https://www.transparenttextures.com/patterns/graphy.png");
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
+      padding-top: 50px;
     }
 
     .form-container {
-      margin-top: 150px;
       background-color: #fff;
       width: 400px;
       border-radius: 10px;
@@ -25,6 +25,7 @@
       text-align: center;
       padding: 40px 30px;
       position: relative;
+      margin-bottom: 50px;
     }
 
     .form-icon {
@@ -72,11 +73,26 @@
       display: flex;
       gap: 10px;
       margin: 10px 0;
+      align-items: center;
     }
 
     .date-row input {
       flex: 1;
       margin: 0;
+    }
+
+    .date-label {
+      font-weight: bold;
+      color: #333;
+      font-size: 14px;
+      margin-right: 8px;
+      white-space: nowrap;
+    }
+
+    .date-group {
+      display: flex;
+      align-items: center;
+      flex: 1;
     }
 
     .location-row {
@@ -88,6 +104,30 @@
     .location-row input {
       flex: 1;
       margin: 0;
+    }
+
+    .assistant-row {
+      display: flex;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .assistant-row select {
+      flex: 1;
+      margin: 0;
+    }
+
+    .field-label {
+      text-align: left;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 5px;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .field-label:first-child {
+      margin-top: 0;
     }
 
     .form-container input:focus,
@@ -112,6 +152,108 @@
     .form-container button:hover {
       background-color: #e0a800;
     }
+
+    /* Mobile responsive styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 0;
+        align-items: flex-start;
+        padding-top: 0;
+      }
+
+      .form-container {
+        width: 600px;
+        max-width: none;
+        margin: 0;
+        margin-bottom: 0;
+        padding: 30px 20px;
+        box-sizing: border-box;
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      .form-icon {
+        width: 60px;
+        height: 60px;
+        top: -30px;
+      }
+
+      .form-icon img {
+        width: 35px;
+        height: 35px;
+      }
+
+      .form-container h2 {
+        margin-top: 40px;
+        font-size: 18px;
+        margin-bottom: 25px;
+      }
+
+      .form-container input,
+      .form-container select,
+      .form-container textarea {
+        padding: 10px 12px;
+        font-size: 14px;
+        margin: 8px 0;
+      }
+
+      .date-row,
+      .location-row {
+        flex-direction: column;
+        gap: 0;
+        align-items: flex-start;
+      }
+
+      .date-row input,
+      .location-row input {
+        margin: 8px 0;
+        width: 100%;
+      }
+
+      .date-group {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        margin: 4px 0;
+      }
+
+      .date-label {
+        margin-right: 8px;
+        min-width: 40px;
+      }
+
+      .assistant-row {
+        flex-direction: column;
+        gap: 0;
+      }
+
+      .assistant-row select {
+        margin: 8px 0;
+      }
+
+      .form-container button {
+        padding: 12px;
+        font-size: 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .form-container {
+        padding: 25px 15px;
+      }
+
+      .form-container h2 {
+        font-size: 16px;
+        margin-bottom: 20px;
+      }
+
+      .form-container input,
+      .form-container select,
+      .form-container textarea {
+        padding: 8px 10px;
+        font-size: 13px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -123,14 +265,19 @@
       <img src="https://cdn-icons-png.flaticon.com/512/2910/2910768.png" alt="icon">
     </div>
     <h2>THÔNG TIN CÔNG VIỆC PHÒNG CƠ ĐIỆN SLP</h2>
-    <form action="#" method="post">
-      <input type="text" name="tencongviec" placeholder="Tên công việc" required>
+    <form id="workForm" onsubmit="submitForm(event)">
+      <div class="field-label">Tên công việc:</div>
+      <input type="text" name="tencongviec" placeholder="Nhập tên công việc" required>
+      
+      <div class="field-label">Vị trí làm và Máy:</div>
       <div class="location-row">
         <input type="text" name="vitrilam" placeholder="Vị trí làm" required>
         <input type="text" name="may" placeholder="Máy" required>
       </div>
-      <select name="nguoithuchien" required>
-        <option value="">-- Người thực hiện --</option>
+      
+      <div class="field-label">Người thực hiện chính:</div>
+      <select name="nguoithuchienchinh" required>
+        <option value="">-- Chọn người thực hiện chính --</option>
         <option value="Nguyễn Văn A">Nguyễn Văn A</option>
         <option value="Trần Văn B">Trần Văn B</option>
         <option value="Lê Thị C">Lê Thị C</option>
@@ -140,19 +287,124 @@
         <option value="Đỗ Thị G">Đỗ Thị G</option>
         <option value="Bùi Văn H">Bùi Văn H</option>
       </select>
-      <div class="date-row">
-        <input type="date" name="ngaybatdau" placeholder="Ngày bắt đầu" required>
-        <input type="date" name="ngayketthuc" placeholder="Ngày kết thúc dự kiến">
+      
+      <div class="field-label">Người thực hiện phụ:</div>
+      <div class="assistant-row">
+        <select name="nguoithuchienph1">
+          <option value="">-- Người thực hiện phụ 1 --</option>
+          <option value="Nguyễn Văn A">Nguyễn Văn A</option>
+          <option value="Trần Văn B">Trần Văn B</option>
+          <option value="Lê Thị C">Lê Thị C</option>
+          <option value="Phạm Văn D">Phạm Văn D</option>
+          <option value="Hoàng Thị E">Hoàng Thị E</option>
+          <option value="Vũ Văn F">Vũ Văn F</option>
+          <option value="Đỗ Thị G">Đỗ Thị G</option>
+          <option value="Bùi Văn H">Bùi Văn H</option>
+        </select>
+        <select name="nguoithuchienph2">
+          <option value="">-- Người thực hiện phụ 2 --</option>
+          <option value="Nguyễn Văn A">Nguyễn Văn A</option>
+          <option value="Trần Văn B">Trần Văn B</option>
+          <option value="Lê Thị C">Lê Thị C</option>
+          <option value="Phạm Văn D">Phạm Văn D</option>
+          <option value="Hoàng Thị E">Hoàng Thị E</option>
+          <option value="Vũ Văn F">Vũ Văn F</option>
+          <option value="Đỗ Thị G">Đỗ Thị G</option>
+          <option value="Bùi Văn H">Bùi Văn H</option>
+        </select>
       </div>
+      
+      <div class="field-label">Thời gian thực hiện:</div>
+      <div class="date-row">
+        <div class="date-group">
+          <span class="date-label">Từ:</span>
+          <input type="date" name="ngaybatdau" required>
+        </div>
+        <div class="date-group">
+          <span class="date-label">Đến:</span>
+          <input type="date" name="ngayketthuc">
+        </div>
+      </div>
+      
+      <div class="field-label">Trạng thái:</div>
       <select name="trangthai">
-        <option value="">-- Trạng thái --</option>
+        <option value="">-- Chọn trạng thái --</option>
         <option value="Chưa làm">Chưa làm</option>
         <option value="Đang làm">Đang làm</option>
         <option value="Hoàn thành">Hoàn thành</option>
       </select>
-      <textarea name="ghichu" rows="3" placeholder="Ghi chú"></textarea>
-      <button type="submit">Lưu Công Việc</button>
+      
+      <div class="field-label">Ghi chú:</div>
+      <textarea name="ghichu" rows="3" placeholder="Nhập ghi chú (nếu có)"></textarea>
+      
+      <button type="submit" id="submitBtn">Lưu Công Việc</button>
     </form>
   </div>
+
+  <script>
+    // Thay thế URL này bằng URL Google Apps Script của bạn
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzTINqo60zKKUx97ZAobtTnENJbiBZPfVuYrKgc9Rtq0aRDdq5mKj5Q22gGjvdsbhaN-g/exec';
+
+    function submitForm(event) {
+      event.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      const originalText = submitBtn.textContent;
+      
+      // Hiển thị trạng thái đang gửi
+      submitBtn.textContent = 'Đang lưu...';
+      submitBtn.disabled = true;
+      
+      // Lấy dữ liệu từ form
+      const formData = new FormData(document.getElementById('workForm'));
+      const data = {
+        tencongviec: formData.get('tencongviec'),
+        vitrilam: formData.get('vitrilam'),
+        may: formData.get('may'),
+        nguoithuchienchinh: formData.get('nguoithuchienchinh'),
+        nguoithuchienph1: formData.get('nguoithuchienph1'),
+        nguoithuchienph2: formData.get('nguoithuchienph2'),
+        ngaybatdau: formData.get('ngaybatdau'),
+        ngayketthuc: formData.get('ngayketthuc'),
+        trangthai: formData.get('trangthai'),
+        ghichu: formData.get('ghichu')
+      };
+      
+      // Gửi dữ liệu đến Google Sheets
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      })
+      .then(() => {
+        // Thành công
+        submitBtn.textContent = 'Đã lưu thành công!';
+        submitBtn.style.backgroundColor = '#28a745';
+        
+        // Reset form sau 2 giây
+        setTimeout(() => {
+          document.getElementById('workForm').reset();
+          submitBtn.textContent = originalText;
+          submitBtn.style.backgroundColor = '#ffc107';
+          submitBtn.disabled = false;
+        }, 2000);
+      })
+      .catch((error) => {
+        console.error('Lỗi:', error);
+        submitBtn.textContent = 'Lỗi! Thử lại';
+        submitBtn.style.backgroundColor = '#dc3545';
+        
+        // Khôi phục nút sau 3 giây
+        setTimeout(() => {
+          submitBtn.textContent = originalText;
+          submitBtn.style.backgroundColor = '#ffc107';
+          submitBtn.disabled = false;
+        }, 3000);
+      });
+    }
+  </script>
 </body>
 </html>
