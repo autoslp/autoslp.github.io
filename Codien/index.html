@@ -17,6 +17,7 @@
     }
 
     .form-container {
+      margin-top: 150px;
       background-color: #fff;
       width: 400px;
       border-radius: 10px;
@@ -67,6 +68,28 @@
       transition: border-color 0.3s;
     }
 
+    .date-row {
+      display: flex;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .date-row input {
+      flex: 1;
+      margin: 0;
+    }
+
+    .location-row {
+      display: flex;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .location-row input {
+      flex: 1;
+      margin: 0;
+    }
+
     .form-container input:focus,
     .form-container select:focus,
     .form-container textarea:focus {
@@ -93,15 +116,34 @@
 </head>
 <body>
   <div class="form-container">
+  </br>
+    </br>
+      </br>
     <div class="form-icon">
       <img src="https://cdn-icons-png.flaticon.com/512/2910/2910768.png" alt="icon">
     </div>
     <h2>THÔNG TIN CÔNG VIỆC PHÒNG CƠ ĐIỆN SLP</h2>
     <form action="#" method="post">
       <input type="text" name="tencongviec" placeholder="Tên công việc" required>
-      <input type="text" name="nguoithuchien" placeholder="Người thực hiện" required>
-      <input type="date" name="ngaybatdau" placeholder="Ngày bắt đầu" required>
-      <input type="date" name="ngayketthuc" placeholder="Ngày kết thúc dự kiến">
+      <div class="location-row">
+        <input type="text" name="vitrilam" placeholder="Vị trí làm" required>
+        <input type="text" name="may" placeholder="Máy" required>
+      </div>
+      <select name="nguoithuchien" required>
+        <option value="">-- Người thực hiện --</option>
+        <option value="Nguyễn Văn A">Nguyễn Văn A</option>
+        <option value="Trần Văn B">Trần Văn B</option>
+        <option value="Lê Thị C">Lê Thị C</option>
+        <option value="Phạm Văn D">Phạm Văn D</option>
+        <option value="Hoàng Thị E">Hoàng Thị E</option>
+        <option value="Vũ Văn F">Vũ Văn F</option>
+        <option value="Đỗ Thị G">Đỗ Thị G</option>
+        <option value="Bùi Văn H">Bùi Văn H</option>
+      </select>
+      <div class="date-row">
+        <input type="date" name="ngaybatdau" placeholder="Ngày bắt đầu" required>
+        <input type="date" name="ngayketthuc" placeholder="Ngày kết thúc dự kiến">
+      </div>
       <select name="trangthai">
         <option value="">-- Trạng thái --</option>
         <option value="Chưa làm">Chưa làm</option>
