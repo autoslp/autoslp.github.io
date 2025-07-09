@@ -19,7 +19,7 @@
 
     .form-container {
       background-color: #fff;
-      width: 400px;
+      width: 90%;
       border-radius: 10px;
       box-shadow: 0 0 20px rgba(0,0,0,0.2);
       text-align: center;
@@ -117,17 +117,31 @@
       margin: 0;
     }
 
+    .field-row {
+      display: flex;
+      align-items: center;
+      margin: 10px 0;
+      gap: 15px;
+    }
+
     .field-label {
       text-align: left;
       font-weight: bold;
       color: #333;
-      margin-bottom: 5px;
-      margin-top: 15px;
       font-size: 14px;
+      min-width: 160px;
+      white-space: nowrap;
     }
 
-    .field-label:first-child {
-      margin-top: 0;
+    .field-input {
+      flex: 1;
+    }
+
+    .field-input input,
+    .field-input select,
+    .field-input textarea {
+      width: 100%;
+      margin: 0;
     }
 
     .form-container input:focus,
@@ -197,6 +211,17 @@
         margin: 8px 0;
       }
 
+      .field-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+      }
+
+      .field-label {
+        min-width: auto;
+        margin-bottom: 5px;
+      }
+
       .date-row,
       .location-row {
         flex-direction: column;
@@ -258,84 +283,109 @@
 </head>
 <body>
   <div class="form-container">
-  </br>
-    </br>
-      </br>
     <div class="form-icon">
       <img src="https://cdn-icons-png.flaticon.com/512/2910/2910768.png" alt="icon">
     </div>
     <h2>THÔNG TIN CÔNG VIỆC PHÒNG CƠ ĐIỆN SLP</h2>
     <form id="workForm" onsubmit="submitForm(event)">
-      <div class="field-label">Tên công việc:</div>
-      <input type="text" name="tencongviec" placeholder="Nhập tên công việc" required>
-      
-      <div class="field-label">Vị trí làm và Máy:</div>
-      <div class="location-row">
-        <input type="text" name="vitrilam" placeholder="Vị trí làm" required>
-        <input type="text" name="may" placeholder="Máy" required>
-      </div>
-      
-      <div class="field-label">Người thực hiện chính:</div>
-      <select name="nguoithuchienchinh" required>
-        <option value="">-- Chọn người thực hiện chính --</option>
-        <option value="Nguyễn Văn A">Nguyễn Văn A</option>
-        <option value="Trần Văn B">Trần Văn B</option>
-        <option value="Lê Thị C">Lê Thị C</option>
-        <option value="Phạm Văn D">Phạm Văn D</option>
-        <option value="Hoàng Thị E">Hoàng Thị E</option>
-        <option value="Vũ Văn F">Vũ Văn F</option>
-        <option value="Đỗ Thị G">Đỗ Thị G</option>
-        <option value="Bùi Văn H">Bùi Văn H</option>
-      </select>
-      
-      <div class="field-label">Người thực hiện phụ:</div>
-      <div class="assistant-row">
-        <select name="nguoithuchienph1">
-          <option value="">-- Người thực hiện phụ 1 --</option>
-          <option value="Nguyễn Văn A">Nguyễn Văn A</option>
-          <option value="Trần Văn B">Trần Văn B</option>
-          <option value="Lê Thị C">Lê Thị C</option>
-          <option value="Phạm Văn D">Phạm Văn D</option>
-          <option value="Hoàng Thị E">Hoàng Thị E</option>
-          <option value="Vũ Văn F">Vũ Văn F</option>
-          <option value="Đỗ Thị G">Đỗ Thị G</option>
-          <option value="Bùi Văn H">Bùi Văn H</option>
-        </select>
-        <select name="nguoithuchienph2">
-          <option value="">-- Người thực hiện phụ 2 --</option>
-          <option value="Nguyễn Văn A">Nguyễn Văn A</option>
-          <option value="Trần Văn B">Trần Văn B</option>
-          <option value="Lê Thị C">Lê Thị C</option>
-          <option value="Phạm Văn D">Phạm Văn D</option>
-          <option value="Hoàng Thị E">Hoàng Thị E</option>
-          <option value="Vũ Văn F">Vũ Văn F</option>
-          <option value="Đỗ Thị G">Đỗ Thị G</option>
-          <option value="Bùi Văn H">Bùi Văn H</option>
-        </select>
-      </div>
-      
-      <div class="field-label">Thời gian thực hiện:</div>
-      <div class="date-row">
-        <div class="date-group">
-          <span class="date-label">Từ:</span>
-          <input type="date" name="ngaybatdau" required>
-        </div>
-        <div class="date-group">
-          <span class="date-label">Đến:</span>
-          <input type="date" name="ngayketthuc">
+      <div class="field-row">
+        <div class="field-label">Tên công việc:</div>
+        <div class="field-input">
+          <input type="text" name="tencongviec" placeholder="Nhập tên công việc" required>
         </div>
       </div>
       
-      <div class="field-label">Trạng thái:</div>
-      <select name="trangthai">
-        <option value="">-- Chọn trạng thái --</option>
-        <option value="Chưa làm">Chưa làm</option>
-        <option value="Đang làm">Đang làm</option>
-        <option value="Hoàn thành">Hoàn thành</option>
-      </select>
+      <div class="field-row">
+        <div class="field-label">Vị trí làm và Máy:</div>
+        <div class="field-input">
+          <div class="location-row">
+            <input type="text" name="vitrilam" placeholder="Vị trí làm" required>
+            <input type="text" name="may" placeholder="Máy" required>
+          </div>
+        </div>
+      </div>
       
-      <div class="field-label">Ghi chú:</div>
-      <textarea name="ghichu" rows="3" placeholder="Nhập ghi chú (nếu có)"></textarea>
+      <div class="field-row">
+        <div class="field-label">Người thực hiện chính:</div>
+        <div class="field-input">
+          <select name="nguoithuchienchinh" required>
+            <option value="">-- Chọn người thực hiện chính --</option>
+            <option value="Nguyễn Văn A">Nguyễn Văn A</option>
+            <option value="Trần Văn B">Trần Văn B</option>
+            <option value="Lê Thị C">Lê Thị C</option>
+            <option value="Phạm Văn D">Phạm Văn D</option>
+            <option value="Hoàng Thị E">Hoàng Thị E</option>
+            <option value="Vũ Văn F">Vũ Văn F</option>
+            <option value="Đỗ Thị G">Đỗ Thị G</option>
+            <option value="Bùi Văn H">Bùi Văn H</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="field-row">
+        <div class="field-label">Người thực hiện phụ:</div>
+        <div class="field-input">
+          <div class="assistant-row">
+            <select name="nguoithuchienph1">
+              <option value="">-- Người thực hiện phụ 1 --</option>
+              <option value="Nguyễn Văn A">Nguyễn Văn A</option>
+              <option value="Trần Văn B">Trần Văn B</option>
+              <option value="Lê Thị C">Lê Thị C</option>
+              <option value="Phạm Văn D">Phạm Văn D</option>
+              <option value="Hoàng Thị E">Hoàng Thị E</option>
+              <option value="Vũ Văn F">Vũ Văn F</option>
+              <option value="Đỗ Thị G">Đỗ Thị G</option>
+              <option value="Bùi Văn H">Bùi Văn H</option>
+            </select>
+            <select name="nguoithuchienph2">
+              <option value="">-- Người thực hiện phụ 2 --</option>
+              <option value="Nguyễn Văn A">Nguyễn Văn A</option>
+              <option value="Trần Văn B">Trần Văn B</option>
+              <option value="Lê Thị C">Lê Thị C</option>
+              <option value="Phạm Văn D">Phạm Văn D</option>
+              <option value="Hoàng Thị E">Hoàng Thị E</option>
+              <option value="Vũ Văn F">Vũ Văn F</option>
+              <option value="Đỗ Thị G">Đỗ Thị G</option>
+              <option value="Bùi Văn H">Bùi Văn H</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="field-row">
+        <div class="field-label">Thời gian thực hiện:</div>
+        <div class="field-input">
+          <div class="date-row">
+            <div class="date-group">
+              <span class="date-label">Từ:</span>
+              <input type="date" name="ngaybatdau" required>
+            </div>
+            <div class="date-group">
+              <span class="date-label">Đến:</span>
+              <input type="date" name="ngayketthuc">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="field-row">
+        <div class="field-label">Trạng thái:</div>
+        <div class="field-input">
+          <select name="trangthai">
+            <option value="">-- Chọn trạng thái --</option>
+            <option value="Chưa làm">Chưa làm</option>
+            <option value="Đang làm">Đang làm</option>
+            <option value="Hoàn thành">Hoàn thành</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="field-row">
+        <div class="field-label">Ghi chú:</div>
+        <div class="field-input">
+          <textarea name="ghichu" rows="3" placeholder="Nhập ghi chú (nếu có)"></textarea>
+        </div>
+      </div>
       
       <button type="submit" id="submitBtn">Lưu Công Việc</button>
     </form>
@@ -343,7 +393,7 @@
 
   <script>
     // Thay thế URL này bằng URL Google Apps Script của bạn
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzTINqo60zKKUx97ZAobtTnENJbiBZPfVuYrKgc9Rtq0aRDdq5mKj5Q22gGjvdsbhaN-g/exec';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytNKhQuNr-t5v3HVqGykKQL95cIONpy2Zig5K7U3tjcHNtoquW74xbRf42MOSC7Rsefw/exec';
 
     function submitForm(event) {
       event.preventDefault();
