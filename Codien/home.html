@@ -228,7 +228,7 @@
 </head>
 <body>
   <script>
-    // Hàm hiển thị popup đăng nhập
+    // Hàm hiển thị popup đăng nhập mới
     function showLoginPopup() {
       let popup = document.getElementById('loginPopup');
       if (!popup) {
@@ -239,23 +239,76 @@
         popup.style.left = '0';
         popup.style.width = '100vw';
         popup.style.height = '100vh';
-        popup.style.background = 'rgba(0,0,0,0.3)';
+        popup.style.background = 'rgba(0,0,0,0.25)';
         popup.style.display = 'flex';
         popup.style.alignItems = 'center';
         popup.style.justifyContent = 'center';
+        popup.style.zIndex = '9999';
         popup.innerHTML = `
-          <div style="background:#fff;padding:32px 24px;border-radius:12px;min-width:320px;box-shadow:0 2px 16px #0002;max-width:90vw;">
-            <h4 class="mb-3 text-center">Đăng nhập nhân viên</h4>
-            <form id="loginForm">
+          <div class="login-modal">
+            <div class="login-header">
+              <i class="bi bi-person-circle login-icon"></i>
+              <h4>Đăng nhập nhân viên</h4>
+            </div>
+            <form id="loginForm" autocomplete="off">
               <div class="mb-3">
                 <label for="usercode" class="form-label">Mã nhân viên</label>
                 <input type="text" class="form-control" id="usercode" required autofocus autocomplete="off">
               </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Mật khẩu</label>
+                <input type="password" class="form-control" id="password" required autocomplete="off">
+              </div>
               <div class="mb-2" id="userNameDisplay" style="font-weight:600;color:#007bff;"></div>
-              <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+              <button type="submit" class="btn btn-primary w-100" id="loginBtn">
+                <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
+              </button>
               <div id="loginError" class="text-danger mt-2" style="display:none;"></div>
             </form>
           </div>
+          <style>
+            .login-modal {
+              background: #fff;
+              border-radius: 18px;
+              box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+              padding: 36px 28px 28px 28px;
+              min-width: 340px;
+              max-width: 95vw;
+              animation: popupFadeIn 0.4s;
+              position: relative;
+            }
+            .login-header {
+              text-align: center;
+              margin-bottom: 18px;
+            }
+            .login-icon {
+              font-size: 3rem;
+              color: #6a5acd;
+              margin-bottom: 8px;
+            }
+            #loginForm .form-control {
+              border-radius: 10px;
+              border: 2px solid #e9ecef;
+              font-size: 1.1rem;
+            }
+            #loginForm .form-control:focus {
+              border-color: #6a5acd;
+              box-shadow: 0 0 0 0.15rem rgba(106,90,205,0.15);
+            }
+            #loginBtn {
+              border-radius: 10px;
+              font-weight: 600;
+              background: linear-gradient(135deg, #6a5acd, #ffc107);
+              border: none;
+            }
+            #loginBtn:hover {
+              background: linear-gradient(135deg, #ffc107, #6a5acd);
+            }
+            @keyframes popupFadeIn {
+              from { transform: scale(0.95); opacity: 0; }
+              to { transform: scale(1); opacity: 1; }
+            }
+          </style>
         `;
         document.body.appendChild(popup);
       }
@@ -267,29 +320,33 @@
       if (popup) popup.style.display = 'none';
       document.body.style.overflow = '';
     }
-    // Lấy danh sách mã nhân viên và tên từ Google Sheets
+    // Lấy danh sách mã nhân viên, tên, mật khẩu từ Google Sheets
     let userList = [];
-    async function fetchUserList() {
+    async function fetchUserListWithPassword() {
       try {
         const API_KEY = 'AIzaSyC1Rsi6v-NoDqTFVDzB_YVCP0g1aHyvMME';
         const SHEET_ID = '18ZLZbC8RjCvSyk_sLBvh3obi-_4TzgIlrDX09LkBXyo';
-        const RANGE = 'Data!J2:K100';
+        const RANGE = 'Data!J2:O100';
         const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
         const response = await fetch(url);
         const data = await response.json();
         if (data.values) {
-          userList = data.values.map(row => ({ code: row[0]?.trim(), name: row[1]?.trim() }));
+          userList = data.values.map(row => ({
+            code: row[0]?.trim(),
+            name: row[1]?.trim(),
+            password: row[5]?.trim() // cột O là index 5 (J=0, K=1, L=2, M=3, N=4, O=5)
+          }));
         }
       } catch (e) { userList = []; }
     }
     // Kiểm tra đăng nhập
     async function checkLogin() {
       if (!localStorage.getItem('slp_user') || !localStorage.getItem('slp_name')) {
-        await fetchUserList();
+        await fetchUserListWithPassword();
         showLoginPopup();
-        // Xử lý realtime khi nhập mã nhân viên
         setTimeout(() => {
           const userInput = document.getElementById('usercode');
+          const passInput = document.getElementById('password');
           const nameDisplay = document.getElementById('userNameDisplay');
           userInput.addEventListener('input', function() {
             const val = userInput.value.trim();
@@ -304,14 +361,15 @@
           document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const val = userInput.value.trim();
+            const pass = passInput.value.trim();
             const found = userList.find(u => u.code && u.code.toUpperCase() === val.toUpperCase());
-            if (found) {
+            if (found && found.password === pass) {
               localStorage.setItem('slp_user', found.code);
               localStorage.setItem('slp_name', found.name);
               hideLoginPopup();
               window.location.reload();
             } else {
-              document.getElementById('loginError').textContent = 'Mã nhân viên không hợp lệ!';
+              document.getElementById('loginError').textContent = 'Mã nhân viên hoặc mật khẩu không đúng!';
               document.getElementById('loginError').style.display = '';
             }
           });
