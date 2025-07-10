@@ -179,14 +179,7 @@
               <label for="nguoithuchienchinh" class="form-label">Người thực hiện chính:</label>
               <select class="form-select" id="nguoithuchienchinh" name="nguoithuchienchinh" required>
                 <option value="">-- Chọn người thực hiện chính --</option>
-                <option value="Nguyễn Văn A">Nguyễn Văn A</option>
-                <option value="Trần Văn B">Trần Văn B</option>
-                <option value="Lê Thị C">Lê Thị C</option>
-                <option value="Phạm Văn D">Phạm Văn D</option>
-                <option value="Hoàng Thị E">Hoàng Thị E</option>
-                <option value="Vũ Văn F">Vũ Văn F</option>
-                <option value="Đỗ Thị G">Đỗ Thị G</option>
-                <option value="Bùi Văn H">Bùi Văn H</option>
+                <!-- Options sẽ được load từ Google Sheets -->
               </select>
             </div>
             
@@ -196,28 +189,14 @@
                 <label for="nguoithuchienph1" class="form-label">Người thực hiện phụ 1:</label>
                 <select class="form-select" id="nguoithuchienph1" name="nguoithuchienph1">
                   <option value="">-- Người thực hiện phụ 1 --</option>
-                  <option value="Nguyễn Văn A">Nguyễn Văn A</option>
-                  <option value="Trần Văn B">Trần Văn B</option>
-                  <option value="Lê Thị C">Lê Thị C</option>
-                  <option value="Phạm Văn D">Phạm Văn D</option>
-                  <option value="Hoàng Thị E">Hoàng Thị E</option>
-                  <option value="Vũ Văn F">Vũ Văn F</option>
-                  <option value="Đỗ Thị G">Đỗ Thị G</option>
-                  <option value="Bùi Văn H">Bùi Văn H</option>
+                  <!-- Options sẽ được load từ Google Sheets -->
                 </select>
               </div>
               <div class="col-md-6">
                 <label for="nguoithuchienph2" class="form-label">Người thực hiện phụ 2:</label>
                 <select class="form-select" id="nguoithuchienph2" name="nguoithuchienph2">
                   <option value="">-- Người thực hiện phụ 2 --</option>
-                  <option value="Nguyễn Văn A">Nguyễn Văn A</option>
-                  <option value="Trần Văn B">Trần Văn B</option>
-                  <option value="Lê Thị C">Lê Thị C</option>
-                  <option value="Phạm Văn D">Phạm Văn D</option>
-                  <option value="Hoàng Thị E">Hoàng Thị E</option>
-                  <option value="Vũ Văn F">Vũ Văn F</option>
-                  <option value="Đỗ Thị G">Đỗ Thị G</option>
-                  <option value="Bùi Văn H">Bùi Văn H</option>
+                  <!-- Options sẽ được load từ Google Sheets -->
                 </select>
               </div>
             </div>
@@ -268,6 +247,90 @@
   <script>
     // Thay thế URL này bằng URL Google Apps Script của bạn
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytNKhQuNr-t5v3HVqGykKQL95cIONpy2Zig5K7U3tjcHNtoquW74xbRf42MOSC7Rsefw/exec';
+    
+    // Google Sheets API để đọc dữ liệu công khai
+    const SHEET_ID = '1JKDZD9EctJQn8oP5O9b2gsfDW_rHCLzVHOh5ggpGItI';
+    const API_KEY = 'AIzaSyC1Rsi6v-NoDqTFVDzB_YVCP0g1aHyvMME'; // Cần tạo API key từ Google Cloud Console
+    const RANGE = 'Data!J:J'; // Đọc cột J từ sheet Data
+    
+    // Danh sách nhân viên mặc định (fallback)
+    const DEFAULT_EMPLOYEES = [
+      'Mr Mạnh', 'Mr Chính', 'Mr Đạt', 'Mr Dũng', 'Mr Quân', 
+      'Mr Đại', 'Mr Hoàng Anh', 'Mr Hoàng', 'Mr Công'
+    ];
+
+    // Load danh sách nhân viên khi trang được tải
+    document.addEventListener('DOMContentLoaded', function() {
+      loadEmployees();
+    });
+
+    // Hàm load danh sách nhân viên từ Google Sheets
+    async function loadEmployees() {
+      try {
+        console.log('Đang tải danh sách nhân viên từ Google Sheets...');
+        
+        // URL để gọi Google Sheets API
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+        
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.values && data.values.length > 0) {
+          // Lọc và làm sạch dữ liệu
+          const employees = data.values
+            .map(row => row[0]) // Lấy giá trị đầu tiên của mỗi hàng
+            .filter(name => name && name.toString().trim() !== '') // Loại bỏ giá trị rỗng
+            .map(name => name.toString().trim()) // Làm sạch khoảng trắng
+            .filter((name, index, array) => array.indexOf(name) === index) // Loại bỏ trùng lặp
+            .sort(); // Sắp xếp theo alphabet
+          
+          console.log('Đã tải thành công danh sách nhân viên:', employees);
+          populateEmployeeSelects(employees);
+        } else {
+          console.warn('Không có dữ liệu trong sheet, sử dụng danh sách mặc định');
+          populateEmployeeSelects(DEFAULT_EMPLOYEES);
+        }
+        
+      } catch (error) {
+        console.error('Lỗi khi load danh sách nhân viên từ Google Sheets:', error);
+        console.log('Sử dụng danh sách nhân viên mặc định');
+        // Sử dụng danh sách mặc định nếu có lỗi
+        populateEmployeeSelects(DEFAULT_EMPLOYEES);
+      }
+    }
+
+    // Hàm điền danh sách nhân viên vào các select
+    function populateEmployeeSelects(employees) {
+      const selects = [
+        'nguoithuchienchinh',
+        'nguoithuchienph1', 
+        'nguoithuchienph2'
+      ];
+
+      selects.forEach(selectId => {
+        const selectElement = document.getElementById(selectId);
+        
+        // Xóa các option cũ (trừ option đầu tiên)
+        while (selectElement.children.length > 1) {
+          selectElement.removeChild(selectElement.lastChild);
+        }
+        
+        // Thêm các option mới
+        employees.forEach(employee => {
+          if (employee && employee.trim()) {
+            const option = document.createElement('option');
+            option.value = employee.trim();
+            option.textContent = employee.trim();
+            selectElement.appendChild(option);
+          }
+        });
+      });
+    }
 
     function submitForm(event) {
       event.preventDefault();
