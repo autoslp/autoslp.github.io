@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Danh Sách Công Việc - Phòng Cơ Điện</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  
+  <style>
+    body {
+      background-color: #f8f9fa;
+      min-height: 100vh;
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+
+    .header-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem 0;
+      margin-bottom: 2rem;
+      border-radius: 15px;
+    }
+
+    .work-card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .work-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    .work-header {
+      background: linear-gradient(135deg, #ffc107, #e0a800);
+      color: #333;
+      padding: 1rem;
+      border-radius: 10px 10px 0 0;
+      font-weight: 600;
+    }
+
+    .work-body {
+      padding: 1.5rem;
+    }
+
+    .status-badge {
+      font-size: 0.8rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .status-pending {
+      background-color: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+
+    .status-in-progress {
+      background-color: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    .status-completed {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .btn-action {
+      margin: 0.2rem;
+      border-radius: 20px;
+      padding: 0.4rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .work-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .info-item {
+      background: #f8f9fa;
+      padding: 0.8rem;
+      border-radius: 8px;
+      border-left: 4px solid #007bff;
+    }
+
+    .info-label {
+      font-size: 0.8rem;
+      color: #6c757d;
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+    }
+
+    .info-value {
+      font-size: 0.9rem;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .filter-section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .loading-spinner {
+      text-align: center;
+      padding: 3rem;
+    }
+
+    @media (max-width: 768px) {
+      .work-info {
+        grid-template-columns: 1fr;
+      }
+      
+      .btn-action {
+        width: 100%;
+        margin: 0.2rem 0;
+      }
+    }
+
+    /* Enhanced User Info Section Styling */
+    .user-info-container {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 1001;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 249, 250, 0.95));
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 12px 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s ease;
+      animation: slideInFromRight 0.5s ease-out;
+    }
+
+    .user-info-container:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    }
+
+    .user-details {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .user-name {
+      font-weight: 700;
+      font-size: 14px;
+      color: #2c3e50;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .user-role {
+      font-size: 11px;
+      color: #6c757d;
+      font-weight: 500;
+      margin: 0;
+      line-height: 1;
+    }
+
+    .logout-btn {
+      background: linear-gradient(135deg, #dc3545, #c82333);
+      border: none;
+      border-radius: 10px;
+      padding: 8px 16px;
+      color: white;
+      font-weight: 600;
+      font-size: 12px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .logout-btn:hover {
+      background: linear-gradient(135deg, #c82333, #a71e2a);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
+      color: white;
+    }
+
+    .logout-btn:active {
+      transform: translateY(0);
+    }
+
+    @keyframes slideInFromRight {
+      from {
+        opacity: 0;
+        transform: translateX(100px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* Mobile responsive adjustments */
+    @media (max-width: 768px) {
+      .user-info-container .user-avatar {
+        display: none;
+      }
+
+      .user-info-container .user-name {
+        display: none;
+      }
+
+      .user-info-container {
+        padding: 8px 12px;
+        border-radius: 15px;
+      }
+
+      .logout-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+        border-radius: 15px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .user-info-container {
+        position: static;
+        margin: 0 auto 20px auto;
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px;
+      }
+
+      .user-details {
+        text-align: center;
+      }
+
+      .logout-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script>
+    // Hàm hiển thị popup đăng nhập
+    function showLoginPopup() {
+      let popup = document.getElementById('loginPopup');
+      if (!popup) {
+        popup = document.createElement('div');
+        popup.id = 'loginPopup';
+        popup.style.position = 'fixed';
+        popup.style.top = '0';
+        popup.style.left = '0';
+        popup.style.width = '100vw';
+        popup.style.height = '100vh';
+        popup.style.background = 'rgba(0,0,0,0.3)';
+        popup.style.display = 'flex';
+        popup.style.alignItems = 'center';
+        popup.style.justifyContent = 'center';
+        popup.innerHTML = `
+          <div style="background:#fff;padding:32px 24px;border-radius:12px;min-width:320px;box-shadow:0 2px 16px #0002;max-width:90vw;">
+            <h4 class="mb-3 text-center">Đăng nhập nhân viên</h4>
+            <form id="loginForm">
+              <div class="mb-3">
+                <label for="usercode" class="form-label">Mã nhân viên</label>
+                <input type="text" class="form-control" id="usercode" required autofocus autocomplete="off">
+              </div>
+              <div class="mb-2" id="userNameDisplay" style="font-weight:600;color:#007bff;"></div>
+              <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+              <div id="loginError" class="text-danger mt-2" style="display:none;"></div>
+            </form>
+          </div>
+        `;
+        document.body.appendChild(popup);
+      }
+      popup.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+    function hideLoginPopup() {
+      let popup = document.getElementById('loginPopup');
+      if (popup) popup.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    // Lấy danh sách mã nhân viên và tên từ Google Sheets
+    let userList = [];
+    async function fetchUserList() {
+      try {
+        const API_KEY = 'AIzaSyC1Rsi6v-NoDqTFVDzB_YVCP0g1aHyvMME';
+        const SHEET_ID = '18ZLZbC8RjCvSyk_sLBvh3obi-_4TzgIlrDX09LkBXyo';
+        const RANGE = 'Data!J2:K100';
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.values) {
+          userList = data.values.map(row => ({ code: row[0]?.trim(), name: row[1]?.trim() }));
+        }
+      } catch (e) { userList = []; }
+    }
+    // Kiểm tra đăng nhập
+    async function checkLogin() {
+      if (!localStorage.getItem('slp_user') || !localStorage.getItem('slp_name')) {
+        await fetchUserList();
+        showLoginPopup();
+        // Xử lý realtime khi nhập mã nhân viên
+        setTimeout(() => {
+          const userInput = document.getElementById('usercode');
+          const nameDisplay = document.getElementById('userNameDisplay');
+          userInput.addEventListener('input', function() {
+            const val = userInput.value.trim();
+            const found = userList.find(u => u.code && u.code.toUpperCase() === val.toUpperCase());
+            if (found) {
+              nameDisplay.textContent = found.name;
+              nameDisplay.style.color = '#007bff';
+            } else {
+              nameDisplay.textContent = '';
+            }
+          });
+          document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const val = userInput.value.trim();
+            const found = userList.find(u => u.code && u.code.toUpperCase() === val.toUpperCase());
+            if (found) {
+              localStorage.setItem('slp_user', found.code);
+              localStorage.setItem('slp_name', found.name);
+              hideLoginPopup();
+              window.location.reload();
+            } else {
+              document.getElementById('loginError').textContent = 'Mã nhân viên không hợp lệ!';
+              document.getElementById('loginError').style.display = '';
+            }
+          });
+        }, 300);
+      } else {
+        hideLoginPopup();
+      }
+    }
+    // Đăng xuất
+    function logoutSLP() {
+      localStorage.removeItem('slp_user');
+      localStorage.removeItem('slp_name');
+      window.location.reload();
+    }
+    // Hiển thị tên nhân viên đã đăng nhập
+    function showUserInfo() {
+      if (localStorage.getItem('slp_user') && localStorage.getItem('slp_name')) {
+        const userName = localStorage.getItem('slp_name');
+        const userInitial = userName.charAt(0).toUpperCase();
+        
+        // Tìm header section và thêm user info vào đó
+        const headerSection = document.querySelector('.header-section');
+        if (headerSection) {
+          // Kiểm tra xem đã có user info chưa
+          let existingUserInfo = headerSection.querySelector('.header-user-info');
+          if (!existingUserInfo) {
+            const userInfoHTML = `
+            <div class="header-user-info d-flex align-items-center justify-content-center gap-3" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 25px; padding: 8px 16px; margin-top: 15px; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease;">
+              <div class="user-avatar" style="width: 35px; height: 35px; background: linear-gradient(135deg, #ffc107, #e0a800); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #333; font-weight: 700; font-size: 14px; box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);">${userInitial}</div>
+              <div class="user-name" style="color: white; font-weight: 600; font-size: 14px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);">${userName} - Nhân viên</div>
+              <button onclick="logoutSLP()" class="logout-btn" style="background: transparent; border: 1px solid white; border-radius: 15px; padding: 6px 12px; color: white; font-weight: 500; font-size: 12px; transition: all 0.3s ease;">
+                Đăng xuất
+              </button>
+            </div>
+            `;
+            headerSection.insertAdjacentHTML('beforeend', userInfoHTML);
+          }
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', async function() {
+      await checkLogin();
+      showUserInfo();
+    });
+  </script>
+  <div class="container">
+    <!-- Header -->
+    <div class="header-section text-center" style="background: linear-gradient(135deg, #6a5acd, #7b68ee); color: white; border-radius: 15px; padding: 2rem 1rem; margin-bottom: 2rem;">
+      <h1 style="font-weight: 700; font-size: 2.5rem;">
+        <i class="bi bi-list-check me-3"></i>DANH SÁCH CÔNG VIỆC SỬA CHỮA
+      </h1>
+      <p class="mb-0" style="font-size: 1.2rem;">Phòng Cơ Điện - SLP</p>
+      <div class="mt-3 d-flex justify-content-center gap-3">
+        <a href="home.html" class="btn btn-light text-dark" style="font-weight: 600;">
+          <i class="bi bi-house-fill me-1"></i>Trang Chủ
+        </a>
+        <button class="btn btn-outline-light" style="font-weight: 600;" onclick="loadWorkList()">
+          <i class="bi bi-arrow-clockwise me-1"></i>Làm Mới
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <div class="row">
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Lọc theo trạng thái:</label>
+          <select class="form-select" id="statusFilter" onchange="filterWorks()">
+            <option value="">Tất cả</option>
+            <option value="Chờ xử lý">Chờ xử lý</option>
+            <option value="Đang xử lý">Đang xử lý</option>
+            <option value="Hoàn thành">Hoàn thành</option>
+          </select>
+        </div>
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Tìm kiếm:</label>
+          <input type="text" class="form-control" id="searchInput" placeholder="Tìm theo STT, máy..." onkeyup="filterWorks()">
+        </div>
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Sắp xếp:</label>
+          <select class="form-select" id="sortOrder" onchange="filterWorks()">
+            <option value="newest">Mới nhất</option>
+            <option value="oldest">Cũ nhất</option>
+            <option value="priority">Ưu tiên</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loadingSection" class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Đang tải...</span>
+      </div>
+      <p class="mt-2">Đang tải danh sách công việc...</p>
+    </div>
+
+    <!-- Work List -->
+    <div id="workListContainer">
+      <!-- Danh sách công việc sẽ được load ở đây -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="text-center py-5" style="display: none;">
+      <i class="bi bi-inbox display-1 text-muted"></i>
+      <h3 class="text-muted mt-3">Không có công việc nào</h3>
+      <p class="text-muted">Hiện tại không có công việc nào cần xử lý.</p>
+    </div>
+  </div>
+
+  <!-- Modal cập nhật công việc -->
+  <div class="modal fade" id="updateWorkModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Cập Nhật Công Việc</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="updateWorkForm">
+            <input type="hidden" id="updateWorkId">
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Thực hiện bởi 1:</label>
+                <select class="form-select" id="thuchienboy1">
+                  <option value="">-- Chọn người thực hiện --</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Thực hiện bởi 2:</label>
+                <select class="form-select" id="thuchienboy2">
+                  <option value="">-- Chọn người thực hiện --</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Hạng mục:</label>
+                <input type="text" class="form-control" id="hangmuc" placeholder="Nhập hạng mục">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Phân loại:</label>
+                <select class="form-select" id="phanloai">
+                  <option value="">-- Chọn phân loại --</option>
+                  <option value="Bảo trì định kỳ">Bảo trì định kỳ</option>
+                  <option value="Sửa chữa khẩn cấp">Sửa chữa khẩn cấp</option>
+                  <option value="Thay thế linh kiện">Thay thế linh kiện</option>
+                  <option value="Kiểm tra an toàn">Kiểm tra an toàn</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Vị trí:</label>
+              <input type="text" class="form-control" id="vitri" placeholder="Nhập vị trí cụ thể">
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Nguyên nhân:</label>
+              <textarea class="form-control" id="nguyennhan" rows="2" placeholder="Mô tả nguyên nhân"></textarea>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Phương án xử lý:</label>
+              <textarea class="form-control" id="phuonganhxuly" rows="2" placeholder="Mô tả phương án xử lý"></textarea>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Vật tư thay thế:</label>
+                <input type="text" class="form-control" id="vattuthaythe" placeholder="Danh sách vật tư">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Losstime (phút):</label>
+                <input type="number" class="form-control" id="losstime" placeholder="0">
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Kết quả:</label>
+              <textarea class="form-control" id="ketqua" rows="2" placeholder="Mô tả kết quả thực hiện"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-primary" onclick="saveWorkUpdate()">Lưu Cập Nhật</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    // Google Apps Script URL và cấu hình
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytNKhQuNr-t5v3HVqGykKQL95cIONpy2Zig5K7U3tjcHNtoquW74xbRf42MOSC7Rsefw/exec';
+    const SHEET_ID = '1JKDZD9EctJQn8oP5O9b2gsfDW_rHCLzVHOh5ggpGItI';
+    const API_KEY = 'AIzaSyC1Rsi6v-NoDqTFVDzB_YVCP0g1aHyvMME';
+    
+    let allWorks = [];
+    let filteredWorks = [];
+
+    // Load danh sách công việc khi trang được tải
+    document.addEventListener('DOMContentLoaded', function() {
+      loadWorkList();
+      loadEmployees();
+    });
+
+    // Load danh sách công việc từ Google Sheets
+    async function loadWorkList() {
+      try {
+        document.getElementById('loadingSection').style.display = 'block';
+        document.getElementById('workListContainer').innerHTML = '';
+        document.getElementById('emptyState').style.display = 'none';
+
+        // Gọi Google Sheets API để lấy dữ liệu
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Tonghop!A:W?key=${API_KEY}`;
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.values && data.values.length > 1) {
+          // Bỏ qua hàng đầu tiên (header)
+          const rows = data.values.slice(1);
+          allWorks = rows.map(row => ({
+            stt: row[0] || '',
+            may: row[1] || '',
+            thoigianyeucau: row[2] || '',
+            hientrangloi: row[3] || '',
+            nguoiyeucau: row[4] || '',
+            quanlyxacnhan: row[5] || '',
+            quanlyxacnhan2: row[6] || '',
+            hinhanh: row[7] || '',
+            hangmuc: row[8] || '',
+            phanloai: row[9] || '',
+            vitri: row[10] || '',
+            hientrang: row[11] || 'Chờ xử lý',
+            nguyennhan: row[12] || '',
+            phuonganhxuly: row[13] || '',
+            vattuthaythe: row[14] || '',
+            thoigianbangiao: row[15] || '',
+            losstime: row[16] || '',
+            ketqua: row[17] || '',
+            sxxacnhan: row[18] || '',
+            thuchienboy1: row[19] || '',
+            thuchienboy2: row[20] || '',
+            qlxacnhan: row[21] || '',
+            ghichu: row[22] || ''
+          }));
+          
+          filteredWorks = [...allWorks];
+          displayWorkList();
+        } else {
+          document.getElementById('emptyState').style.display = 'block';
+        }
+        
+      } catch (error) {
+        console.error('Lỗi khi load danh sách công việc:', error);
+        alert('Có lỗi khi tải danh sách công việc. Vui lòng thử lại!');
+      } finally {
+        document.getElementById('loadingSection').style.display = 'none';
+      }
+    }
+
+    // Hiển thị danh sách công việc
+    function displayWorkList() {
+      const container = document.getElementById('workListContainer');
+      
+      if (filteredWorks.length === 0) {
+        document.getElementById('emptyState').style.display = 'block';
+        return;
+      }
+      
+      document.getElementById('emptyState').style.display = 'none';
+      
+      container.innerHTML = filteredWorks.map(work => `
+        <div class="work-card">
+          <div class="work-header d-flex justify-content-between align-items-center">
+            <div>
+              <strong>${work.stt}</strong> - ${work.may}
+            </div>
+            <span class="status-badge ${getStatusClass(work.hientrang)}">${work.hientrang}</span>
+          </div>
+          <div class="work-body">
+            <div class="work-info">
+              <div class="info-item">
+                <div class="info-label">Thời gian yêu cầu</div>
+                <div class="info-value">${work.thoigianyeucau}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Người yêu cầu</div>
+                <div class="info-value">${work.nguoiyeucau}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Quản lý xác nhận</div>
+                <div class="info-value">${work.quanlyxacnhan || 'Chưa xác nhận'}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Thực hiện bởi</div>
+                <div class="info-value">${work.thuchienboy1 || 'Chưa phân công'}</div>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <div class="info-label">Hiện trạng lỗi:</div>
+              <div class="info-value">${work.hientrangloi}</div>
+            </div>
+            
+            ${work.nguyennhan ? `
+              <div class="mb-3">
+                <div class="info-label">Nguyên nhân:</div>
+                <div class="info-value">${work.nguyennhan}</div>
+              </div>
+            ` : ''}
+            
+            <div class="d-flex flex-wrap justify-content-end">
+              ${work.hientrang === 'Chờ xử lý' ? `
+                <button class="btn btn-primary btn-action" onclick="acceptWork('${work.stt}')">
+                  <i class="bi bi-check-circle me-1"></i>Nhận Việc
+                </button>
+              ` : ''}
+              
+              ${work.hientrang === 'Đang xử lý' ? `
+                <button class="btn btn-success btn-action" onclick="completeWork('${work.stt}')">
+                  <i class="bi bi-check-square me-1"></i>Hoàn Thành
+                </button>
+              ` : ''}
+              
+              <button class="btn btn-info btn-action" onclick="updateWork('${work.stt}')">
+                <i class="bi bi-pencil-square me-1"></i>Cập Nhật
+              </button>
+              
+              <button class="btn btn-outline-secondary btn-action" onclick="viewDetails('${work.stt}')">
+                <i class="bi bi-eye me-1"></i>Chi Tiết
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Lấy class CSS cho trạng thái
+    function getStatusClass(status) {
+      switch(status) {
+        case 'Chờ xử lý': return 'status-pending';
+        case 'Đang xử lý': return 'status-in-progress';
+        case 'Hoàn thành': return 'status-completed';
+        default: return 'status-pending';
+      }
+    }
+
+    // Lọc và tìm kiếm công việc
+    function filterWorks() {
+      const statusFilter = document.getElementById('statusFilter').value;
+      const searchInput = document.getElementById('searchInput').value.toLowerCase();
+      const sortOrder = document.getElementById('sortOrder').value;
+      
+      filteredWorks = allWorks.filter(work => {
+        const matchStatus = !statusFilter || work.hientrang === statusFilter;
+        const matchSearch = !searchInput || 
+          work.stt.toLowerCase().includes(searchInput) ||
+          work.may.toLowerCase().includes(searchInput) ||
+          work.nguoiyeucau.toLowerCase().includes(searchInput);
+        
+        return matchStatus && matchSearch;
+      });
+      
+      // Sắp xếp
+      filteredWorks.sort((a, b) => {
+        switch(sortOrder) {
+          case 'newest':
+            return new Date(b.thoigianyeucau) - new Date(a.thoigianyeucau);
+          case 'oldest':
+            return new Date(a.thoigianyeucau) - new Date(b.thoigianyeucau);
+          case 'priority':
+            const priorityOrder = {'Chờ xử lý': 0, 'Đang xử lý': 1, 'Hoàn thành': 2};
+            return priorityOrder[a.hientrang] - priorityOrder[b.hientrang];
+          default:
+            return 0;
+        }
+      });
+      
+      displayWorkList();
+    }
+
+    // Nhận việc
+    function acceptWork(stt) {
+      if (confirm('Bạn có chắc chắn muốn nhận công việc này?')) {
+        updateWorkStatus(stt, 'Đang xử lý');
+      }
+    }
+
+    // Hoàn thành công việc
+    function completeWork(stt) {
+      if (confirm('Bạn có chắc chắn công việc này đã hoàn thành?')) {
+        updateWorkStatus(stt, 'Hoàn thành');
+      }
+    }
+
+    // Cập nhật trạng thái công việc
+    async function updateWorkStatus(stt, newStatus) {
+      try {
+        const data = {
+          action: 'updateStatus',
+          stt: stt,
+          hientrang: newStatus,
+          thoigianbangiao: newStatus === 'Hoàn thành' ? new Date().toLocaleString('vi-VN') : ''
+        };
+        
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+        
+        alert(`Đã cập nhật trạng thái thành "${newStatus}"`);
+        loadWorkList(); // Reload danh sách
+        
+      } catch (error) {
+        console.error('Lỗi khi cập nhật trạng thái:', error);
+        alert('Có lỗi khi cập nhật trạng thái!');
+      }
+    }
+
+    // Load danh sách nhân viên cho modal
+    async function loadEmployees() {
+      try {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Data!J:J?key=${API_KEY}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.values && data.values.length > 0) {
+          const employees = data.values
+            .map(row => row[0])
+            .filter(name => name && name.toString().trim() !== '')
+            .map(name => name.toString().trim())
+            .filter((name, index, array) => array.indexOf(name) === index)
+            .sort();
+          
+          const selects = ['thuchienboy1', 'thuchienboy2'];
+          selects.forEach(selectId => {
+            const selectElement = document.getElementById(selectId);
+            employees.forEach(employee => {
+              const option = document.createElement('option');
+              option.value = employee;
+              option.textContent = employee;
+              selectElement.appendChild(option);
+            });
+          });
+        }
+      } catch (error) {
+        console.error('Lỗi khi load danh sách nhân viên:', error);
+      }
+    }
+
+    // Cập nhật công việc
+    function updateWork(stt) {
+      const work = allWorks.find(w => w.stt === stt);
+      if (!work) return;
+      
+      // Điền dữ liệu vào modal
+      document.getElementById('updateWorkId').value = stt;
+      document.getElementById('thuchienboy1').value = work.thuchienboy1;
+      document.getElementById('thuchienboy2').value = work.thuchienboy2;
+      document.getElementById('hangmuc').value = work.hangmuc;
+      document.getElementById('phanloai').value = work.phanloai;
+      document.getElementById('vitri').value = work.vitri;
+      document.getElementById('nguyennhan').value = work.nguyennhan;
+      document.getElementById('phuonganhxuly').value = work.phuonganhxuly;
+      document.getElementById('vattuthaythe').value = work.vattuthaythe;
+      document.getElementById('losstime').value = work.losstime;
+      document.getElementById('ketqua').value = work.ketqua;
+      
+      // Hiển thị modal
+      new bootstrap.Modal(document.getElementById('updateWorkModal')).show();
+    }
+
+    // Lưu cập nhật công việc
+    async function saveWorkUpdate() {
+      try {
+        const formData = {
+          action: 'updateWork',
+          stt: document.getElementById('updateWorkId').value,
+          thuchienboy1: document.getElementById('thuchienboy1').value,
+          thuchienboy2: document.getElementById('thuchienboy2').value,
+          hangmuc: document.getElementById('hangmuc').value,
+          phanloai: document.getElementById('phanloai').value,
+          vitri: document.getElementById('vitri').value,
+          nguyennhan: document.getElementById('nguyennhan').value,
+          phuonganhxuly: document.getElementById('phuonganhxuly').value,
+          vattuthaythe: document.getElementById('vattuthaythe').value,
+          losstime: document.getElementById('losstime').value,
+          ketqua: document.getElementById('ketqua').value
+        };
+        
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        });
+        
+        alert('Đã cập nhật thông tin công việc!');
+        bootstrap.Modal.getInstance(document.getElementById('updateWorkModal')).hide();
+        loadWorkList(); // Reload danh sách
+        
+      } catch (error) {
+        console.error('Lỗi khi cập nhật công việc:', error);
+        alert('Có lỗi khi cập nhật công việc!');
+      }
+    }
+
+    // Xem chi tiết công việc
+    function viewDetails(stt) {
+      const work = allWorks.find(w => w.stt === stt);
+      if (!work) return;
+      
+      let details = `
+        STT: ${work.stt}
+        Máy: ${work.may}
+        Thời gian yêu cầu: ${work.thoigianyeucau}
+        Hiện trạng lỗi: ${work.hientrangloi}
+        Người yêu cầu: ${work.nguoiyeucau}
+        Trạng thái: ${work.hientrang}
+      `;
+      
+      if (work.nguyennhan) details += `\nNguyên nhân: ${work.nguyennhan}`;
+      if (work.phuonganhxuly) details += `\nPhương án xử lý: ${work.phuonganhxuly}`;
+      if (work.ketqua) details += `\nKết quả: ${work.ketqua}`;
+      
+      alert(details);
+    }
+  </script>
+</body>
+</html>
