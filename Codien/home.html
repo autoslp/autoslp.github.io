@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hệ Thống Quản Lý Sửa Chữa Máy - Phòng Cơ Điện SLP</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .main-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 0;
+    }
+
+    .header-section {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .header-section h1 {
+      color: white;
+      font-weight: 700;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .header-section p {
+      color: rgba(255,255,255,0.9);
+      font-size: 1.2rem;
+      margin-bottom: 0;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .menu-card {
+      background: white;
+      border-radius: 20px;
+      padding: 2.5rem;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      border: none;
+    }
+
+    .menu-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .menu-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      color: white;
+    }
+
+    .menu-card:nth-child(1) .menu-icon {
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    }
+
+    .menu-card:nth-child(2) .menu-icon {
+      background: linear-gradient(135deg, #4834d4, #686de0);
+    }
+
+    .menu-card:nth-child(3) .menu-icon {
+      background: linear-gradient(135deg, #00d2d3, #54a0ff);
+    }
+
+    .menu-card:nth-child(4) .menu-icon {
+      background: linear-gradient(135deg, #5f27cd, #a55eea);
+    }
+
+    .menu-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #2c3e50;
+    }
+
+    .menu-description {
+      color: #7f8c8d;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.1);
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .header-section h1 {
+        font-size: 2rem;
+      }
+      
+      .menu-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 0 1rem;
+      }
+      
+      .menu-card {
+        padding: 2rem;
+      }
+      
+      .menu-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+      }
+    }
+
+    /* Header User Info Styling */
+    .header-user-info {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 25px;
+      padding: 8px 16px;
+      margin-top: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .header-user-info:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .user-avatar {
+      width: 35px;
+      height: 35px;
+      background: linear-gradient(135deg, #ffc107, #e0a800);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
+      font-weight: 700;
+      font-size: 14px;
+      box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+    }
+
+    .user-name {
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .logout-btn {
+      background: transparent;
+      border: 1px solid white;
+      border-radius: 15px;
+      padding: 6px 12px;
+      color: white;
+      font-weight: 500;
+      font-size: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .logout-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Mobile responsive adjustments */
+    @media (max-width: 768px) {
+      .header-user-info .user-avatar {
+        display: none;
+      }
+
+      .header-user-info .user-name {
+        display: none;
+      }
+
+      .header-user-info {
+        padding: 8px 12px;
+        border-radius: 15px;
+      }
+
+      .logout-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+        border-radius: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script>
+    // Hàm hiển thị popup đăng nhập
+    function showLoginPopup() {
+      let popup = document.getElementById('loginPopup');
+      if (!popup) {
+        popup = document.createElement('div');
+        popup.id = 'loginPopup';
+        popup.style.position = 'fixed';
+        popup.style.top = '0';
+        popup.style.left = '0';
+        popup.style.width = '100vw';
+        popup.style.height = '100vh';
+        popup.style.background = 'rgba(0,0,0,0.3)';
+        popup.style.display = 'flex';
+        popup.style.alignItems = 'center';
+        popup.style.justifyContent = 'center';
+        popup.innerHTML = `
+          <div style="background:#fff;padding:32px 24px;border-radius:12px;min-width:320px;box-shadow:0 2px 16px #0002;max-width:90vw;">
+            <h4 class="mb-3 text-center">Đăng nhập nhân viên</h4>
+            <form id="loginForm">
+              <div class="mb-3">
+                <label for="usercode" class="form-label">Mã nhân viên</label>
+                <input type="text" class="form-control" id="usercode" required autofocus autocomplete="off">
+              </div>
+              <div class="mb-2" id="userNameDisplay" style="font-weight:600;color:#007bff;"></div>
+              <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+              <div id="loginError" class="text-danger mt-2" style="display:none;"></div>
+            </form>
+          </div>
+        `;
+        document.body.appendChild(popup);
+      }
+      popup.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+    function hideLoginPopup() {
+      let popup = document.getElementById('loginPopup');
+      if (popup) popup.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    // Lấy danh sách mã nhân viên và tên từ Google Sheets
+    let userList = [];
+    async function fetchUserList() {
+      try {
+        const API_KEY = 'AIzaSyC1Rsi6v-NoDqTFVDzB_YVCP0g1aHyvMME';
+        const SHEET_ID = '18ZLZbC8RjCvSyk_sLBvh3obi-_4TzgIlrDX09LkBXyo';
+        const RANGE = 'Data!J2:K100';
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.values) {
+          userList = data.values.map(row => ({ code: row[0]?.trim(), name: row[1]?.trim() }));
+        }
+      } catch (e) { userList = []; }
+    }
+    // Kiểm tra đăng nhập
+    async function checkLogin() {
+      if (!localStorage.getItem('slp_user') || !localStorage.getItem('slp_name')) {
+        await fetchUserList();
+        showLoginPopup();
+        // Xử lý realtime khi nhập mã nhân viên
+        setTimeout(() => {
+          const userInput = document.getElementById('usercode');
+          const nameDisplay = document.getElementById('userNameDisplay');
+          userInput.addEventListener('input', function() {
+            const val = userInput.value.trim();
+            const found = userList.find(u => u.code && u.code.toUpperCase() === val.toUpperCase());
+            if (found) {
+              nameDisplay.textContent = found.name;
+              nameDisplay.style.color = '#007bff';
+            } else {
+              nameDisplay.textContent = '';
+            }
+          });
+          document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const val = userInput.value.trim();
+            const found = userList.find(u => u.code && u.code.toUpperCase() === val.toUpperCase());
+            if (found) {
+              localStorage.setItem('slp_user', found.code);
+              localStorage.setItem('slp_name', found.name);
+              hideLoginPopup();
+              window.location.reload();
+            } else {
+              document.getElementById('loginError').textContent = 'Mã nhân viên không hợp lệ!';
+              document.getElementById('loginError').style.display = '';
+            }
+          });
+        }, 300);
+      } else {
+        hideLoginPopup();
+      }
+    }
+    // Đăng xuất
+    function logoutSLP() {
+      localStorage.removeItem('slp_user');
+      localStorage.removeItem('slp_name');
+      window.location.reload();
+    }
+    // Hiển thị tên nhân viên đã đăng nhập
+    function showUserInfo() {
+      if (localStorage.getItem('slp_user') && localStorage.getItem('slp_name')) {
+        const userName = localStorage.getItem('slp_name');
+        const userInitial = userName.charAt(0).toUpperCase();
+        
+        // Tìm header section và thêm user info vào đó
+        const headerSection = document.querySelector('.header-section');
+        if (headerSection) {
+          // Kiểm tra xem đã có user info chưa
+          let existingUserInfo = headerSection.querySelector('.header-user-info');
+          if (!existingUserInfo) {
+            const userInfoHTML = `
+            <div class="header-user-info d-flex align-items-center justify-content-center gap-3">
+              <div class="user-avatar">${userInitial}</div>
+              <div class="user-name">${userName} - Nhân viên</div>
+              <button onclick="logoutSLP()" class="logout-btn">
+                Đăng xuất
+              </button>
+            </div>
+            `;
+            headerSection.insertAdjacentHTML('beforeend', userInfoHTML);
+          }
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', async function() {
+      await checkLogin();
+      showUserInfo();
+    });
+  </script>
+  <div class="main-container">
+    <div class="container">
+      <div class="header-section">
+        <h1><i class="bi bi-gear-wide-connected me-3"></i>HỆ THỐNG QUẢN LÝ SỬA CHỮA MÁY</h1>
+        <p>Phòng Cơ Điện - SLP</p>
+      </div>
+      
+      <div class="menu-grid">
+        <!-- Báo cáo lỗi -->
+        <a href="index.html" class="menu-card">
+          <div class="menu-icon">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+          </div>
+          <h3 class="menu-title">Báo Cáo Lỗi</h3>
+          <p class="menu-description">
+            Tạo yêu cầu sửa chữa máy mới. Điền thông tin chi tiết về lỗi và gửi đến bộ phận cơ điện.
+          </p>
+        </a>
+
+        <!-- Nhận việc sửa lỗi -->
+        <a href="work-list.html" class="menu-card">
+          <div class="menu-icon">
+            <i class="bi bi-list-check"></i>
+          </div>
+          <h3 class="menu-title">Nhận Việc Sửa Lỗi</h3>
+          <p class="menu-description">
+            Xem danh sách công việc cần xử lý. Nhận việc và cập nhật trạng thái hoàn thành.
+          </p>
+        </a>
+
+        <!-- Báo cáo thống kê -->
+        <a href="statistics.html" class="menu-card">
+          <div class="menu-icon">
+            <i class="bi bi-bar-chart-fill"></i>
+          </div>
+          <h3 class="menu-title">Báo Cáo Thống Kê</h3>
+          <p class="menu-description">
+            Xem thống kê tổng quan về tình trạng các công việc đã hoàn thành và chưa hoàn thành.
+          </p>
+        </a>
+
+        <!-- Quản lý hệ thống -->
+        <a href="#" class="menu-card" onclick="showComingSoon()">
+          <div class="menu-icon">
+            <i class="bi bi-gear-fill"></i>
+          </div>
+          <h3 class="menu-title">Quản Lý Hệ Thống</h3>
+          <p class="menu-description">
+            Cài đặt hệ thống, quản lý người dùng và cấu hình các thông số.
+          </p>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>&copy; 2024 Phòng Cơ Điện SLP - Hệ Thống Quản Lý Sửa Chữa Máy</p>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    function showComingSoon() {
+      alert('Tính năng này đang được phát triển!');
+    }
+
+    // Add some interactive effects
+    document.addEventListener('DOMContentLoaded', function() {
+      const cards = document.querySelectorAll('.menu-card');
+      
+      cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-10px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0) scale(1)';
+        });
+      });
+    });
+  </script>
+</body>
+</html>
