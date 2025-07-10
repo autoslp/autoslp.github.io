@@ -118,6 +118,22 @@
       background-color: #e3f2fd;
     }
 
+    /* Ẩn 4 thẻ đầu form */
+    #sttDisplay, #thoigianyeucauDisplay, #nguoiyeucau, #quanlyxacnhan,
+    label[for="stt"], label[for="thoigianyeucau"], label[for="nguoiyeucau"], label[for="quanlyxacnhan"],
+    input#stt, input#thoigianyeucau, input#nguoiyeucau, input#quanlyxacnhan {
+      display: none !important;
+    }
+
+    /* Ẩn luôn phần text 'STT (ID Công việc):' bằng cách thêm class hoặc id cho div chứa label này và áp dụng display: none cho cả label và div bao ngoài. */
+    #row-stt-thoigian,
+    #col-stt, #col-thoigian,
+    #sttDisplay, #thoigianyeucauDisplay, #nguoiyeucau, #quanlyxacnhan,
+    label[for="stt"], label[for="thoigianyeucau"], label[for="nguoiyeucau"], label[for="quanlyxacnhan"],
+    input#stt, input#thoigianyeucau, input#nguoiyeucau, input#quanlyxacnhan {
+      display: none !important;
+    }
+
     @media (max-width: 768px) {
       .form-container {
         margin: 1rem;
@@ -458,13 +474,13 @@
             
             <form id="workForm" onsubmit="submitForm(event)">
             <!-- STT và Thời gian yêu cầu trên cùng một hàng -->
-            <div class="row mb-3">
-              <div class="col-md-6">
+            <div class="row mb-3" id="row-stt-thoigian">
+              <div class="col-md-6" id="col-stt">
                 <label class="form-label">STT (ID Công việc):</label>
                 <div id="sttDisplay" class="form-control auto-field">CD-0001</div>
                 <input type="hidden" id="stt" name="stt" value="CD-0001">
               </div>
-              <div class="col-md-6">
+              <div class="col-md-6" id="col-thoigian">
                 <label for="thoigianyeucau" class="form-label">Thời gian yêu cầu:</label>
                 <div id="thoigianyeucauDisplay" class="form-control auto-field">10/07/2025 12:30 AM</div>
                 <input type="hidden" id="thoigianyeucau" name="thoigianyeucau" value="10/07/2025 12:30 AM">
