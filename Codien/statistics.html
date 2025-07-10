@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo Cáo Thống Kê - Phòng Cơ Điện</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <style>
+    body {
+      background-color: #f8f9fa;
+      min-height: 100vh;
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+
+    .header-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem 0;
+      margin-bottom: 2rem;
+      border-radius: 15px;
+    }
+
+    .stats-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      transition: all 0.3s ease;
+    }
+
+    .stats-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .stat-number {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 1.1rem;
+      color: #6c757d;
+      font-weight: 500;
+    }
+
+    .stat-icon {
+      font-size: 3rem;
+      opacity: 0.7;
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      height: 400px;
+      position: relative;
+    }
+
+    .chart-container canvas {
+      max-height: 300px !important;
+      max-width: 100% !important;
+    }
+
+    .chart-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+
+    .table-container {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .table-header {
+      background: linear-gradient(135deg, #ffc107, #e0a800);
+      color: #333;
+      padding: 1.5rem;
+      font-weight: 600;
+      font-size: 1.2rem;
+    }
+
+    .loading-spinner {
+      text-align: center;
+      padding: 3rem;
+    }
+
+    .filter-section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .progress-custom {
+      height: 8px;
+      border-radius: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .stat-number {
+        font-size: 2rem;
+      }
+      
+      .stat-icon {
+        font-size: 2rem;
+      }
+    }
+
+    /* Enhanced User Info Section Styling */
+    .user-info-container {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 1001;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 249, 250, 0.95));
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 12px 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s ease;
+      animation: slideInFromRight 0.5s ease-out;
+    }
+
+    .user-info-container:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    }
+
+    .user-details {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .user-name {
+      font-weight: 700;
+      font-size: 14px;
+      color: #2c3e50;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .user-role {
+      font-size: 11px;
+      color: #6c757d;
+      font-weight: 500;
+      margin: 0;
+      line-height: 1;
+    }
+
+    .logout-btn {
+      background: linear-gradient(135deg, #dc3545, #c82333);
+      border: none;
+      border-radius: 10px;
+      padding: 8px 16px;
+      color: white;
+      font-weight: 600;
+      font-size: 12px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .logout-btn:hover {
+      background: linear-gradient(135deg, #c82333, #a71e2a);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
+      color: white;
+    }
+
+    .logout-btn:active {
+      transform: translateY(0);
+    }
+
+    @keyframes slideInFromRight {
+      from {
+        opacity: 0;
+        transform: translateX(100px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* Mobile responsive adjustments */
+    @media (max-width: 768px) {
+      .user-info-container {
+        position: static;
+        margin: 0 auto 20px auto;
+        max-width: 100%;
+        padding: 10px 16px;
+        border-radius: 12px;
+      }
+
+      .user-avatar {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+      }
+
+      .user-name {
+        font-size: 13px;
+      }
+
+      .user-role {
+        font-size: 10px;
+      }
+
+      .logout-btn {
+        padding: 6px 12px;
+        font-size: 11px;
+        border-radius: 8px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .user-info-container {
+        position: static;
+        margin: 0 auto 20px auto;
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px;
+      }
+
+      .user-details {
+        text-align: center;
+      }
+
+      .logout-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script>
+    // Hàm hiển thị popup đăng nhập
+    function showLoginPopup() {
+      let popup = document.getElementById('loginPopup');
+      if (!popup) {
+        popup = document.createElement('div');
+        popup.id = 'loginPopup';
+        popup.style.position = 'fixed';
+        popup.style.top = '0';
+        popup.style.left = '0';
+        popup.style.width = '100vw';
+        popup.style.height = '100vh';
+        popup.style.background = 'rgba(0,0,0,0.3)';
+        popup.style.display = 'flex';
+        popup.style.alignItems = 'center';
+        popup.style.justifyContent = 'center';
+        popup.innerHTML = `
+          <div style="background:#fff;padding:32px 24px;border-radius:12px;min-width:320px;box-shadow:0 2px 16px #0002;max-width:90vw;">
+            <h4 class="mb-3 text-center">Đăng nhập nhân viên</h4>
+            <form id="loginForm">
+              <div class="mb-3">
+                <label for="usercode" class="form-label">Mã nhân viên</label>
+                <input type="text" class="form-control" id="usercode" required autofocus autocomplete="off">
+              </div>
+              <div class="mb-2" id="userNameDisplay" style="font-weight:600;color:#007bff;"></div>
+              <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+              <div id="loginError" class="text-danger mt-2" style="display:none;"></div>
+            </form>
+          </div>
+        `;
+        document.body.appendChild(popup);
+      }
+      popup.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+    function hideLoginPopup() {
+      let popup = document.getElementById('loginPopup');
+      if (popup) popup.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    // Lấy danh sách mã nhân viên và tên từ Google Sheets
+    let userList = [];
+    async function fetchUserList() {
+      try {
+        const API_KEY = 'AIzaSyC1Rsi6v-NoDqTFVDzB_YVCP0g1aHyvMME';
+        const SHEET_ID = '18ZLZbC8RjCvSyk_sLBvh3obi-_4TzgIlrDX09LkBXyo';
+        const RANGE = 'Data!J2:K100';
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.values) {
+          userList = data.values.map(row => ({ code: row[0]?.trim(), name: row[1]?.trim() }));
+        }
+      } catch (e) { userList = []; }
+    }
+    // Kiểm tra đăng nhập
+    async function checkLogin() {
+      if (!localStorage.getItem('slp_user') || !localStorage.getItem('slp_name')) {
+        await fetchUserList();
+        showLoginPopup();
+        // Xử lý realtime khi nhập mã nhân viên
+        setTimeout(() => {
+          const userInput = document.getElementById('usercode');
+          const nameDisplay = document.getElementById('userNameDisplay');
+          userInput.addEventListener('input', function() {
+            const val = userInput.value.trim();
+            const found = userList.find(u => u.code && u.code.toUpperCase() === val.toUpperCase());
+            if (found) {
+              nameDisplay.textContent = found.name;
+              nameDisplay.style.color = '#007bff';
+            } else {
+              nameDisplay.textContent = '';
+            }
+          });
+          document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const val = userInput.value.trim();
+            const found = userList.find(u => u.code && u.code.toUpperCase() === val.toUpperCase());
+            if (found) {
+              localStorage.setItem('slp_user', found.code);
+              localStorage.setItem('slp_name', found.name);
+              hideLoginPopup();
+              window.location.reload();
+            } else {
+              document.getElementById('loginError').textContent = 'Mã nhân viên không hợp lệ!';
+              document.getElementById('loginError').style.display = '';
+            }
+          });
+        }, 300);
+      } else {
+        hideLoginPopup();
+      }
+    }
+    // Đăng xuất
+    function logoutSLP() {
+      localStorage.removeItem('slp_user');
+      localStorage.removeItem('slp_name');
+      window.location.reload();
+    }
+    // Hiển thị tên nhân viên đã đăng nhập
+    function showUserInfo() {
+      if (localStorage.getItem('slp_user') && localStorage.getItem('slp_name')) {
+        const userName = localStorage.getItem('slp_name');
+        const userInitial = userName.charAt(0).toUpperCase();
+        
+        // Tìm header section và thêm user info vào đó
+        const headerSection = document.querySelector('.header-section');
+        if (headerSection) {
+          // Kiểm tra xem đã có user info chưa
+          let existingUserInfo = headerSection.querySelector('.header-user-info');
+          if (!existingUserInfo) {
+            const userInfoHTML = `
+            <div class="header-user-info d-flex align-items-center justify-content-center gap-3" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 25px; padding: 8px 16px; margin-top: 15px; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease;">
+              <div class="user-avatar" style="width: 35px; height: 35px; background: linear-gradient(135deg, #ffc107, #e0a800); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #333; font-weight: 700; font-size: 14px; box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);">${userInitial}</div>
+              <div class="user-name" style="color: white; font-weight: 600; font-size: 14px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);">${userName} - Nhân viên</div>
+              <button onclick="logoutSLP()" class="logout-btn" style="background: transparent; border: 1px solid white; border-radius: 15px; padding: 6px 12px; color: white; font-weight: 500; font-size: 12px; transition: all 0.3s ease;">
+                Đăng xuất
+              </button>
+            </div>
+            `;
+            headerSection.insertAdjacentHTML('beforeend', userInfoHTML);
+          }
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', async function() {
+      await checkLogin();
+      showUserInfo();
+    });
+  </script>
+  <div class="container">
+    <!-- Header -->
+    <div class="header-section text-center">
+      <h1><i class="bi bi-bar-chart-fill me-3"></i>BÁO CÁO THỐNG KÊ</h1>
+      <p class="mb-0">Phòng Cơ Điện - SLP</p>
+      <div class="mt-3">
+        <a href="home.html" class="btn btn-light me-2">
+          <i class="bi bi-house-fill me-1"></i>Trang Chủ
+        </a>
+        <button class="btn btn-outline-light" onclick="loadStatistics()">
+          <i class="bi bi-arrow-clockwise me-1"></i>Làm Mới
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <div class="row">
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Từ ngày:</label>
+          <input type="date" class="form-control" id="fromDate">
+        </div>
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Đến ngày:</label>
+          <input type="date" class="form-control" id="toDate">
+        </div>
+        <div class="col-md-4 mb-2">
+          <label class="form-label">&nbsp;</label>
+          <button class="btn btn-primary w-100" onclick="filterStatistics()">
+            <i class="bi bi-funnel me-1"></i>Lọc Dữ Liệu
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loadingSection" class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Đang tải...</span>
+      </div>
+      <p class="mt-2">Đang tải dữ liệu thống kê...</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div id="statsSection" style="display: none;">
+      <div class="row">
+        <div class="col-md-3 col-sm-6 mb-4">
+          <div class="stats-card text-center">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="stat-number text-primary" id="totalWorks">0</div>
+                <div class="stat-label">Tổng Công Việc</div>
+              </div>
+              <i class="bi bi-list-task stat-icon text-primary"></i>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6 mb-4">
+          <div class="stats-card text-center">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="stat-number text-warning" id="pendingWorks">0</div>
+                <div class="stat-label">Chờ Xử Lý</div>
+              </div>
+              <i class="bi bi-clock-history stat-icon text-warning"></i>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6 mb-4">
+          <div class="stats-card text-center">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="stat-number text-info" id="inProgressWorks">0</div>
+                <div class="stat-label">Đang Xử Lý</div>
+              </div>
+              <i class="bi bi-gear-fill stat-icon text-info"></i>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6 mb-4">
+          <div class="stats-card text-center">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="stat-number text-success" id="completedWorks">0</div>
+                <div class="stat-label">Hoàn Thành</div>
+              </div>
+              <i class="bi bi-check-circle-fill stat-icon text-success"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Overview -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="stats-card">
+            <h5 class="mb-3">Tiến Độ Hoàn Thành</h5>
+            <div class="mb-2 d-flex justify-content-between">
+              <span>Tỷ lệ hoàn thành</span>
+              <span id="completionRate">0%</span>
+            </div>
+            <div class="progress progress-custom mb-3">
+              <div class="progress-bar bg-success" id="completionProgress" style="width: 0%"></div>
+            </div>
+            
+            <div class="row text-center">
+              <div class="col-4">
+                <small class="text-muted">Chờ xử lý</small>
+                <div class="fw-bold text-warning" id="pendingPercent">0%</div>
+              </div>
+              <div class="col-4">
+                <small class="text-muted">Đang xử lý</small>
+                <div class="fw-bold text-info" id="inProgressPercent">0%</div>
+              </div>
+              <div class="col-4">
+                <small class="text-muted">Hoàn thành</small>
+                <div class="fw-bold text-success" id="completedPercent">0%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="row">
+        <div class="col-md-6 mb-4">
+          <div class="chart-container">
+            <div class="chart-title">Phân Bố Trạng Thái</div>
+            <div style="position: relative; height: 300px;">
+              <canvas id="statusChart"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+          <div class="chart-container">
+            <div class="chart-title">Thống Kê Theo Tháng</div>
+            <div style="position: relative; height: 300px;">
+              <canvas id="trendChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Performers -->
+      <div class="row">
+        <div class="col-md-6 mb-4">
+          <div class="table-container">
+            <div class="table-header">
+              <i class="bi bi-trophy-fill me-2"></i>Top Người Thực Hiện
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Tên</th>
+                    <th>Số Công Việc</th>
+                    <th>Hoàn Thành</th>
+                    <th>Tỷ Lệ</th>
+                  </tr>
+                </thead>
+                <tbody id="topPerformersTable">
+                  <!-- Data will be loaded here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+          <div class="table-container">
+            <div class="table-header">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>Máy Hay Gặp Sự Cố
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Tên Máy</th>
+                    <th>Số Lần Sự Cố</th>
+                    <th>Lần Gần Nhất</th>
+                  </tr>
+                </thead>
+                <tbody id="topMachinesTable">
+                  <!-- Data will be loaded here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activities -->
+      <div class="table-container">
+        <div class="table-header">
+          <i class="bi bi-clock-history me-2"></i>Hoạt Động Gần Đây
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>STT</th>
+                <th>Máy</th>
+                <th>Trạng Thái</th>
+                <th>Người Thực Hiện</th>
+                <th>Thời Gian</th>
+              </tr>
+            </thead>
+            <tbody id="recentActivitiesTable">
+              <!-- Data will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    // Google Sheets API configuration
+    const SHEET_ID = '1JKDZD9EctJQn8oP5O9b2gsfDW_rHCLzVHOh5ggpGItI';
+    const API_KEY = 'AIzaSyC1Rsi6v-NoDqTFVDzB_YVCP0g1aHyvMME';
+    
+    let allWorks = [];
+    let filteredWorks = [];
+    let statusChart, trendChart;
+
+    // Load statistics when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set default date range (last 30 days)
+      const today = new Date();
+      const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+      
+      document.getElementById('fromDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+      document.getElementById('toDate').value = today.toISOString().split('T')[0];
+      
+      loadStatistics();
+    });
+
+    // Load statistics data
+    async function loadStatistics() {
+      try {
+        document.getElementById('loadingSection').style.display = 'block';
+        document.getElementById('statsSection').style.display = 'none';
+
+        // Fetch data from Google Sheets
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Tonghop!A:W?key=${API_KEY}`;
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.values && data.values.length > 1) {
+          // Skip header row
+          const rows = data.values.slice(1);
+          allWorks = rows.map(row => ({
+            stt: row[0] || '',
+            may: row[1] || '',
+            thoigianyeucau: row[2] || '',
+            hientrangloi: row[3] || '',
+            nguoiyeucau: row[4] || '',
+            quanlyxacnhan: row[5] || '',
+            quanlyxacnhan2: row[6] || '',
+            hinhanh: row[7] || '',
+            hangmuc: row[8] || '',
+            phanloai: row[9] || '',
+            vitri: row[10] || '',
+            hientrang: row[11] || 'Chờ xử lý',
+            nguyennhan: row[12] || '',
+            phuonganhxuly: row[13] || '',
+            vattuthaythe: row[14] || '',
+            thoigianbangiao: row[15] || '',
+            losstime: row[16] || '',
+            ketqua: row[17] || '',
+            sxxacnhan: row[18] || '',
+            thuchienboy1: row[19] || '',
+            thuchienboy2: row[20] || '',
+            qlxacnhan: row[21] || '',
+            ghichu: row[22] || ''
+          }));
+          
+          filteredWorks = [...allWorks];
+          displayStatistics();
+        }
+        
+      } catch (error) {
+        console.error('Error loading statistics:', error);
+        alert('Có lỗi khi tải dữ liệu thống kê. Vui lòng thử lại!');
+      } finally {
+        document.getElementById('loadingSection').style.display = 'none';
+        document.getElementById('statsSection').style.display = 'block';
+      }
+    }
+
+    // Filter statistics by date range
+    function filterStatistics() {
+      const fromDate = new Date(document.getElementById('fromDate').value);
+      const toDate = new Date(document.getElementById('toDate').value);
+      
+      if (fromDate && toDate) {
+        filteredWorks = allWorks.filter(work => {
+          const workDate = new Date(work.thoigianyeucau);
+          return workDate >= fromDate && workDate <= toDate;
+        });
+      } else {
+        filteredWorks = [...allWorks];
+      }
+      
+      displayStatistics();
+    }
+
+    // Display statistics
+    function displayStatistics() {
+      // Calculate basic stats
+      const total = filteredWorks.length;
+      const pending = filteredWorks.filter(w => w.hientrang === 'Chờ xử lý').length;
+      const inProgress = filteredWorks.filter(w => w.hientrang === 'Đang xử lý').length;
+      const completed = filteredWorks.filter(w => w.hientrang === 'Hoàn thành').length;
+      
+      // Update stat cards
+      document.getElementById('totalWorks').textContent = total;
+      document.getElementById('pendingWorks').textContent = pending;
+      document.getElementById('inProgressWorks').textContent = inProgress;
+      document.getElementById('completedWorks').textContent = completed;
+      
+      // Calculate percentages
+      const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+      const pendingPercent = total > 0 ? Math.round((pending / total) * 100) : 0;
+      const inProgressPercent = total > 0 ? Math.round((inProgress / total) * 100) : 0;
+      const completedPercent = total > 0 ? Math.round((completed / total) * 100) : 0;
+      
+      // Update progress section
+      document.getElementById('completionRate').textContent = completionRate + '%';
+      document.getElementById('completionProgress').style.width = completionRate + '%';
+      document.getElementById('pendingPercent').textContent = pendingPercent + '%';
+      document.getElementById('inProgressPercent').textContent = inProgressPercent + '%';
+      document.getElementById('completedPercent').textContent = completedPercent + '%';
+      
+      // Update charts
+      updateStatusChart(pending, inProgress, completed);
+      updateTrendChart();
+      
+      // Update tables
+      updateTopPerformersTable();
+      updateTopMachinesTable();
+      updateRecentActivitiesTable();
+    }
+
+    // Update status chart
+    function updateStatusChart(pending, inProgress, completed) {
+      const ctx = document.getElementById('statusChart').getContext('2d');
+      
+      if (statusChart) {
+        statusChart.destroy();
+      }
+      
+      // Kiểm tra nếu không có dữ liệu
+      if (pending === 0 && inProgress === 0 && completed === 0) {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.font = '16px Arial';
+        ctx.fillStyle = '#6c757d';
+        ctx.textAlign = 'center';
+        ctx.fillText('Không có dữ liệu', ctx.canvas.width / 2, ctx.canvas.height / 2);
+        return;
+      }
+      
+      statusChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Chờ xử lý', 'Đang xử lý', 'Hoàn thành'],
+          datasets: [{
+            data: [pending, inProgress, completed],
+            backgroundColor: ['#ffc107', '#17a2b8', '#28a745'],
+            borderWidth: 2,
+            borderColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          aspectRatio: 1,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                padding: 20,
+                usePointStyle: true
+              }
+            }
+          },
+          layout: {
+            padding: 10
+          }
+        }
+      });
+    }
+
+    // Update trend chart
+    function updateTrendChart() {
+      const ctx = document.getElementById('trendChart').getContext('2d');
+      
+      if (trendChart) {
+        trendChart.destroy();
+      }
+      
+      // Simple monthly summary instead of daily trend
+      const monthlyData = {};
+      filteredWorks.forEach(work => {
+        if (work.thoigianyeucau) {
+          try {
+            // Extract month from date string
+            const dateParts = work.thoigianyeucau.split('/');
+            let month = '';
+            
+            if (dateParts.length >= 2) {
+              month = `${dateParts[1]}/${dateParts[2] ? dateParts[2].split(' ')[0] : new Date().getFullYear()}`;
+            } else {
+              month = 'Khác';
+            }
+            
+            if (!monthlyData[month]) {
+              monthlyData[month] = { pending: 0, inProgress: 0, completed: 0 };
+            }
+            
+            if (work.hientrang === 'Chờ xử lý') monthlyData[month].pending++;
+            else if (work.hientrang === 'Đang xử lý') monthlyData[month].inProgress++;
+            else if (work.hientrang === 'Hoàn thành') monthlyData[month].completed++;
+          } catch (e) {
+            console.log('Error parsing date:', work.thoigianyeucau);
+          }
+        }
+      });
+      
+      const months = Object.keys(monthlyData).sort();
+      const pendingData = months.map(month => monthlyData[month].pending);
+      const inProgressData = months.map(month => monthlyData[month].inProgress);
+      const completedData = months.map(month => monthlyData[month].completed);
+      
+      trendChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: months,
+          datasets: [
+            {
+              label: 'Chờ xử lý',
+              data: pendingData,
+              backgroundColor: '#ffc107',
+              borderColor: '#e0a800',
+              borderWidth: 1
+            },
+            {
+              label: 'Đang xử lý',
+              data: inProgressData,
+              backgroundColor: '#17a2b8',
+              borderColor: '#138496',
+              borderWidth: 1
+            },
+            {
+              label: 'Hoàn thành',
+              data: completedData,
+              backgroundColor: '#28a745',
+              borderColor: '#1e7e34',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1
+              }
+            },
+            x: {
+              stacked: false
+            }
+          }
+        }
+      });
+    }
+
+    // Update top performers table
+    function updateTopPerformersTable() {
+      const performers = {};
+      
+      filteredWorks.forEach(work => {
+        if (work.thuchienboy1) {
+          if (!performers[work.thuchienboy1]) {
+            performers[work.thuchienboy1] = { total: 0, completed: 0 };
+          }
+          performers[work.thuchienboy1].total++;
+          if (work.hientrang === 'Hoàn thành') {
+            performers[work.thuchienboy1].completed++;
+          }
+        }
+      });
+      
+      const sortedPerformers = Object.entries(performers)
+        .map(([name, stats]) => ({
+          name,
+          total: stats.total,
+          completed: stats.completed,
+          rate: stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0
+        }))
+        .sort((a, b) => b.completed - a.completed)
+        .slice(0, 5);
+      
+      const tableBody = document.getElementById('topPerformersTable');
+      tableBody.innerHTML = sortedPerformers.map(performer => `
+        <tr>
+          <td>${performer.name}</td>
+          <td>${performer.total}</td>
+          <td>${performer.completed}</td>
+          <td>
+            <span class="badge ${performer.rate >= 80 ? 'bg-success' : performer.rate >= 60 ? 'bg-warning' : 'bg-danger'}">
+              ${performer.rate}%
+            </span>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Update top machines table
+    function updateTopMachinesTable() {
+      const machines = {};
+      
+      filteredWorks.forEach(work => {
+        if (work.may) {
+          if (!machines[work.may]) {
+            machines[work.may] = { count: 0, lastDate: '' };
+          }
+          machines[work.may].count++;
+          if (work.thoigianyeucau > machines[work.may].lastDate) {
+            machines[work.may].lastDate = work.thoigianyeucau;
+          }
+        }
+      });
+      
+      const sortedMachines = Object.entries(machines)
+        .map(([name, stats]) => ({
+          name,
+          count: stats.count,
+          lastDate: stats.lastDate.split(' ')[0] // Get date part only
+        }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+      
+      const tableBody = document.getElementById('topMachinesTable');
+      tableBody.innerHTML = sortedMachines.map(machine => `
+        <tr>
+          <td>${machine.name}</td>
+          <td>
+            <span class="badge ${machine.count >= 5 ? 'bg-danger' : machine.count >= 3 ? 'bg-warning' : 'bg-info'}">
+              ${machine.count}
+            </span>
+          </td>
+          <td>${machine.lastDate}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Update recent activities table
+    function updateRecentActivitiesTable() {
+      const recentWorks = [...filteredWorks]
+        .sort((a, b) => new Date(b.thoigianyeucau) - new Date(a.thoigianyeucau))
+        .slice(0, 10);
+      
+      const tableBody = document.getElementById('recentActivitiesTable');
+      tableBody.innerHTML = recentWorks.map(work => `
+        <tr>
+          <td>${work.stt}</td>
+          <td>${work.may}</td>
+          <td>
+            <span class="badge ${getStatusBadgeClass(work.hientrang)}">
+              ${work.hientrang}
+            </span>
+          </td>
+          <td>${work.thuchienboy1 || 'Chưa phân công'}</td>
+          <td>${work.thoigianyeucau.split(' ')[0]}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Get status badge class
+    function getStatusBadgeClass(status) {
+      switch(status) {
+        case 'Chờ xử lý': return 'bg-warning';
+        case 'Đang xử lý': return 'bg-info';
+        case 'Hoàn thành': return 'bg-success';
+        default: return 'bg-secondary';
+      }
+    }
+  </script>
+</body>
+</html>
