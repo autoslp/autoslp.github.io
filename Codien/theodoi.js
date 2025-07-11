@@ -447,7 +447,7 @@ async function assignMainWorker(stt) {
   if (work) work.thuchienboy1 = userName;
 
   try {
-    await fetch('https://script.google.com/macros/s/AKfycbyM_GjBCWajZBuhPmxtUQrY_Cs-6UPCSnsXV5L_y9BbG4eDfg38cOXquVD3pXaTmqcp/exec', {
+    await fetch('https://script.google.com/macros/s/AKfycbySq0cmbm-MEQwXab9DCot_KsIEKCcgumAbY1WSjEWUlir7WbRNXDIBfVVdrye3d1eS/exec', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -488,7 +488,7 @@ async function assignSupportWorker(stt) {
   }
 
   try {
-    await fetch('https://script.google.com/macros/s/AKfycbyM_GjBCWajZBuhPmxtUQrY_Cs-6UPCSnsXV5L_y9BbG4eDfg38cOXquVD3pXaTmqcp/exec', {
+    await fetch('https://script.google.com/macros/s/AKfycbySq0cmbm-MEQwXab9DCot_KsIEKCcgumAbY1WSjEWUlir7WbRNXDIBfVVdrye3d1eS/exec', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -624,7 +624,7 @@ function updateWork(stt) {
         {key: 'nguoilamphu2', col: 'W'},
       ];
       // Gửi lần lượt từng trường lên Apps Script API
-      const apiUrl = 'https://script.google.com/macros/s/AKfycbyM_GjBCWajZBuhPmxtUQrY_Cs-6UPCSnsXV5L_y9BbG4eDfg38cOXquVD3pXaTmqcp/exec';
+      const apiUrl = 'https://script.google.com/macros/s/AKfycbySq0cmbm-MEQwXab9DCot_KsIEKCcgumAbY1WSjEWUlir7WbRNXDIBfVVdrye3d1eS/exec';
       for (const map of mapping) {
         const value = updatedData[map.key];
         if (value) {
