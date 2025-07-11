@@ -181,9 +181,9 @@ async function loadWorkList() {
           nguyennhan: row[13] || '',       // <-- Cột N: Nguyên nhân
           phuonganhxuly: row[14] || '',    // <-- Cột O: Phương án xử lý
           ketqua: row[17] || '',
-          thuchienboy1: (row[20] || '').toString().trim(),
-          thuchienboy2: thuchienboy2Val,
-          thuchienboy3: thuchienboy3Val,
+          thuchienboy1: (row[20] || '').toString().trim(),  // <-- Cột U: Người làm chính
+          thuchienboy2: thuchienboy2Val,   // <-- Cột V: Người hỗ trợ 1
+          thuchienboy3: thuchienboy3Val,   // <-- Cột W: Người hỗ trợ 2
           quanlyduyet: (row[7] || '').toString().trim(),
           thoigianbangiao: (row[16] || '').toString().trim()
         };
@@ -254,6 +254,7 @@ function displayWorkList() {
     const thuchienboy1Val = (work.thuchienboy1 || '').toString().trim();
     const thuchienboy2Val = (work.thuchienboy2 || '').toString().trim();
     const thuchienboy3Val = (work.thuchienboy3 || '').toString().trim();
+    const userName = localStorage.getItem('slp_name');
 
     function getLastName(fullName) {
       if (!fullName) return '';
@@ -303,7 +304,7 @@ function displayWorkList() {
     }
 
     return `
-    <div class="work-card">
+    <div class="work-card" data-stt="${work.stt}">
       <div class="work-header ${headerClass} d-flex justify-content-between align-items-center">
         <div>
           <strong>${work.stt}</strong> - ${work.may}
@@ -322,7 +323,7 @@ function displayWorkList() {
           </div>
           <div class="info-item">
             <div class="info-label">Người xử lý</div>
-            <div class="info-value">${nguoiXuLy}<br>${nguoiHoTro || ''}</div>
+            <div class="info-value main-worker-display">${nguoiXuLy}<br>${nguoiHoTro || ''}</div>
           </div>
           <div class="info-item">
             <div class="info-label">Thời gian bàn giao</div>
@@ -363,22 +364,27 @@ function displayWorkList() {
         ` : ''}
         
         <div class="d-flex flex-wrap justify-content-end">
-          ${!thuchienboy1Val ? `
-            <button class="btn btn-success btn-action" onclick="assignMainWorker('${work.stt}')">
+          ${!thuchienboy1Val ? (
+            `<button class="btn btn-success btn-action assign-main-btn" onclick="assignMainWorker('${work.stt}', this)">
               <i class="bi bi-person-check me-1"></i>Xử lý
-            </button>
-          ` : ''}
-          
-          ${( !thuchienboy2Val || !thuchienboy3Val ) ? `
-            <button class="btn btn-warning btn-action" onclick="assignSupportWorker('${work.stt}')">
-              <i class="bi bi-person-plus me-1"></i>Hỗ trợ
-            </button>
-          ` : ''}
-          
+            </button>`
+          ) : ('')}
+          ${(() => {
+            // Ẩn nút nếu đã đủ 2 người hỗ trợ
+            const bothSupportFilled = thuchienboy2Val && thuchienboy3Val;
+            // Chỉ hiển thị nếu còn slot hỗ trợ và user chưa là người hỗ trợ
+            if (!bothSupportFilled && ![thuchienboy2Val, thuchienboy3Val].includes(userName)) {
+              return `<button class="btn btn-warning btn-action" onclick="assignSupportWorker('${work.stt}', this)">
+                <i class="bi bi-person-plus me-1"></i>Hỗ trợ
+              </button>`;
+            } else if (thuchienboy1Val) { // Nếu đã có người làm chính, ẩn nút hỗ trợ
+              return '';
+            }
+            return '';
+          })()}
           <button class="btn btn-info btn-action" onclick="updateWork('${work.stt}')">
             <i class="bi bi-pencil-square me-1"></i>Cập Nhật
           </button>
-          
           <button class="btn btn-outline-secondary btn-action" onclick="viewDetails('${work.stt}')">
             <i class="bi bi-eye me-1"></i>Chi Tiết
           </button>
@@ -431,239 +437,6 @@ function filterWorks() {
   displayWorkList();
 }
 
-// Gán người làm chính (Xử lý)
-async function assignMainWorker(stt) {
-  const userName = localStorage.getItem('slp_name') || '';
-  if (!userName) return;
-
-  // Cập nhật UI ngay lập tức
-  const button = event.target;
-  button.innerHTML = '<i class="bi bi-check-circle me-1"></i>Đã nhận';
-  button.disabled = true;
-  button.className = 'btn btn-secondary btn-action';
-  
-  // Cập nhật dữ liệu local
-  const work = allWorks.find(w => w.stt === stt);
-  if (work) work.thuchienboy1 = userName;
-
-  try {
-    await fetch('https://script.google.com/macros/s/AKfycbySq0cmbm-MEQwXab9DCot_KsIEKCcgumAbY1WSjEWUlir7WbRNXDIBfVVdrye3d1eS/exec', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        stt: stt,
-        column: 'U', // Cột U - Người làm chính
-        value: userName
-      })
-    });
-  } catch (error) {
-    console.error('Lỗi khi cập nhật:', error);
-  }
-}
-
-async function assignSupportWorker(stt) {
-  const userName = localStorage.getItem('slp_name') || '';
-  if (!userName) return;
-
-  // Cập nhật UI ngay lập tức giống nút Xử lý
-  const button = event.target;
-  button.innerHTML = '<i class="bi bi-check-circle me-1"></i>Đã nhận';
-  button.disabled = true;
-  button.className = 'btn btn-secondary btn-action';
-  
-  // Cập nhật dữ liệu local
-  const work = allWorks.find(w => w.stt === stt);
-  let column = '';
-  if (work) {
-    if (!work.thuchienboy2 || work.thuchienboy2.trim() === '') {
-      work.thuchienboy2 = userName;
-      column = 'V'; // Cột V - Người làm phụ 1
-    } else if (!work.thuchienboy3 || work.thuchienboy3.trim() === '') {
-      work.thuchienboy3 = userName;
-      column = 'W'; // Cột W - Người làm phụ 2
-    } else {
-      // Cả 2 đã có người làm, không làm gì
-      return;
-    }
-  }
-
-  try {
-    await fetch('https://script.google.com/macros/s/AKfycbySq0cmbm-MEQwXab9DCot_KsIEKCcgumAbY1WSjEWUlir7WbRNXDIBfVVdrye3d1eS/exec', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        stt: stt,
-        column: column,
-        value: userName
-      })
-    });
-  } catch (error) {
-    console.error('Lỗi khi cập nhật:', error);
-  }
-}
-
-async function updateWork(stt) {
-  const work = allWorks.find(w => w.stt === stt);
-  if (!work) {
-    alert('Không tìm thấy công việc để cập nhật.');
-    return;
-  }
-
-  let modal = document.getElementById('updateWorkModal');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.id = 'updateWorkModal';
-    modal.style.position = 'fixed';
-    modal.style.top = '0';
-    modal.style.left = '0';
-    modal.style.width = '100vw';
-    modal.style.height = '100vh';
-    modal.style.background = 'rgba(0,0,0,0.5)';
-    modal.style.display = 'flex';
-    modal.style.alignItems = 'center';
-    modal.style.justifyContent = 'center';
-    modal.style.zIndex = '1000';
-    modal.innerHTML = `
-      <div style="background:#fff;padding:20px;border-radius:8px;max-width:600px;width:90%;max-height:90vh;overflow-y:auto;">
-        <h4>Cập nhật công việc - STT: ${stt}</h4>
-        <form id="updateWorkForm">
-          <div class="form-group-row">
-            <select id="updateHangMuc" class="form-select">
-              <option value="">Hạng mục</option>
-              <option value="Sửa chữa">Sửa chữa</option>
-              <option value="Bảo dưỡng">Bảo dưỡng</option>
-            </select>
-            <select id="updatePhanLoai" class="form-select">
-              <option value="">Phân loại</option>
-              <option value="Điện">Điện</option>
-              <option value="Cơ">Cơ</option>
-            </select>
-            <input type="text" id="updateViTri" class="form-control" placeholder="Vị trí" />
-          </div>
-          <div>
-            <label>Hiện trạng:</label>
-            <input type="text" id="updateHienTrang" class="form-control" placeholder="Nhập hiện trạng" />
-          </div>
-          <div>
-            <label>Nguyên nhân:</label>
-            <input type="text" id="updateNguyenNhan" class="form-control" placeholder="Mô tả nguyên nhân" />
-          </div>
-          <div>
-            <label>Phương án xử lý:</label>
-            <input type="text" id="updatePhuongAnXuLy" class="form-control" placeholder="Mô tả phương án xử lý" />
-          </div>
-          <div>
-            <label>Vật tư thay thế:</label>
-            <input type="text" id="updateVatTuThayThe" class="form-control" placeholder="Danh sách vật tư" />
-          </div>
-          <div class="form-group-row">
-            <div>
-              <label>Người làm chính:</label>
-              <select id="updateNguoiLamChinh" class="form-select">
-                <option value="">-- Chọn người thực hiện --</option>
-              </select>
-            </div>
-            <div>
-              <label>Người làm phụ 1:</label>
-              <select id="updateNguoiLamPhu1" class="form-select">
-                <option value="">-- Chọn người thực hiện --</option>
-              </select>
-            </div>
-            <div>
-              <label>Người làm phụ 2:</label>
-              <select id="updateNguoiLamPhu2" class="form-select">
-                <option value="">-- Chọn người thực hiện --</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-actions">
-            <button type="button" id="cancelUpdateBtn" class="btn btn-secondary btn-action">Hủy</button>
-            <button type="submit" class="btn btn-primary btn-action">Lưu Cập Nhật</button>
-          </div>
-        </form>
-      </div>
-    `;
-    document.body.appendChild(modal);
-
-    document.getElementById('cancelUpdateBtn').addEventListener('click', () => {
-      modal.style.display = 'none';
-    });
-
-    document.getElementById('updateWorkForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const updatedData = {
-        hangmuc: document.getElementById('updateHangMuc').value.trim(),
-        phanloai: document.getElementById('updatePhanLoai').value.trim(),
-        vitri: document.getElementById('updateViTri').value.trim(),
-        hientrang: document.getElementById('updateHienTrang').value.trim(),
-        nguyennhan: document.getElementById('updateNguyenNhan').value.trim(),
-        phuonganxuly: document.getElementById('updatePhuongAnXuLy').value.trim(),
-        vattu: document.getElementById('updateVatTuThayThe').value.trim(),
-        nguoilamchinh: document.getElementById('updateNguoiLamChinh').value.trim(),
-        nguoilamphu1: document.getElementById('updateNguoiLamPhu1').value.trim(),
-        nguoilamphu2: document.getElementById('updateNguoiLamPhu2').value.trim(),
-      };
-      const mapping = [
-        {key: 'hangmuc', col: 'J'},
-        {key: 'phanloai', col: 'K'},
-        {key: 'vitri', col: 'L'},
-        {key: 'hientrang', col: 'M'},
-        {key: 'nguyennhan', col: 'N'},
-        {key: 'phuonganxuly', col: 'O'},
-        {key: 'vattu', col: 'P'},
-        {key: 'nguoilamchinh', col: 'U'},
-        {key: 'nguoilamphu1', col: 'V'},
-        {key: 'nguoilamphu2', col: 'W'},
-      ];
-      const fields = mapping.map(map => ({ column: map.col, value: updatedData[map.key] }));
-      const apiUrl = 'https://script.google.com/macros/s/AKfycbwk_WcdzSzKLlQqmCvU53cz8A4lpnG6GAeKpxFrqnUX612rcLTUIMe1rqVIO9FvpxJA/exec';
-      try {
-        const response = await fetch('https://script.google.com/macros/s/AKfycbwk_WcdzSzKLlQqmCvU53cz8A4lpnG6GAeKpxFrqnUX612rcLTUIMe1rqVIO9FvpxJA/exec', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            stt: stt,
-            fields: fields
-          })
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const result = await response.json();
-        if (result.status === 'success') {
-          alert('Cập nhật thành công!');
-          // Update local data
-          Object.assign(work, updatedData);
-          displayWorkList();
-          modal.style.display = 'none';
-        } else {
-          alert(`Lỗi: ${result.message}`);
-        }
-      } catch (error) {
-        console.error('Lỗi khi cập nhật:', error);
-        alert('Có lỗi khi cập nhật công việc. Vui lòng thử lại!');
-      }
-    });
-
-    fetchNguoiLamList();
-  }
-
-  document.getElementById('updateHangMuc').value = work.hangmuc || '';
-  document.getElementById('updatePhanLoai').value = work.phanloai || '';
-  document.getElementById('updateViTri').value = work.vitri || '';
-  document.getElementById('updateHienTrang').value = work.hientrang || '';
-  document.getElementById('updateNguyenNhan').value = work.nguyennhan || '';
-  document.getElementById('updatePhuongAnXuLy').value = work.phuonganhxuly || '';
-  document.getElementById('updateVatTuThayThe').value = work.vattu || '';
-  document.getElementById('updateNguoiLamChinh').value = work.thuchienboy1 || '';
-  document.getElementById('updateNguoiLamPhu1').value = work.thuchienboy2 || '';
-  document.getElementById('updateNguoiLamPhu2').value = work.thuchienboy3 || '';
-
-  modal.style.display = 'flex';
-}
-
 // Xem chi tiết công việc
 function viewDetails(stt) {
   const work = allWorks.find(w => w.stt === stt);
@@ -685,41 +458,90 @@ function viewDetails(stt) {
   alert(details);
 }
 
-async function fetchNguoiLamList() {
+// Gán người làm chính
+async function assignMainWorker(stt, buttonElement) {
+  const userName = localStorage.getItem('slp_name');
+  if (!userName) {
+    alert('Vui lòng đăng nhập để thực hiện chức năng này!');
+    return;
+  }
+
   try {
-    // Dùng lại biến toàn cục SHEET_ID, API_KEY
-    const RANGE = 'Data!J1:O300';
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
-    const response = await fetch(url);
-    const data = await response.json();
-    if (!data.values) return;
-    // Xác định cột tên (K) và cột Bộ phận
-    const header = data.values[0] || [];
-    const colTen = 1; // cột K (index 1)
-    const colBoPhan = header.findIndex(h => h.toLowerCase().includes('bộ phận'));
-    if (colBoPhan === -1) return;
-    // Lọc chỉ lấy người có bộ phận là 'Cơ điện'
-    const names = data.values.slice(1)
-      .filter(row => (row[colBoPhan]||'').toLowerCase().trim() === 'cơ điện')
-      .map(row => row[colTen])
-      .filter(Boolean);
-    const uniqueNames = Array.from(new Set(names));
-    ['updateNguoiLamChinh','updateNguoiLamPhu1','updateNguoiLamPhu2'].forEach(id => {
-      const select = document.getElementById(id);
-      if (select) {
-        const first = select.options[0];
-        select.innerHTML = '';
-        if (first) select.appendChild(first);
-        uniqueNames.forEach(name => {
-          const opt = document.createElement('option');
-          opt.value = name;
-          opt.textContent = name;
-          select.appendChild(opt);
-        });
-      }
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbynttAirDmYcB12gWVNIUSfqvXYR-c_uBFguLPWeNKSjLimRYDmH9eoBZ5GfGGQqXs-/exec';
+    fetch(scriptUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        stt: stt,
+        column: 'U',
+        value: userName
+      })
     });
-  } catch (e) { /* ignore */ }
+    // Cập nhật dữ liệu local và render lại giao diện
+    const idx = allWorks.findIndex(w => w.stt === stt);
+    if (idx !== -1) allWorks[idx].thuchienboy1 = userName;
+    const idx2 = filteredWorks.findIndex(w => w.stt === stt);
+    if (idx2 !== -1) filteredWorks[idx2].thuchienboy1 = userName;
+    displayWorkList();
+  } catch (error) {
+    console.error('Lỗi khi gửi request:', error);
+  }
 }
+
+// Gán người hỗ trợ
+async function assignSupportWorker(stt, buttonElement) {
+  const userName = localStorage.getItem('slp_name');
+  if (!userName) {
+    alert('Vui lòng đăng nhập để thực hiện chức năng này!');
+    return;
+  }
+
+  try {
+    // Tìm dòng trong dữ liệu
+    const idx = allWorks.findIndex(w => w.stt === stt);
+    if (idx === -1) {
+      alert('Không tìm thấy công việc!');
+      return;
+    }
+    let targetColumn = '';
+    if (!allWorks[idx].thuchienboy2) {
+      allWorks[idx].thuchienboy2 = userName;
+      targetColumn = 'V';
+    } else if (!allWorks[idx].thuchienboy3) {
+      allWorks[idx].thuchienboy3 = userName;
+      targetColumn = 'W';
+    } else {
+      alert('Đã đủ người hỗ trợ cho công việc này!');
+      return;
+    }
+    // Đồng bộ filteredWorks
+    const idx2 = filteredWorks.findIndex(w => w.stt === stt);
+    if (idx2 !== -1) {
+      if (targetColumn === 'V') filteredWorks[idx2].thuchienboy2 = userName;
+      if (targetColumn === 'W') filteredWorks[idx2].thuchienboy3 = userName;
+    }
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbynttAirDmYcB12gWVNIUSfqvXYR-c_uBFguLPWeNKSjLimRYDmH9eoBZ5GfGGQqXs-/exec';
+    fetch(scriptUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        stt: stt,
+        column: targetColumn,
+        value: userName
+      })
+    });
+    displayWorkList();
+  } catch (error) {
+    console.error('Lỗi khi gửi request:', error);
+  }
+}
+
 
 window.addEventListener('DOMContentLoaded', async function() {
   await checkLogin();

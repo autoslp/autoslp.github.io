@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test API Google Apps Script</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container mt-4">
+    <h2>Test API Google Apps Script</h2>
+    
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5>Test Cập Nhật Dữ Liệu</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3">
+            <label for="testStt" class="form-label">STT:</label>
+            <input type="text" id="testStt" class="form-control" value="CV001">
+          </div>
+          <div class="col-md-3">
+            <label for="testColumn" class="form-label">Cột:</label>
+            <select id="testColumn" class="form-select">
+              <option value="U">U - Người làm chính</option>
+              <option value="V">V - Người làm phụ 1</option>
+              <option value="W">W - Người làm phụ 2</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label for="testValue" class="form-label">Giá trị:</label>
+            <input type="text" id="testValue" class="form-control" value="Nguyễn Văn A">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">&nbsp;</label>
+            <button class="btn btn-primary d-block w-100" onclick="testAPI()">
+              Test API
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h5>Log Kết Quả</h5>
+      </div>
+      <div class="card-body">
+        <div id="logContainer" style="max-height: 400px; overflow-y: auto; background: #f8f9fa; padding: 15px; border-radius: 5px; font-family: monospace;">
+          <div class="text-muted">Chưa có log...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function testAPI() {
+      const stt = document.getElementById('testStt').value;
+      const column = document.getElementById('testColumn').value;
+      const value = document.getElementById('testValue').value;
+      
+      addLog(`Bắt đầu test API với dữ liệu: STT=${stt}, Cột=${column}, Giá trị=${value}`);
+      
+      const apiUrl = 'https://script.google.com/macros/s/AKfycbxmgvV8TAly8s-nfArMBkN--yC_3Axio4vHI1vnr1MSPFcJNXL9KBXnNywZ-WGAT1TH/exec';
+      
+      // Test cách 1: FormData
+      addLog('=== Test cách 1: FormData ===');
+      
+      const formData = new FormData();
+      formData.append('stt', stt);
+      formData.append('column', column);
+      formData.append('value', value);
+      
+      fetch(apiUrl, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        addLog(`Response status: ${response.status}`);
+        addLog(`Response ok: ${response.ok}`);
+        addLog(`Response headers: ${JSON.stringify([...response.headers.entries()])}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return response.text();
+      })
+      .then(responseText => {
+        addLog(`Response text: ${responseText}`);
+        addLog('✅ Cách 1 thành công!');
+      })
+      .catch(error => {
+        addLog(`❌ Cách 1 thất bại: ${error.message}`);
+        
+        // Test cách 2: JSON
+        addLog('=== Test cách 2: JSON ===');
+        
+        const jsonData = {
+          stt: stt,
+          column: column,
+          value: value
+        };
+        
+        fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(jsonData)
+        })
+        .then(response => {
+          addLog(`Response 2 status: ${response.status}`);
+          addLog(`Response 2 ok: ${response.ok}`);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          return response.text();
+        })
+        .then(responseText => {
+          addLog(`Response 2 text: ${responseText}`);
+          addLog('✅ Cách 2 thành công!');
+        })
+        .catch(error2 => {
+          addLog(`❌ Cách 2 thất bại: ${error2.message}`);
+          addLog('❌ Cả 2 cách đều thất bại!');
+        });
+      });
+    }
+
+    function addLog(message) {
+      const logContainer = document.getElementById('logContainer');
+      const timestamp = new Date().toLocaleTimeString();
+      const logEntry = document.createElement('div');
+      logEntry.innerHTML = `<small class="text-muted">[${timestamp}]</small> ${message}`;
+      logContainer.appendChild(logEntry);
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    // Test API khi load trang
+    window.onload = function() {
+      addLog('Trang đã load, sẵn sàng test API');
+    };
+  </script>
+</body>
+</html> 
