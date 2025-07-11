@@ -502,15 +502,13 @@ async function assignSupportWorker(stt) {
   }
 }
 
-// Cập nhật công việc
-function updateWork(stt) {
+async function updateWork(stt) {
   const work = allWorks.find(w => w.stt === stt);
   if (!work) {
     alert('Không tìm thấy công việc để cập nhật.');
     return;
   }
 
-  // Create modal container if not exists
   let modal = document.getElementById('updateWorkModal');
   if (!modal) {
     modal = document.createElement('div');
@@ -587,12 +585,10 @@ function updateWork(stt) {
     `;
     document.body.appendChild(modal);
 
-    // Cancel button handler
     document.getElementById('cancelUpdateBtn').addEventListener('click', () => {
       modal.style.display = 'none';
     });
 
-    // Form submit handler
     document.getElementById('updateWorkForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const updatedData = {
@@ -607,7 +603,6 @@ function updateWork(stt) {
         nguoilamphu1: document.getElementById('updateNguoiLamPhu1').value.trim(),
         nguoilamphu2: document.getElementById('updateNguoiLamPhu2').value.trim(),
       };
-      const stt = work.stt;
       const mapping = [
         {key: 'hangmuc', col: 'J'},
         {key: 'phanloai', col: 'K'},
@@ -620,24 +615,36 @@ function updateWork(stt) {
         {key: 'nguoilamphu1', col: 'V'},
         {key: 'nguoilamphu2', col: 'W'},
       ];
-      // Tạo mảng fields cho API
       const fields = mapping.map(map => ({ column: map.col, value: updatedData[map.key] }));
-      const apiUrl = 'https://script.google.com/macros/s/AKfycbySq0cmbm-MEQwXab9DCot_KsIEKCcgumAbY1WSjEWUlir7WbRNXDIBfVVdrye3d1eS/exec';
-      const formData = new FormData();
-      formData.append('stt', stt);
-      formData.append('fields', JSON.stringify(fields));
-      await fetch(apiUrl, {
-        method: 'POST',
-        body: formData
-      });
-      alert('Cập nhật thành công!');
-      modal.style.display = 'none';
+      const apiUrl = 'https://script.google.com/macros/s/AKfycbwk_WcdzSzKLlQqmCvU53cz8A4lpnG6GAeKpxFrqnUX612rcLTUIMe1rqVIO9FvpxJA/exec';
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stt, fields })
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.json();
+        if (result.status === 'success') {
+          alert('Cập nhật thành công!');
+          // Update local data
+          Object.assign(work, updatedData);
+          displayWorkList();
+          modal.style.display = 'none';
+        } else {
+          alert(`Lỗi: ${result.message}`);
+        }
+      } catch (error) {
+        console.error('Lỗi khi cập nhật:', error);
+        alert('Có lỗi khi cập nhật công việc. Vui lòng thử lại!');
+      }
     });
-    // Sau khi tạo modal, fetch danh sách người làm từ Sheet Data và đổ vào các select
+
     fetchNguoiLamList();
   }
 
-  // Pre-fill form fields with current data
   document.getElementById('updateHangMuc').value = work.hangmuc || '';
   document.getElementById('updatePhanLoai').value = work.phanloai || '';
   document.getElementById('updateViTri').value = work.vitri || '';
