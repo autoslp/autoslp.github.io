@@ -595,14 +595,12 @@ function updateWork(stt) {
     // Form submit handler
     document.getElementById('updateWorkForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-
-      // Collect updated values
       const updatedData = {
         hangmuc: document.getElementById('updateHangMuc').value.trim(),
         phanloai: document.getElementById('updatePhanLoai').value.trim(),
         vitri: document.getElementById('updateViTri').value.trim(),
         hientrang: document.getElementById('updateHienTrang').value.trim(),
-        nguyenhan: document.getElementById('updateNguyenNhan').value.trim(),
+        nguyennhan: document.getElementById('updateNguyenNhan').value.trim(),
         phuonganxuly: document.getElementById('updatePhuongAnXuLy').value.trim(),
         vattu: document.getElementById('updateVatTuThayThe').value.trim(),
         nguoilamchinh: document.getElementById('updateNguoiLamChinh').value.trim(),
@@ -610,7 +608,6 @@ function updateWork(stt) {
         nguoilamphu2: document.getElementById('updateNguoiLamPhu2').value.trim(),
       };
       const stt = work.stt;
-      // Mapping trường -> cột
       const mapping = [
         {key: 'hangmuc', col: 'J'},
         {key: 'phanloai', col: 'K'},
@@ -623,22 +620,16 @@ function updateWork(stt) {
         {key: 'nguoilamphu1', col: 'V'},
         {key: 'nguoilamphu2', col: 'W'},
       ];
-      // Gửi lần lượt từng trường lên Apps Script API
+      // Tạo mảng fields cho API
+      const fields = mapping.map(map => ({ column: map.col, value: updatedData[map.key] }));
       const apiUrl = 'https://script.google.com/macros/s/AKfycbySq0cmbm-MEQwXab9DCot_KsIEKCcgumAbY1WSjEWUlir7WbRNXDIBfVVdrye3d1eS/exec';
-      for (const map of mapping) {
-        const value = updatedData[map.key];
-        if (value) {
-          await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              stt: stt,
-              column: map.col,
-              value: value
-            })
-          });
-        }
-      }
+      const formData = new FormData();
+      formData.append('stt', stt);
+      formData.append('fields', JSON.stringify(fields));
+      await fetch(apiUrl, {
+        method: 'POST',
+        body: formData
+      });
       alert('Cập nhật thành công!');
       modal.style.display = 'none';
     });
