@@ -1,0 +1,466 @@
+body {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.header-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+  border-radius: 15px;
+}
+
+.work-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.work-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.work-header {
+  padding: 1rem;
+  border-radius: 10px 10px 0 0;
+  font-weight: 600;
+}
+
+.work-header.header-pending {
+  background: linear-gradient(135deg, #ffc107, #e0a800);
+  color: #333;
+}
+
+.work-header.header-in-progress {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+}
+
+.work-header.header-completed {
+  background: linear-gradient(135deg, #17a2b8, #138496);
+  color: white;
+}
+
+.work-body {
+  padding: 1.5rem;
+}
+
+.status-badge {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.status-in-progress {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-completed {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+.btn-action {
+  margin: 0.2rem;
+  border-radius: 20px;
+  padding: 0.4rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.work-info {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.info-item {
+  background: #f8f9fa;
+  padding: 0.8rem;
+  border-radius: 8px;
+  border-left: 4px solid #17a2b8;
+  min-height: 80px;
+}
+
+.info-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.info-value {
+  font-size: 0.9rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.filter-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 3rem;
+}
+
+@media (max-width: 768px) {
+  .work-info {
+    grid-template-columns: 1fr;
+  }
+  
+  .btn-action {
+    width: 100%;
+    margin: 0.2rem 0;
+  }
+}
+
+/* Header User Info Styling */
+.header-user-info {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 25px;
+  padding: 8px 16px;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.header-user-info:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.user-avatar {
+  width: 35px;
+  height: 35px;
+  background: linear-gradient(135deg, #ffc107, #e0a800);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.user-name {
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.logout-btn {
+  background: transparent;
+  border: 1px solid white;
+  border-radius: 15px;
+  padding: 6px 12px;
+  color: white;
+  font-weight: 500;
+  font-size: 12px;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.logout-btn:active {
+  transform: scale(0.95);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .header-user-info .user-avatar {
+    display: none;
+  }
+
+  .header-user-info .user-name {
+    display: none;
+  }
+
+  .header-user-info {
+    padding: 8px 12px;
+    border-radius: 15px;
+  }
+
+  .logout-btn {
+    padding: 8px 16px;
+    font-size: 12px;
+    border-radius: 15px;
+  }
+}
+
+/* Giảm padding và font-size cho các info-item trong work-info */
+.work-info {
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.work-info .info-item {
+    padding: 4px 6px !important;
+    font-size: 13px !important;
+    margin-bottom: 2px !important;
+}
+.work-info .info-label {
+    font-size: 13px !important;
+    margin-bottom: 2px !important;
+}
+.work-info .info-value {
+    font-size: 13px !important;
+}
+
+/* Popup overlay (nền mờ phía sau) */
+.popup-overlay, .modal-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.25);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Popup container */
+.popup-modal, .modal-content, .update-task-modal {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  padding: 32px 28px 24px 28px;
+  max-width: 600px;
+  width: 95%;
+  margin: auto;
+  position: relative;
+  animation: popupFadeIn 0.25s;
+}
+
+/* Tiêu đề popup */
+.popup-modal h2, .modal-content h2, .update-task-modal h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: #222;
+  text-align: center;
+}
+
+/* Form grid layout */
+.popup-modal form, .modal-content form, .update-task-modal form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 24px;
+}
+
+/* Input, select, textarea trong popup */
+.popup-modal input,
+.popup-modal select,
+.popup-modal textarea,
+.modal-content input,
+.modal-content select,
+.modal-content textarea,
+.update-task-modal input,
+.update-task-modal select,
+.update-task-modal textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid #d0d7de;
+  border-radius: 7px;
+  font-size: 1rem;
+  background: #f8fafc;
+  transition: border 0.2s;
+  resize: none;
+}
+
+.popup-modal input:focus,
+.popup-modal select:focus,
+.popup-modal textarea:focus,
+.modal-content input:focus,
+.modal-content select:focus,
+.modal-content textarea:focus,
+.update-task-modal input:focus,
+.update-task-modal select:focus,
+.update-task-modal textarea:focus {
+  border: 1.5px solid #007bff;
+  outline: none;
+  background: #fff;
+}
+
+/* Nút trong popup */
+.popup-modal .btn,
+.modal-content .btn,
+.update-task-modal .btn {
+  margin-top: 18px;
+}
+
+/* Responsive cho mobile */
+@media (max-width: 600px) {
+  .popup-modal, .modal-content, .update-task-modal {
+    padding: 16px 6px;
+    max-width: 99vw;
+  }
+  .popup-modal form, .modal-content form, .update-task-modal form {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* Hiệu ứng xuất hiện */
+@keyframes popupFadeIn {
+  from { transform: translateY(40px) scale(0.98); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Popup cập nhật công việc */
+#updateWorkModal {
+  position: fixed !important;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.28) !important;
+  z-index: 2000 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+}
+#updateWorkModal > div {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  padding: 32px 28px 24px 28px;
+  max-width: 600px;
+  width: 95vw;
+  margin: auto;
+  position: relative;
+  animation: popupFadeIn 0.25s;
+  overflow-y: auto;
+  max-height: 90vh;
+}
+#updateWorkModal h4 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: #222;
+  text-align: center;
+}
+/* Popup cập nhật công việc - giao diện tối ưu giống ảnh */
+#updateWorkModal form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+#updateWorkModal .form-group-row {
+  display: flex;
+  gap: 18px;
+}
+#updateWorkModal .form-group-row > * {
+  flex: 1 1 0;
+}
+#updateWorkModal textarea.form-control {
+  min-height: 60px;
+  resize: vertical;
+}
+#updateWorkModal label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #333;
+}
+#updateWorkModal .btn {
+  min-width: 110px;
+  font-size: 1.08rem;
+  font-weight: 600;
+  border-radius: 7px;
+  padding: 8px 24px;
+  margin-top: 0;
+}
+#updateWorkModal .form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 18px;
+}
+#updateWorkModal .form-control, #updateWorkModal .form-select {
+  border-radius: 8px;
+  border: 1.2px solid #d0d7de;
+  background: #f8fafc;
+  font-size: 1rem;
+  transition: border 0.2s;
+}
+#updateWorkModal .form-control:focus, #updateWorkModal .form-select:focus {
+  border: 1.5px solid #007bff;
+  background: #fff;
+}
+#updateWorkModal form > div:not(.form-group-row):not(.form-actions) {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 0;
+}
+#updateWorkModal form > div:not(.form-group-row):not(.form-actions) > label {
+  min-width: 120px;
+  margin-bottom: 0;
+  text-align: left;
+  font-weight: 600;
+}
+#updateWorkModal form > div:not(.form-group-row):not(.form-actions) > .form-control,
+#updateWorkModal form > div:not(.form-group-row):not(.form-actions) > .form-select,
+#updateWorkModal form > div:not(.form-group-row):not(.form-actions) > textarea {
+  flex: 1 1 0;
+}
+#updateWorkModal .form-control, #updateWorkModal .form-select, #updateWorkModal textarea {
+  font-size: 0.97rem;
+}
+#updateWorkModal .btn {
+  font-size: 0.98rem;
+  padding: 6px 16px;
+  min-width: 80px;
+}
+#updateWorkModal form > div:not(.form-group-row):not(.form-actions) > label {
+  color: #888;
+  font-size: 0.97rem;
+  font-weight: 400;
+  margin-bottom: 0;
+  text-align: left;
+}
+#updateWorkModal .form-group-row > div > label {
+  color: #888;
+  font-size: 0.97rem;
+  font-weight: 400;
+  margin-bottom: 0;
+  text-align: left;
+}
+@media (max-width: 600px) {
+  #updateWorkModal form {
+    gap: 12px;
+  }
+  #updateWorkModal .form-group-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  #updateWorkModal .form-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+}

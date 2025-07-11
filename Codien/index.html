@@ -13,7 +13,7 @@
     body {
       background-color: #f8f9fa;
       min-height: 100vh;
-      padding-top: 2rem;
+      /* padding-top: 2rem; */
       padding-bottom: 2rem;
     }
 
@@ -174,23 +174,28 @@
 
     /* Header User Info Styling */
     .header-user-info {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
-      border-radius: 25px;
-      padding: 8px 16px;
-      margin-top: 15px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(8px);
+      border-radius: 22px;
+      padding: 4px 12px;
+      margin-top: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
       transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 40px;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
     }
-
     .header-user-info:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.22);
+      transform: translateY(-1px);
     }
-
     .user-avatar {
-      width: 35px;
-      height: 35px;
+      width: 30px;
+      height: 30px;
       background: linear-gradient(135deg, #ffc107, #e0a800);
       border-radius: 50%;
       display: flex;
@@ -198,57 +203,74 @@
       justify-content: center;
       color: #333;
       font-weight: 700;
-      font-size: 14px;
-      box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+      font-size: 15px;
+      box-shadow: 0 1px 4px rgba(255, 193, 7, 0.18);
+      flex-shrink: 0;
     }
-
     .user-name {
       color: white;
       font-weight: 600;
-      font-size: 14px;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      font-size: 13px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.13);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 180px;
     }
-
     .logout-btn {
       background: transparent;
       border: 1px solid white;
-      border-radius: 15px;
-      padding: 6px 12px;
+      border-radius: 12px;
+      padding: 4px 10px;
       color: white;
       font-weight: 500;
       font-size: 12px;
       transition: all 0.3s ease;
+      margin-left: auto;
     }
-
     .logout-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.13);
       color: white;
     }
-
     .logout-btn:active {
-      transform: scale(0.95);
+      transform: scale(0.97);
     }
-
-    /* Mobile responsive adjustments */
     @media (max-width: 768px) {
-      .header-user-info .user-avatar {
-        display: none;
-      }
-
-      .header-user-info .user-name {
-        display: none;
-      }
-
       .header-user-info {
-        padding: 8px 12px;
-        border-radius: 15px;
+        padding: 4px 8px;
+        border-radius: 12px;
+        min-height: 36px;
+        max-width: 98vw;
+        gap: 6px;
       }
-
-      .logout-btn {
-        padding: 8px 16px;
+      .user-avatar {
+        width: 26px;
+        height: 26px;
+        font-size: 13px;
+      }
+      .user-name {
         font-size: 12px;
-        border-radius: 15px;
+        max-width: 90px;
       }
+      .logout-btn {
+        padding: 4px 8px;
+        font-size: 11px;
+        border-radius: 10px;
+      }
+    }
+    .header-section {
+      padding: 0.6rem 0 0.7rem 0 !important;
+      margin-bottom: 0.7rem !important;
+      border-radius: 15px;
+      text-align: center;
+    }
+    .header-section h1 {
+      font-size: 1.35rem !important;
+      margin-bottom: 0.1rem !important;
+    }
+    .header-section .btn, .header-section button, .header-section a {
+      font-size: 0.95rem !important;
+      padding: 0.25rem 0.7rem !important;
     }
   </style>
 </head>
@@ -415,28 +437,11 @@
       }
       // Hiển thị tên nhân viên đã đăng nhập
       function showUserInfo() {
+        // Nếu đã đăng nhập thì hiện nút Đăng xuất
         if (localStorage.getItem('slp_user') && localStorage.getItem('slp_name')) {
-          const userName = localStorage.getItem('slp_name');
-          const userInitial = userName.charAt(0).toUpperCase();
-          
-          // Tìm header section và thêm user info vào đó
-          const headerSection = document.querySelector('.header-section');
-          if (headerSection) {
-            // Kiểm tra xem đã có user info chưa
-            let existingUserInfo = headerSection.querySelector('.header-user-info');
-            if (!existingUserInfo) {
-              const userInfoHTML = `
-              <div class="header-user-info d-flex align-items-center justify-content-center gap-3">
-                <div class="user-avatar">${userInitial}</div>
-                <div class="user-name">${userName} - Nhân viên</div>
-                <button onclick="logoutSLP()" class="logout-btn">
-                  Đăng xuất
-                </button>
-              </div>
-              `;
-              headerSection.insertAdjacentHTML('beforeend', userInfoHTML);
-            }
-          }
+          document.getElementById('logoutBtnHeader').style.display = '';
+        } else {
+          document.getElementById('logoutBtnHeader').style.display = 'none';
         }
       }
       window.addEventListener('DOMContentLoaded', async function() {
@@ -445,22 +450,7 @@
       });
     </script>
     <!-- Header giống work-list.html -->
-    <div class="container">
-      <div class="header-section text-center" style="background: linear-gradient(135deg, #6a5acd, #7b68ee); color: white; border-radius: 15px; padding: 2rem 1rem; margin-bottom: 2rem;">
-        <h1 style="font-weight: 700; font-size: 2.5rem;">
-          <i class="bi bi-gear-wide-connected me-2"></i>Phòng Cơ Điện SLP
-        </h1>
-        <p class="mb-0" style="font-size: 1.2rem;">Form Báo Cáo Lỗi</p>
-        <div class="mt-3 d-flex justify-content-center gap-3">
-          <a href="home.html" class="btn btn-light text-dark" style="font-weight: 600;">
-            <i class="bi bi-house-fill me-1"></i>Trang Chủ
-          </a>
-          <button class="btn btn-outline-light" style="font-weight: 600;" onclick="location.reload()">
-            <i class="bi bi-arrow-clockwise me-1"></i>Làm Mới
-          </button>
-        </div>
-      </div>
-    </div>
+    <!-- Đã xóa header-section -->
 
     <div class="container mt-4">
       <div class="row justify-content-center">
@@ -469,8 +459,13 @@
             <div class="form-icon">
               <i class="bi bi-tools"></i>
             </div>
+            <div class="d-flex justify-content-center mt-3">
+              <a href="home.html" class="btn btn-light btn-sm text-dark fw-semibold">
+                <i class="bi bi-house-fill me-1"></i>Trang Chủ
+              </a>
+            </div>
             
-            <h2 class="form-title">FORM YÊU CẦU SỬA CHỮA MÁY - PHÒNG CƠ ĐIỆN SLP</h2>
+            <h2 class="form-title">YÊU CẦU SỬA CHỮA MÁY - PHÒNG CƠ ĐIỆN SLP</h2>
             
             <form id="workForm" onsubmit="submitForm(event)">
             <!-- STT và Thời gian yêu cầu trên cùng một hàng -->
@@ -537,7 +532,7 @@
             
             <!-- Submit button -->
             <button type="submit" class="btn btn-submit" id="submitBtn">
-              <i class="bi bi-save me-2"></i>Lưu Yêu Cầu
+              <i class="bi bi-send me-2"></i>Gửi yêu cầu
             </button>
           </form>
         </div>
@@ -550,7 +545,7 @@
   
   <script>
     // Google Apps Script URL
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytNKhQuNr-t5v3HVqGykKQL95cIONpy2Zig5K7U3tjcHNtoquW74xbRf42MOSC7Rsefw/exec';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxJNkqD-S_lUfG3izhoW4AD5SS6eDQH9Khm_BiLp_Vwu13gulpqhsapaGDpo2tLlB7s/exec';
     
     // Google Sheets API để đọc dữ liệu công khai
     const SHEET_ID = '18ZLZbC8RjCvSyk_sLBvh3obi-_4TzgIlrDX09LkBXyo';
@@ -800,6 +795,7 @@
       const formData = new FormData(document.getElementById('workForm'));
       const data = {
         stt: formData.get('stt'),
+        khuvuc: formData.get('khuvuc'),
         may: formData.get('may'),
         thoigianyeucau: formData.get('thoigianyeucau'),
         hientrangloi: formData.get('hientrangloi'),
@@ -825,44 +821,48 @@
       };
       
       // Gửi dữ liệu đến Google Sheets
-      fetch(GOOGLE_SCRIPT_URL, {
+      fetch('https://script.google.com/macros/s/AKfycbxJNkqD-S_lUfG3izhoW4AD5SS6eDQH9Khm_BiLp_Vwu13gulpqhsapaGDpo2tLlB7s/exec', {
         method: 'POST',
-        mode: 'no-cors',
+        mode: 'no-cors', // Nếu chạy từ file:// hoặc localhost
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data)
       })
       .then(() => {
-        // Thành công
-        submitBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Đã lưu thành công!';
-        submitBtn.classList.remove('btn-submit');
-        submitBtn.classList.add('btn', 'btn-success');
-        
-        // Reset form sau 3 giây
+        // Reset form và nút về trạng thái ban đầu
+        document.getElementById('workForm').reset();
+        document.getElementById('filePreview').innerHTML = '';
+        if (typeof generateNextSTT === 'function') generateNextSTT();
+        submitBtn.innerHTML = originalHTML;
+        submitBtn.classList.remove('btn', 'btn-success', 'btn-danger');
+        submitBtn.classList.add('btn-submit');
+        submitBtn.disabled = false;
+
+        // Hiện popup/thông báo
+        const popup = document.createElement('div');
+        popup.innerHTML = `
+          <div style="
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+            <div style="background: #fffbe6; color: #856404; border-radius: 12px; padding: 32px 40px; font-size: 1.3rem; font-weight: 600; box-shadow: 0 2px 16px #0002;">
+              <i class="bi bi-check-circle-fill me-2" style="color:#28a745;font-size:2rem;vertical-align:middle"></i>
+              Đã lưu thành công!<br><span style="font-size:1rem;font-weight:400;">Đang chuyển sang danh sách công việc...</span>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(popup);
+
         setTimeout(() => {
-          document.getElementById('workForm').reset();
-          document.getElementById('filePreview').innerHTML = '';
-          generateNextSTT(); // Tạo STT mới
-          submitBtn.innerHTML = originalHTML;
-          submitBtn.classList.remove('btn', 'btn-success');
-          submitBtn.classList.add('btn-submit');
-          submitBtn.disabled = false;
-        }, 3000);
+          window.location.href = 'congviec.html';
+        }, 2000);
       })
-      .catch((error) => {
-        console.error('Lỗi:', error);
-        submitBtn.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Lỗi! Thử lại';
-        submitBtn.classList.remove('btn-submit');
-        submitBtn.classList.add('btn', 'btn-danger');
-        
-        // Khôi phục nút sau 3 giây
-        setTimeout(() => {
-          submitBtn.innerHTML = originalHTML;
-          submitBtn.classList.remove('btn', 'btn-danger');
-          submitBtn.classList.add('btn-submit');
-          submitBtn.disabled = false;
-        }, 3000);
+      .catch(() => {
+        // Reset nút về trạng thái ban đầu (nếu có lỗi)
+        submitBtn.innerHTML = originalHTML;
+        submitBtn.classList.remove('btn', 'btn-success', 'btn-danger');
+        submitBtn.classList.add('btn-submit');
+        submitBtn.disabled = false;
       });
     }
 
