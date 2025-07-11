@@ -618,10 +618,15 @@ async function updateWork(stt) {
       const fields = mapping.map(map => ({ column: map.col, value: updatedData[map.key] }));
       const apiUrl = 'https://script.google.com/macros/s/AKfycbwk_WcdzSzKLlQqmCvU53cz8A4lpnG6GAeKpxFrqnUX612rcLTUIMe1rqVIO9FvpxJA/exec';
       try {
-        const response = await fetch(apiUrl, {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbwk_WcdzSzKLlQqmCvU53cz8A4lpnG6GAeKpxFrqnUX612rcLTUIMe1rqVIO9FvpxJA/exec', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ stt, fields })
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            stt: stt,
+            fields: fields
+          })
         });
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
