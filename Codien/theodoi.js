@@ -489,7 +489,7 @@ async function assignMainWorker(stt, buttonElement) {
   }
 
   try {
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycby7H4_PMZD6N9FGTbv-PFOUIaIxxpvz-UxJ1E3bvIXbIWt7hTQG3aaK4loGO9AzWsrH/exec';
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbx7whQ56_qf4XfeoAvsJvKEvedSV5rqV8EkDH461KyAlWPhkpjm5TT84dfQdtY039D7/exec';
     fetch(scriptUrl, {
       method: 'POST',
       mode: 'no-cors',
@@ -545,7 +545,7 @@ async function assignSupportWorker(stt, buttonElement) {
       if (targetColumn === 'V') filteredWorks[idx2].thuchienboy2 = userName;
       if (targetColumn === 'W') filteredWorks[idx2].thuchienboy3 = userName;
     }
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycby7H4_PMZD6N9FGTbv-PFOUIaIxxpvz-UxJ1E3bvIXbIWt7hTQG3aaK4loGO9AzWsrH/exec';
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbx7whQ56_qf4XfeoAvsJvKEvedSV5rqV8EkDH461KyAlWPhkpjm5TT84dfQdtY039D7/exec';
     fetch(scriptUrl, {
       method: 'POST',
       mode: 'no-cors',
@@ -752,7 +752,7 @@ function updateWork(stt) {
       saveBtn.disabled = false;
     }, 2000);
     try {
-      const scriptUrl = 'https://script.google.com/macros/s/AKfycby7H4_PMZD6N9FGTbv-PFOUIaIxxpvz-UxJ1E3bvIXbIWt7hTQG3aaK4loGO9AzWsrH/exec';
+      const scriptUrl = 'https://script.google.com/macros/s/AKfycbx7whQ56_qf4XfeoAvsJvKEvedSV5rqV8EkDH461KyAlWPhkpjm5TT84dfQdtY039D7/exec';
       await fetch(scriptUrl, {
         method: 'POST',
         mode: 'no-cors',
@@ -807,7 +807,7 @@ function updateWork(stt) {
       saveAndDeliverBtn.disabled = false;
     }, 2000);
     try {
-      const scriptUrl = 'https://script.google.com/macros/s/AKfycby7H4_PMZD6N9FGTbv-PFOUIaIxxpvz-UxJ1E3bvIXbIWt7hTQG3aaK4loGO9AzWsrH/exec';
+      const scriptUrl = 'https://script.google.com/macros/s/AKfycbx7whQ56_qf4XfeoAvsJvKEvedSV5rqV8EkDH461KyAlWPhkpjm5TT84dfQdtY039D7/exec';
       await fetch(scriptUrl, {
         method: 'POST',
         mode: 'no-cors',
@@ -902,7 +902,7 @@ window.confirmWork = async function(stt, buttonElement, action, event) {
   if (!work) return;
 
   try {
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycby7H4_PMZD6N9FGTbv-PFOUIaIxxpvz-UxJ1E3bvIXbIWt7hTQG3aaK4loGO9AzWsrH/exec';
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbx7whQ56_qf4XfeoAvsJvKEvedSV5rqV8EkDH461KyAlWPhkpjm5TT84dfQdtY039D7/exec';
     await fetch(scriptUrl, {
       method: 'POST',
       mode: 'no-cors',

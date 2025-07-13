@@ -981,10 +981,14 @@
           }
         });
 
-        // Gửi dữ liệu lên server
-        fetch('https://script.google.com/macros/s/AKfycbw2RESuYVt3uK-FBiVfYFWtUUMu2K1pAkJWqe1qlvYOBDYni04qjtkTNAjfQsaMqsW9/exec', {
+        // Gửi dữ liệu lên server với format đúng cho duyệt công việc
+        fetch('https://script.google.com/macros/s/AKfycbx7whQ56_qf4XfeoAvsJvKEvedSV5rqV8EkDH461KyAlWPhkpjm5TT84dfQdtY039D7/exec', {
           method: 'POST',
-          body: JSON.stringify({stt, value})
+          body: JSON.stringify({
+            stt: stt,
+            value: value,
+            column: 'H'  // Thêm trường này để phân biệt với thêm mới
+          })
         })
         .then(res => res.json())
         .then(json => {
