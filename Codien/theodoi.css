@@ -96,18 +96,18 @@ body {
   padding: 0.8rem;
   border-radius: 8px;
   border-left: 4px solid #17a2b8;
-  min-height: 80px;
+  min-height: 60px;
 }
 
 .info-label {
-  font-size: 0.8rem;
+  font-size: 1rem;
   color: #6c757d;
   font-weight: 600;
   margin-bottom: 0.2rem;
 }
 
 .info-value {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: #333;
   font-weight: 500;
 }
@@ -345,19 +345,6 @@ body {
   justify-content: center;
   transition: opacity 0.2s;
 }
-#updateWorkModal > div {
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-  padding: 32px 28px 24px 28px;
-  max-width: 600px;
-  width: 95vw;
-  margin: auto;
-  position: relative;
-  animation: popupFadeIn 0.25s;
-  overflow-y: auto;
-  max-height: 90vh;
-}
 #updateWorkModal h4 {
   font-size: 1.5rem;
   font-weight: 700;
@@ -423,6 +410,9 @@ body {
   margin-bottom: 0;
   text-align: left;
   font-weight: 600;
+  color: #888;
+  font-size: 0.97rem;
+  font-weight: 400;
 }
 #updateWorkModal form > div:not(.form-group-row):not(.form-actions) > .form-control,
 #updateWorkModal form > div:not(.form-group-row):not(.form-actions) > .form-select,
@@ -463,4 +453,57 @@ body {
     flex-direction: column;
     gap: 8px;
   }
+}
+
+.work-detail {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.work-detail .info-item {
+  background: #f8f9fa;
+  padding: 0.8rem;
+  border-radius: 8px;
+  border-left: 4px solid #17a2b8;
+  min-height: 60px;
+}
+
+.work-detail .info-label {
+  font-size: 1rem;
+  color: #17a2b8;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.work-detail .info-value {
+  font-size: 1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .work-detail {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Giảm padding và font-size cho các info-item trong work-detail giống work-info */
+.work-detail {
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.work-detail .info-item {
+    padding: 4px 6px !important;
+    font-size: 13px !important;
+    margin-bottom: 2px !important;
+}
+.work-detail .info-label {
+    font-size: 13px !important;
+    margin-bottom: 2px !important;
+}
+.work-detail .info-value {
+    font-size: 13px !important;
 }

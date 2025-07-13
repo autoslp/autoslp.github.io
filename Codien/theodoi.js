@@ -71,6 +71,23 @@ async function fetchUserListWithPassword() {
   } catch (e) { userList = []; }
 }
 
+// Lấy danh sách nhân viên bộ phận Cơ điện
+let workerList = [];
+async function fetchWorkerList() {
+  try {
+    const API_KEY = 'AIzaSyC1Rsi6v-NoDqTFVDzB_YVCP0g1aHyvMME';
+    const SHEET_ID = '18ZLZbC8RjCvSyk_sLBvh3obi-_4TzgIlrDX09LkBXyo';
+    const RANGE = 'Data!J2:O300';
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    if (data.values) {
+      workerList = data.values.filter(row => (row[3]||'').trim() === 'Cơ điện')
+        .map(row => ({ code: row[0]?.trim(), name: row[1]?.trim() }));
+    }
+  } catch (e) { workerList = []; }
+}
+
 // Kiểm tra đăng nhập
 async function checkLogin() {
   if (!localStorage.getItem('slp_user') || !localStorage.getItem('slp_name')) {
@@ -185,7 +202,11 @@ async function loadWorkList() {
           thuchienboy2: thuchienboy2Val,   // <-- Cột V: Người hỗ trợ 1
           thuchienboy3: thuchienboy3Val,   // <-- Cột W: Người hỗ trợ 2
           quanlyduyet: (row[7] || '').toString().trim(),
-          thoigianbangiao: (row[16] || '').toString().trim()
+          thoigianbangiao: (row[16] || '').toString().trim(),
+          hangmuc: row[9] || '',      // J
+          phanloai: row[10] || '',    // K
+          vitri: row[11] || '',       // L
+          vattuthaythe: row[15] || '', // <-- Thêm dòng này
         };
       })
       .filter(work => {
@@ -312,7 +333,28 @@ function displayWorkList() {
         <span class="status-badge ${statusClass}">${displayStatus}</span>
       </div>
       <div class="work-body">
-        <div class="work-info">
+      ${(() => {
+        // Đếm số trường chi tiết có dữ liệu
+        let detailCount = 0;
+        if (work.hientrangloi) detailCount++;
+        if (work.hientrang) detailCount++;
+        if (work.nguyennhan) detailCount++;
+        if (work.phuonganhxuly) detailCount++;
+        if (detailCount === 0) return '';
+        // Nếu là mobile, không set grid-template-columns động
+        let isMobile = false;
+        if (typeof window !== 'undefined') {
+          isMobile = window.innerWidth <= 768;
+        }
+        let style = isMobile ? '' : `grid-template-columns: repeat(${detailCount}, 1fr);`;
+        return `<div class=\"work-detail\" style=\"${style}\">`
+          + (work.hientrangloi ? `<div class=\"info-item\"><div class=\"info-label\"><i class=\"bi bi-journal-text me-1\" style=\"color:#17a2b8;font-size:1em;\"></i>Nội dung công việc</div><div class=\"info-value\">${work.hientrangloi}</div></div>` : '')
+          + (work.hientrang ? `<div class=\"info-item\"><div class=\"info-label\"><i class=\"bi bi-exclamation-triangle me-1\" style=\"color:#17a2b8;font-size:1em;\"></i>Hiện trạng</div><div class=\"info-value\">${work.hientrang}</div></div>` : '')
+          + (work.nguyennhan ? `<div class=\"info-item\"><div class=\"info-label\"><i class=\"bi bi-search me-1\" style=\"color:#17a2b8;font-size:1em;\"></i>Nguyên nhân</div><div class=\"info-value\">${work.nguyennhan}</div></div>` : '')
+          + (work.phuonganhxuly ? `<div class=\"info-item\"><div class=\"info-label\"><i class=\"bi bi-lightbulb me-1\" style=\"color:#17a2b8;font-size:1em;\"></i>Phương án xử lý</div><div class=\"info-value\">${work.phuonganhxuly}</div></div>` : '')
+          + '</div>';
+      })()}
+      <div class="work-info d-none d-md-grid">
           <div class="info-item">
             <div class="info-label">Thời gian yêu cầu</div>
             <div class="info-value">${work.thoigianyeucau}</div>
@@ -327,34 +369,10 @@ function displayWorkList() {
           </div>
           <div class="info-item">
             <div class="info-label">Thời gian bàn giao</div>
-            <div class="info-value">${work.thoigianbangiao || ''}</div>
+            <div class="info-value">${work.thoigianbangiao ? work.thoigianbangiao : 'Chưa bàn giao'}</div>
           </div>
         </div>
         
-        ${work.hientrangloi ? `
-        <div class="mb-1">
-          <span class="info-label">Hiện trạng lỗi: </span>
-          <span class="info-value">${work.hientrangloi}</span>
-        </div>
-        ` : ''}
-        ${work.hientrang ? `
-        <div class="mb-1">
-          <span class="info-label">Hiện trạng: </span>
-          <span class="info-value">${work.hientrang}</span>
-        </div>
-        ` : ''}
-        ${work.nguyennhan ? `
-        <div class="mb-1">
-          <span class="info-label">Nguyên nhân: </span>
-          <span class="info-value">${work.nguyennhan}</span>
-        </div>
-        ` : ''}
-        ${work.phuonganhxuly ? `
-          <div class="mb-1">
-            <span class="info-label">Phương án xử lý: </span>
-            <span class="info-value">${work.phuonganhxuly}</span>
-          </div>
-        ` : ''}
         
         ${work.ketqua ? `
           <div class="mb-3">
@@ -385,7 +403,7 @@ function displayWorkList() {
           <button class="btn btn-info btn-action" onclick="updateWork('${work.stt}')">
             <i class="bi bi-pencil-square me-1"></i>Cập Nhật
           </button>
-          <button class="btn btn-outline-secondary btn-action" onclick="viewDetails('${work.stt}')">
+          <button class="btn btn-outline-secondary btn-action d-block d-md-none" onclick="toggleWorkInfo(this)">
             <i class="bi bi-eye me-1"></i>Chi Tiết
           </button>
         </div>
@@ -445,7 +463,7 @@ function viewDetails(stt) {
   let details = `STT: ${work.stt}\n`;
   details += `Máy: ${work.may}\n`;
   details += `Thời gian yêu cầu: ${work.thoigianyeucau}\n`;
-  details += `Hiện trạng lỗi: ${work.hientrangloi}\n`;
+  details += `Nội dung công việc: ${work.hientrangloi}\n`;
   details += `Người yêu cầu: ${work.nguoiyeucau}\n`;
   details += `Trạng thái: ${work.hientrang}\n`;
   
@@ -467,7 +485,7 @@ async function assignMainWorker(stt, buttonElement) {
   }
 
   try {
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycbynttAirDmYcB12gWVNIUSfqvXYR-c_uBFguLPWeNKSjLimRYDmH9eoBZ5GfGGQqXs-/exec';
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycby7H4_PMZD6N9FGTbv-PFOUIaIxxpvz-UxJ1E3bvIXbIWt7hTQG3aaK4loGO9AzWsrH/exec';
     fetch(scriptUrl, {
       method: 'POST',
       mode: 'no-cors',
@@ -523,7 +541,7 @@ async function assignSupportWorker(stt, buttonElement) {
       if (targetColumn === 'V') filteredWorks[idx2].thuchienboy2 = userName;
       if (targetColumn === 'W') filteredWorks[idx2].thuchienboy3 = userName;
     }
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycbynttAirDmYcB12gWVNIUSfqvXYR-c_uBFguLPWeNKSjLimRYDmH9eoBZ5GfGGQqXs-/exec';
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycby7H4_PMZD6N9FGTbv-PFOUIaIxxpvz-UxJ1E3bvIXbIWt7hTQG3aaK4loGO9AzWsrH/exec';
     fetch(scriptUrl, {
       method: 'POST',
       mode: 'no-cors',
@@ -542,8 +560,263 @@ async function assignSupportWorker(stt, buttonElement) {
   }
 }
 
+// Hiển thị popup cập nhật công việc
+function updateWork(stt) {
+  const work = allWorks.find(w => w.stt === stt);
+  if (!work) return;
+
+  // Nếu modal chưa có thì tạo
+  let modal = document.getElementById('updateWorkModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'updateWorkModal';
+    modal.className = 'modal fade';
+    modal.tabIndex = -1;
+    modal.innerHTML = `
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <form id="updateWorkForm">
+            <div class="modal-header">
+              <h5 class="modal-title">Cập nhật - ${work.stt} - ${work.may}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label" style="color:#888;font-weight:400;">Hạng mục</label>
+                  <select name="hangmuc" class="form-select fw-bold" style="color:#374262;">
+                    <option value="Sửa chữa">Sửa chữa</option>
+                    <option value="Bảo dưỡng">Bảo dưỡng</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" style="color:#888;font-weight:400;">Phân loại</label>
+                  <select name="phanloai" class="form-select fw-bold" style="color:#374262;">
+                    <option value="Điện">Điện</option>
+                    <option value="Cơ">Cơ</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" style="color:#888;font-weight:400;">Vị trí</label>
+                  <input type="text" name="vitri" class="form-control fw-bold" style="color:#374262;">
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label" style="color:#888;font-weight:400;">Hiện trạng</label>
+                  <input type="text" name="hientrang" class="form-control fw-bold" style="color:#374262;">
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label" style="color:#888;font-weight:400;">Nguyên nhân</label>
+                  <input type="text" name="nguyennhan" class="form-control fw-bold" style="color:#374262;">
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label" style="color:#888;font-weight:400;">Phương án xử lý</label>
+                  <input type="text" name="phuongan" class="form-control fw-bold" style="color:#374262;">
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label" style="color:#888;font-weight:400;">Vật tư thay thế</label>
+                  <input type="text" name="vattu" class="form-control fw-bold" style="color:#374262;">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" style="color:#888;font-weight:400;">Người xử lý</label>
+                  <select name="lamchinh" class="form-select fw-bold" style="color:#374262;"></select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" style="color:#888;font-weight:400;">Người hỗ trợ</label>
+                  <select name="lamphu1" class="form-select fw-bold" style="color:#374262;"></select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" style="color:#888;font-weight:400;">Người hỗ trợ</label>
+                  <select name="lamphu2" class="form-select fw-bold" style="color:#374262;"></select>
+                </div>
+              </div>
+              <div id="updateWorkError" class="text-danger mt-2 text-center" style="display:none;"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary px-4">Lưu</button>
+              <button type="button" class="btn btn-primary px-4" id="saveAndDeliverBtn">Lưu và Bàn giao</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+
+  // Hàm render option cho select người làm
+  function renderWorkerOptions(selectEl, selectedName) {
+    // Chuẩn hóa tên: lấy tên đầu tiên, trim, lowerCase
+    let selected = (selectedName||'').split(/,|;| và /)[0].trim().toLowerCase();
+    selectEl.innerHTML = '<option value="">-- Chọn --</option>' +
+      workerList.map(w => {
+        const workerName = (w.name||'').trim();
+        const isSelected = workerName.toLowerCase() === selected ? ' selected' : '';
+        return `<option value="${workerName}"${isSelected}>${workerName}</option>`;
+      }).join('');
+  }
+
+  // Gán giá trị vào form (bổ sung await fetchWorkerList)
+  (async () => {
+    await fetchWorkerList();
+    const form = modal.querySelector('form');
+    // Hạng mục
+    const hangmucValue = work.hangmuc || '';
+    if (hangmucValue === 'Sửa chữa' || hangmucValue === 'Bảo dưỡng') {
+      form.hangmuc.value = hangmucValue;
+    } else {
+      form.hangmuc.value = 'Sửa chữa';
+    }
+    // Phân loại
+    const phanloaiValue = work.phanloai || '';
+    if (phanloaiValue === 'Điện' || phanloaiValue === 'Cơ') {
+      form.phanloai.value = phanloaiValue;
+    } else {
+      form.phanloai.value = 'Điện';
+    }
+    form.vitri.value = work.vitri || '';
+    form.hientrang.value = work.hientrang || '';
+    form.nguyennhan.value = work.nguyennhan || '';
+    form.phuongan.value = work.phuonganhxuly || '';
+    form.vattu.value = work.vattuthaythe || '';
+    // Người làm chính, phụ 1, phụ 2
+    renderWorkerOptions(form.lamchinh, work.thuchienboy1 || '');
+    renderWorkerOptions(form.lamphu1, work.thuchienboy2 || '');
+    renderWorkerOptions(form.lamphu2, work.thuchienboy3 || '');
+  })();
+
+  // Xử lý submit
+  const form = modal.querySelector('form');
+  form.onsubmit = async function(e) {
+    e.preventDefault();
+    const data = {
+      stt: work.stt,
+      hangmuc: form.hangmuc.value,
+      phanloai: form.phanloai.value,
+      vitri: form.vitri.value,
+      hientrang: form.hientrang.value,
+      nguyennhan: form.nguyennhan.value,
+      phuongan: form.phuongan.value,
+      vattu: form.vattu.value,
+      lamchinh: form.lamchinh.value,
+      lamphu1: form.lamphu1.value,
+      lamphu2: form.lamphu2.value
+    };
+    // Hiệu ứng nút Lưu -> Đã lưu NGAY LẬP TỨC, sau 2s khôi phục lại
+    const saveBtn = form.querySelector('button[type="submit"]');
+    const oldText = saveBtn.textContent;
+    saveBtn.textContent = 'Đã lưu';
+    saveBtn.classList.remove('btn-primary');
+    saveBtn.classList.add('btn-secondary');
+    saveBtn.disabled = true;
+    setTimeout(() => {
+      saveBtn.textContent = oldText;
+      saveBtn.classList.remove('btn-secondary');
+      saveBtn.classList.add('btn-primary');
+      saveBtn.disabled = false;
+    }, 2000);
+    try {
+      const scriptUrl = 'https://script.google.com/macros/s/AKfycby7H4_PMZD6N9FGTbv-PFOUIaIxxpvz-UxJ1E3bvIXbIWt7hTQG3aaK4loGO9AzWsrH/exec';
+      await fetch(scriptUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'updateRow', ...data })
+      });
+      // Cập nhật local
+      work.hangmuc = data.hangmuc;
+      work.phanloai = data.phanloai;
+      work.vitri = data.vitri;
+      work.hientrang = data.hientrang;
+      work.nguyennhan = data.nguyennhan;
+      work.phuonganhxuly = data.phuongan;
+      work.vattuthaythe = data.vattu;
+      work.thuchienboy1 = data.lamchinh;
+      work.thuchienboy2 = data.lamphu1;
+      work.thuchienboy3 = data.lamphu2;
+      displayWorkList();
+    } catch (err) {
+      modal.querySelector('#updateWorkError').textContent = 'Có lỗi khi cập nhật. Vui lòng thử lại!';
+      modal.querySelector('#updateWorkError').style.display = '';
+    }
+  };
+
+  // Xử lý nút Lưu và Bàn giao
+  const saveAndDeliverBtn = modal.querySelector('#saveAndDeliverBtn');
+  saveAndDeliverBtn.onclick = async function() {
+    const data = {
+      stt: work.stt,
+      hangmuc: form.hangmuc.value,
+      phanloai: form.phanloai.value,
+      vitri: form.vitri.value,
+      hientrang: form.hientrang.value,
+      nguyennhan: form.nguyennhan.value,
+      phuongan: form.phuongan.value,
+      vattu: form.vattu.value,
+      lamchinh: form.lamchinh.value,
+      lamphu1: form.lamphu1.value,
+      lamphu2: form.lamphu2.value,
+      thoigianbangiao: getCurrentDateTimeVN()
+    };
+    // Hiệu ứng nút Lưu và Bàn giao
+    const oldText = saveAndDeliverBtn.textContent;
+    saveAndDeliverBtn.textContent = 'Đã lưu và bàn giao';
+    saveAndDeliverBtn.classList.remove('btn-primary');
+    saveAndDeliverBtn.classList.add('btn-secondary');
+    saveAndDeliverBtn.disabled = true;
+    setTimeout(() => {
+      saveAndDeliverBtn.textContent = oldText;
+      saveAndDeliverBtn.classList.remove('btn-secondary');
+      saveAndDeliverBtn.classList.add('btn-primary');
+      saveAndDeliverBtn.disabled = false;
+    }, 2000);
+    try {
+      const scriptUrl = 'https://script.google.com/macros/s/AKfycby7H4_PMZD6N9FGTbv-PFOUIaIxxpvz-UxJ1E3bvIXbIWt7hTQG3aaK4loGO9AzWsrH/exec';
+      await fetch(scriptUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'updateRow', ...data })
+      });
+      // Cập nhật local
+      work.hangmuc = data.hangmuc;
+      work.phanloai = data.phanloai;
+      work.vitri = data.vitri;
+      work.hientrang = data.hientrang;
+      work.nguyennhan = data.nguyennhan;
+      work.phuonganhxuly = data.phuongan;
+      work.vattuthaythe = data.vattu;
+      work.thuchienboy1 = data.lamchinh;
+      work.thuchienboy2 = data.lamphu1;
+      work.thuchienboy3 = data.lamphu2;
+      work.thoigianbangiao = data.thoigianbangiao;
+      displayWorkList();
+    } catch (err) {
+      modal.querySelector('#updateWorkError').textContent = 'Có lỗi khi cập nhật. Vui lòng thử lại!';
+      modal.querySelector('#updateWorkError').style.display = '';
+    }
+  };
+
+// Hàm lấy thời gian hiện tại định dạng VN
+function getCurrentDateTimeVN() {
+  const now = new Date();
+  const pad = n => n.toString().padStart(2, '0');
+  return `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())} ${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()}`;
+}
+
+  // Hiển thị modal
+  const bsModal = new bootstrap.Modal(modal);
+  bsModal.show();
+}
+window.updateWork = updateWork;
+
 
 window.addEventListener('DOMContentLoaded', async function() {
   await checkLogin();
   showUserInfo();
 });
+
+window.toggleWorkInfo = function(btn) {
+  const card = btn.closest('.work-card');
+  const info = card.querySelector('.work-info');
+  if (info) info.classList.toggle('d-none');
+}
