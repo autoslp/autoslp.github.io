@@ -215,6 +215,7 @@ async function loadWorkList() {
           phanloai: row[10] || '',    // K
           vitri: row[11] || '',       // L
           vattuthaythe: row[15] || '', // <-- Thêm dòng này
+          xacnhan: row[18] || '',     // <-- Cột S: xác nhận
         };
       })
       .filter(work => {
@@ -394,12 +395,12 @@ function displayWorkList() {
           ${localStorage.getItem('slp_role') === 'quanly' && work.thoigianbangiao ? `
             <div class="dropdown me-2">
               <button class="btn btn-outline-primary btn-action dropdown-toggle" style="width: 98%;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-check2-circle me-1"></i>Xác nhận
+                <i class="bi bi-check2-circle me-1"></i>${work.xacnhan ? work.xacnhan : 'Xác nhận'}
               </button>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#" onclick="confirmWork('${work.stt}', this, 'OK')">OK</a></li>
-                <li><a class="dropdown-item" href="#" onclick="confirmWork('${work.stt}', this, 'NG')">NG</a></li>
-                <li><a class="dropdown-item" href="#" onclick="confirmWork('${work.stt}', this, 'Tạm thời')">Tạm thời</a></li>
+                <li><a class="dropdown-item" href="#" onclick="confirmWork('${work.stt}', this, 'OK', event)">OK</a></li>
+                <li><a class="dropdown-item" href="#" onclick="confirmWork('${work.stt}', this, 'NG', event)">NG</a></li>
+                <li><a class="dropdown-item" href="#" onclick="confirmWork('${work.stt}', this, 'Tạm thời', event)">Tạm thời</a></li>
               </ul>
             </div>
           ` : ''}
@@ -883,7 +884,14 @@ function toggleSection(btn) {
 }
 
 // Thêm hàm xác nhận công việc cho quản lý
-window.confirmWork = async function(stt, buttonElement, action) {
+window.confirmWork = async function(stt, buttonElement, action, event) {
+  if (event) event.preventDefault();
+  // Đổi text trên nút dropdown thành lựa chọn vừa chọn NGAY LẬP TỨC
+  const dropdown = buttonElement.closest('.dropdown');
+  if (dropdown) {
+    const btn = dropdown.querySelector('.dropdown-toggle');
+    if (btn) btn.innerHTML = `<i class='bi bi-check2-circle me-1'></i>${action}`;
+  }
   const userName = localStorage.getItem('slp_name');
   if (!userName) {
     alert('Vui lòng đăng nhập để thực hiện chức năng này!');
@@ -928,7 +936,7 @@ window.confirmWork = async function(stt, buttonElement, action) {
       filteredWorks[idx2].xacnhan = action;
       filteredWorks[idx2].nguoiXacNhan = userName;
     }
-    displayWorkList();
+    // KHÔNG gọi displayWorkList() ở đây nữa!
   } catch (error) {
     console.error('Lỗi khi gửi request xác nhận:', error);
   }

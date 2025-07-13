@@ -550,7 +550,7 @@
     // Google Sheets API để đọc dữ liệu công khai
     const SHEET_ID = '18ZLZbC8RjCvSyk_sLBvh3obi-_4TzgIlrDX09LkBXyo';
     const API_KEY = 'AIzaSyC1Rsi6v-NoDqTFVDzB_YVCP0g1aHyvMME';
-    const RANGE = 'Tonghop!A3:A100'; // Đọc cột A từ dòng 3 đến 100
+    const RANGE = 'Tonghop!A3:A1000'; // Đọc cột A từ dòng 3 đến 100
     
     // Danh sách nhân viên mặc định (fallback)
     const DEFAULT_EMPLOYEES = [
@@ -561,8 +561,8 @@
     // Thông tin Google Sheet cho khu vực và máy
     const DATA_SHEET_ID = SHEET_ID; // Dùng chung file
     const DATA_RANGE = 'Data!A2:H50';
-    const NGUOIYEUCAU_RANGE = 'Data!K2:K100';
-    const QUANLYXACNHAN_RANGE = 'Data!L2:L100';
+    const NGUOIYEUCAU_RANGE = 'Data!K2:K1000';
+    const QUANLYXACNHAN_RANGE = 'Data!L2:L1000';
 
     // Load danh sách nhân viên khi trang được tải
     document.addEventListener('DOMContentLoaded', function() {
@@ -718,31 +718,50 @@
       }
     }
 
-    // Xử lý file upload
+    // Thêm hàm upload ảnh lên imgbb
+    const IMGBB_API_KEY = "6c915f312cb2f7beed1b6ee9b55efb5e"; // Thay bằng API Key của bạn
+    window.uploadedImageLink = '';
+    function uploadImageToImgbb(file, callback) {
+      const reader = new FileReader();
+      reader.onloadend = function () {
+        const base64String = reader.result.replace(/^data:image\/[a-z]+;base64,/, '');
+        const formData = new FormData();
+        formData.append('key', IMGBB_API_KEY);
+        formData.append('image', base64String);
+        fetch('https://api.imgbb.com/1/upload', {
+          method: 'POST',
+          body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.data && data.data.url) {
+            callback(data.data.url);
+          } else {
+            alert("Lỗi khi upload ảnh!");
+            callback('');
+          }
+        })
+        .catch(err => {
+          alert("Lỗi khi upload ảnh!");
+          callback('');
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Sửa hàm handleFileSelect để upload lên imgbb và lưu link
     function handleFileSelect(input) {
       const files = input.files;
       const preview = document.getElementById('filePreview');
       preview.innerHTML = '';
-
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (file.type.startsWith('image/')) {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            const div = document.createElement('div');
-            div.className = 'col-md-3 mb-2';
-            div.innerHTML = `
-              <div class="card">
-                <img src="${e.target.result}" class="card-img-top" style="height: 100px; object-fit: cover;">
-                <div class="card-body p-2">
-                  <small class="text-muted">${file.name}</small>
-                </div>
-              </div>
-            `;
-            preview.appendChild(div);
-          };
-          reader.readAsDataURL(file);
-        }
+      if (files.length > 0) {
+        const file = files[0];
+        uploadImageToImgbb(file, function(link) {
+          window.uploadedImageLink = link;
+          if (link) {
+            preview.innerHTML = `<img src="${link}" style="max-width: 200px; max-height: 120px; border-radius: 8px;">`;
+          }
+        });
       }
     }
 
@@ -802,7 +821,7 @@
         nguoiyeucau: formData.get('nguoiyeucau'),
         quanlyxacnhan: formData.get('quanlyxacnhan'),
         quanlyxacnhan2: '', // Để trống
-        hinhanh: 'Có hình ảnh đính kèm',
+        hinhanh: window.uploadedImageLink || '', // Gửi link ảnh
         hangmuc: '', // Để trống - sẽ điền sau
         phanloai: '', // Để trống - sẽ điền sau
         vitri: '', // Để trống - sẽ điền sau
@@ -821,7 +840,8 @@
       };
       
       // Gửi dữ liệu đến Google Sheets
-      fetch('https://script.google.com/macros/s/AKfycbxJNkqD-S_lUfG3izhoW4AD5SS6eDQH9Khm_BiLp_Vwu13gulpqhsapaGDpo2tLlB7s/exec', {
+      console.log('DATA gửi lên:', data); // TEST LOG 1
+      fetch('https://script.google.com/macros/s/AKfycbzN8FnMnOO2Q0tsTQvJaAp3FutaaCTXBCGdCwc0AOe1NuFYl1_thfLAFIt5mjn_cbQj/exec', {
         method: 'POST',
         mode: 'no-cors', // Nếu chạy từ file:// hoặc localhost
         headers: {
@@ -829,7 +849,8 @@
         },
         body: JSON.stringify(data)
       })
-      .then(() => {
+      .then((res) => {
+        console.log('Kết quả trả về:', res); // TEST LOG 2
         // Reset form và nút về trạng thái ban đầu
         document.getElementById('workForm').reset();
         document.getElementById('filePreview').innerHTML = '';
@@ -853,9 +874,9 @@
         `;
         document.body.appendChild(popup);
 
-        setTimeout(() => {
-          window.location.href = 'congviec.html';
-        }, 2000);
+        // setTimeout(() => {
+        //   window.location.href = 'congviec.html';
+        // }, 2000);
       })
       .catch(() => {
         // Reset nút về trạng thái ban đầu (nếu có lỗi)

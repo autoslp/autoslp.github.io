@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Upload ảnh lên ImgBB</title>
+  <style>
+    body {
+      font-family: Arial;
+      margin: 30px;
+      background: #f5f5f5;
+    }
+    .upload-box {
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 400px;
+      margin: auto;
+      text-align: center;
+    }
+    #imageLink {
+      margin-top: 10px;
+      word-break: break-all;
+      color: blue;
+    }
+    img {
+      margin-top: 20px;
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="upload-box">
+    <h2>Upload Ảnh lên ImgBB</h2>
+    <input type="file" id="fileInput" accept="image/*" /><br /><br />
+    <button onclick="uploadImage()">Upload</button>
+    <div id="imageLink"></div>
+    <img id="previewImage" src="" />
+  </div>
+
+  <script>
+    const API_KEY = "6c915f312cb2f7beed1b6ee9b55efb5e"; // ⚠️ Thay bằng API Key của bạn từ imgbb.com
+
+    function uploadImage() {
+      const file = document.getElementById('fileInput').files[0];
+      if (!file) {
+        alert("Hãy chọn 1 ảnh!");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = function () {
+        const base64String = reader.result.replace(/^data:image\/[a-z]+;base64,/, '');
+
+        const formData = new FormData();
+        formData.append('key', API_KEY);
+        formData.append('image', base64String);
+
+        fetch('https://api.imgbb.com/1/upload', {
+          method: 'POST',
+          body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+          const link = data.data.url;
+          document.getElementById('imageLink').innerHTML = `Link ảnh: <a href="${link}" target="_blank">${link}</a>`;
+          document.getElementById('previewImage').src = link;
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Lỗi khi upload ảnh!");
+        });
+      };
+
+      reader.readAsDataURL(file);
+    }
+  </script>
+</body>
+</html>
