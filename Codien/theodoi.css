@@ -259,6 +259,11 @@ body {
   animation: popupFadeIn 0.25s;
 }
 
+/* Bỏ padding cho modal-content trong updateWorkModal */
+#updateWorkModal .modal-content {
+  padding: 0;
+}
+
 /* Tiêu đề popup */
 .popup-modal h2, .modal-content h2, .update-task-modal h2 {
   font-size: 1.6rem;
@@ -345,6 +350,7 @@ body {
   justify-content: center;
   transition: opacity 0.2s;
 }
+
 #updateWorkModal h4 {
   font-size: 1.5rem;
   font-weight: 700;
@@ -352,28 +358,13 @@ body {
   color: #222;
   text-align: center;
 }
-/* Popup cập nhật công việc - giao diện tối ưu giống ảnh */
+
 #updateWorkModal form {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
-#updateWorkModal .form-group-row {
-  display: flex;
-  gap: 18px;
-}
-#updateWorkModal .form-group-row > * {
-  flex: 1 1 0;
-}
-#updateWorkModal textarea.form-control {
-  min-height: 60px;
-  resize: vertical;
-}
-#updateWorkModal label {
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: #333;
-}
+
 #updateWorkModal .btn {
   min-width: 110px;
   font-size: 1.08rem;
@@ -382,79 +373,73 @@ body {
   padding: 8px 24px;
   margin-top: 0;
 }
-#updateWorkModal .form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 18px;
-}
-#updateWorkModal .form-control, #updateWorkModal .form-select {
+
+#updateWorkModal .form-control, 
+#updateWorkModal .form-select {
   border-radius: 8px;
   border: 1.2px solid #d0d7de;
   background: #f8fafc;
   font-size: 1rem;
   transition: border 0.2s;
 }
-#updateWorkModal .form-control:focus, #updateWorkModal .form-select:focus {
+
+#updateWorkModal .form-control:focus, 
+#updateWorkModal .form-select:focus {
   border: 1.5px solid #007bff;
   background: #fff;
 }
-#updateWorkModal form > div:not(.form-group-row):not(.form-actions) {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 0;
-}
-#updateWorkModal form > div:not(.form-group-row):not(.form-actions) > label {
-  min-width: 120px;
-  margin-bottom: 0;
-  text-align: left;
-  font-weight: 600;
-  color: #888;
-  font-size: 0.97rem;
-  font-weight: 400;
-}
-#updateWorkModal form > div:not(.form-group-row):not(.form-actions) > .form-control,
-#updateWorkModal form > div:not(.form-group-row):not(.form-actions) > .form-select,
-#updateWorkModal form > div:not(.form-group-row):not(.form-actions) > textarea {
-  flex: 1 1 0;
-}
-#updateWorkModal .form-control, #updateWorkModal .form-select, #updateWorkModal textarea {
-  font-size: 0.97rem;
-}
-#updateWorkModal .btn {
-  font-size: 0.98rem;
-  padding: 6px 16px;
-  min-width: 80px;
-}
-#updateWorkModal form > div:not(.form-group-row):not(.form-actions) > label {
-  color: #888;
-  font-size: 0.97rem;
-  font-weight: 400;
-  margin-bottom: 0;
-  text-align: left;
-}
-#updateWorkModal .form-group-row > div > label {
-  color: #888;
-  font-size: 0.97rem;
-  font-weight: 400;
-  margin-bottom: 0;
-  text-align: left;
-}
-@media (max-width: 600px) {
-  #updateWorkModal form {
-    gap: 12px;
-  }
-  #updateWorkModal .form-group-row {
-    flex-direction: column;
-    gap: 8px;
-  }
-  #updateWorkModal .form-actions {
-    flex-direction: column;
-    gap: 8px;
-  }
+
+/* CSS cho form popup cập nhật giống work-info */
+#updateWorkModal .work-update-info {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
+#updateWorkModal .work-update-info .info-item {
+  background: #f8f9fa;
+  padding: 4px 6px !important;
+  border-radius: 8px;
+  border-left: 4px solid #17a2b8;
+  min-height: 60px;
+  font-size: 13px !important;
+  margin-bottom: 2px !important;
+}
+
+#updateWorkModal .work-update-info .info-label {
+  font-size: 13px !important;
+  color: #6c757d;
+  font-weight: 600;
+  margin-bottom: 2px !important;
+}
+
+#updateWorkModal .work-update-info .info-value {
+  font-size: 13px !important;
+  color: #333;
+  font-weight: 500;
+}
+
+#updateWorkModal .work-update-info .form-control,
+#updateWorkModal .work-update-info .form-select {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 13px !important;
+  color: #333;
+  font-weight: 500;
+  box-shadow: none;
+}
+
+#updateWorkModal .work-update-info .form-control:focus,
+#updateWorkModal .work-update-info .form-select:focus {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  outline: none;
+}
+
+/* Work detail styling */
 .work-detail {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -483,12 +468,6 @@ body {
   font-weight: 500;
 }
 
-@media (max-width: 768px) {
-  .work-detail {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* Giảm padding và font-size cho các info-item trong work-detail giống work-info */
 .work-detail {
     gap: 0.5rem;
@@ -506,4 +485,155 @@ body {
 }
 .work-detail .info-value {
     font-size: 13px !important;
+}
+
+/* Responsive cho form popup và work-detail */
+@media (max-width: 768px) {
+  #updateWorkModal .work-update-info {
+    grid-template-columns: 1fr;
+  }
+  
+  .work-detail {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  #updateWorkModal form {
+    gap: 12px;
+  }
+  #updateWorkModal .form-group-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  #updateWorkModal .form-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+.hangmuc-switch-section .switch-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.switch-label {
+  font-weight: 700;
+  color: #888;
+  font-size: 16px;
+  opacity: 0.7;
+  transition: color 0.2s, opacity 0.2s;
+  letter-spacing: 1px;
+}
+
+.switch-label-right { margin-left: 4px; }
+.switch-label-left { margin-right: 4px; }
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 56px;
+  height: 28px;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #26b3a0;
+  transition: .4s;
+  border-radius: 34px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #fff;
+  transition: .4s;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px #0001;
+}
+.switch input:checked + .slider {
+  background-color: #26b3a0;
+}
+.switch input:checked + .slider:before {
+  transform: translateX(28px);
+}
+.switch input:focus + .slider {
+  box-shadow: 0 0 1px #26b3a0;
+}
+
+.hangmuc-btn-group .btn-group {
+  display: inline-flex;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1.5px solid #26b3a0;
+}
+.hangmuc-btn-group .btn-check {
+  display: none;
+}
+.hangmuc-btn-group .btn {
+  background: #fff;
+  color: #26b3a0;
+  border: none;
+  font-weight: 600;
+  padding: 4px 14px;
+  font-size: 10px;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: none;
+}
+.hangmuc-btn-group .btn:hover {
+  background: #e6f7f4;
+}
+.hangmuc-btn-group .btn-check:checked + .btn {
+  background: #26b3a0;
+  color: #fff;
+}
+
+#updateWorkModal .btn-hangmuc,
+#updateWorkModal .btn-phanloai {
+  background: #fff;
+  color: #26b3a0;
+  border: none;
+  font-weight: 600;
+  padding: 4px 14px !important;
+  font-size: 13px !important;
+  min-width: unset !important;
+  border-radius: 0 !important;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: none;
+}
+
+#updateWorkModal .btn-check:checked + .btn-hangmuc,
+#updateWorkModal .btn-check:checked + .btn-phanloai {
+  background: #26b3a0;
+  color: #fff;
+  font-weight: 700;
+}
+
+#updateWorkModal .btn-hangmuc,
+#updateWorkModal .btn-phanloai {
+  border: 1.5px solid #26b3a0;
+  border-left: none;
+}
+#updateWorkModal .btn-hangmuc:first-of-type,
+#updateWorkModal .btn-phanloai:first-of-type {
+  border-left: 1.5px solid #26b3a0;
+  border-top-left-radius: 6px !important;
+  border-bottom-left-radius: 6px !important;
+}
+#updateWorkModal .btn-hangmuc:last-of-type,
+#updateWorkModal .btn-phanloai:last-of-type {
+  border-top-right-radius: 6px !important;
+  border-bottom-right-radius: 6px !important;
 }

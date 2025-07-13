@@ -581,52 +581,64 @@ function updateWork(stt) {
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
             </div>
             <div class="modal-body">
-              <div class="row g-3">
-                <div class="col-md-4">
-                  <label class="form-label" style="color:#888;font-weight:400;">Hạng mục</label>
-                  <select name="hangmuc" class="form-select fw-bold" style="color:#374262;">
-                    <option value="Sửa chữa">Sửa chữa</option>
-                    <option value="Bảo dưỡng">Bảo dưỡng</option>
-                  </select>
+              <div class="d-flex justify-content-center align-items-center gap-4 mb-3" style="margin-bottom:18px;">
+                <div class="hangmuc-btn-group" style="text-align:center;">
+                  <div class="info-label" style="margin-bottom: 4px;">Hạng mục</div>
+                  <div class="btn-group" role="group" aria-label="Hangmuc Switch">
+                    <input type="radio" class="btn-check" name="hangmuc" id="hangmucSC" value="Sửa chữa" autocomplete="off" checked>
+                    <label class="btn btn-hangmuc" for="hangmucSC">Sửa chữa</label>
+                    <input type="radio" class="btn-check" name="hangmuc" id="hangmucBD" value="Bảo dưỡng" autocomplete="off">
+                    <label class="btn btn-hangmuc" for="hangmucBD">Bảo dưỡng</label>
+                  </div>
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label" style="color:#888;font-weight:400;">Phân loại</label>
-                  <select name="phanloai" class="form-select fw-bold" style="color:#374262;">
-                    <option value="Điện">Điện</option>
-                    <option value="Cơ">Cơ</option>
-                  </select>
+                <div class="phanloai-btn-group" style="text-align:center;">
+                  <div class="info-label" style="margin-bottom: 4px;">Phân loại</div>
+                  <div class="btn-group" role="group" aria-label="Phanloai Switch">
+                    <input type="radio" class="btn-check" name="phanloai" id="phanloaiDien" value="Điện" autocomplete="off" checked>
+                    <label class="btn btn-phanloai" for="phanloaiDien">Điện</label>
+                    <input type="radio" class="btn-check" name="phanloai" id="phanloaiCo" value="Cơ" autocomplete="off">
+                    <label class="btn btn-phanloai" for="phanloaiCo">Cơ</label>
+                  </div>
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label" style="color:#888;font-weight:400;">Vị trí</label>
-                  <input type="text" name="vitri" class="form-control fw-bold" style="color:#374262;">
+              </div>
+              <div class="work-update-info">
+                <div class="info-item">
+                  <div class="info-label">Vị trí</div>
+                  <input type="text" name="vitri" class="info-value form-control">
                 </div>
-                <div class="col-md-12">
-                  <label class="form-label" style="color:#888;font-weight:400;">Hiện trạng</label>
-                  <input type="text" name="hientrang" class="form-control fw-bold" style="color:#374262;">
+                <div class="info-item">
+                  <div class="info-label">Người xử lý</div>
+                  <select name="lamchinh" class="info-value form-select"></select>
                 </div>
-                <div class="col-md-12">
-                  <label class="form-label" style="color:#888;font-weight:400;">Nguyên nhân</label>
-                  <input type="text" name="nguyennhan" class="form-control fw-bold" style="color:#374262;">
+              </div>
+              
+              <div class="work-update-info">
+                <div class="info-item">
+                  <div class="info-label">Hiện trạng</div>
+                  <input type="text" name="hientrang" class="info-value form-control">
                 </div>
-                <div class="col-md-12">
-                  <label class="form-label" style="color:#888;font-weight:400;">Phương án xử lý</label>
-                  <input type="text" name="phuongan" class="form-control fw-bold" style="color:#374262;">
+                <div class="info-item">
+                  <div class="info-label">Nguyên nhân</div>
+                  <input type="text" name="nguyennhan" class="info-value form-control">
                 </div>
-                <div class="col-md-12">
-                  <label class="form-label" style="color:#888;font-weight:400;">Vật tư thay thế</label>
-                  <input type="text" name="vattu" class="form-control fw-bold" style="color:#374262;">
+                <div class="info-item">
+                  <div class="info-label">Phương án xử lý</div>
+                  <input type="text" name="phuongan" class="info-value form-control">
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label" style="color:#888;font-weight:400;">Người xử lý</label>
-                  <select name="lamchinh" class="form-select fw-bold" style="color:#374262;"></select>
+                <div class="info-item">
+                  <div class="info-label">Vật tư thay thế</div>
+                  <input type="text" name="vattu" class="info-value form-control">
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label" style="color:#888;font-weight:400;">Người hỗ trợ</label>
-                  <select name="lamphu1" class="form-select fw-bold" style="color:#374262;"></select>
+              </div>
+              
+              <div class="work-update-info">
+                <div class="info-item">
+                  <div class="info-label">Người hỗ trợ 1</div>
+                  <select name="lamphu1" class="info-value form-select"></select>
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label" style="color:#888;font-weight:400;">Người hỗ trợ</label>
-                  <select name="lamphu2" class="form-select fw-bold" style="color:#374262;"></select>
+                <div class="info-item">
+                  <div class="info-label">Người hỗ trợ 2</div>
+                  <select name="lamphu2" class="info-value form-select"></select>
                 </div>
               </div>
               <div id="updateWorkError" class="text-danger mt-2 text-center" style="display:none;"></div>
@@ -659,19 +671,24 @@ function updateWork(stt) {
   (async () => {
     await fetchWorkerList();
     const form = modal.querySelector('form');
+    
     // Hạng mục
     const hangmucValue = work.hangmuc || '';
     if (hangmucValue === 'Sửa chữa' || hangmucValue === 'Bảo dưỡng') {
-      form.hangmuc.value = hangmucValue;
+      form.hangmucSC.checked = true;
+      form.hangmucBD.checked = false;
     } else {
-      form.hangmuc.value = 'Sửa chữa';
+      form.hangmucSC.checked = true;
+      form.hangmucBD.checked = false;
     }
+    
     // Phân loại
-    const phanloaiValue = work.phanloai || '';
-    if (phanloaiValue === 'Điện' || phanloaiValue === 'Cơ') {
-      form.phanloai.value = phanloaiValue;
+    if (work.phanloai === 'Cơ') {
+      form.phanloaiCo.checked = true;
+      form.phanloaiDien.checked = false;
     } else {
-      form.phanloai.value = 'Điện';
+      form.phanloaiCo.checked = false;
+      form.phanloaiDien.checked = true;
     }
     form.vitri.value = work.vitri || '';
     form.hientrang.value = work.hientrang || '';
@@ -682,6 +699,14 @@ function updateWork(stt) {
     renderWorkerOptions(form.lamchinh, work.thuchienboy1 || '');
     renderWorkerOptions(form.lamphu1, work.thuchienboy2 || '');
     renderWorkerOptions(form.lamphu2, work.thuchienboy3 || '');
+
+    // Gán giá trị ban đầu cho switch
+    // const hangmucSwitch = form.querySelector('#hangmucSwitch'); // This line is no longer needed
+    // if (work.hangmuc === 'Bảo dưỡng') { // This line is no longer needed
+    //   hangmucSwitch.checked = true; // This line is no longer needed
+    // } else { // This line is no longer needed
+    //   hangmucSwitch.checked = false; // This line is no longer needed
+    // } // This line is no longer needed
   })();
 
   // Xử lý submit
@@ -690,8 +715,8 @@ function updateWork(stt) {
     e.preventDefault();
     const data = {
       stt: work.stt,
-      hangmuc: form.hangmuc.value,
-      phanloai: form.phanloai.value,
+      hangmuc: form.querySelector('input[name="hangmuc"]:checked').value,
+      phanloai: form.querySelector('input[name="phanloai"]:checked').value,
       vitri: form.vitri.value,
       hientrang: form.hientrang.value,
       nguyennhan: form.nguyennhan.value,
@@ -745,8 +770,8 @@ function updateWork(stt) {
   saveAndDeliverBtn.onclick = async function() {
     const data = {
       stt: work.stt,
-      hangmuc: form.hangmuc.value,
-      phanloai: form.phanloai.value,
+      hangmuc: form.querySelector('input[name="hangmuc"]:checked').value,
+      phanloai: form.querySelector('input[name="phanloai"]:checked').value,
       vitri: form.vitri.value,
       hientrang: form.hientrang.value,
       nguyennhan: form.nguyennhan.value,
