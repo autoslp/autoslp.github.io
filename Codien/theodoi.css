@@ -100,7 +100,7 @@ body {
 }
 
 .info-label {
-  font-size: 1rem;
+  font-size: 13px;
   color: #6c757d;
   font-weight: 600;
   margin-bottom: 0.2rem;
@@ -131,7 +131,7 @@ body {
   }
   
   .btn-action {
-    width: 100%;
+    width: 48%;
     margin: 0.2rem 0;
   }
 }
@@ -362,15 +362,15 @@ body {
 #updateWorkModal form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 2px;
 }
 
 #updateWorkModal .btn {
-  min-width: 110px;
-  font-size: 1.08rem;
+  /* min-width: 110px; */
+  font-size: 0.9rem;
   font-weight: 600;
   border-radius: 7px;
-  padding: 8px 24px;
+  /* padding: 8px 24px; */
   margin-top: 0;
 }
 
@@ -401,7 +401,7 @@ body {
   background: #f8f9fa;
   padding: 4px 6px !important;
   border-radius: 8px;
-  border-left: 4px solid #17a2b8;
+  border-left: 4px solid #26b3a0;
   min-height: 60px;
   font-size: 13px !important;
   margin-bottom: 2px !important;
@@ -429,6 +429,9 @@ body {
   color: #333;
   font-weight: 500;
   box-shadow: none;
+  border-bottom: 1px dashed;
+  border-radius: 1px;
+  border-bottom-color: #bdbdbdbb;
 }
 
 #updateWorkModal .work-update-info .form-control:focus,
@@ -500,7 +503,7 @@ body {
 
 @media (max-width: 600px) {
   #updateWorkModal form {
-    gap: 12px;
+    gap: 2px;
   }
   #updateWorkModal .form-group-row {
     flex-direction: column;
@@ -577,7 +580,7 @@ body {
   display: inline-flex;
   border-radius: 6px;
   overflow: hidden;
-  border: 1.5px solid #26b3a0;
+  /* border: 1.5px solid #26b3a0; */
 }
 .hangmuc-btn-group .btn-check {
   display: none;
@@ -606,9 +609,9 @@ body {
   color: #26b3a0;
   border: none;
   font-weight: 600;
-  padding: 4px 14px !important;
+  padding: 4px 8px !important;
   font-size: 13px !important;
-  min-width: unset !important;
+  min-width: 50px !important;
   border-radius: 0 !important;
   transition: background 0.2s, color 0.2s;
   box-shadow: none;
@@ -624,16 +627,77 @@ body {
 #updateWorkModal .btn-hangmuc,
 #updateWorkModal .btn-phanloai {
   border: 1.5px solid #26b3a0;
-  border-left: none;
-}
-#updateWorkModal .btn-hangmuc:first-of-type,
-#updateWorkModal .btn-phanloai:first-of-type {
-  border-left: 1.5px solid #26b3a0;
-  border-top-left-radius: 6px !important;
-  border-bottom-left-radius: 6px !important;
+  border-right: none;
+  border-radius: 0 !important;
 }
 #updateWorkModal .btn-hangmuc:last-of-type,
 #updateWorkModal .btn-phanloai:last-of-type {
+  border-right: 1.5px solid #26b3a0;
   border-top-right-radius: 6px !important;
   border-bottom-right-radius: 6px !important;
+}
+#updateWorkModal .btn-hangmuc:first-of-type,
+#updateWorkModal .btn-phanloai:first-of-type {
+  border-top-left-radius: 6px !important;
+  border-bottom-left-radius: 6px !important;
+}
+
+.work-update-info-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr)!important;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+@media (max-width: 768px) {
+  .work-update-info-3col {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.work-update-info-2col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr)!important;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+@media (max-width: 768px) {
+  .work-update-info-2col {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.toggle-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+
+}
+
+.btn-toggle-collapse {
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 0 8px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.arrow-down {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: solid #333;
+  border-width: 0 2px 2px 0;
+  padding: 3px;
+  transform: rotate(45deg);
+  transition: transform 0.2s;
+  margin-top: 2px;
+}
+
+/* Khi mở ra, quay mũi tên lên */
+.btn-toggle-collapse.active .arrow-down {
+  transform: rotate(-135deg);
 }
