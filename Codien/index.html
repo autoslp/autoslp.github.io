@@ -867,31 +867,8 @@
           ghichu: ''
         };
         
-        // Gửi dữ liệu lên n8n
-        try {
-          const n8nPayload = {
-            tenNguoiGui: data.nguoiyeucau,
-            hienTrangLoi: data.hientrangloi,
-            khuVuc: data.khuvuc,
-            may: data.may,
-            linkAnh: imageUrls,
-            timestamp: new Date().toISOString()
-          };
-          await fetch('https://autoslp.duckdns.org:5678/webhook/my-zalo-webhook', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(n8nPayload)
-          });
-        } catch (e) {
-          console.error('Lỗi gửi n8n:', e);
-        }
-
-
-
-        // Gửi dữ liệu đến Google Sheets
-        const response = await fetch('https://script.google.com/macros/s/AKfycbx7whQ56_qf4XfeoAvsJvKEvedSV5rqV8EkDH461KyAlWPhkpjm5TT84dfQdtY039D7/exec', {
+        // Gửi dữ liệu đến Google Sheets TRƯỚC
+        await fetch('https://script.google.com/macros/s/AKfycbx7whQ56_qf4XfeoAvsJvKEvedSV5rqV8EkDH461KyAlWPhkpjm5TT84dfQdtY039D7/exec', {
           method: 'POST',
           mode: 'no-cors', // Nếu chạy từ file:// hoặc localhost
           headers: {
@@ -922,6 +899,25 @@
           </div>
         `;
         document.body.appendChild(popup);
+
+        // Sau khi lưu Google Sheets, gửi dữ liệu lên n8n (không chờ kết quả)
+        setTimeout(() => {
+          const n8nPayload = {
+            tenNguoiGui: data.nguoiyeucau,
+            hienTrangLoi: data.hientrangloi,
+            khuVuc: data.khuvuc,
+            may: data.may,
+            linkAnh: imageUrls,
+            timestamp: new Date().toISOString()
+          };
+          fetch('https://autoslp.duckdns.org:5678/webhook/my-zalo-webhook', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(n8nPayload)
+          }).catch(e => { console.error('Lỗi gửi n8n:', e); });
+        }, 100);
 
         setTimeout(() => {
           window.location.href = 'congviec.html';
