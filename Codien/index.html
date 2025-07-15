@@ -849,7 +849,7 @@
           nguoiyeucau: formData.get('nguoiyeucau'),
           quanlyxacnhan: formData.get('quanlyxacnhan'),
           quanlyxacnhan2: '', // Để trống
-          hinhanh: imageUrls.length > 0 ? imageUrls.join(', ') : 'Có hình ảnh đính kèm',
+          hinhanh: imageUrls.join(', '),
           hangmuc: '', // Để trống - sẽ điền sau
           phanloai: '', // Để trống - sẽ điền sau
           vitri: '', // Để trống - sẽ điền sau
@@ -867,6 +867,27 @@
           ghichu: ''
         };
         
+        // Gửi dữ liệu lên n8n
+        try {
+          const n8nPayload = {
+            tenNguoiGui: data.nguoiyeucau,
+            hienTrangLoi: data.hientrangloi,
+            khuVuc: data.khuvuc,
+            may: data.may,
+            linkAnh: imageUrls,
+            timestamp: new Date().toISOString()
+          };
+          await fetch('http://103.162.31.240:5678/webhook/my-zalo-webhook', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(n8nPayload)
+          });
+        } catch (e) {
+          console.error('Lỗi gửi n8n:', e);
+        }
+
         // Gửi dữ liệu đến Google Sheets
         const response = await fetch('https://script.google.com/macros/s/AKfycbx7whQ56_qf4XfeoAvsJvKEvedSV5rqV8EkDH461KyAlWPhkpjm5TT84dfQdtY039D7/exec', {
           method: 'POST',
