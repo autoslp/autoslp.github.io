@@ -1,7 +1,12 @@
-// Google Sheets cấu hình
-const SHEET_ID = '18ZLZbC8RjCvSyk_sLBvh3obi-_4TzgIlrDX09LkBXyo';
-const API_KEY = 'AIzaSyC1Rsi6v-NoDqTFVDzB_YVCP0g1aHyvMME';
-const RANGE = 'Tonghop!A4:Z1000';
+// N8N API Configuration
+const N8N_BASE_URL = 'https://autoslp.duckdns.org:5678/webhook';
+const ENDPOINTS = {
+  GET_WORKS: `${N8N_BASE_URL}/get-congviec`,
+  GET_USERS: `${N8N_BASE_URL}/get-users`,
+  UPDATE_WORK: `${N8N_BASE_URL}/update-work`,
+  ASSIGN_WORKER: `${N8N_BASE_URL}/assign-worker`,
+  CONFIRM_WORK: `${N8N_BASE_URL}/confirm-work`
+};
 
 let allWorks = [];
 let filteredWorks = [];
@@ -51,44 +56,68 @@ function hideLoginPopup() {
   document.body.style.overflow = '';
 }
 
-// Lấy danh sách mã nhân viên, tên, mật khẩu từ Google Sheets
+// Lấy danh sách mã nhân viên, tên, mật khẩu từ N8N/SQL
 let userList = [];
 async function fetchUserListWithPassword() {
   try {
-    const API_KEY = 'AIzaSyC1Rsi6v-NoDqTFVDzB_YVCP0g1aHyvMME';
-    const SHEET_ID = '18ZLZbC8RjCvSyk_sLBvh3obi-_4TzgIlrDX09LkBXyo';
-    const RANGE = 'Data!J2:O100';
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
-    const response = await fetch(url);
+    const response = await fetch(ENDPOINTS.GET_USERS, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
     const data = await response.json();
-    if (data.values) {
-      userList = data.values.map(row => ({
-        code: row[0]?.trim(),
-        name: row[1]?.trim(),
-        bophan: row[3]?.trim(),      // <-- Lấy bộ phận
-        password: row[5]?.trim(),
-        chucvu: row[4]?.trim()
+    if (data && Array.isArray(data)) {
+      userList = data.map(user => ({
+        code: user.ma_nhan_vien?.trim(),
+        name: user.ten_nhan_vien?.trim(),
+        bophan: user.bo_phan?.trim(),
+        password: user.mat_khau?.trim(),
+        chucvu: user.chuc_vu?.trim()
       }));
     }
-  } catch (e) { userList = []; }
+  } catch (e) {
+    console.error('Lỗi khi lấy danh sách user:', e);
+    userList = [];
+  }
 }
+
 
 // Lấy danh sách nhân viên bộ phận Cơ điện
 let workerList = [];
 async function fetchWorkerList() {
   try {
-    const API_KEY = 'AIzaSyC1Rsi6v-NoDqTFVDzB_YVCP0g1aHyvMME';
-    const SHEET_ID = '18ZLZbC8RjCvSyk_sLBvh3obi-_4TzgIlrDX09LkBXyo';
-    const RANGE = 'Data!J2:O300';
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
-    const response = await fetch(url);
-    const data = await response.json();
-    if (data.values) {
-      workerList = data.values.filter(row => (row[3]||'').trim() === 'Cơ điện')
-        .map(row => ({ code: row[0]?.trim(), name: row[1]?.trim() }));
+    const response = await fetch(`${ENDPOINTS.GET_USERS}?bophan=Cơ điện`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  } catch (e) { workerList = []; }
+    
+    const data = await response.json();
+    if (data && Array.isArray(data)) {
+      workerList = data
+        .filter(user => (user.bo_phan || '').trim() === 'Cơ điện')
+        .map(user => ({ 
+          code: user.ma_nhan_vien?.trim(), 
+          name: user.ten_nhan_vien?.trim() 
+        }));
+    }
+  } catch (e) {
+    console.error('Lỗi khi lấy danh sách worker:', e);
+    workerList = [];
+  }
 }
+
 
 // Kiểm tra đăng nhập
 async function checkLogin() {
@@ -175,15 +204,19 @@ document.addEventListener('DOMContentLoaded', function() {
   loadWorkList();
 });
 
-// Load danh sách công việc từ Google Sheets
+// Load danh sách công việc từ N8N/SQL
 async function loadWorkList() {
   try {
     document.getElementById('loadingSection').style.display = 'block';
     document.getElementById('workListContainer').innerHTML = '';
     document.getElementById('emptyState').style.display = 'none';
 
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
-    const response = await fetch(url);
+    const response = await fetch(ENDPOINTS.GET_WORKS, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -191,33 +224,29 @@ async function loadWorkList() {
     
     const data = await response.json();
     
-    if (data.values && data.values.length > 0) {
-      allWorks = data.values.map(row => {
-        const thuchienboy2Val = (row[21] || '').toString().trim();
-        const thuchienboy3Val = (row[22] || '').toString().trim();
-        return {
-          stt: row[0] || '',
-          may: row[2] || '',
-          thoigianyeucau: row[3] || '',
-          hientrangloi: row[4] || '',
-          nguoiyeucau: row[5] || '',
-          quanlyxacnhan: row[6] || '',
-          hientrang: row[12] || '',        // <-- Cột M: Hiện trạng
-          nguyennhan: row[13] || '',       // <-- Cột N: Nguyên nhân
-          phuonganhxuly: row[14] || '',    // <-- Cột O: Phương án xử lý
-          ketqua: row[17] || '',
-          thuchienboy1: (row[20] || '').toString().trim(),  // <-- Cột U: Người làm chính
-          thuchienboy2: thuchienboy2Val,   // <-- Cột V: Người hỗ trợ 1
-          thuchienboy3: thuchienboy3Val,   // <-- Cột W: Người hỗ trợ 2
-          quanlyduyet: (row[7] || '').toString().trim(),
-          thoigianbangiao: (row[16] || '').toString().trim(),
-          hangmuc: row[9] || '',      // J
-          phanloai: row[10] || '',    // K
-          vitri: row[11] || '',       // L
-          vattuthaythe: row[15] || '', // <-- Thêm dòng này
-          xacnhan: row[18] || '',     // <-- Cột S: xác nhận
-        };
-      })
+    if (data && Array.isArray(data) && data.length > 0) {
+      allWorks = data.map(work => ({
+        stt: work.stt || '',
+        may: work.may || '',
+        thoigianyeucau: work.thoi_gian_yeu_cau || '',
+        hientrangloi: work.hien_trang_loi || '',
+        nguoiyeucau: work.nguoi_yeu_cau || '',
+        quanlyxacnhan: work.ql_xac_nhan || '',
+        hientrang: work.hien_trang || '',
+        nguyennhan: work.nguyen_nhan || '',
+        phuonganhxuly: work.phuong_an_xu_ly || '',
+        ketqua: work.ket_qua || '',
+        thuchienboy1: (work.nguoi_lam_chinh || '').toString().trim(),
+        thuchienboy2: (work.nguoi_lam_phu_1 || '').toString().trim(),
+        thuchienboy3: (work.nguoi_lam_phu_2 || '').toString().trim(),
+        quanlyduyet: (work.ql_duyet || '').toString().trim(),
+        thoigianbangiao: (work.thoi_gian_ban_giao || '').toString().trim(),
+        hangmuc: work.hang_muc || '',
+        phanloai: work.phan_loai || '',
+        vitri: work.vi_tri || '',
+        vattuthaythe: work.vat_tu_thay_the || '',
+        xacnhan: work.san_xuat_xac_nhan || '',
+      }))
       .filter(work => {
         const quanlyduyet = (work.quanlyduyet || '').trim().toLowerCase();
         return quanlyduyet === 'đã duyệt';
@@ -237,6 +266,7 @@ async function loadWorkList() {
     
   } catch (error) {
     console.error('Lỗi khi load danh sách công việc:', error);
+    document.getElementById('emptyState').style.display = 'block';
     // alert('Có lỗi khi tải danh sách công việc. Vui lòng thử lại!');
   } finally {
     document.getElementById('loadingSection').style.display = 'none';
@@ -488,28 +518,63 @@ async function assignMainWorker(stt, buttonElement) {
     return;
   }
 
+  // Hiệu ứng nút ngay lập tức
+  const originalText = buttonElement.innerHTML;
+  buttonElement.innerHTML = '<i class="bi bi-check-circle me-1"></i>Đã nhận';
+  buttonElement.classList.remove('btn-success');
+  buttonElement.classList.add('btn-secondary');
+  buttonElement.disabled = true;
+
   try {
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycbx7whQ56_qf4XfeoAvsJvKEvedSV5rqV8EkDH461KyAlWPhkpjm5TT84dfQdtY039D7/exec';
-    fetch(scriptUrl, {
+    // Lấy thời gian hiện tại theo format DD/MM/YYYY HH:MM:SS
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const currentTime = `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
+
+    const response = await fetch('https://autoslp.duckdns.org:5678/webhook/update-congviec', {
       method: 'POST',
-      mode: 'no-cors',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         stt: stt,
-        column: 'U',
-        value: userName
+        nguoi_lam_chinh: userName,
+        thoi_gian_bat_dau_lam: currentTime,
+        action: 'process'
       })
     });
-    // Cập nhật dữ liệu local và render lại giao diện
-    const idx = allWorks.findIndex(w => w.stt === stt);
-    if (idx !== -1) allWorks[idx].thuchienboy1 = userName;
-    const idx2 = filteredWorks.findIndex(w => w.stt === stt);
-    if (idx2 !== -1) filteredWorks[idx2].thuchienboy1 = userName;
-    displayWorkList();
+
+    if (response.ok) {
+      // Cập nhật dữ liệu local và render lại giao diện
+      const idx = allWorks.findIndex(w => w.stt === stt);
+      if (idx !== -1) allWorks[idx].thuchienboy1 = userName;
+      const idx2 = filteredWorks.findIndex(w => w.stt === stt);
+      if (idx2 !== -1) filteredWorks[idx2].thuchienboy1 = userName;
+      
+      // Cập nhật hiển thị người xử lý mà không reload toàn bộ list
+      updateWorkerDisplay(stt);
+    } else {
+      // Khôi phục nút nếu lỗi
+      buttonElement.innerHTML = originalText;
+      buttonElement.classList.remove('btn-secondary');
+      buttonElement.classList.add('btn-success');
+      buttonElement.disabled = false;
+      console.error('Lỗi khi gán người làm chính');
+      alert('Lỗi từ server khi nhận xử lý công việc');
+    }
   } catch (error) {
+    // Khôi phục nút nếu lỗi
+    buttonElement.innerHTML = originalText;
+    buttonElement.classList.remove('btn-secondary');
+    buttonElement.classList.add('btn-success');
+    buttonElement.disabled = false;
     console.error('Lỗi khi gửi request:', error);
+    alert('Lỗi khi nhận xử lý công việc: ' + error.message);
   }
 }
 
@@ -521,46 +586,178 @@ async function assignSupportWorker(stt, buttonElement) {
     return;
   }
 
+  // Hiệu ứng nút ngay lập tức
+  const originalText = buttonElement.innerHTML;
+  buttonElement.innerHTML = '<i class="bi bi-check-circle me-1"></i>Đã nhận';
+  buttonElement.classList.remove('btn-warning');
+  buttonElement.classList.add('btn-secondary');
+  buttonElement.disabled = true;
+
   try {
     // Tìm dòng trong dữ liệu
     const idx = allWorks.findIndex(w => w.stt === stt);
     if (idx === -1) {
+      // Khôi phục nút nếu lỗi
+      buttonElement.innerHTML = originalText;
+      buttonElement.classList.remove('btn-secondary');
+      buttonElement.classList.add('btn-warning');
+      buttonElement.disabled = false;
       alert('Không tìm thấy công việc!');
       return;
     }
-    let targetColumn = '';
-    if (!allWorks[idx].thuchienboy2) {
-      allWorks[idx].thuchienboy2 = userName;
-      targetColumn = 'V';
-    } else if (!allWorks[idx].thuchienboy3) {
-      allWorks[idx].thuchienboy3 = userName;
-      targetColumn = 'W';
+    
+    let updateField = '';
+    if (!allWorks[idx].thuchienboy2 || allWorks[idx].thuchienboy2.trim() === '') {
+      updateField = 'nguoi_lam_phu_1';
+    } else if (!allWorks[idx].thuchienboy3 || allWorks[idx].thuchienboy3.trim() === '') {
+      updateField = 'nguoi_lam_phu_2';
     } else {
+      // Khôi phục nút nếu đã đủ người
+      buttonElement.innerHTML = originalText;
+      buttonElement.classList.remove('btn-secondary');
+      buttonElement.classList.add('btn-warning');
+      buttonElement.disabled = false;
       alert('Đã đủ người hỗ trợ cho công việc này!');
       return;
     }
-    // Đồng bộ filteredWorks
-    const idx2 = filteredWorks.findIndex(w => w.stt === stt);
-    if (idx2 !== -1) {
-      if (targetColumn === 'V') filteredWorks[idx2].thuchienboy2 = userName;
-      if (targetColumn === 'W') filteredWorks[idx2].thuchienboy3 = userName;
-    }
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycbx7whQ56_qf4XfeoAvsJvKEvedSV5rqV8EkDH461KyAlWPhkpjm5TT84dfQdtY039D7/exec';
-    fetch(scriptUrl, {
+
+    // Lấy thời gian hiện tại
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const currentTime = `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
+
+    const response = await fetch('https://autoslp.duckdns.org:5678/webhook/update-congviec', {
       method: 'POST',
-      mode: 'no-cors',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         stt: stt,
-        column: targetColumn,
-        value: userName
+        [updateField]: userName,
+        thoi_gian_bat_dau_lam: currentTime,
+        action: 'support'
       })
     });
-    displayWorkList();
+
+    if (response.ok) {
+      // Cập nhật dữ liệu local
+      if (updateField === 'nguoi_lam_phu_1') {
+        allWorks[idx].thuchienboy2 = userName;
+      } else {
+        allWorks[idx].thuchienboy3 = userName;
+      }
+      
+      // Đồng bộ filteredWorks
+      const idx2 = filteredWorks.findIndex(w => w.stt === stt);
+      if (idx2 !== -1) {
+        if (updateField === 'nguoi_lam_phu_1') {
+          filteredWorks[idx2].thuchienboy2 = userName;
+        } else {
+          filteredWorks[idx2].thuchienboy3 = userName;
+        }
+      }
+      
+      // Cập nhật hiển thị người xử lý mà không reload toàn bộ list
+      updateWorkerDisplay(stt);
+    } else {
+      // Khôi phục nút nếu lỗi
+      buttonElement.innerHTML = originalText;
+      buttonElement.classList.remove('btn-secondary');
+      buttonElement.classList.add('btn-warning');
+      buttonElement.disabled = false;
+      console.error('Lỗi khi gán người hỗ trợ');
+      alert('Lỗi từ server khi đăng ký hỗ trợ');
+    }
   } catch (error) {
+    // Khôi phục nút nếu lỗi
+    buttonElement.innerHTML = originalText;
+    buttonElement.classList.remove('btn-secondary');
+    buttonElement.classList.add('btn-warning');
+    buttonElement.disabled = false;
     console.error('Lỗi khi gửi request:', error);
+    alert('Lỗi khi đăng ký hỗ trợ: ' + error.message);
+  }
+}
+
+// Hàm cập nhật hiển thị người xử lý mà không reload toàn bộ danh sách
+function updateWorkerDisplay(stt) {
+  const workCard = document.querySelector(`[data-stt="${stt}"]`);
+  if (!workCard) return;
+  
+  const work = filteredWorks.find(w => w.stt === stt);
+  if (!work) return;
+  
+  const thuchienboy1Val = (work.thuchienboy1 || '').toString().trim();
+  const thuchienboy2Val = (work.thuchienboy2 || '').toString().trim();
+  const thuchienboy3Val = (work.thuchienboy3 || '').toString().trim();
+  
+  function getLastName(fullName) {
+    if (!fullName) return '';
+    const parts = fullName.trim().split(/\s+/);
+    return parts[parts.length - 1];
+  }
+
+  function getLastNames(multiNames) {
+    if (!multiNames) return [];
+    const separators = /,|;|-|và/gi;
+    const names = multiNames.split(separators).map(n => n.trim()).filter(n => n.length > 0);
+    const lastNames = names.map(name => {
+      const parts = name.trim().split(/\s+/);
+      return parts[parts.length - 1];
+    });
+    return lastNames;
+  }
+
+  let nguoiXuLy = thuchienboy1Val ? `Mr ${getLastName(thuchienboy1Val)} - Xử lý` : 'Chưa phân công';
+  let nguoiHoTroArr = [];
+  if (thuchienboy2Val) {
+    const lastNames = getLastNames(thuchienboy2Val);
+    nguoiHoTroArr = nguoiHoTroArr.concat(lastNames.map(n => `Mr ${n}`));
+  }
+  if (thuchienboy3Val) {
+    const lastNames = getLastNames(thuchienboy3Val);
+    nguoiHoTroArr = nguoiHoTroArr.concat(lastNames.map(n => `Mr ${n}`));
+  }
+  let nguoiHoTro = nguoiHoTroArr.length > 0 ? nguoiHoTroArr.join(' và ') + ' - Hỗ trợ' : '';
+  
+  // Cập nhật text hiển thị người xử lý
+  const workerDisplay = workCard.querySelector('.main-worker-display');
+  if (workerDisplay) {
+    workerDisplay.innerHTML = `${nguoiXuLy}<br>${nguoiHoTro || ''}`;
+  }
+  
+  // Cập nhật status badge
+  const hasWorkers = thuchienboy1Val || thuchienboy2Val || thuchienboy3Val;
+  const hasBangGiao = work.thoigianbangiao && work.thoigianbangiao.trim() !== '';
+  
+  let displayStatus, statusClass, headerClass;
+  if (hasBangGiao) {
+    displayStatus = 'Đã bàn giao';
+    statusClass = 'status-completed';
+    headerClass = 'header-completed';
+  } else if (hasWorkers) {
+    displayStatus = 'Đang xử lý';
+    statusClass = 'status-in-progress';
+    headerClass = 'header-in-progress';
+  } else {
+    displayStatus = 'Đợi xử lý';
+    statusClass = 'status-pending';
+    headerClass = 'header-pending';
+  }
+  
+  const statusBadge = workCard.querySelector('.status-badge');
+  const workHeader = workCard.querySelector('.work-header');
+  if (statusBadge) {
+    statusBadge.textContent = displayStatus;
+    statusBadge.className = `status-badge ${statusClass}`;
+  }
+  if (workHeader) {
+    workHeader.className = `work-header ${headerClass} d-flex justify-content-between align-items-center`;
   }
 }
 
@@ -752,27 +949,44 @@ function updateWork(stt) {
       saveBtn.disabled = false;
     }, 2000);
     try {
-      const scriptUrl = 'https://script.google.com/macros/s/AKfycbx7whQ56_qf4XfeoAvsJvKEvedSV5rqV8EkDH461KyAlWPhkpjm5TT84dfQdtY039D7/exec';
-      await fetch(scriptUrl, {
+      const response = await fetch('https://autoslp.duckdns.org:5678/webhook/update-congviec', {
         method: 'POST',
-        mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'updateRow', ...data })
+        body: JSON.stringify({
+          stt: work.stt,
+          hang_muc: data.hangmuc,
+          phan_loai: data.phanloai,
+          vi_tri: data.vitri,
+          hien_trang: data.hientrang,
+          nguyen_nhan: data.nguyennhan,
+          phuong_an_xu_ly: data.phuongan,
+          vat_tu_thay_the: data.vattu,
+          nguoi_lam_chinh: data.lamchinh,
+          nguoi_lam_phu_1: data.lamphu1,
+          nguoi_lam_phu_2: data.lamphu2,
+          action: 'update'
+        })
       });
-      // Cập nhật local
-      work.hangmuc = data.hangmuc;
-      work.phanloai = data.phanloai;
-      work.vitri = data.vitri;
-      work.hientrang = data.hientrang;
-      work.nguyennhan = data.nguyennhan;
-      work.phuonganhxuly = data.phuongan;
-      work.vattuthaythe = data.vattu;
-      work.thuchienboy1 = data.lamchinh;
-      work.thuchienboy2 = data.lamphu1;
-      work.thuchienboy3 = data.lamphu2;
-      displayWorkList();
+
+      if (response.ok) {
+        // Cập nhật local
+        work.hangmuc = data.hangmuc;
+        work.phanloai = data.phanloai;
+        work.vitri = data.vitri;
+        work.hientrang = data.hientrang;
+        work.nguyennhan = data.nguyennhan;
+        work.phuonganhxuly = data.phuongan;
+        work.vattuthaythe = data.vattu;
+        work.thuchienboy1 = data.lamchinh;
+        work.thuchienboy2 = data.lamphu1;
+        work.thuchienboy3 = data.lamphu2;
+        displayWorkList();
+      } else {
+        throw new Error('Lỗi từ server');
+      }
     } catch (err) {
-      modal.querySelector('#updateWorkError').textContent = 'Có lỗi khi cập nhật. Vui lòng thử lại!';
+      console.error('Lỗi khi cập nhật:', err);
+      modal.querySelector('#updateWorkError').textContent = 'Có lỗi khi cập nhật: ' + err.message;
       modal.querySelector('#updateWorkError').style.display = '';
     }
   };
@@ -807,28 +1021,46 @@ function updateWork(stt) {
       saveAndDeliverBtn.disabled = false;
     }, 2000);
     try {
-      const scriptUrl = 'https://script.google.com/macros/s/AKfycbx7whQ56_qf4XfeoAvsJvKEvedSV5rqV8EkDH461KyAlWPhkpjm5TT84dfQdtY039D7/exec';
-      await fetch(scriptUrl, {
+      const response = await fetch('https://autoslp.duckdns.org:5678/webhook/update-congviec', {
         method: 'POST',
-        mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'updateRow', ...data })
+        body: JSON.stringify({
+          stt: work.stt,
+          hang_muc: data.hangmuc,
+          phan_loai: data.phanloai,
+          vi_tri: data.vitri,
+          hien_trang: data.hientrang,
+          nguyen_nhan: data.nguyennhan,
+          phuong_an_xu_ly: data.phuongan,
+          vat_tu_thay_the: data.vattu,
+          nguoi_lam_chinh: data.lamchinh,
+          nguoi_lam_phu_1: data.lamphu1,
+          nguoi_lam_phu_2: data.lamphu2,
+          thoi_gian_ban_giao: data.thoigianbangiao,
+          action: 'update_and_handover'
+        })
       });
-      // Cập nhật local
-      work.hangmuc = data.hangmuc;
-      work.phanloai = data.phanloai;
-      work.vitri = data.vitri;
-      work.hientrang = data.hientrang;
-      work.nguyennhan = data.nguyennhan;
-      work.phuonganhxuly = data.phuongan;
-      work.vattuthaythe = data.vattu;
-      work.thuchienboy1 = data.lamchinh;
-      work.thuchienboy2 = data.lamphu1;
-      work.thuchienboy3 = data.lamphu2;
-      work.thoigianbangiao = data.thoigianbangiao;
-      displayWorkList();
+
+      if (response.ok) {
+        // Cập nhật local
+        work.hangmuc = data.hangmuc;
+        work.phanloai = data.phanloai;
+        work.vitri = data.vitri;
+        work.hientrang = data.hientrang;
+        work.nguyennhan = data.nguyennhan;
+        work.phuonganhxuly = data.phuongan;
+        work.vattuthaythe = data.vattu;
+        work.thuchienboy1 = data.lamchinh;
+        work.thuchienboy2 = data.lamphu1;
+        work.thuchienboy3 = data.lamphu2;
+        work.thoigianbangiao = data.thoigianbangiao;
+        displayWorkList();
+      } else {
+        throw new Error('Lỗi từ server');
+      }
     } catch (err) {
-      modal.querySelector('#updateWorkError').textContent = 'Có lỗi khi cập nhật. Vui lòng thử lại!';
+      console.error('Lỗi khi lưu và bàn giao:', err);
+      modal.querySelector('#updateWorkError').textContent = 'Có lỗi khi lưu và bàn giao: ' + err.message;
       modal.querySelector('#updateWorkError').style.display = '';
     }
   };
@@ -886,58 +1118,78 @@ function toggleSection(btn) {
 // Thêm hàm xác nhận công việc cho quản lý
 window.confirmWork = async function(stt, buttonElement, action, event) {
   if (event) event.preventDefault();
-  // Đổi text trên nút dropdown thành lựa chọn vừa chọn NGAY LẬP TỨC
-  const dropdown = buttonElement.closest('.dropdown');
-  if (dropdown) {
-    const btn = dropdown.querySelector('.dropdown-toggle');
-    if (btn) btn.innerHTML = `<i class='bi bi-check2-circle me-1'></i>${action}`;
-  }
+  
   const userName = localStorage.getItem('slp_name');
   if (!userName) {
     alert('Vui lòng đăng nhập để thực hiện chức năng này!');
     return;
   }
-  // Lấy dữ liệu công việc hiện tại
-  const work = allWorks.find(w => w.stt === stt);
-  if (!work) return;
+
+  // Đổi text trên nút dropdown thành lựa chọn vừa chọn NGAY LẬP TỨC
+  const dropdown = buttonElement.closest('.dropdown');
+  if (dropdown) {
+    const btn = dropdown.querySelector('.dropdown-toggle');
+    if (btn) {
+      btn.innerHTML = `<i class='bi bi-check2-circle me-1'></i>${action}`;
+      btn.classList.remove('btn-outline-primary');
+      btn.classList.add('btn-secondary');
+      btn.disabled = true;
+    }
+  }
 
   try {
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycbx7whQ56_qf4XfeoAvsJvKEvedSV5rqV8EkDH461KyAlWPhkpjm5TT84dfQdtY039D7/exec';
-    await fetch(scriptUrl, {
+    const response = await fetch('https://autoslp.duckdns.org:5678/webhook/update-congviec', {
       method: 'POST',
-      mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        action: 'updateRow',
-        stt: work.stt,
-        hangmuc: work.hangmuc,
-        phanloai: work.phanloai,
-        vitri: work.vitri,
-        hientrang: work.hientrang,
-        nguyennhan: work.nguyennhan,
-        phuongan: work.phuonganhxuly,
-        vattu: work.vattuthaythe,
-        lamchinh: work.thuchienboy1,
-        lamphu1: work.thuchienboy2,
-        lamphu2: work.thuchienboy3,
-        thoigianbangiao: work.thoigianbangiao,
-        xacnhan: action,
-        nguoiXacNhan: userName
+        stt: stt,
+        san_xuat_xac_nhan: action,
+        ten_nguoi_xn: userName,
+        action: 'confirm'
       })
     });
-    // Cập nhật local và render lại giao diện
-    const idx = allWorks.findIndex(w => w.stt === stt);
-    if (idx !== -1) {
-      allWorks[idx].xacnhan = action;
-      allWorks[idx].nguoiXacNhan = userName;
+
+    if (response.ok) {
+      // Cập nhật local và render lại giao diện
+      const idx = allWorks.findIndex(w => w.stt === stt);
+      if (idx !== -1) {
+        allWorks[idx].xacnhan = action;
+        allWorks[idx].nguoiXacNhan = userName;
+      }
+      const idx2 = filteredWorks.findIndex(w => w.stt === stt);
+      if (idx2 !== -1) {
+        filteredWorks[idx2].xacnhan = action;
+        filteredWorks[idx2].nguoiXacNhan = userName;
+      }
+      // Không gọi displayWorkList() để giữ trạng thái nút đã chọn
+      // displayWorkList();
+    } else {
+      // Khôi phục nút nếu lỗi
+      const dropdown = buttonElement.closest('.dropdown');
+      if (dropdown) {
+        const btn = dropdown.querySelector('.dropdown-toggle');
+        if (btn) {
+          btn.innerHTML = `<i class='bi bi-check2-circle me-1'></i>Xác nhận`;
+          btn.classList.remove('btn-secondary');
+          btn.classList.add('btn-outline-primary');
+          btn.disabled = false;
+        }
+      }
+      throw new Error('Lỗi từ server');
     }
-    const idx2 = filteredWorks.findIndex(w => w.stt === stt);
-    if (idx2 !== -1) {
-      filteredWorks[idx2].xacnhan = action;
-      filteredWorks[idx2].nguoiXacNhan = userName;
-    }
-    // KHÔNG gọi displayWorkList() ở đây nữa!
   } catch (error) {
-    console.error('Lỗi khi gửi request xác nhận:', error);
+    // Khôi phục nút nếu lỗi
+    const dropdown = buttonElement.closest('.dropdown');
+    if (dropdown) {
+      const btn = dropdown.querySelector('.dropdown-toggle');
+      if (btn) {
+        btn.innerHTML = `<i class='bi bi-check2-circle me-1'></i>Xác nhận`;
+        btn.classList.remove('btn-secondary');
+        btn.classList.add('btn-outline-primary');
+        btn.disabled = false;
+      }
+    }
+    console.error('Lỗi khi xác nhận công việc:', error);
+    alert('Lỗi khi xác nhận công việc: ' + error.message);
   }
 }
