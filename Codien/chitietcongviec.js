@@ -1,4 +1,3 @@
-
 // ==== LOGIN HANDLING ====
 function showUserInfo() {
   if (localStorage.getItem('slp_user') && localStorage.getItem('slp_name')) {
@@ -543,6 +542,9 @@ function parseDate(str) {
 }
 
 async function renderWorkDetail(row) {
+  // Store current work data globally for use in other functions
+  window.currentWorkData = row;
+  
   // Debug: Log dữ liệu row để kiểm tra
   console.log('=== renderWorkDetail called ===');
   console.log('Full row data:', row);
@@ -1445,7 +1447,7 @@ async function handleSaveUpdate() {
 
     console.log('Dữ liệu cập nhật:', updateData);
 
-    const response = await fetch('https://autoslp.duckdns.org:5678/webhook/update-congviec', {
+    const response = await fetch('https://autoslp.duckdns.org:5678/webhook-test/update-congviec', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1495,29 +1497,40 @@ async function handleSaveAndHandover() {
     const seconds = String(now.getSeconds()).padStart(2, '0');
     const handoverTime = `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
     
+    // Get current work data from global variable
+    const currentData = window.currentWorkData || {};
+    
     const updateData = {
       stt: stt,
-      hang_muc: hangMucValue,
-      phan_loai: phanLoaiValue,
-      vi_tri: document.getElementById('updateViTri').value,
+      hien_trang_loi: currentData.hienTrangLoi || '', // Thêm trường hien_trang_loi
+      hien_trang: document.getElementById('updateHienTrang').value || currentData.hienTrang || '',
+      nguyen_nhan: document.getElementById('updateNguyenNhan').value || currentData.nguyenNhan || '',
+      phuong_an_xu_ly: document.getElementById('updatePhuongAnXuLy').value || currentData.phuongAnXuLy || '',
+      khu_vuc: currentData.khuVuc || '', // Thêm trường khu_vuc
+      may: currentData.may || '', // Thêm trường may
+      thoi_gian_yeu_cau: currentData.thoiGianYeuCau || '', // Thêm trường thoi_gian_yeu_cau
+      thoi_gian_ban_giao: handoverTime, // Thời gian bàn giao hiện tại
+      code_zalo_send: currentData.codeZaloSend || '', // Thêm trường code_zalo_send
+      hang_muc: hangMucValue || currentData.hangMuc || '', // Cập nhật hang_muc
+      phan_loai: phanLoaiValue || currentData.phanLoai || '', // Cập nhật phan_loai
+      vi_tri: document.getElementById('updateViTri').value || currentData.viTri || '', // Cập nhật vi_tri
+      
+      // Các trường khác (giữ nguyên)
       ket_qua: document.getElementById('updateKetQua').value,
-      hien_trang: document.getElementById('updateHienTrang').value,
-      nguyen_nhan: document.getElementById('updateNguyenNhan').value,
-      phuong_an_xu_ly: document.getElementById('updatePhuongAnXuLy').value,
       vat_tu_thay_the: document.getElementById('updateVatTuThayThe').value,
       nguoi_lam_chinh: document.getElementById('updateNguoiLamChinh').value,
       nguoi_lam_phu_1: document.getElementById('updateNguoiLamPhu1').value,
       nguoi_lam_phu_2: document.getElementById('updateNguoiLamPhu2').value,
-      thoi_gian_ban_giao: handoverTime, // Thêm thời gian bàn giao
       action: 'update_and_handover'
     };
 
-    // Kiểm tra xem có ít nhất một trường được điền
-    const hasData = Object.values(updateData).some(value => 
-      value !== '' && value !== stt && value !== 'update_and_handover'
+    // Kiểm tra xem có ít nhất một trường được điền (bỏ qua các trường tự động)
+    const excludeFields = ['stt', 'action', 'thoi_gian_ban_giao', 'hien_trang_loi', 'khu_vuc', 'may', 'thoi_gian_yeu_cau', 'code_zalo_send'];
+    const hasUserInputData = Object.entries(updateData).some(([key, value]) => 
+      !excludeFields.includes(key) && value !== ''
     );
     
-    if (!hasData) {
+    if (!hasUserInputData) {
       alert('Vui lòng điền ít nhất một thông tin để cập nhật!');
       return;
     }
@@ -1528,9 +1541,24 @@ async function handleSaveAndHandover() {
       return;
     }
 
-    console.log('Dữ liệu cập nhật và bàn giao:', updateData);
+    console.log('Dữ liệu cập nhật và bàn giao gửi lên n8n:', updateData);
+    console.log('Các trường yêu cầu:', {
+      STT: updateData.stt,
+      hien_trang_loi: updateData.hien_trang_loi,
+      hien_trang: updateData.hien_trang,
+      nguyen_nhan: updateData.nguyen_nhan,
+      phuong_an_xu_ly: updateData.phuong_an_xu_ly,
+      khu_vuc: updateData.khu_vuc,
+      may: updateData.may,
+      thoi_gian_yeu_cau: updateData.thoi_gian_yeu_cau,
+      thoi_gian_ban_giao: updateData.thoi_gian_ban_giao,
+      code_zalo_send: updateData.code_zalo_send,
+      hang_muc: updateData.hang_muc,
+      phan_loai: updateData.phan_loai,
+      vi_tri: updateData.vi_tri
+    });
 
-    const response = await fetch('https://autoslp.duckdns.org:5678/webhook/update-congviec', {
+    const response = await fetch('https://autoslp.duckdns.org:5678/webhook-test/update-congviec', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

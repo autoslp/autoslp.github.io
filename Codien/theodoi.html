@@ -31,34 +31,20 @@
     <!-- Filter Section -->
     <div class="filter-section">
       <div class="row">
-        <div class="col-md-2 mb-2">
-          <label for="filterNguoi" class="form-label">Người yêu cầu:</label>
-          <select class="form-control" id="filterNguoi" onchange="filterWorks()">
-            <option value="">Tất cả</option>
-          </select>
-        </div>
-        <div class="col-md-2 mb-2">
+        <div class="col-md-6 mb-2">
           <label for="filterMay" class="form-label">Máy:</label>
           <select class="form-control" id="filterMay" onchange="filterWorks()">
             <option value="">Tất cả</option>
           </select>
         </div>
-        <div class="col-md-8 mb-2">
-          <label class="form-label">&nbsp;</label>
-          <div style="display: flex; gap: 6px; justify-content: flex-end; align-items: center; flex-wrap: wrap; margin-top: 0.5rem;">
-            <select class="form-select" id="statusFilter" onchange="filterWorks()" style="max-width: 150px; min-width: 120px;">
-              <option value="">Tất cả trạng thái</option>
-              <option value="Chờ xử lý">Chờ xử lý</option>
-              <option value="Đang xử lý">Đang xử lý</option>
-              <option value="Hoàn thành">Hoàn thành</option>
-            </select>
-            <input type="text" class="form-control" id="searchInput" placeholder="Tìm theo STT, máy..." onkeyup="filterWorks()" style="max-width: 200px; min-width: 150px;">
-            <select class="form-select" id="sortOrder" onchange="filterWorks()" style="max-width: 120px; min-width: 100px;">
-              <option value="newest">Mới nhất</option>
-              <option value="oldest">Cũ nhất</option>
-              <option value="priority">Ưu tiên</option>
-            </select>
-          </div>
+        <div class="col-md-6 mb-2">
+          <label for="statusFilter" class="form-label">Trạng thái:</label>
+          <select class="form-control" id="statusFilter" onchange="filterWorks()">
+            <option value="">Tất cả trạng thái</option>
+            <option value="Đợi xử lý">Đợi xử lý</option>
+            <option value="Đang xử lý">Đang xử lý</option>
+            <option value="Đã bàn giao">Đã bàn giao</option>
+          </select>
         </div>
       </div>
     </div>

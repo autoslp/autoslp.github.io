@@ -40,7 +40,7 @@
       </div>
     </div>
   </div>
-  <div class="container-fluid px-2 px-md-3">
+  <div class="container-fluid px-2 px-md-3" style="max-width: 1250px;">
     <div class="row g-2 g-md-3">
       <!-- LEFT COLUMN - PROFILE -->
       <div class="col-12 col-lg-4 order-1 order-lg-1">
@@ -85,24 +85,34 @@ justify-self: center;">
             </div>
         </div>
         <div class="profile-card mb-4">
-          <h5 class="mb-3">Timeline trạng thái</h5>
+          <h5 class="mb-3">
+            <i class="bi bi-clock-history" style="color: #5f6061; margin-right: 8px;"></i>
+            Timeline trạng thái
+          </h5>
           <!-- Timeline trạng thái công việc dạng mũi tên -->
             <div class="mb-3">
-              <div class="time-info-container" style="display: flex; flex-direction: column; gap: 8px;">
-              <div class="time-info-item" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                <div class="time-info-icon" style="color: #6c757d;"><i class="bi bi-clock-history"></i></div>
-                <div class="time-info-label" style="font-size: 0.9em; color: #6c757d;">Thời gian chờ xử lý</div>
+              <div class="time-stats-grid">
+                <div class="time-stat-item waiting-stat">
+                  <div class="stat-header">
+                    <i class="bi bi-hourglass-split"></i>
+                    <span class="stat-label">Chờ xử lý</span>
+                  </div>
+                  <div class="stat-value" id="timeWaiting">-- giờ -- phút</div>
+                  <div class="stat-bar">
+                    <div class="stat-fill waiting-fill"></div>
+                  </div>
                 </div>
-                <div class="time-info-value" id="timeWaiting" style="font-weight: 600; color: #6c757d;">-- giờ -- phút</div>
-              </div>
-              <div class="time-info-item" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                <div class="time-info-icon" style="color: #6c757d;"><i class="bi bi-check-circle"></i></div>
-                <div class="time-info-label" style="font-size: 0.9em; color: #6c757d;">Thời gian bàn giao</div>
+                
+                <div class="time-stat-item processing-stat">
+                  <div class="stat-header">
+                    <i class="bi bi-gear-fill"></i>
+                    <span class="stat-label">Thời gian xử lý</span>
+                  </div>
+                  <div class="stat-value" id="timeHandover">-- giờ -- phút</div>
+                  <div class="stat-bar">
+                    <div class="stat-fill processing-fill"></div>
+                  </div>
                 </div>
-                <div class="time-info-value" id="timeHandover" style="font-weight: 600; color: #6c757d;">-- giờ -- phút</div>
-              </div>
               </div>
             </div>
 
@@ -189,12 +199,58 @@ justify-self: center;">
                 
                 const waitingTime = calculateTimeDifference(data.thoiGianYeuCau, endTime);
                 timeWaitingElement.textContent = waitingTime;
+                
+                // Cập nhật progress bar và trạng thái
+                const waitingStat = document.querySelector('.waiting-stat');
+                const waitingFill = document.querySelector('.waiting-fill');
+                if (waitingStat && waitingFill) {
+                  waitingStat.classList.add('updating');
+                  setTimeout(() => waitingStat.classList.remove('updating'), 600);
+                  
+                  // Tính progress dựa trên thời gian (max 24h = 100%)
+                  const hours = parseInt(waitingTime.split(' ')[0]) || 0;
+                  const progressPercentage = Math.min((hours / 24) * 100, 100);
+                  
+                  // Thêm class trạng thái dựa trên thời gian
+                  waitingStat.classList.remove('excellent', 'good', 'warning', 'critical');
+                  if (hours <= 2) waitingStat.classList.add('excellent');
+                  else if (hours <= 8) waitingStat.classList.add('good');
+                  else if (hours <= 24) waitingStat.classList.add('warning');
+                  else waitingStat.classList.add('critical');
+                  
+                  setTimeout(() => {
+                    waitingFill.style.width = progressPercentage + '%';
+                  }, 200);
+                }
               }
               
               // Thời gian bàn giao = từ lúc bắt đầu làm đến lúc bàn giao
               if (timeHandoverElement && data?.thoigianbatdaulam && data?.thoiGianBanGiao) {
-              const handoverTime = calculateTimeDifference(data.thoigianbatdaulam, data.thoiGianBanGiao);
-              timeHandoverElement.textContent = handoverTime;
+                const handoverTime = calculateTimeDifference(data.thoigianbatdaulam, data.thoiGianBanGiao);
+                timeHandoverElement.textContent = handoverTime;
+                
+                // Cập nhật progress bar và trạng thái
+                const processingStat = document.querySelector('.processing-stat');
+                const processingFill = document.querySelector('.processing-fill');
+                if (processingStat && processingFill) {
+                  processingStat.classList.add('updating');
+                  setTimeout(() => processingStat.classList.remove('updating'), 600);
+                  
+                  // Tính progress dựa trên thời gian (max 8h = 100%)
+                  const hours = parseInt(handoverTime.split(' ')[0]) || 0;
+                  const progressPercentage = Math.min((hours / 8) * 100, 100);
+                  
+                  // Thêm class trạng thái
+                  processingStat.classList.remove('excellent', 'good', 'warning', 'critical');
+                  if (hours <= 1) processingStat.classList.add('excellent');
+                  else if (hours <= 4) processingStat.classList.add('good');
+                  else if (hours <= 8) processingStat.classList.add('warning');
+                  else processingStat.classList.add('critical');
+                  
+                  setTimeout(() => {
+                    processingFill.style.width = progressPercentage + '%';
+                  }, 200);
+                }
               }
             }
 
@@ -205,44 +261,58 @@ justify-self: center;">
    
 
           <div id="workStatusTimeline" class="mb-3">
-            <div class="work-timeline-vertical d-flex flex-column align-items-start" style="gap:0;width:100%;">
-              <div class="work-timeline-step d-flex align-items-center mb-1" style="width:100%;">
-                <div class="work-timeline-icon me-3" style="font-size:2em;color:#726bff;"><i class="bi bi-hourglass-split"></i></div>
-                <div>
-                  <div class="work-timeline-label" style="font-weight:600;color:#726bff;">Đợi xử lý</div>
-                  <div class="work-timeline-note text-muted small" id="noteStatus1">Chờ xác nhận và phân công công việc.</div>
+            <div class="timeline-container">
+              <div class="timeline-step" data-step="1">
+                <div class="timeline-icon">
+                  <i class="bi bi-hourglass-split"></i>
                 </div>
+                <div class="timeline-content">
+                  <h6 class="timeline-title">Đợi xử lý</h6>
+                  <p class="timeline-description" id="noteStatus1">Chờ xác nhận và phân công công việc</p>
+                </div>
+                <div class="timeline-connector"></div>
               </div>
              
-              <div class="work-timeline-step d-flex align-items-center mb-1" style="width:100%;">
-                <div class="work-timeline-icon me-3" style="font-size:2em;color:#726bff;"><i class="bi bi-gear"></i></div>
-                <div>
-                  <div class="work-timeline-label" style="font-weight:600;color:#726bff;">Đang xử lý</div>
-                  <div class="work-timeline-note text-muted small" id="noteStatus2">Nhân viên đang thực hiện công việc.</div>
+              <div class="timeline-step" data-step="2">
+                <div class="timeline-icon">
+                  <i class="bi bi-gear"></i>
                 </div>
+                <div class="timeline-content">
+                  <h6 class="timeline-title">Đang xử lý</h6>
+                  <p class="timeline-description" id="noteStatus2">Nhân viên đang thực hiện công việc</p>
+                </div>
+                <div class="timeline-connector"></div>
               </div>
              
-              <div class="work-timeline-step d-flex align-items-center mb-1" style="width:100%;">
-                <div class="work-timeline-icon me-3" style="font-size:2em;color:#726bff;"><i class="bi bi-check2-circle"></i></div>
-                <div>
-                  <div class="work-timeline-label" style="font-weight:600;color:#726bff;">Đã bàn giao</div>
-                  <div class="work-timeline-note text-muted small" id="noteStatus3">Công việc đã hoàn thành và bàn giao.</div>
+              <div class="timeline-step" data-step="3">
+                <div class="timeline-icon">
+                  <i class="bi bi-check2-circle"></i>
                 </div>
+                <div class="timeline-content">
+                  <h6 class="timeline-title">Đã bàn giao</h6>
+                  <p class="timeline-description" id="noteStatus3">Công việc đã hoàn thành và bàn giao</p>
+                </div>
+                <div class="timeline-connector"></div>
               </div>
               
-              <div class="work-timeline-step d-flex align-items-center mb-1" style="width:100%;">
-                <div class="work-timeline-icon me-3" style="font-size:2em;color:#726bff;"><i class="bi bi-patch-check"></i></div>
-                <div>
-                  <div class="work-timeline-label" style="font-weight:600;color:#726bff;">Sản xuất xác nhận</div>
-                  <div class="work-timeline-note text-muted small" id="noteStatus4">Bộ phận sản xuất xác nhận kết quả công việc.</div>
+              <div class="timeline-step" data-step="4">
+                <div class="timeline-icon">
+                  <i class="bi bi-patch-check"></i>
                 </div>
+                <div class="timeline-content">
+                  <h6 class="timeline-title">Sản xuất xác nhận</h6>
+                  <p class="timeline-description" id="noteStatus4">Bộ phận sản xuất xác nhận kết quả</p>
+                </div>
+                <div class="timeline-connector"></div>
               </div>
              
-              <div class="work-timeline-step d-flex align-items-center mb-1" style="width:100%;">
-                <div class="work-timeline-icon me-3" style="font-size:2em;color:#726bff;"><i class="bi bi-arrow-repeat"></i></div>
-                <div>
-                  <div class="work-timeline-label" style="font-weight:600;color:#726bff;">Chuyển Bảo dưỡng</div>
-                  <div class="work-timeline-note text-muted small" id="noteStatus5">Chuyển sang bộ phận bảo dưỡng định kỳ.</div>
+              <div class="timeline-step" data-step="5">
+                <div class="timeline-icon">
+                  <i class="bi bi-arrow-repeat"></i>
+                </div>
+                <div class="timeline-content">
+                  <h6 class="timeline-title">Chuyển Bảo dưỡng</h6>
+                  <p class="timeline-description" id="noteStatus5">Chuyển sang bộ phận bảo dưỡng định kỳ</p>
                 </div>
               </div>
             </div>
@@ -617,49 +687,15 @@ justify-self: center;">
     window.updateWorkStatus = updateWorkStatus;
   </script>
   <script>
-    // Hàm đổi màu trạng thái timeline
+    // Hàm đổi màu trạng thái timeline - updated for new structure
 function updateTimelineStatusColor(data) {
-  // Mặc định tất cả trạng thái về xám
-  const gray = '#adb5bd';
-  const active = '#726bff';
-  // Định nghĩa các selector
-  const steps = [
-    {
-      icon: document.querySelector('.work-timeline-icon i.bi-hourglass-split'),
-      label: document.querySelector('.work-timeline-label'),
-      arrow: document.querySelectorAll('.work-timeline-arrow-down svg')[0],
-      note: document.getElementById('noteStatus1'),
-      isActive: true // Luôn active đầu tiên
-    },
-    {
-      icon: document.querySelector('.work-timeline-icon i.bi-gear'),
-      label: document.querySelectorAll('.work-timeline-label')[1],
-      arrow: document.querySelectorAll('.work-timeline-arrow-down svg')[1],
-      note: document.getElementById('noteStatus2'),
-      isActive: false // Đang xử lý
-    },
-    {
-      icon: document.querySelector('.work-timeline-icon i.bi-check2-circle'),
-      label: document.querySelectorAll('.work-timeline-label')[2],
-      arrow: document.querySelectorAll('.work-timeline-arrow-down svg')[2],
-      note: document.getElementById('noteStatus3'),
-      isActive: false // Đã bàn giao
-    },
-    {
-      icon: document.querySelector('.work-timeline-icon i.bi-patch-check'),
-      label: document.querySelectorAll('.work-timeline-label')[3],
-      arrow: document.querySelectorAll('.work-timeline-arrow-down svg')[3],
-      note: document.getElementById('noteStatus4'),
-      isActive: false // Sản xuất xác nhận
-    },
-    {
-      icon: document.querySelector('.work-timeline-icon i.bi-arrow-repeat'),
-      label: document.querySelectorAll('.work-timeline-label')[4],
-      arrow: null,
-      note: document.getElementById('noteStatus5'),
-      isActive: false // Bảo dưỡng
-    }
-  ];
+  // Get all timeline steps
+  const timelineSteps = document.querySelectorAll('.timeline-step');
+  
+  // Reset all steps to default state
+  timelineSteps.forEach(step => {
+    step.classList.remove('active', 'completed');
+  });
 
   // Lấy giá trị từ object data (dữ liệu từ webhook)
   const lamChinh = data?.nguoiLamChinh?.trim();
@@ -669,23 +705,51 @@ function updateTimelineStatusColor(data) {
   const sanXuat = data?.sxXacNhan?.trim();
   const baoDuong = data?.baoDuong?.trim();
 
-  // Đang xử lý: có giá trị ở Người làm chính hoặc Người làm phụ 1 hoặc Người làm phụ 2
-  if (lamChinh || lamPhu1 || lamPhu2) steps[1].isActive = true;
-  // Đã bàn giao: có giá trị ở Thời gian bàn giao
-  if (banGiao) steps[2].isActive = true;
-  // Sản xuất xác nhận: có giá trị ở Sản xuất xác nhận
-  if (sanXuat) steps[3].isActive = true;
-  // Bảo dưỡng: có giá trị ở Bảo dưỡng
-  if (baoDuong) steps[4].isActive = true;
+  // Step 1: Đợi xử lý - always active initially
+  timelineSteps[0]?.classList.add('completed');
 
-  // Đặt màu cho từng trạng thái
-  steps.forEach((step, idx) => {
-    if (step.icon) step.icon.style.color = step.isActive ? active : gray;
-    if (step.label) step.label.style.color = step.isActive ? active : gray;
-    if (step.arrow) {
-      step.arrow.querySelector('polygon').setAttribute('fill', step.isActive ? active : gray);
-      step.arrow.querySelector('rect').setAttribute('fill', step.isActive ? active : gray);
+  // Step 2: Đang xử lý - active if có người làm
+  if (lamChinh || lamPhu1 || lamPhu2) {
+    timelineSteps[1]?.classList.add('active');
+    // If has workers but not yet handed over, mark as current step
+    if (!banGiao) {
+      timelineSteps[1]?.classList.remove('active');
+      timelineSteps[1]?.classList.add('active');
+    } else {
+      timelineSteps[1]?.classList.remove('active');
+      timelineSteps[1]?.classList.add('completed');
     }
+  }
+
+  // Step 3: Đã bàn giao - completed if bàn giao exists
+  if (banGiao) {
+    timelineSteps[2]?.classList.add('active');
+    if (sanXuat) {
+      timelineSteps[2]?.classList.remove('active');
+      timelineSteps[2]?.classList.add('completed');
+    }
+  }
+
+  // Step 4: Sản xuất xác nhận - completed if exists
+  if (sanXuat) {
+    timelineSteps[3]?.classList.add('active');
+    if (baoDuong) {
+      timelineSteps[3]?.classList.remove('active');
+      timelineSteps[3]?.classList.add('completed');
+    }
+  }
+
+  // Step 5: Bảo dưỡng - completed if exists
+  if (baoDuong) {
+    timelineSteps[4]?.classList.add('completed');
+  }
+
+  // Add animation effect
+  timelineSteps.forEach((step, index) => {
+    setTimeout(() => {
+      step.classList.add('animate');
+      setTimeout(() => step.classList.remove('animate'), 600);
+    }, index * 100);
   });
 }
 

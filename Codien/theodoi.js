@@ -275,21 +275,11 @@ async function loadWorkList() {
 
 // Populate filter options
 function populateFilterOptions(rows) {
-  const nguoiSet = new Set();
   const maySet = new Set();
   
   rows.forEach(row => {
-    const nguoi = (row.nguoiyeucau || '').trim();
     const may = (row.may || '').trim();
-    
-    if (nguoi) nguoiSet.add(nguoi);
     if (may) maySet.add(may);
-  });
-  
-  const filterNguoi = document.getElementById('filterNguoi');
-  filterNguoi.innerHTML = '<option value="">Tất cả</option>';
-  Array.from(nguoiSet).sort().forEach(nguoi => {
-    filterNguoi.innerHTML += `<option value="${nguoi}">${nguoi}</option>`;
   });
   
   const filterMay = document.getElementById('filterMay');
@@ -469,41 +459,39 @@ function displayWorkList() {
 
 // Lọc và tìm kiếm công việc
 function filterWorks() {
-  const filterNguoi = document.getElementById('filterNguoi').value;
   const filterMay = document.getElementById('filterMay').value;
   const statusFilter = document.getElementById('statusFilter').value;
-  const searchInput = document.getElementById('searchInput').value.toLowerCase();
-  const sortOrder = document.getElementById('sortOrder').value;
   
   filteredWorks = allWorks.filter(work => {
-    const matchNguoi = !filterNguoi || work.nguoiyeucau === filterNguoi;
     const matchMay = !filterMay || work.may === filterMay;
-    const matchStatus = !statusFilter || work.hientrang === statusFilter;
-    const matchSearch = !searchInput || 
-      work.stt.toLowerCase().includes(searchInput) ||
-      work.may.toLowerCase().includes(searchInput) ||
-      work.nguoiyeucau.toLowerCase().includes(searchInput);
     
-    return matchNguoi && matchMay && matchStatus && matchSearch;
+    // Calculate display status for filtering
+    const thuchienboy1Val = (work.thuchienboy1 || '').toString().trim();
+    const thuchienboy2Val = (work.thuchienboy2 || '').toString().trim();
+    const thuchienboy3Val = (work.thuchienboy3 || '').toString().trim();
+    const hasWorkers = thuchienboy1Val || thuchienboy2Val || thuchienboy3Val;
+    const hasBangGiao = work.thoigianbangiao && work.thoigianbangiao.trim() !== '';
+    
+    let displayStatus;
+    if (hasBangGiao) {
+      displayStatus = 'Đã bàn giao';
+    } else if (hasWorkers) {
+      displayStatus = 'Đang xử lý';
+    } else {
+      displayStatus = 'Đợi xử lý';
+    }
+    
+    const matchStatus = !statusFilter || displayStatus === statusFilter;
+    
+    return matchMay && matchStatus;
   });
   
   // Sắp xếp
   filteredWorks.sort((a, b) => {
-    switch(sortOrder) {
-      case 'newest':
-        const getNumA = parseInt((a.stt || '').replace(/\D/g, '')) || 0;
-        const getNumB = parseInt((b.stt || '').replace(/\D/g, '')) || 0;
-        return getNumB - getNumA;
-      case 'oldest':
-        const getNumA2 = parseInt((a.stt || '').replace(/\D/g, '')) || 0;
-        const getNumB2 = parseInt((b.stt || '').replace(/\D/g, '')) || 0;
-        return getNumA2 - getNumB2;
-      case 'priority':
-        const priorityOrder = {'Chờ xử lý': 0, 'Đang xử lý': 1, 'Hoàn thành': 2};
-        return priorityOrder[a.hientrang] - priorityOrder[b.hientrang];
-      default:
-        return 0;
-    }
+    // Sort by newest (highest STT number) by default
+    const getNumA = parseInt((a.stt || '').replace(/\D/g, '')) || 0;
+    const getNumB = parseInt((b.stt || '').replace(/\D/g, '')) || 0;
+    return getNumB - getNumA;
   });
   
   displayWorkList();
@@ -790,6 +778,10 @@ function updateWork(stt) {
                     <label class="btn btn-hangmuc" for="hangmucSC">Sửa chữa</label>
                     <input type="radio" class="btn-check" name="hangmuc" id="hangmucBD" value="Bảo dưỡng" autocomplete="off">
                     <label class="btn btn-hangmuc" for="hangmucBD">Bảo dưỡng</label>
+                    <input type="radio" class="btn-check" name="hangmuc" id="hangmucSX" value="Sản xuất" autocomplete="off">
+                    <label class="btn btn-hangmuc" for="hangmucSX">Sản xuất</label>
+                    <input type="radio" class="btn-check" name="hangmuc" id="hangmucKS" value="Khảo sát" autocomplete="off">
+                    <label class="btn btn-hangmuc" for="hangmucKS">Khảo sát</label>
                   </div>
                 </div>
                 <div class="phanloai-btn-group" style="text-align:center;">
@@ -805,9 +797,16 @@ function updateWork(stt) {
               <div class="work-update-info work-update-info-2col">
                 <div class="info-item">
                   <div class="info-label">Vị trí</div>
-                  <input type="text" name="vitri" class="info-value form-control">
+                  <select name="vitri" id="updateViTri" class="info-value form-select">
+                    <option value="">-- Chọn vị trí --</option>
+                  </select>
                 </div>
-
+                <div class="info-item">
+                  <div class="info-label">Kết quả</div>
+                  <select name="ketqua" id="updateKetQua" class="info-value form-select">
+                    <option value="">-- Chọn kết quả --</option>
+                  </select>
+                </div>
               </div>
               
               <div class="work-update-info work-update-info-2col">
@@ -881,12 +880,21 @@ function updateWork(stt) {
     
     // Hạng mục
     const hangmucValue = work.hangmuc || '';
+    // Reset tất cả các radio button
+    form.hangmucSC.checked = false;
+    form.hangmucBD.checked = false;
+    form.hangmucSX.checked = false;
+    form.hangmucKS.checked = false;
+    
+    // Set radio button dựa trên giá trị
     if (hangmucValue === 'Bảo dưỡng') {
-      form.hangmucSC.checked = false;
       form.hangmucBD.checked = true;
+    } else if (hangmucValue === 'Sản xuất') {
+      form.hangmucSX.checked = true;
+    } else if (hangmucValue === 'Khảo sát') {
+      form.hangmucKS.checked = true;
     } else {
-      form.hangmucSC.checked = true;
-      form.hangmucBD.checked = false;
+      form.hangmucSC.checked = true; // Mặc định "Sửa chữa"
     }
     
     // Phân loại
@@ -898,6 +906,10 @@ function updateWork(stt) {
       form.phanloaiDien.checked = true;
     }
     form.vitri.value = work.vitri || '';
+    
+    // Populate position and result dropdowns with current values
+    await populatePositionAndResultDropdowns(work.may || '', work.vitri || '', work.ketqua || '');
+    
     form.hientrang.value = work.hientrang || '';
     form.nguyennhan.value = work.nguyennhan || '';
     form.phuongan.value = work.phuonganhxuly || '';
@@ -925,6 +937,7 @@ function updateWork(stt) {
       hangmuc: form.querySelector('input[name="hangmuc"]:checked').value,
       phanloai: form.querySelector('input[name="phanloai"]:checked').value,
       vitri: form.vitri.value,
+      ketqua: form.ketqua.value,
       hientrang: form.hientrang.value,
       nguyennhan: form.nguyennhan.value,
       phuongan: form.phuongan.value,
@@ -957,6 +970,7 @@ function updateWork(stt) {
           hang_muc: data.hangmuc,
           phan_loai: data.phanloai,
           vi_tri: data.vitri,
+          ket_qua: data.ketqua,
           hien_trang: data.hientrang,
           nguyen_nhan: data.nguyennhan,
           phuong_an_xu_ly: data.phuongan,
@@ -973,6 +987,7 @@ function updateWork(stt) {
         work.hangmuc = data.hangmuc;
         work.phanloai = data.phanloai;
         work.vitri = data.vitri;
+        work.ketqua = data.ketqua;
         work.hientrang = data.hientrang;
         work.nguyennhan = data.nguyennhan;
         work.phuonganhxuly = data.phuongan;
@@ -1029,6 +1044,7 @@ function updateWork(stt) {
           hang_muc: data.hangmuc,
           phan_loai: data.phanloai,
           vi_tri: data.vitri,
+          ket_qua: data.ketqua,
           hien_trang: data.hientrang,
           nguyen_nhan: data.nguyennhan,
           phuong_an_xu_ly: data.phuongan,
@@ -1046,6 +1062,7 @@ function updateWork(stt) {
         work.hangmuc = data.hangmuc;
         work.phanloai = data.phanloai;
         work.vitri = data.vitri;
+        work.ketqua = data.ketqua;
         work.hientrang = data.hientrang;
         work.nguyennhan = data.nguyennhan;
         work.phuonganhxuly = data.phuongan;
@@ -1191,5 +1208,104 @@ window.confirmWork = async function(stt, buttonElement, action, event) {
     }
     console.error('Lỗi khi xác nhận công việc:', error);
     alert('Lỗi khi xác nhận công việc: ' + error.message);
+  }
+}
+
+// Lấy danh sách vị trí lỗi từ webhook API theo tên máy
+let positionList = [];
+async function fetchPositionList(tenMay = '') {
+  try {
+    const response = await fetch(`${N8N_BASE_URL}/get-khuvuc-may`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!tenMay) {
+      // Nếu không có tên máy, trả về danh sách trống
+      positionList = [];
+      return positionList;
+    }
+    
+    if (!Array.isArray(data)) {
+      console.error('Dữ liệu vị trí không phải là mảng:', data);
+      positionList = [];
+      return positionList;
+    }
+    
+    // Tìm máy theo tên
+    const machine = data.find(item => 
+      (item.ten_may || '').toLowerCase() === (tenMay || '').toLowerCase()
+    );
+    
+    if (!machine || !machine.vi_tri_loi) {
+      console.log('Không tìm thấy vị trí lỗi cho máy:', tenMay);
+      positionList = [];
+      return positionList;
+    }
+    
+    // Tách chuỗi vị trí lỗi thành mảng, loại bỏ khoảng trắng thừa
+    positionList = machine.vi_tri_loi
+      .split(',')
+      .map(item => item.trim())
+      .filter(item => item.length > 0);
+    
+    console.log('Danh sách vị trí lỗi cho máy', tenMay, ':', positionList);
+    return positionList;
+  } catch (e) {
+    console.error('Lỗi khi lấy danh sách vị trí:', e);
+    positionList = [];
+    return positionList;
+  }
+}
+
+// Lấy danh sách kết quả cố định
+let resultList = ['OK', 'Not OK', 'Chuyển Bảo Dưỡng'];
+async function fetchResultList() {
+  // Sử dụng danh sách cố định, không cần gọi API
+  console.log('Sử dụng danh sách kết quả cố định:', resultList);
+}
+
+// Hàm tạo options cho dropdown từ danh sách
+function createOptionsFromList(list, selectedValue = '') {
+  let options = '<option value="">-- Chọn --</option>';
+  list.forEach(item => {
+    const selected = item === selectedValue ? ' selected' : '';
+    options += `<option value="${item}"${selected}>${item}</option>`;
+  });
+  return options;
+}
+
+// Hàm populate dropdown cho vị trí và kết quả
+async function populatePositionAndResultDropdowns(tenMay = '', selectedVitri = '', selectedKetqua = '') {
+  // Fetch position data based on machine name
+  await fetchPositionList(tenMay); // Pass machine name to get specific positions
+  // Result list is already fixed, no need to fetch
+  
+  // Populate Vị trí dropdown
+  const viTriSelect = document.getElementById('updateViTri');
+  if (viTriSelect) {
+    viTriSelect.innerHTML = '<option value="">-- Chọn vị trí --</option>';
+    positionList.forEach(pos => {
+      const selected = pos === selectedVitri ? ' selected' : '';
+      viTriSelect.innerHTML += `<option value="${pos}"${selected}>${pos}</option>`;
+    });
+  }
+  
+  // Populate Kết quả dropdown với danh sách cố định
+  const ketQuaSelect = document.getElementById('updateKetQua');
+  if (ketQuaSelect) {
+    ketQuaSelect.innerHTML = '<option value="">-- Chọn kết quả --</option>';
+    resultList.forEach(result => {
+      const selected = result === selectedKetqua ? ' selected' : '';
+      ketQuaSelect.innerHTML += `<option value="${result}"${selected}>${result}</option>`;
+    });
   }
 }
