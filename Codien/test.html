@@ -1,78 +1,95 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <title>Upload ảnh lên ImgBB</title>
+  <meta charset="UTF-8">
+  <title>Test Webhook n8n + Hiển thị dữ liệu</title>
   <style>
-    body {
-      font-family: Arial;
-      margin: 30px;
-      background: #f5f5f5;
+    body { font-family: Arial; padding: 20px; }
+    input, textarea, button {
+      width: 100%; margin-bottom: 10px; padding: 8px;
     }
-    .upload-box {
-      padding: 20px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      width: 400px;
-      margin: auto;
-      text-align: center;
-    }
-    #imageLink {
+    .result {
+      background: #f9f9f9;
+      border: 1px solid #ccc;
+      padding: 10px;
       margin-top: 10px;
-      word-break: break-all;
-      color: blue;
     }
-    img {
-      margin-top: 20px;
-      max-width: 100%;
+    #response {
+      white-space: pre-wrap;
+      color: #666;
     }
   </style>
 </head>
 <body>
-  <div class="upload-box">
-    <h2>Upload Ảnh lên ImgBB</h2>
-    <input type="file" id="fileInput" accept="image/*" /><br /><br />
-    <button onclick="uploadImage()">Upload</button>
-    <div id="imageLink"></div>
-    <img id="previewImage" src="" />
+  <h2>Gửi và Hiển thị Kết quả từ n8n</h2>
+
+  <label>Webhook URL:</label>
+  <input type="text" id="webhookUrl" value="https://autoslp.duckdns.org:5678/webhook/test" />
+
+  <label>Dữ liệu JSON:</label>
+  <textarea id="data" rows="10">{
+  "khu_vuc": "A1",
+  "may": "Máy in lưới",
+  "thoi_gian_yeu_cau": "2025-07-19 16:00",
+  "hien_trang_loi": "Lỗi cảm biến nhiệt"
+}</textarea>
+
+  <button onclick="sendData()">Gửi Webhook</button>
+
+  <div class="result">
+    <h3>⏱️ Thời gian xử lý:</h3>
+    <div id="time">Chưa có</div>
+
+    <h3>📋 Dữ liệu phản hồi:</h3>
+    <div><strong>Khu vực:</strong> <span id="khu_vuc">-</span></div>
+    <div><strong>Máy:</strong> <span id="may">-</span></div>
+    <div><strong>Thời gian yêu cầu:</strong> <span id="thoi_gian">-</span></div>
+    <div><strong>Hiện trạng lỗi:</strong> <span id="loi">-</span></div>
+
+    <h3>🛠️ Phản hồi thô (debug):</h3>
+    <div id="response">Chưa gửi</div>
   </div>
 
   <script>
-    const API_KEY = "6c915f312cb2f7beed1b6ee9b55efb5e"; // ⚠️ Thay bằng API Key của bạn từ imgbb.com
+    async function sendData() {
+      const url = document.getElementById('webhookUrl').value;
+      const rawData = document.getElementById('data').value;
+      const responseDiv = document.getElementById('response');
+      const timeDiv = document.getElementById('time');
 
-    function uploadImage() {
-      const file = document.getElementById('fileInput').files[0];
-      if (!file) {
-        alert("Hãy chọn 1 ảnh!");
-        return;
-      }
+      const start = performance.now();
 
-      const reader = new FileReader();
-      reader.onloadend = function () {
-        const base64String = reader.result.replace(/^data:image\/[a-z]+;base64,/, '');
-
-        const formData = new FormData();
-        formData.append('key', API_KEY);
-        formData.append('image', base64String);
-
-        fetch('https://api.imgbb.com/1/upload', {
+      try {
+        const res = await fetch(url, {
           method: 'POST',
-          body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-          const link = data.data.url;
-          document.getElementById('imageLink').innerHTML = `Link ảnh: <a href="${link}" target="_blank">${link}</a>`;
-          document.getElementById('previewImage').src = link;
-        })
-        .catch(err => {
-          console.error(err);
-          alert("Lỗi khi upload ảnh!");
+          headers: { 'Content-Type': 'application/json' },
+          body: rawData
         });
-      };
 
-      reader.readAsDataURL(file);
+        const text = await res.text();
+        const end = performance.now();
+        timeDiv.innerText = `${(end - start).toFixed(2)} ms`;
+
+        responseDiv.innerText = text;
+
+        let json = {};
+        try {
+          json = JSON.parse(text);
+        } catch (e) {
+          responseDiv.innerText += '\n❌ Không phải JSON hợp lệ';
+          return;
+        }
+
+        // Cập nhật các thẻ
+        document.getElementById('khu_vuc').innerText = json.khu_vuc || '(Không có)';
+        document.getElementById('may').innerText = json.may || '(Không có)';
+        document.getElementById('thoi_gian').innerText = json.thoi_gian_yeu_cau || '(Không có)';
+        document.getElementById('loi').innerText = json.hien_trang_loi || '(Không có)';
+
+      } catch (err) {
+        timeDiv.innerText = 'Lỗi';
+        responseDiv.innerText = '❌ Lỗi gửi webhook:\n' + err.message;
+      }
     }
   </script>
 </body>

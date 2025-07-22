@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Chi Tiết Công Việc - Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="stylesheet" href="chitietcongviec.css" />
+</head>
+<body>
+  <!-- HEADER -->
+  <div class="dashboard-header">
+    <div class="search-box">
+      <div class="input-group">
+        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+        <input type="text" class="form-control border-start-0" placeholder="Search [CTRL + K]" />
+      </div>
+    </div>
+    <div class="header-actions">
+      <a href="home.html" class="icon-btn" title="Trang chủ"><i class="bi bi-house-door"></i></a>
+      <a href="listcongviec.html" class="icon-btn" title="Danh sách công việc"><i class="bi bi-list-ul"></i></a>
+      <button class="icon-btn" title="Thông báo"><i class="bi bi-bell"></i></button>
+      <div class="avatar" id="userAvatar" style="cursor:pointer; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 16px; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.15);" 
+           onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.25)';"
+           onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.15)';">
+        <span id="avatarText">U</span>
+      </div>
+      <div id="userDropdown" class="shadow rounded-3" style="display:none;position:absolute;top:60px;right:0;min-width:220px;background:#fff;z-index:1000;">
+        <div class="p-3 border-bottom text-center">
+          <div class="avatar mx-auto mb-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.2);">
+            <span id="dropdownAvatarText">U</span>
+          </div>
+          <div class="fw-bold" id="dropdownUserName">Tên người dùng</div>
+          <div class="text-muted small" id="dropdownUserRole">Vai trò</div>
+        </div>
+        <button class="btn btn-danger w-100 rounded-pill mt-3 py-2" id="logoutBtn" style="font-size:1rem;">
+          <i class="bi bi-box-arrow-right me-1"></i>Đăng xuất
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid px-2 px-md-3">
+    <div class="row g-2 g-md-3">
+      <!-- LEFT COLUMN - PROFILE -->
+      <div class="col-12 col-lg-4 order-1 order-lg-1">
+        <div class="profile-card">
+          <div class="profile-avatar" id="workAvatar">CV</div>
+          <h4 class="text-center mb-2" id="workTitle">Chi Tiết Công Việc</h4>
+          <div class="text-center mb-2">
+            <span class="text-muted">STT: <span id="workSTT" style="font-weight: 500;">--</span></span>
+          </div>
+          <div class="text-center mb-3">
+            <span class="badge bg-primary" id="workStatus">Đang xử lý</span>
+          </div>
+          <div class="stats-row">
+            <div class="stat-item">
+              <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
+              <div class="fw-bold" id="taskDone">0</div>
+              <div class="text-muted small">Công việc hoàn thành</div>
+             
+            </div>
+            <div class="stat-item">
+              <div class="stat-icon"><i class="bi bi-list-task"></i></div>
+              <div class="fw-bold" id="projectDone">0</div>
+              <div class="text-muted small">Tổng công việc đang có</div>
+             
+            </div>
+          </div>
+              <div class="action-buttons mt-3" style="
+justify-self: center;">
+                <button class="btn btn-outline-primary btn-sm me-2 mb-2" id="confirmBtn" style="border-color: #726bff; color: #726bff;" onmouseover="this.style.backgroundColor='#726bff'; this.style.color='white';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#726bff';">
+                <i class="bi bi-check-circle me-1"></i>Xác nhận
+                </button>
+                <button class="btn btn-outline-primary btn-sm me-2 mb-2" id="processBtn" style="border-color: #726bff; color: #726bff;" onmouseover="this.style.backgroundColor='#726bff'; this.style.color='white';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#726bff';">
+                <i class="bi bi-person-check me-1"></i>Xử lý
+                </button>
+                <button class="btn btn-outline-primary btn-sm me-2 mb-2" id="supportBtn" style="border-color: #726bff; color: #726bff;" onmouseover="this.style.backgroundColor='#726bff'; this.style.color='white';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#726bff';">
+                <i class="bi bi-person-plus me-1"></i>Hỗ trợ
+                </button>
+                <button class="btn btn-outline-primary btn-sm me-2 mb-2" id="updateBtn" style="border-color: #726bff; color: #726bff;" onmouseover="this.style.backgroundColor='#726bff'; this.style.color='white';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#726bff';">
+                <i class="bi bi-pencil-square me-1"></i>Cập nhật
+                </button>
+              
+            </div>
+        </div>
+        <div class="profile-card mb-4">
+          <h5 class="mb-3">Timeline trạng thái</h5>
+          <!-- Timeline trạng thái công việc dạng mũi tên -->
+            <div class="mb-3">
+              <div class="time-info-container" style="display: flex; flex-direction: column; gap: 8px;">
+              <div class="time-info-item" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="time-info-icon" style="color: #6c757d;"><i class="bi bi-clock-history"></i></div>
+                <div class="time-info-label" style="font-size: 0.9em; color: #6c757d;">Thời gian chờ xử lý</div>
+                </div>
+                <div class="time-info-value" id="timeWaiting" style="font-weight: 600; color: #6c757d;">-- giờ -- phút</div>
+              </div>
+              <div class="time-info-item" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="time-info-icon" style="color: #6c757d;"><i class="bi bi-check-circle"></i></div>
+                <div class="time-info-label" style="font-size: 0.9em; color: #6c757d;">Thời gian bàn giao</div>
+                </div>
+                <div class="time-info-value" id="timeHandover" style="font-weight: 600; color: #6c757d;">-- giờ -- phút</div>
+              </div>
+              </div>
+            </div>
+
+            <script>
+            // Hàm tính thời gian giữa hai mốc thời gian
+            function calculateTimeDifference(startTime, endTime) {
+              if (!startTime || !endTime) {
+              return "-- giờ -- phút";
+              }
+              
+              // Chuyển đổi format từ "16:50:52 20/07/2025" sang Date object
+              function parseTimeString(timeStr) {
+              if (!timeStr || timeStr.trim() === '') {
+                return null;
+              }
+              
+              // Tách thời gian và ngày
+              const parts = timeStr.trim().split(' ');
+              if (parts.length !== 2) {
+                return null;
+              }
+              
+              const timePart = parts[0]; // "16:50:52"
+              const datePart = parts[1]; // "20/07/2025"
+              
+              // Tách ngày/tháng/năm
+              const dateParts = datePart.split('/');
+              if (dateParts.length !== 3) {
+                return null;
+              }
+              
+              const day = parseInt(dateParts[0]);
+              const month = parseInt(dateParts[1]) - 1; // JavaScript month is 0-indexed
+              const year = parseInt(dateParts[2]);
+              
+              // Tách giờ:phút:giây
+              const timeParts = timePart.split(':');
+              if (timeParts.length !== 3) {
+                return null;
+              }
+              
+              const hours = parseInt(timeParts[0]);
+              const minutes = parseInt(timeParts[1]);
+              const seconds = parseInt(timeParts[2]);
+              
+              const result = new Date(year, month, day, hours, minutes, seconds);
+              return result;
+              }
+              
+              const start = parseTimeString(startTime);
+              const end = parseTimeString(endTime);
+              
+              if (!start || !end) {
+              return "-- giờ -- phút";
+              }
+              
+              const diffMs = Math.abs(end - start);
+              const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+              const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+              
+              return `${diffHours} giờ ${diffMinutes} phút`;
+            }
+
+            // Hàm cập nhật thời gian hiển thị
+            function updateTimeDisplay(data) {
+              const timeWaitingElement = document.getElementById('timeWaiting');
+              const timeHandoverElement = document.getElementById('timeHandover');
+              
+              // Thời gian chờ xử lý = từ lúc yêu cầu đến lúc bắt đầu làm (hoặc hiện tại nếu chưa bắt đầu)
+              if (timeWaitingElement && data?.thoiGianYeuCau) {
+                let endTime = data?.thoigianbatdaulam;
+                
+                // Nếu chưa có thời gian bắt đầu làm, dùng thời gian hiện tại
+                if (!endTime || endTime.trim() === '') {
+                  const now = new Date();
+                  const day = String(now.getDate()).padStart(2, '0');
+                  const month = String(now.getMonth() + 1).padStart(2, '0');
+                  const year = now.getFullYear();
+                  const hours = String(now.getHours()).padStart(2, '0');
+                  const minutes = String(now.getMinutes()).padStart(2, '0');
+                  const seconds = String(now.getSeconds()).padStart(2, '0');
+                  endTime = `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
+                }
+                
+                const waitingTime = calculateTimeDifference(data.thoiGianYeuCau, endTime);
+                timeWaitingElement.textContent = waitingTime;
+              }
+              
+              // Thời gian bàn giao = từ lúc bắt đầu làm đến lúc bàn giao
+              if (timeHandoverElement && data?.thoigianbatdaulam && data?.thoiGianBanGiao) {
+              const handoverTime = calculateTimeDifference(data.thoigianbatdaulam, data.thoiGianBanGiao);
+              timeHandoverElement.textContent = handoverTime;
+              }
+            }
+
+            // Export function để có thể gọi từ file khác
+            window.updateTimeDisplay = updateTimeDisplay;
+            </script>
+
+   
+
+          <div id="workStatusTimeline" class="mb-3">
+            <div class="work-timeline-vertical d-flex flex-column align-items-start" style="gap:0;width:100%;">
+              <div class="work-timeline-step d-flex align-items-center mb-1" style="width:100%;">
+                <div class="work-timeline-icon me-3" style="font-size:2em;color:#726bff;"><i class="bi bi-hourglass-split"></i></div>
+                <div>
+                  <div class="work-timeline-label" style="font-weight:600;color:#726bff;">Đợi xử lý</div>
+                  <div class="work-timeline-note text-muted small" id="noteStatus1">Chờ xác nhận và phân công công việc.</div>
+                </div>
+              </div>
+             
+              <div class="work-timeline-step d-flex align-items-center mb-1" style="width:100%;">
+                <div class="work-timeline-icon me-3" style="font-size:2em;color:#726bff;"><i class="bi bi-gear"></i></div>
+                <div>
+                  <div class="work-timeline-label" style="font-weight:600;color:#726bff;">Đang xử lý</div>
+                  <div class="work-timeline-note text-muted small" id="noteStatus2">Nhân viên đang thực hiện công việc.</div>
+                </div>
+              </div>
+             
+              <div class="work-timeline-step d-flex align-items-center mb-1" style="width:100%;">
+                <div class="work-timeline-icon me-3" style="font-size:2em;color:#726bff;"><i class="bi bi-check2-circle"></i></div>
+                <div>
+                  <div class="work-timeline-label" style="font-weight:600;color:#726bff;">Đã bàn giao</div>
+                  <div class="work-timeline-note text-muted small" id="noteStatus3">Công việc đã hoàn thành và bàn giao.</div>
+                </div>
+              </div>
+              
+              <div class="work-timeline-step d-flex align-items-center mb-1" style="width:100%;">
+                <div class="work-timeline-icon me-3" style="font-size:2em;color:#726bff;"><i class="bi bi-patch-check"></i></div>
+                <div>
+                  <div class="work-timeline-label" style="font-weight:600;color:#726bff;">Sản xuất xác nhận</div>
+                  <div class="work-timeline-note text-muted small" id="noteStatus4">Bộ phận sản xuất xác nhận kết quả công việc.</div>
+                </div>
+              </div>
+             
+              <div class="work-timeline-step d-flex align-items-center mb-1" style="width:100%;">
+                <div class="work-timeline-icon me-3" style="font-size:2em;color:#726bff;"><i class="bi bi-arrow-repeat"></i></div>
+                <div>
+                  <div class="work-timeline-label" style="font-weight:600;color:#726bff;">Chuyển Bảo dưỡng</div>
+                  <div class="work-timeline-note text-muted small" id="noteStatus5">Chuyển sang bộ phận bảo dưỡng định kỳ.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+         
+        </div>
+        <div class="profile-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; position: relative; overflow: hidden;">
+          <!-- Background pattern -->
+          <div style="position: absolute; top: -50px; right: -50px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; animation: float 6s ease-in-out infinite;"></div>
+          <div style="position: absolute; bottom: -30px; left: -30px; width: 60px; height: 60px; background: rgba(255,255,255,0.1); border-radius: 50%; animation: float 8s ease-in-out infinite reverse;"></div>
+          
+          <div class="text-center mb-3">
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">📢</div>
+            <h5 class="mb-2" style="font-weight: 600;">Đặt Quảng Cáo Tại Đây</h5>
+            <p class="mb-0" style="font-size: 0.9rem; opacity: 0.9;">Tiếp cận hàng ngàn người dùng mỗi ngày</p>
+          </div>
+          
+          <div class="text-center mb-3">
+            <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
+              <i class="bi bi-eye" style="font-size: 1.2rem;"></i>
+              <span style="font-weight: 500;">5,000+ lượt xem/ngày</span>
+            </div>
+            <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
+              <i class="bi bi-people" style="font-size: 1.2rem;"></i>
+              <span style="font-weight: 500;">1,200+ người dùng active</span>
+            </div>
+            <div class="d-flex justify-content-center align-items-center gap-2">
+              <i class="bi bi-graph-up" style="font-size: 1.2rem;"></i>
+              <span style="font-weight: 500;">Hiệu quả cao</span>
+            </div>
+          </div>
+
+          <div class="d-grid">
+            <button class="btn btn-light btn-lg" style="font-weight: 600; color: #667eea; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease;" 
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)';"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)';"
+                    onclick="window.open('mailto:nguyenduycong2000@gmail.com?subject=Đặt quảng cáo&body=Tôi muốn đặt quảng cáo trên hệ thống của bạn', '_blank')">
+              <i class="bi bi-envelope me-2"></i>Liên Hệ Công
+            </button>
+          </div>
+          
+          <div class="text-center mt-3">
+            <small style="opacity: 0.8;">
+              <i class="bi bi-telephone me-1"></i>Hotline: 0328-568-203
+            </small>
+          </div>
+
+          <!-- CSS Animation -->
+          <style>
+            @keyframes float {
+              0%, 100% { transform: translateY(0px); }
+              50% { transform: translateY(-20px); }
+            }
+            
+            .profile-card:hover {
+              transform: translateY(-5px);
+              transition: all 0.3s ease;
+            }
+          </style>
+        </div>
+      </div>
+      <!-- RIGHT COLUMN - MAIN CONTENT -->
+      <div class="col-12 col-lg-8 order-2 order-lg-2">
+        <ul class="nav nav-tabs mb-4" id="workTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-info-tab" data-bs-toggle="tab" data-bs-target="#tab-info" type="button" role="tab">
+              <i class="bi bi-info-circle me-2"></i>Thông tin chung
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-history-tab" data-bs-toggle="tab" data-bs-target="#tab-history" type="button" role="tab">
+              <i class="bi bi-clock-history me-2"></i>Chi tiết
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-files-tab" data-bs-toggle="tab" data-bs-target="#tab-files" type="button" role="tab">
+              <i class="bi bi-paperclip me-2"></i>Ảnh và tài liệu
+            </button>
+          </li>
+        </ul>
+        <div class="tab-content" id="workTabContent">
+          <!-- Tab 1: Thông tin chung -->
+          <div class="tab-pane fade show active" id="tab-info" role="tabpanel">
+       
+            <div class="activity-timeline-header"><i class="bi bi-calendar-check me-2"></i>Hiện trạng công việc</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+              <span class="activity-timeline-dot"> </span> Chi tiết:
+              <span style="font-weight: 600;" id="tabInfoLoiMay">-</span>
+            </div>
+            <div class="profile-info-card">
+              <!-- <div class="card-header">Thông tin công việc</div> -->
+              <table class="profile-info-table w-100">
+                <tr>
+                  <td class="profile-info-label"><i class="bi bi-geo-alt me-2 text-secondary"></i>Khu vực</td>
+                  <td class="profile-info-value" id="tabInfoKhuVuc">-</td>
+                  <td class="profile-info-progress" id="tabInfoKhuVucProgress"></td>
+                </tr>
+                <tr>
+                  <td class="profile-info-label"><i class="bi bi-cpu me-2 text-secondary"></i>Máy</td>
+                  <td class="profile-info-value" id="tabInfoMay">-</td>
+                  <td class="profile-info-progress" id="tabInfoMayProgress"></td>
+                </tr>
+                <tr>
+                  <td class="profile-info-label"><i class="bi bi-calendar-event me-2 text-secondary"></i>Thời gian yêu cầu</td>
+                  <td class="profile-info-value" id="tabInfoThoiGian">-</td>
+                  <td class="profile-info-progress" id="tabInfoThoiGianProgress"></td>
+                </tr>
+                <tr>
+                  <td class="profile-info-label"><i class="bi bi-person me-2 text-secondary"></i>Người yêu cầu</td>
+                  <td class="profile-info-value" id="tabInfoNguoi">-</td>
+                  <td class="profile-info-progress" id="tabInfoNguoiProgress"></td>
+                </tr>
+                <tr>
+                  <td class="profile-info-label"><i class="bi bi-calendar-check me-2 text-secondary"></i>Thời gian bàn giao</td>
+                  <td class="profile-info-value" id="tabInfoBanGiao">-</td>
+                  <td class="profile-info-progress" id="tabInfoBanGiaoProgress"></td>
+                </tr>
+                <tr>
+                  <td class="profile-info-label"><i class="bi bi-chat-left-text me-2 text-secondary"></i>Ghi chú</td>
+                  <td class="profile-info-value" id="tabInfoGhiChu">-</td>
+                  <td class="profile-info-progress" id="tabInfoGhiChuProgress"></td>
+                </tr>
+              </table>
+            </div>
+            
+          </div>
+          <!-- Tab 2: Lịch sử & xử lý -->
+          <div class="tab-pane fade" id="tab-history" role="tabpanel">
+            <div class="profile-info-table mb-3">
+              <h5 class="mb-3"><i class="bi bi-clipboard-check me-2 text-secondary"></i>Chi tiết xử lý</h5>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+              <span class="activity-timeline-dot"> </span> Chi tiết:
+              <span style="font-weight: 600;" id="tabInfoLoiMay2">-</span>
+            </div>
+              <ul class="details-list mb-4">
+                <li><span style="font-weight:500"><i class="bi bi-list-task me-2 text-secondary"></i>Hạng mục:</span> <span id="tabLoiHangMuc">-</span></li>
+                <li><span style="font-weight:500"><i class="bi bi-tags me-2 text-secondary"></i>Phân loại:</span> <span id="tabLoiPhanLoai">-</span></li>
+                <li><span style="font-weight:500"><i class="bi bi-geo-alt me-2 text-secondary"></i>Vị trí:</span> <span id="tabLoiViTri">-</span></li>
+                <li><span style="font-weight:500"><i class="bi bi-exclamation-triangle me-2 text-secondary"></i>Hiện trạng:</span> <span id="tabLoiHienTrang">-</span></li>
+                <li><span style="font-weight:500"><i class="bi bi-bug me-2 text-secondary"></i>Nguyên nhân:</span> <span id="tabLoiNguyenNhan">-</span></li>
+                <li><span style="font-weight:500"><i class="bi bi-tools me-2 text-secondary"></i>Phương án xử lý:</span> <span id="tabLoiHuongXuLy">-</span></li>
+                <li><span style="font-weight:500"><i class="bi bi-box-seam me-2 text-secondary"></i>Vật tư thay thế:</span> <span id="tabLoiVatTu">-</span></li>
+              </ul>
+                <h5 class="mb-3"><i class="bi bi-plus-circle me-2 text-secondary"></i>Bổ sung thêm</h5>
+              <div id="tabTimeline"></div>
+              <ul class="details-list mb-4">
+                <li><span style="font-weight:500"><i class="bi bi-person-badge me-2 text-secondary"></i>Người xử lý:</span> <span id="tabNguoiLamChinh">-</span></li>
+                <li><span style="font-weight:500"><i class="bi bi-person me-2 text-secondary"></i>Người hỗ trợ:</span> <span id="tabNguoiLamPhu1">-</span></li>
+                <li><span style="font-weight:500"><i class="bi bi-person me-2 text-secondary"></i>Người hỗ trợ:</span> <span id="tabNguoiLamPhu2">-</span></li>
+                <li><span style="font-weight:500"><i class="bi bi-play-circle me-2 text-secondary"></i>Thời gian bắt đầu làm:</span> <span id="tabThoiGianBatDauLam">-</span></li>
+                <li><span style="font-weight:500"><i class="bi bi-check-circle me-2 text-secondary"></i>Thời gian bàn giao:</span> <span id="tabThoiGianBanGiaoDetail">-</span></li>
+              </ul>
+            </div>
+          </div>
+          
+          <!-- Tab 3: Tệp đính kèm & tài liệu -->
+          <div class="tab-pane fade" id="tab-files" role="tabpanel">
+            <div class="profile-info-table mb-3">
+              <h5 class="mb-3">Tệp đính kèm & tài liệu</h5>
+              <ul id="tabFileList" class="details-list"></ul>
+            </div>
+          </div>
+         
+        </div>
+
+        <div style="margin-top:20px" class="activity-timeline-card">
+          <div class="activity-timeline-header">
+            <i class="bi bi-graph-up-arrow me-2"></i>Lịch sử của máy <span id="machineNameHeader"></span>
+          </div>
+          <div class="activity-timeline-list" id="machineErrorTimeline"></div>
+        </div>
+          <div style="margin-top:20px" class="activity-timeline-card">
+          <div class="activity-timeline-header">
+            <i class="bi bi-robot me-2"></i>Bot Cơ Điện đề xuất
+          </div>
+          <div class="activity-timeline-list" id="dexuatAI"></div>
+        </div>
+          <div style="margin-top:20px" class="activity-timeline-card">
+          <div class="activity-timeline-header">
+            <i class="bi bi-graph-up-arrow me-2"></i>Bản đồ máy <span id="machineNameHeader"></span>
+          </div>
+          <div class="activity-timeline-list" id="mapformay"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal cho nút Cập nhật -->
+  <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="updateModalLabel">
+            <i class="bi bi-pencil-square me-2"></i>Cập nhật thông tin
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="updateForm">
+            <!-- Hạng mục và Phân loại - cùng hàng -->
+            <div class="row mb-4">
+              <!-- Hạng mục -->
+              <div class="col-md-8">
+                <label class="form-label fw-bold">Hạng mục</label>
+                <div class="btn-group d-flex" role="group" aria-label="Hạng mục">
+                  <input type="radio" class="btn-check" name="updateHangMuc" id="hangmuc_sc" value="Sửa chữa" autocomplete="off">
+                  <label class="btn btn-outline-primary flex-fill" for="hangmuc_sc">Sửa chữa</label>
+                  
+                  <input type="radio" class="btn-check" name="updateHangMuc" id="hangmuc_bd" value="Bảo dưỡng" autocomplete="off">
+                  <label class="btn btn-outline-primary flex-fill" for="hangmuc_bd">Bảo dưỡng</label>
+                  
+                  <input type="radio" class="btn-check" name="updateHangMuc" id="hangmuc_sx" value="Sản xuất" autocomplete="off">
+                  <label class="btn btn-outline-primary flex-fill" for="hangmuc_sx">Sản xuất</label>
+                  
+                  <input type="radio" class="btn-check" name="updateHangMuc" id="hangmuc_kq" value="Khảo sát" autocomplete="off">
+                  <label class="btn btn-outline-primary flex-fill" for="hangmuc_kq">Khảo sát</label>
+                </div>
+              </div>
+              
+              <!-- Phân loại -->
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Phân loại</label>
+                <div class="btn-group d-flex" role="group" aria-label="Phân loại">
+                  <input type="radio" class="btn-check" name="updatePhanLoai" id="phanloai_co" value="Cơ" autocomplete="off">
+                  <label class="btn btn-outline-success flex-fill" for="phanloai_co">Cơ</label>
+                  
+                  <input type="radio" class="btn-check" name="updatePhanLoai" id="phanloai_dien" value="Điện" autocomplete="off">
+                  <label class="btn btn-outline-success flex-fill" for="phanloai_dien">Điện</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vị trí - Dropdown -->
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="updateViTri" class="form-label fw-bold">Vị trí</label>
+                <select class="form-select" id="updateViTri">
+                  <option value="">-- Chọn vị trí --</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="updateKetQua" class="form-label">Kết quả</label>
+                <select class="form-select" id="updateKetQua">
+                  <option value="">-- Chọn kết quả --</option>
+                  <option value="OK">OK</option>
+                  <option value="Not OK">Not OK</option>
+                  <option value="Chuyển Bảo Dưỡng">Chuyển Bảo Dưỡng</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="updateHienTrang" class="form-label">Hiện trạng</label>
+                <textarea class="form-control" id="updateHienTrang" rows="2" placeholder="Nhập hiện trạng"></textarea>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="updateNguyenNhan" class="form-label">Nguyên nhân</label>
+                <textarea class="form-control" id="updateNguyenNhan" rows="2" placeholder="Nhập nguyên nhân"></textarea>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6 mb-3">
+                <label for="updatePhuongAnXuLy" class="form-label">Phương án xử lý</label>
+                <textarea class="form-control" id="updatePhuongAnXuLy" rows="2" placeholder="Nhập phương án xử lý"></textarea>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="updateVatTuThayThe" class="form-label">Vật tư thay thế</label>
+                <textarea class="form-control" id="updateVatTuThayThe" rows="2" placeholder="Nhập vật tư thay thế"></textarea>
+              </div>
+            </div>
+            
+            <hr class="my-4">
+            <h6 class="mb-3"><i class="bi bi-people me-2"></i>Phân công nhân sự</h6>
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="updateNguoiLamChinh" class="form-label fw-bold">Người xử lý</label>
+                <select class="form-select" id="updateNguoiLamChinh">
+                  <option value="">-- Chọn người xử lý --</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="updateNguoiLamPhu1" class="form-label">Người hỗ trợ</label>
+                <select class="form-select" id="updateNguoiLamPhu1">
+                  <option value="">-- Chọn người hỗ trợ --</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="updateNguoiLamPhu2" class="form-label">Người hỗ trợ</label>
+                <select class="form-select" id="updateNguoiLamPhu2">
+                  <option value="">-- Chọn người hỗ trợ --</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-primary" id="saveUpdateBtn" style="background-color: #726bff; border-color: #726bff;">
+            <i class="bi bi-floppy me-1"></i>Lưu thay đổi
+          </button>
+          <button type="button" class="btn btn-success" id="saveAndHandoverBtn">
+            <i class="bi bi-check-circle me-1"></i>Lưu và bàn giao
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="login-slp.js"></script>
+  <script src="chitietcongviec.js"></script>
+  <script>
+    // Hàm hiển thị thông tin người làm chính/phụ vào các id tương ứng
+    // Gọi hàm này sau khi đã có object dữ liệu chi tiết công việc (ví dụ: row hoặc data)
+    function renderNguoiLamInfo(data) {
+      if (document.getElementById('tabNguoiLamChinh'))
+        document.getElementById('tabNguoiLamChinh').textContent = data.nguoiLamChinh || '-';
+      if (document.getElementById('tabNguoiLamPhu1'))
+        document.getElementById('tabNguoiLamPhu1').textContent = data.nguoiLamPhu1 || '-';
+      if (document.getElementById('tabNguoiLamPhu2'))
+        document.getElementById('tabNguoiLamPhu2').textContent = data.nguoiLamPhu2 || '-';
+      if (document.getElementById('tabThoiGianBatDauLam'))
+        document.getElementById('tabThoiGianBatDauLam').textContent = data.thoigianbatdaulam || data.thoiGianBatDauLam || '-';
+      if (document.getElementById('tabThoiGianBanGiaoDetail'))
+        document.getElementById('tabThoiGianBanGiaoDetail').textContent = data.thoiGianBanGiao || '-';
+    }
+
+    // Hàm cập nhật trạng thái công việc
+    function updateWorkStatus(data) {
+      const statusBadge = document.getElementById('workStatus');
+      const sttElement = document.getElementById('workSTT');
+      
+      // Cập nhật STT
+      if (sttElement) {
+        sttElement.textContent = data?.stt || '--';
+      }
+      
+      if (!statusBadge) return;
+
+      const lamChinh = data?.nguoiLamChinh?.trim();
+      const lamPhu1 = data?.nguoiLamPhu1?.trim();
+      const lamPhu2 = data?.nguoiLamPhu2?.trim();
+      const banGiao = data?.thoiGianBanGiao?.trim();
+
+      // Xác định trạng thái
+      let status = '';
+      let className = '';
+
+      if (banGiao) {
+        // Đã bàn giao - màu xanh lá cây
+        status = 'Đã bàn giao';
+        className = 'bg-success';
+      } else if (lamChinh || lamPhu1 || lamPhu2) {
+        // Đang xử lý - màu vàng
+        status = 'Đang xử lý';
+        className = 'bg-warning';
+      } else {
+        // Chờ xử lý - màu đỏ
+        status = 'Chờ xử lý';
+        className = 'bg-danger';
+      }
+
+      // Cập nhật badge
+      statusBadge.textContent = status;
+      statusBadge.className = `badge ${className}`;
+    }
+    
+    // Hàm global để có thể gọi từ chitietcongviec.js
+    window.renderNguoiLamInfo = renderNguoiLamInfo;
+    window.updateWorkStatus = updateWorkStatus;
+  </script>
+  <script>
+    // Hàm đổi màu trạng thái timeline
+function updateTimelineStatusColor(data) {
+  // Mặc định tất cả trạng thái về xám
+  const gray = '#adb5bd';
+  const active = '#726bff';
+  // Định nghĩa các selector
+  const steps = [
+    {
+      icon: document.querySelector('.work-timeline-icon i.bi-hourglass-split'),
+      label: document.querySelector('.work-timeline-label'),
+      arrow: document.querySelectorAll('.work-timeline-arrow-down svg')[0],
+      note: document.getElementById('noteStatus1'),
+      isActive: true // Luôn active đầu tiên
+    },
+    {
+      icon: document.querySelector('.work-timeline-icon i.bi-gear'),
+      label: document.querySelectorAll('.work-timeline-label')[1],
+      arrow: document.querySelectorAll('.work-timeline-arrow-down svg')[1],
+      note: document.getElementById('noteStatus2'),
+      isActive: false // Đang xử lý
+    },
+    {
+      icon: document.querySelector('.work-timeline-icon i.bi-check2-circle'),
+      label: document.querySelectorAll('.work-timeline-label')[2],
+      arrow: document.querySelectorAll('.work-timeline-arrow-down svg')[2],
+      note: document.getElementById('noteStatus3'),
+      isActive: false // Đã bàn giao
+    },
+    {
+      icon: document.querySelector('.work-timeline-icon i.bi-patch-check'),
+      label: document.querySelectorAll('.work-timeline-label')[3],
+      arrow: document.querySelectorAll('.work-timeline-arrow-down svg')[3],
+      note: document.getElementById('noteStatus4'),
+      isActive: false // Sản xuất xác nhận
+    },
+    {
+      icon: document.querySelector('.work-timeline-icon i.bi-arrow-repeat'),
+      label: document.querySelectorAll('.work-timeline-label')[4],
+      arrow: null,
+      note: document.getElementById('noteStatus5'),
+      isActive: false // Bảo dưỡng
+    }
+  ];
+
+  // Lấy giá trị từ object data (dữ liệu từ webhook)
+  const lamChinh = data?.nguoiLamChinh?.trim();
+  const lamPhu1 = data?.nguoiLamPhu1?.trim();
+  const lamPhu2 = data?.nguoiLamPhu2?.trim();
+  const banGiao = data?.thoiGianBanGiao?.trim();
+  const sanXuat = data?.sxXacNhan?.trim();
+  const baoDuong = data?.baoDuong?.trim();
+
+  // Đang xử lý: có giá trị ở Người làm chính hoặc Người làm phụ 1 hoặc Người làm phụ 2
+  if (lamChinh || lamPhu1 || lamPhu2) steps[1].isActive = true;
+  // Đã bàn giao: có giá trị ở Thời gian bàn giao
+  if (banGiao) steps[2].isActive = true;
+  // Sản xuất xác nhận: có giá trị ở Sản xuất xác nhận
+  if (sanXuat) steps[3].isActive = true;
+  // Bảo dưỡng: có giá trị ở Bảo dưỡng
+  if (baoDuong) steps[4].isActive = true;
+
+  // Đặt màu cho từng trạng thái
+  steps.forEach((step, idx) => {
+    if (step.icon) step.icon.style.color = step.isActive ? active : gray;
+    if (step.label) step.label.style.color = step.isActive ? active : gray;
+    if (step.arrow) {
+      step.arrow.querySelector('polygon').setAttribute('fill', step.isActive ? active : gray);
+      step.arrow.querySelector('rect').setAttribute('fill', step.isActive ? active : gray);
+    }
+  });
+}
+
+    // Gọi hàm này sau khi dữ liệu đã được load xong vào các trường
+    // Để gọi đúng, hãy truyền object dữ liệu vào: updateTimelineStatusColor(data)
+  </script>
+  
+  <!-- Script xử lý dropdown user -->
+  <script>
+    window.addEventListener('DOMContentLoaded', function() {
+      // Dropdown avatar
+      const avatar = document.getElementById('userAvatar');
+      const dropdown = document.getElementById('userDropdown');
+      if (avatar && dropdown) {
+        avatar.addEventListener('click', function(e) {
+          e.stopPropagation();
+          dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        });
+        document.addEventListener('click', function(e) {
+          if (!dropdown.contains(e.target)) {
+            dropdown.style.display = 'none';
+          }
+        });
+      }
+      
+      // Logout button
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) logoutBtn.onclick = logoutSLP;
+    });
+  </script>
+</body>
+</html>

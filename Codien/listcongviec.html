@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Danh Sách Công Việc - Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #f8f9fa;
+      min-height: 100vh;
+    }
+    .dashboard-header {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px #0001;
+      padding: 1.2rem 2rem 1.2rem 2rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .dashboard-header .search-box {
+      flex: 1 1;
+      max-width: 400px;
+      margin-right: 1.5rem;
+    }
+    .dashboard-header .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+    }
+    .dashboard-header .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #eee;
+    }
+    .dashboard-header .icon-btn {
+      background: none;
+      border: none;
+      font-size: 1.3rem;
+      color: #888;
+      margin-left: 0.5rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .dashboard-header .icon-btn:hover {
+      color: #333;
+    }
+    .summary-cards {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+    .summary-card {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 4px 24px 0 rgba(44, 39, 56, 0.06);
+      padding: 1.5rem 2.2rem 1.5rem 1.5rem;
+      flex: 1 1 220px;
+      min-width: 220px;
+      max-width: 320px;
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      transition: box-shadow 0.2s;
+    }
+    .summary-card:hover {
+      box-shadow: 0 8px 32px 0 rgba(44, 39, 56, 0.12);
+    }
+    .summary-card .icon-bg {
+      background: #f3f0ff;
+      border-radius: 50%;
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 0.5rem;
+    }
+    .summary-card .icon-bg .icon {
+      font-size: 2rem;
+      color: #7c3aed;
+    }
+    .summary-card .summary-content {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .summary-card .summary-title {
+      font-size: 1.08rem;
+      color: #888;
+      margin-bottom: 0.2rem;
+      font-weight: 500;
+    }
+    .summary-card .summary-value {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #222;
+      margin-top: 0.1rem;
+    }
+    .work-table-section {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px #0001;
+      padding: 2rem 1.5rem 1.5rem 1.5rem;
+    }
+    .work-table-section .table thead th {
+      background: #f8f9fa;
+      color: #333;
+      font-weight: 600;
+      text-align: center;
+      border-bottom: 2px solid #dee2e6;
+      padding: 0.7rem 0.75rem;
+      max-width: 50px;
+    }
+    .work-table-section .table tbody td {
+      vertical-align: middle;
+      text-align: center;
+      padding: 0.7rem 0.75rem;
+    }
+    .badge-approved {
+      background: #d4f8e8;
+      color: #28a745;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.4em 1em;
+      font-size: 0.95em;
+    }
+    .badge-rejected {
+      background: #ffe0e0;
+      color: #dc3545;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.4em 1em;
+      font-size: 0.95em;
+    }
+    .badge-pending {
+      background: #fff3cd;
+      color: #856404;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.4em 1em;
+      font-size: 0.95em;
+    }
+    .action-btn {
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 1.2rem;
+      margin: 0 0.2rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .action-btn:hover {
+      color: #333;
+    }
+    .pagination {
+      justify-content: flex-end;
+    }
+
+
+    @keyframes fadeInMenu {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .more-menu-popup .dropdown-item {
+      width: 100%;
+      text-align: left;
+      padding: 0.6em 1.1em;
+      border: none;
+      background: none;
+      color: #333;
+      font-size: 1em;
+      border-radius: 0;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer;
+      outline: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+    }
+    .more-menu-popup .dropdown-item:hover, .more-menu-popup .dropdown-item:focus {
+      background: #f3f0ff;
+      color: #7c3aed;
+    }
+    @media (max-width: 1200px) {
+      .summary-cards {
+        gap: 1rem;
+      }
+      .summary-card {
+        padding: 1.2rem 1.2rem 1.2rem 1rem;
+        min-width: 170px;
+      }
+    }
+    @media (max-width: 900px) {
+      .summary-cards {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .summary-card {
+        max-width: 100%;
+      }
+      .dashboard-header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+      }
+    }
+    .status-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      font-size: 1.3rem;
+    }
+    .status-wait {
+      background: #ffeaea;
+      color: #e53935;
+    }
+    .status-process {
+      background: #fff7e0;
+      color: #fbc02d;
+    }
+    .status-done {
+      background: #e6f9ed;
+      color: #43a047;
+    }
+    .delete-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .delete-popup .popup-content {
+      background: #fff;
+      border-radius: 12px;
+      padding: 2rem;
+      min-width: 400px;
+      max-width: 90vw;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .delete-popup .warning-text {
+      color: #dc3545;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .delete-popup .confirm-input {
+      border: 2px solid #dc3545;
+      border-radius: 8px;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .delete-popup .btn-cancel {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 0.5rem 1.5rem;
+      border-radius: 6px;
+      margin-right: 0.5rem;
+    }
+    .delete-popup .btn-delete {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 0.5rem 1.5rem;
+      border-radius: 6px;
+    }
+    .delete-popup .btn-delete:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+    }
+    .warning-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .warning-popup .popup-content {
+      background: #fff;
+      border-radius: 12px;
+      padding: 2rem;
+      min-width: 400px;
+      max-width: 90vw;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      text-align: center;
+      justify-items: center;
+      align-items: center;
+    }
+    .warning-popup .warning-icon {
+      font-size: 3rem;
+      color: #dc3545;
+      margin-bottom: 1rem;
+    }
+    .warning-popup .warning-title {
+      color: #dc3545;
+      font-weight: 600;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+    .warning-popup .warning-message {
+      color: #666;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .warning-popup .btn-close {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 120px;
+    }
+    .warning-popup .btn-close:hover {
+      background: #0056b3;
+      transform: translateY(-1px);
+    }
+
+    /* ===== MOBILE RESPONSIVE STYLES ===== */
+    @media (max-width: 768px) {
+      /* Header responsive - keep all elements */
+      .dashboard-header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+      }
+      
+      .dashboard-header .search-box {
+        width: 100%;
+        max-width: none;
+        margin-right: 0;
+        order: 2;
+      }
+      
+      .dashboard-header .header-actions {
+        width: 100%;
+        justify-content: center;
+        order: 1;
+        gap: 1.5rem;
+      }
+      
+      .dashboard-header .icon-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 44px;
+      }
+      
+      /* Summary cards responsive - compact design */
+      .summary-cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+        margin-bottom: 1rem;
+      }
+      
+      .summary-card {
+        max-width: 100%;
+        padding: 0.8rem 1rem;
+        min-width: auto;
+        gap: 0.8rem;
+      }
+      
+      .summary-card .icon-bg {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+      }
+      
+      .summary-card .icon-bg .icon {
+        font-size: 1.2rem;
+      }
+      
+      .summary-card .summary-title {
+        font-size: 0.85rem;
+        margin-bottom: 0.1rem;
+      }
+      
+      .summary-card .summary-value {
+        font-size: 1.1rem;
+        margin-top: 0;
+      }
+      
+      /* Work table section responsive */
+      .work-table-section {
+        padding: 1rem;
+        margin: 0 0.5rem;
+      }
+      
+      /* Table controls responsive */
+      .d-flex.flex-wrap.align-items-center.justify-content-between {
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      
+      .d-flex.align-items-center.gap-2 {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 0.5rem !important;
+        flex: 1;
+      }
+      
+      .d-flex.align-items-center.gap-2 label {
+        font-size: 0.9rem;
+        margin: 0;
+      }
+      
+      /* Ẩn label "Trạng thái" trên mobile */
+      .d-flex.align-items-center.gap-2 label:nth-of-type(2) {
+        display: none;
+      }
+      
+      .d-flex.align-items-center.gap-2 select {
+        min-width: 100px;
+        font-size: 0.9rem;
+      }
+      
+      /* Add button responsive - chỉ hiển thị icon + */
+      .btn.btn-primary {
+        width: auto !important;
+        padding: 0.5rem !important;
+        font-size: 1rem !important;
+        min-width: 36px;
+        height: 36px;
+        border-radius: 8px !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      
+      .btn.btn-primary .bi-plus-lg {
+        margin: 0 !important;
+      }
+      
+      .btn.btn-primary:not(.bi-plus-lg) {
+        font-size: 0 !important; /* Ẩn text */
+      }
+      
+      /* Ẩn text "Thêm công việc" chỉ giữ icon */
+      .btn.btn-primary {
+        overflow: hidden;
+        text-indent: -9999px;
+        position: relative;
+      }
+      
+      .btn.btn-primary i {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-indent: 0;
+        font-size: 1rem !important;
+      }
+      
+      /* Table responsive */
+      .table-responsive {
+        border-radius: 8px;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -0.5rem; /* Extend to edges */
+      }
+      
+      .table {
+        font-size: 0.85rem;
+        min-width: 800px; /* Tăng min-width */
+        margin-bottom: 0;
+      }
+      
+      .table thead th {
+        padding: 0.5rem 0.3rem; /* Giảm padding */
+        font-size: 0.8rem;
+        white-space: nowrap;
+        background: #f8f9fa !important;
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        text-align: center;
+        vertical-align: middle;
+      }
+      
+      .table tbody td {
+        padding: 0.5rem 0.3rem; /* Giảm padding */
+        font-size: 0.85rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #eee;
+      }
+      
+      /* Cải thiện cột STT */
+      .table tbody td:first-child {
+        min-width: 90px; /* Tăng min-width */
+        font-weight: 600;
+        text-align: center;
+      }
+      
+      /* Cải thiện cột trạng thái */
+      .table tbody td:nth-child(2) {
+        min-width: 80px; /* Tăng min-width */
+        text-align: center;
+      }
+      
+      /* Cải thiện cột người yêu cầu */
+      .table tbody td:nth-child(3) {
+        min-width: 140px; /* Tăng min-width */
+        text-align: left;
+        padding-left: 0.5rem; /* Giảm padding */
+      }
+      
+      /* Cải thiện cột máy */
+      .table tbody td:nth-child(4) {
+        min-width: 120px; /* Tăng min-width */
+        text-align: left;
+        padding-left: 0.5rem; /* Giảm padding */
+      }
+      
+      /* Cải thiện cột hiện trạng lỗi */
+      .table tbody td:nth-child(5) {
+        min-width: 250px; /* Tăng min-width */
+        text-align: left !important;
+        padding-left: 0.5rem; /* Giảm padding */
+        white-space: pre-line;
+        line-height: 1.4;
+      }
+      
+      /* Cải thiện cột thao tác */
+      .table tbody td:nth-child(6) {
+        min-width: 130px; /* Tăng min-width */
+        text-align: center;
+        position: sticky;
+        right: 0;
+        background: white;
+        box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+      }
+      
+      /* Status icons responsive */
+      .status-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1.1rem;
+      }
+      
+      /* Action buttons responsive */
+      .action-btn {
+        font-size: 1.1rem;
+        margin: 0 0.15rem;
+        min-width: 36px;
+        min-height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      /* More menu responsive */
+      .more-menu-popup {
+        right: -20px !important;
+        min-width: 150px;
+        z-index: 1050 !important;
+      }
+      
+      .more-menu-popup .dropdown-item {
+        padding: 0.75rem 1rem !important;
+        font-size: 0.9rem;
+      }
+      
+      /* Pagination responsive */
+      .d-flex.justify-content-between.align-items-center {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+      
+      .pagination {
+        justify-content: center !important;
+      }
+      
+      .pagination .page-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+      }
+      
+      #tableInfo {
+        text-align: center;
+        font-size: 0.9rem !important;
+      }
+    }
+
+    @media (max-width: 576px) {
+      /* Extra small devices */
+      .container-fluid {
+        padding: 0 0.5rem;
+      }
+      
+      .dashboard-header {
+        margin: 0.5rem;
+        padding: 0.8rem;
+      }
+      
+      .dashboard-header .search-box input {
+        font-size: 16px; /* Prevent zoom on iOS */
+      }
+      
+      /* Summary cards compact for small screens */
+      .summary-cards {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.6rem;
+        margin-bottom: 1rem;
+      }
+      
+      .summary-card {
+        padding: 0.6rem 0.8rem;
+        gap: 0.6rem;
+      }
+      
+      .summary-card .icon-bg {
+        width: 36px;
+        height: 36px;
+      }
+      
+      .summary-card .icon-bg .icon {
+        font-size: 1rem;
+      }
+      
+      .summary-card .summary-title {
+        font-size: 0.8rem;
+        margin-bottom: 0.1rem;
+      }
+      
+      .summary-card .summary-value {
+        font-size: 1rem;
+        margin-top: 0;
+      }
+      
+      .work-table-section {
+        margin: 0.5rem;
+        padding: 0.8rem;
+      }
+      
+      /* Table controls compact */
+      .d-flex.align-items-center.gap-2 {
+        justify-content: flex-start;
+        flex: 1;
+      }
+      
+      .d-flex.align-items-center.gap-2 label {
+        font-size: 0.85rem;
+      }
+      
+      /* Ẩn label "Trạng thái" trên mobile nhỏ */
+      .d-flex.align-items-center.gap-2 label:nth-of-type(2) {
+        display: none;
+      }
+      
+      .d-flex.align-items-center.gap-2 select {
+        font-size: 0.85rem;
+        min-width: 90px;
+      }
+      
+      /* Add button compact - chỉ icon + */
+      .btn.btn-primary {
+        width: 32px !important;
+        height: 32px !important;
+        padding: 0 !important;
+        font-size: 0.9rem !important;
+        border-radius: 6px !important;
+        min-width: 32px !important;
+      }
+      
+      .btn.btn-primary i {
+        font-size: 0.9rem !important;
+      }
+      
+      /* Table compact */
+      .table {
+        font-size: 0.8rem;
+        min-width: 720px; /* Tăng min-width */
+      }
+      
+      .table thead th {
+        padding: 0.4rem 0.25rem; /* Giảm padding */
+        font-size: 0.75rem;
+        background: #f8f9fa !important;
+        border-bottom: 2px solid #dee2e6;
+      }
+      
+      .table tbody td {
+        padding: 0.4rem 0.25rem; /* Giảm padding */
+        font-size: 0.8rem;
+        border-bottom: 1px solid #eee;
+      }
+      
+      /* Tối ưu các cột cho mobile nhỏ */
+      .table tbody td:first-child {
+        min-width: 80px; /* Tăng min-width */
+        font-weight: 600;
+      }
+      
+      .table tbody td:nth-child(2) {
+        min-width: 70px; /* Tăng min-width */
+      }
+      
+      .table tbody td:nth-child(3) {
+        min-width: 130px; /* Tăng min-width */
+        padding-left: 0.4rem; /* Giảm padding */
+      }
+      
+      .table tbody td:nth-child(4) {
+        min-width: 110px; /* Tăng min-width */
+        padding-left: 0.4rem; /* Giảm padding */
+      }
+      
+      .table tbody td:nth-child(5) {
+        min-width: 220px; /* Tăng min-width */
+        padding-left: 0.4rem; /* Giảm padding */
+        line-height: 1.3;
+      }
+      
+      .table tbody td:nth-child(6) {
+        min-width: 120px; /* Giảm width xuống */
+        position: sticky;
+        right: 0;
+        background: white;
+        box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+        white-space: nowrap; /* Không cho xuống dòng */
+      }
+      
+      /* Action buttons compact */
+      .action-btn {
+        font-size: 0.9rem; /* Giảm font size */
+        min-width: 26px; /* Giảm min-width */
+        min-height: 26px; /* Giảm min-height */
+        margin: 0 0.02rem; /* Giảm margin giữa các icon */
+        padding: 0.1rem 0.2rem; /* Giảm padding */
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      /* Pagination compact */
+      .pagination .page-link {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+      }
+      
+      /* Popup dialogs responsive */
+      .delete-popup .popup-content,
+      .warning-popup .popup-content {
+        min-width: 90vw;
+        margin: 1rem;
+        padding: 1.5rem;
+      }
+      
+      .delete-popup .btn-cancel,
+      .delete-popup .btn-delete {
+        width: 48%;
+        font-size: 0.9rem;
+      }
+      
+      .warning-popup .warning-icon {
+        font-size: 2.5rem;
+      }
+      
+      /* Header actions improvements */
+      .header-actions .icon-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        transition: background-color 0.2s ease;
+      }
+      
+      .header-actions .icon-btn:hover {
+        background-color: rgba(124, 58, 237, 0.1);
+      }
+      
+      /* Avatar responsive */
+      .avatar {
+        width: 36px !important;
+        height: 36px !important;
+      }
+      
+      /* Dropdown responsive */
+      #userDropdown {
+        right: 0 !important;
+        min-width: 200px !important;
+        top: 50px !important;
+      }
+    }
+
+    /* ===== TOUCH IMPROVEMENTS ===== */
+    @media (max-width: 768px) {
+      /* Better touch targets */
+      .btn, .action-btn, .icon-btn {
+        min-height: 44px;
+        min-width: 44px;
+      }
+      
+      /* Smooth scrolling */
+      html {
+        scroll-behavior: smooth;
+      }
+      
+      /* Better scrolling */
+      .table-responsive {
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      /* Form improvements */
+      .form-control, .form-select {
+        font-size: 16px; /* Prevent zoom on iOS */
+      }
+      
+      /* Better shadows for mobile */
+      .summary-card, .work-table-section {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      }
+      
+      /* Dropdown improvements */
+      .more-menu-popup {
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        border-radius: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script>
+    // Đăng nhập sử dụng login-slp.js
+    // Đảm bảo đã import login-slp.js ở cuối file hoặc trong <head>
+    // Hàm showUserInfo và logoutSLP vẫn giữ nguyên để hiển thị thông tin và đăng xuất
+    function showUserInfo() {
+      if (localStorage.getItem('slp_user') && localStorage.getItem('slp_name')) {
+        const userName = localStorage.getItem('slp_name');
+        const userRole = localStorage.getItem('slp_role') === 'quanly' ? 'Quản lý' : 'Nhân viên';
+        document.getElementById('dropdownUserName').textContent = userName;
+        document.getElementById('dropdownUserRole').textContent = userRole;
+      }
+    }
+    function logoutSLP() {
+      if (window.logoutSLPModule) {
+        window.logoutSLPModule();
+      } else {
+        localStorage.removeItem('slp_user');
+        localStorage.removeItem('slp_name');
+        window.location.reload();
+      }
+    }
+    window.addEventListener('DOMContentLoaded', async function() {
+      if (window.checkLoginSLP) {
+        await window.checkLoginSLP();
+      }
+      showUserInfo();
+    });
+  </script>
+
+  <!-- HEADER -->
+  <div class="dashboard-header mb-3">
+    <div class="search-box">
+      <div class="input-group">
+        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+        <input type="text" class="form-control border-start-0" placeholder="Tìm kiếm công việc..." id="searchInput" />
+      </div>
+    </div>
+    <div class="header-actions position-relative">
+      <a class="icon-btn" title="Trang chủ" href="home.html"><i class="bi bi-house-door"></i></a>
+      <button class="icon-btn" title="Ngôn ngữ"><i class="bi bi-translate"></i></button>
+      <!-- <button class="icon-btn" title="Chế độ sáng/tối"><i class="bi bi-brightness-high"></i></button> -->
+      <button class="icon-btn" title="Thông báo"><i class="bi bi-bell"></i></button>
+      <img src="https://randomuser.me/api/portraits/men/32.jpg" class="avatar" alt="Avatar" id="userAvatar" style="cursor:pointer;" />
+      <div id="userDropdown" class="shadow rounded-3" style="display:none;position:absolute;top:60px;right:0;min-width:220px;background:#fff;z-index:1000;">
+        <div class="p-3 border-bottom text-center">
+          <img src="https://randomuser.me/api/portraits/men/32.jpg" class="rounded-circle mb-2" width="48" height="48" alt="" />
+          <div class="fw-bold" id="dropdownUserName">Tên người dùng</div>
+          <div class="text-muted small" id="dropdownUserRole">Vai trò</div>
+        </div>
+        <button class="btn btn-danger rounded-pill mt-3 py-1" id="logoutBtn" style="font-size:0.92rem; min-height:32px; padding:0.3rem 0.5rem; width:120px; display:block; margin:12px auto 12px auto;">
+          <i class="bi bi-box-arrow-right me-1"></i>Đăng xuất
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="container-fluid px-3">
+    <div class="summary-cards">
+      <div class="summary-card">
+        <div class="icon-bg"><i class="bi bi-list-task icon"></i></div>
+        <div class="summary-content">
+          <div class="summary-title">Tổng công việc</div>
+          <div class="summary-value" id="totalWork">0</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="icon-bg"><i class="bi bi-check2 icon"></i></div>
+        <div class="summary-content">
+          <div class="summary-title">Đã bàn giao</div>
+          <div class="summary-value" id="doneWork">0</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="icon-bg"><i class="bi bi-arrow-repeat icon"></i></div>
+        <div class="summary-content">
+          <div class="summary-title">Đang xử lý</div>
+          <div class="summary-value" id="processingWork">0</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="icon-bg"><i class="bi bi-hourglass icon"></i></div>
+        <div class="summary-content">
+          <div class="summary-title">Chờ xử lý</div>
+          <div class="summary-value" id="waitingWork">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORK TABLE SECTION -->
+  <div class="container-fluid px-3">
+    <div class="work-table-section mt-3">
+      <div class="d-flex flex-wrap align-items-center justify-content-between mb-3 gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <label>Hiển thị</label>
+          <select class="form-select form-select-sm w-auto" id="showCount">
+            <option>10</option>
+            <option>25</option>
+            <option>50</option>
+          </select>
+          <label>Trạng thái</label>
+          <select class="form-select form-select-sm w-auto" id="statusFilter">
+            <option value="">Tất cả trạng thái</option>
+            <option value="wait">Chờ xử lý</option>
+            <option value="process">Đang xử lý</option>
+            <option value="done">Đã bàn giao</option>
+          </select>
+        </div>
+        <a href="index.html" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Thêm công việc</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Trạng thái</th>
+              <th>Người yêu cầu</th>
+              <th>Máy</th>
+              <th>Hiện trạng lỗi</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody id="workTableBody">
+            <tr><td colspan="6">Đang tải dữ liệu...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <div class="text-muted" style="font-size:0.95em;" id="tableInfo">Hiển thị 0 công việc</div>
+        <nav>
+          <ul class="pagination mb-0" id="pagination">
+            <!-- Phân trang sẽ được render ở đây -->
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <div id="deletePopup" class="delete-popup">
+    <div class="popup-content">
+      <h5 class="text-danger mb-3"><i class="bi bi-exclamation-triangle me-2"></i>Xác nhận xóa</h5>
+      <p class="warning-text">Bạn có chắc chắn muốn xóa công việc này?</p>
+      <p><strong>STT:</strong> <span id="deleteStt"></span></p>
+      <p><strong>Người yêu cầu:</strong> <span id="deleteNguoi"></span></p>
+      <p><strong>Máy:</strong> <span id="deleteMay"></span></p>
+      <div class="mb-3">
+        <label class="form-label">Nhập "XOA" để xác nhận:</label>
+        <input type="text" class="form-control confirm-input" id="confirmDelete" placeholder="XOA" maxlength="3" style="text-transform: uppercase;">
+      </div>
+      <div class="text-end">
+        <button class="btn-cancel" onclick="hideDeletePopup()">Hủy</button>
+        <button class="btn-delete" id="btnConfirmDelete" onclick="confirmDelete()" disabled>Xóa</button>
+      </div>
+    </div>
+  </div>
+  <div id="warningPopup" class="warning-popup">
+    <div class="popup-content">
+      <div class="warning-icon"><i class="bi bi-exclamation-triangle"></i></div>
+      <div class="warning-title">Không thể xóa công việc</div>
+      <div class="warning-message" id="warningMessage"></div>
+      <button class="btn-close" onclick="hideWarningPopup()">Đóng</button>
+    </div>
+  </div>
+  <script>
+    // Lấy dữ liệu công việc từ n8n (SQL)
+    let allRows = [];
+    let filteredRows = [];
+    let currentPage = 1;
+    let pageSize = 10;
+    let currentDeleteRow = null;
+
+    async function loadCongViec() {
+      document.getElementById('workTableBody').innerHTML = '<tr><td colspan="6">Đang tải dữ liệu...</td></tr>';
+      try {
+        // Thay đổi endpoint n8n phù hợp với hệ thống của bạn
+        const url = 'https://autoslp.duckdns.org:5678/webhook/get-congviec';
+        const res = await fetch(url);
+        const data = await res.json();
+        // Nếu data là mảng object (SQL), map về mảng mảng cho tương thích code cũ
+        if (Array.isArray(data) && data.length > 0 && typeof data[0] === 'object' && !Array.isArray(data[0])) {
+          // Map đúng tên trường thực tế từ dữ liệu SQL/n8n
+          allRows = data.map(row => [
+            row.stt || '', // 0: STT
+            '',           // 1: Trạng thái (tính phía dưới)
+            row.may || '',           // 2: Máy
+            row.nguoi_yeu_cau || '', // 3: Người yêu cầu
+            row.hien_trang_loi || '',// 4: Hiện trạng lỗi
+            // ... các trường khác nếu cần
+            '', '', '', '', '', '', '', '', '',
+            row.thoi_gian_ban_giao || '', // 14: Thời gian bàn giao
+            '', '', '', '', '', '',
+            row.nguoi_lam_chinh || '', // 20: Người làm chính
+            row.nguoi_lam_phu_1 || '', // 21: Người làm phụ 1
+            row.nguoi_lam_phu_2 || ''  // 22: Người làm phụ 2
+          ]);
+        } else if (Array.isArray(data)) {
+          allRows = data;
+        } else if (data.values) {
+          allRows = data.values;
+        } else {
+          allRows = [];
+        }
+        allRows.sort((a, b) => {
+          const getNum = r => parseInt((r[0] || '').replace(/\D/g, '')) || 0;
+          return getNum(b) - getNum(a);
+        });
+        filteredRows = allRows;
+        renderSummaryCards(allRows);
+        renderTable();
+      } catch (error) {
+        document.getElementById('workTableBody').innerHTML = '<tr><td colspan="6">Có lỗi khi tải dữ liệu</td></tr>';
+      }
+    }
+    function renderSummaryCards(rows) {
+      let done = 0, processing = 0, waiting = 0;
+      rows.forEach(row => {
+        const nguoiLamChinh = (row[20] !== undefined ? row[20] : '').trim();
+        const nguoiLamPhu = (row[21] !== undefined ? row[21] : '').trim();
+        const nguoiLamPhu2 = (row[22] !== undefined ? row[22] : '').trim();
+        const thoiGianBanGiao = (row[14] !== undefined ? row[14] : '').trim();
+        if (thoiGianBanGiao) {
+          done++;
+        } else if (nguoiLamChinh || nguoiLamPhu || nguoiLamPhu2) {
+          processing++;
+        } else {
+          waiting++;
+        }
+      });
+      document.getElementById('totalWork').textContent = rows.length;
+      document.getElementById('doneWork').textContent = done;
+      document.getElementById('processingWork').textContent = processing;
+      document.getElementById('waitingWork').textContent = waiting;
+    }
+    function toggleMoreMenu(menuId) {
+      // Đóng tất cả menu khác trước
+      document.querySelectorAll('.more-menu-popup').forEach(el => {
+        if (el.id !== menuId) el.style.display = 'none';
+      });
+      const menu = document.getElementById(menuId);
+      if (menu) {
+        menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+      }
+    }
+
+    // Đóng menu khi click ra ngoài
+    document.addEventListener('click', function(e) {
+      // Nếu click vào nút 3 chấm hoặc trong menu thì không đóng
+      if (e.target.closest('.more-btn') || e.target.closest('.more-menu-popup')) return;
+      document.querySelectorAll('.more-menu-popup').forEach(el => {
+        el.style.display = 'none';
+      });
+    });
+
+    // Đóng menu khi chuyển trang hoặc render lại bảng
+    function closeAllMoreMenus() {
+      document.querySelectorAll('.more-menu-popup').forEach(el => {
+        el.style.display = 'none';
+      });
+    }
+
+    function renderTable() {
+      const searchVal = document.getElementById('searchInput').value.trim().toLowerCase();
+      const statusFilter = document.getElementById('statusFilter').value;
+      let rows = allRows;
+      
+      // Filter theo tìm kiếm
+      if (searchVal) {
+        rows = rows.filter(row =>
+          (row[0]||'').toLowerCase().includes(searchVal) ||
+          (row[2]||'').toLowerCase().includes(searchVal) ||
+          (row[4]||'').toLowerCase().includes(searchVal) ||
+          (row[5]||'').toLowerCase().includes(searchVal)
+        );
+      }
+      
+      // Filter theo trạng thái
+      if (statusFilter) {
+        rows = rows.filter(row => {
+          const nguoiLamChinh = (row[20] !== undefined ? row[20] : '').trim();
+          const nguoiLamPhu = (row[21] !== undefined ? row[21] : '').trim();
+          const nguoiLamPhu2 = (row[22] !== undefined ? row[22] : '').trim();
+          const thoiGianBanGiao = (row[14] !== undefined ? row[14] : '').trim();
+          
+          if (statusFilter === 'done') {
+            return thoiGianBanGiao;
+          } else if (statusFilter === 'process') {
+            return (nguoiLamChinh || nguoiLamPhu || nguoiLamPhu2) && !thoiGianBanGiao;
+          } else if (statusFilter === 'wait') {
+            return !(nguoiLamChinh || nguoiLamPhu || nguoiLamPhu2) && !thoiGianBanGiao;
+          }
+          return true;
+        });
+      }
+      
+      filteredRows = rows;
+      pageSize = parseInt(document.getElementById('showCount').value || '10');
+      const total = rows.length;
+      const totalPages = Math.ceil(total / pageSize);
+      if (currentPage > totalPages) currentPage = 1;
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
+      const pageRows = rows.slice(start, end);
+      let html = '';
+      if (pageRows.length === 0) {
+        html = '<tr><td colspan="6">Không có dữ liệu</td></tr>';
+      } else {
+        pageRows.forEach((row, idx) => {
+          const stt = row[0] || '';
+          const may = row[2] || '';
+          const nguoi = row[3] || '';
+          const hientrang = row[4] || '';
+          const nguoiLamChinh = (row[20] !== undefined ? row[20] : '').trim();
+          const nguoiLamPhu = (row[21] !== undefined ? row[21] : '').trim();
+          const nguoiLamPhu2 = (row[22] !== undefined ? row[22] : '').trim();
+          const thoiGianBanGiao = (row[14] !== undefined ? row[14] : '').trim();
+          let statusIcon = '';
+          if (thoiGianBanGiao) {
+            statusIcon = '<span class="status-icon status-done"><i class="bi bi-check2"></i></span>';
+          } else if (nguoiLamChinh || nguoiLamPhu || nguoiLamPhu2) {
+            statusIcon = '<span class="status-icon status-process"><i class="bi bi-arrow-repeat"></i></span>';
+          } else {
+            statusIcon = '<span class="status-icon status-wait"><i class="bi bi-hourglass"></i></span>';
+          }
+          // Tạo id duy nhất cho popup menu
+          const menuId = `moreMenu_${stt}_${idx}`;
+          html += `<tr>
+            <td><strong>${stt}</strong></td>
+            <td>${statusIcon}</td>
+            <td>${nguoi}</td>
+            <td>${may}</td>
+            <td style="text-align:left;max-width:300px;white-space:pre-line;">${hientrang}</td>
+            <td style="position:relative;">
+              <button class="action-btn" title="Xóa" onclick="showDeletePopup('${stt}', '${nguoi}', '${may}')"><i class="bi bi-trash"></i></button>
+              <button class="action-btn" title="Xem" onclick="viewDetail('${stt}')"><i class="bi bi-eye"></i></button>
+              <button class="action-btn more-btn" title="Khác" onclick="toggleMoreMenu('${menuId}')"><i class="bi bi-three-dots"></i></button>
+                             <div class="more-menu-popup" id="${menuId}" style="display:none;position:absolute;right:0;top:50px;z-index:10;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 2px 8px #0002;min-width:120px;">
+                 <button class="dropdown-item" style="width:100%;text-align:left;padding:0.6em 1em;border:none;background:none;" onclick="sendZalo('${stt}', '${nguoi}', '${may}', '${hientrang}')">
+                   <img src="https://stc-zaloprofile.zdn.vn/favicon.ico" style="width:16px;height:16px;margin-right:8px;" alt="Zalo">
+                   Gửi Zalo
+                 </button>
+                 <button class="dropdown-item" style="width:100%;text-align:left;padding:0.6em 1em;border:none;background:none;" onclick="editCongViec('${stt}')"><i class='bi bi-pencil-square me-2'></i>Sửa</button>
+               </div>
+            </td>
+          </tr>`;
+        });
+      }
+      document.getElementById('workTableBody').innerHTML = html;
+      document.getElementById('tableInfo').textContent = `Hiển thị ${pageRows.length} / ${total} công việc`;
+      renderPagination(totalPages);
+      closeAllMoreMenus();
+    }
+    function renderPagination(totalPages) {
+      let html = '';
+      if (totalPages <= 1) {
+        document.getElementById('pagination').innerHTML = '';
+        return;
+      }
+      html += `<li class="page-item${currentPage === 1 ? ' disabled' : ''}"><a class="page-link" href="#" onclick="changePage(${currentPage-1});return false;">&laquo;</a></li>`;
+      for (let i = 1; i <= totalPages; i++) {
+        html += `<li class="page-item${i === currentPage ? ' active' : ''}"><a class="page-link" href="#" onclick="changePage(${i});return false;">${i}</a></li>`;
+      }
+      html += `<li class="page-item${currentPage === totalPages ? ' disabled' : ''}"><a class="page-link" href="#" onclick="changePage(${currentPage+1});return false;">&raquo;</a></li>`;
+      document.getElementById('pagination').innerHTML = html;
+    }
+    window.changePage = function(page) {
+      currentPage = page;
+      renderTable();
+    }
+    function showWarningPopup(message) {
+      document.getElementById('warningMessage').textContent = message;
+      document.getElementById('warningPopup').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function hideWarningPopup() {
+      document.getElementById('warningPopup').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    function showDeletePopup(stt, nguoi, may) {
+      console.log('showDeletePopup called with:', stt, nguoi, may);
+      
+      // Kiểm tra tham số
+      if (!stt || !nguoi || !may) {
+        console.error('Invalid parameters:', stt, nguoi, may);
+        showWarningPopup('Lỗi: Thông tin công việc không hợp lệ');
+        return;
+      }
+      
+      // Kiểm tra trạng thái công việc
+      const row = allRows.find(row => row[0] === stt);
+      if (row) {
+        const nguoiLamChinh = (row[20] !== undefined ? row[20] : '').trim();
+        const nguoiLamPhu = (row[21] !== undefined ? row[21] : '').trim();
+        const nguoiLamPhu2 = (row[22] !== undefined ? row[22] : '').trim();
+        const thoiGianBanGiao = (row[14] !== undefined ? row[14] : '').trim();
+        
+        // Kiểm tra nếu đang xử lý hoặc đã bàn giao
+        if (thoiGianBanGiao) {
+          showWarningPopup('Không được xóa công việc đã bàn giao. Vui lòng liên hệ với bộ phận Cơ Điện để xác minh.');
+          return;
+        } else if (nguoiLamChinh || nguoiLamPhu || nguoiLamPhu2) {
+          showWarningPopup('Không được xóa công việc đang xử lý. Vui lòng liên hệ với bộ phận Cơ Điện để xác minh.');
+          return;
+        }
+      }
+      
+      document.getElementById('deleteStt').textContent = stt;
+      document.getElementById('deleteNguoi').textContent = nguoi;
+      document.getElementById('deleteMay').textContent = may;
+      document.getElementById('confirmDelete').value = '';
+      document.getElementById('btnConfirmDelete').disabled = true;
+      document.getElementById('deletePopup').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      
+      // Lưu thông tin dòng cần xóa
+      currentDeleteRow = { stt: stt, nguoi: nguoi, may: may };
+      console.log('currentDeleteRow set to:', currentDeleteRow);
+      
+      // Focus vào ô input
+      setTimeout(() => {
+        document.getElementById('confirmDelete').focus();
+      }, 100);
+    }
+
+    function hideDeletePopup() {
+      document.getElementById('deletePopup').style.display = 'none';
+      document.body.style.overflow = '';
+      currentDeleteRow = null;
+    }
+
+    function confirmDelete() {
+      console.log('confirmDelete called, currentDeleteRow:', currentDeleteRow);
+      
+      try {
+        // Fallback: lấy thông tin từ popup nếu currentDeleteRow null
+        let sttToDelete = null;
+        if (currentDeleteRow && currentDeleteRow.stt) {
+          sttToDelete = currentDeleteRow.stt;
+        } else {
+          // Lấy từ popup
+          sttToDelete = document.getElementById('deleteStt').textContent;
+          console.log('Using fallback stt:', sttToDelete);
+        }
+        
+        if (!sttToDelete) {
+          alert('Lỗi: Không tìm thấy thông tin công việc cần xóa');
+          return;
+        }
+        
+        // Gọi API xóa công việc qua n8n/SQL
+        fetch('https://autoslp.duckdns.org:5678/webhook/delete-listcongviec', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stt: sttToDelete })
+        })
+        .then(async res => {
+          if (res.ok) {
+            hideDeletePopup();
+            await loadCongViec(); // Reload dữ liệu
+            alert('Đã xóa công việc thành công!');
+          } else {
+            const msg = await res.text();
+            alert('Có lỗi khi xóa công việc: ' + msg);
+          }
+        })
+        .catch(error => {
+          console.error('Lỗi:', error);
+          alert('Có lỗi xảy ra khi xóa công việc. Vui lòng thử lại.');
+        });
+      } catch (error) {
+        console.error('Error in confirmDelete:', error);
+        alert('Có lỗi xảy ra khi xóa công việc: ' + error.message);
+      }
+    }
+
+    function viewDetail(stt) {
+      if (!stt) return;
+      window.location.href = `chitietcongviec.html?stt=${encodeURIComponent(stt)}`;
+    }
+
+    // Hàm gửi Zalo
+    function sendZalo(stt, nguoi, may, hientrang) {
+      if (!stt) {
+        alert('Lỗi: Không tìm thấy thông tin công việc');
+        return;
+      }
+
+      // Tìm thông tin chi tiết của công việc
+      const row = allRows.find(row => row[0] === stt);
+      if (!row) {
+        alert('Lỗi: Không tìm thấy dữ liệu công việc');
+        return;
+      }
+
+      // Lấy thông tin từ dòng dữ liệu
+      const data = {
+        stt: stt,
+        nguoiyeucau: nguoi || row[3] || '',
+        may: may || row[2] || '',
+        hientrangloi: hientrang || row[4] || '',
+        khuvuc: row[5] || '', // Khu vực (nếu có)
+        timestamp: new Date().toISOString()
+      };
+
+      // Hiển thị thông báo đang gửi
+      const loadingMsg = `Đang gửi công việc ${stt} qua Zalo...`;
+      console.log(loadingMsg);
+
+      // Gửi dữ liệu lên webhook như code bạn cung cấp
+      setTimeout(() => {
+        const n8nPayload = {
+          tenNguoiGui: data.nguoiyeucau,
+          hienTrangLoi: data.hientrangloi,
+          khuVuc: data.khuvuc,
+          may: data.may,
+          sttcd: data.stt,
+          linkAnh: [], // Không có ảnh trong trường hợp này
+          timestamp: new Date().toISOString(),
+        };
+
+        fetch("https://autoslp.duckdns.org:5678/webhook/my-zalo-webhook", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(n8nPayload),
+        })
+        .then(response => {
+          if (response.ok) {
+            console.log('Gửi Zalo thành công!');
+            alert(`✅ Đã gửi công việc ${stt} qua Zalo thành công!`);
+          } else {
+            console.error('Lỗi gửi Zalo:', response.status);
+            alert('❌ Có lỗi khi gửi Zalo. Vui lòng thử lại.');
+          }
+        })
+        .catch((e) => {
+          console.error("Lỗi gửi n8n:", e);
+          alert('❌ Có lỗi kết nối khi gửi Zalo. Vui lòng thử lại.');
+        });
+      }, 100);
+
+      // Đóng dropdown menu
+      document.querySelectorAll('.more-menu-popup').forEach(el => {
+        el.style.display = 'none';
+      });
+    }
+
+    // Hàm sửa công việc
+    function editCongViec(stt) {
+      if (!stt) return;
+      // Chuyển đến trang sửa công việc
+      window.location.href = `suacongviec.html?stt=${encodeURIComponent(stt)}`;
+      
+      // Đóng dropdown
+      document.querySelectorAll('.more-menu-popup').forEach(el => {
+        el.style.display = 'none';
+      });
+    }
+
+    // Xử lý input xác nhận
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('searchInput').addEventListener('input', function() {
+        currentPage = 1;
+        renderTable();
+      });
+      document.getElementById('showCount').addEventListener('change', function() {
+        currentPage = 1;
+        renderTable();
+      });
+      document.getElementById('statusFilter').addEventListener('change', function() {
+        currentPage = 1;
+        renderTable();
+      });
+      loadCongViec();
+      
+      document.getElementById('confirmDelete').addEventListener('input', function() {
+        const value = this.value.toUpperCase();
+        const btnDelete = document.getElementById('btnConfirmDelete');
+        btnDelete.disabled = value !== 'XOA';
+      });
+      
+      document.getElementById('confirmDelete').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && this.value.toUpperCase() === 'XOA') {
+          confirmDelete();
+        }
+      });
+    });
+  </script>
+
+  <!-- Đặt script xử lý dropdown avatar ở cuối file -->
+  <script>
+    window.addEventListener('DOMContentLoaded', function() {
+      // Dropdown avatar
+      const avatar = document.getElementById('userAvatar');
+      const dropdown = document.getElementById('userDropdown');
+      if (avatar && dropdown) {
+        avatar.addEventListener('click', function(e) {
+          e.stopPropagation();
+          dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        });
+        document.addEventListener('click', function(e) {
+          if (!dropdown.contains(e.target)) {
+            dropdown.style.display = 'none';
+          }
+        });
+      }
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) logoutBtn.onclick = logoutSLP;
+    });
+  </script>
+</body>
+<!-- Import login-slp.js để sử dụng đăng nhập chung -->
+<script src="login-slp.js"></script>
+</html> 
