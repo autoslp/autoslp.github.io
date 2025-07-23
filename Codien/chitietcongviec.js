@@ -84,7 +84,7 @@ window.addEventListener('DOMContentLoaded', async function() {
     await window.checkLoginSLP(function(user) {
       // Callback khi đăng nhập thành công
       if (user) {
-        console.log('Đăng nhập thành công:', user);
+        // Login successful
       }
     });
   }
@@ -152,24 +152,13 @@ async function fetchWorkStatistics() {
     }
     
     const allWorks = await response.json();
-    console.log('Raw data từ API:', allWorks);
     
     if (!Array.isArray(allWorks)) {
-      console.warn('Dữ liệu thống kê không phải là mảng:', allWorks);
       return { totalWorks: 0, completedWorks: 0 };
     }
     
     // Đếm tổng số công việc
     const totalWorks = allWorks.length;
-    console.log('📊 Tổng số công việc:', totalWorks);
-    
-    // Debug: Xem tất cả các trường thời gian bàn giao
-    console.log('🔍 Kiểm tra tất cả thời gian bàn giao:');
-    allWorks.forEach((work, index) => {
-      console.log(`  [${index}] STT: ${work.stt}`);
-      console.log(`    - thoiGianBanGiao: "${work.thoiGianBanGiao}" (${typeof work.thoiGianBanGiao})`);
-      console.log(`    - thoi_gian_ban_giao: "${work.thoi_gian_ban_giao}" (${typeof work.thoi_gian_ban_giao})`);
-    });
     
     // Đếm số công việc đã hoàn thành - LOGIC ĐƠN GIẢN
     const completedWorks = allWorks.filter(work => {
@@ -184,18 +173,11 @@ async function fetchWorkStatistics() {
       const hasValue = thoiGianBanGiao && thoiGianBanGiao.toString().trim() !== '';
       
       if (hasValue) {
-        console.log('✅ Công việc hoàn thành:', {
-          stt: work.stt,
-          thoiGianBanGiao: thoiGianBanGiao,
-          may: work.may || 'N/A',
-          field_used: banGiao1 ? 'thoiGianBanGiao' : 'thoi_gian_ban_giao'
-        });
+        // Work completed
       }
       
       return hasValue;
     }).length;
-    
-    console.log(`📈 KẾT QUÁ: ${completedWorks}/${totalWorks} công việc hoàn thành`);
     
     return {
       totalWorks,
@@ -222,25 +204,20 @@ function isWorkCompleted(work) {
 
 // Hàm cập nhật hiển thị thống kê
 function updateWorkStatistics(stats) {
-  console.log('Cập nhật thống kê công việc:', stats);
-  
   const completedWorkElement = document.getElementById('taskDone');
   const totalWorkElement = document.getElementById('projectDone');
   
   if (completedWorkElement) {
     completedWorkElement.textContent = stats.completedWorks || '0';
-    console.log('✅ Công việc hoàn thành (có thời gian bàn giao):', stats.completedWorks);
   }
   
   if (totalWorkElement) {
     totalWorkElement.textContent = stats.totalWorks || '0';
-    console.log('📋 Tổng công việc trong hệ thống:', stats.totalWorks);
   }
   
   // Tính tỷ lệ hoàn thành
   const completionRate = stats.totalWorks > 0 ? 
     ((stats.completedWorks / stats.totalWorks) * 100).toFixed(1) : 0;
-  console.log(`📊 Tỷ lệ hoàn thành: ${completionRate}%`);
 }
 
 // Hàm refresh thống kê công việc (có thể gọi từ bên ngoài)
@@ -261,9 +238,7 @@ window.isWorkCompleted = isWorkCompleted;
 
 // Hàm test để kiểm tra thống kê trực tiếp
 window.testWorkStatistics = async function() {
-  console.log('🧪 Test thống kê công việc...');
   const stats = await fetchWorkStatistics();
-  console.log('📊 Kết quả test:', stats);
   return stats;
 };
 
@@ -285,7 +260,6 @@ async function fetchViTriLoiByMachine(tenMay) {
     );
     
     if (!machine || !machine.vi_tri_loi) {
-      console.log('Không tìm thấy vị trí lỗi cho máy:', tenMay);
       return [];
     }
     
@@ -295,7 +269,6 @@ async function fetchViTriLoiByMachine(tenMay) {
       .map(item => item.trim())
       .filter(item => item.length > 0);
     
-    console.log('Danh sách vị trí lỗi cho máy', tenMay, ':', viTriList);
     return viTriList;
   } catch (error) {
     console.error('Lỗi khi lấy danh sách vị trí lỗi:', error);
@@ -346,8 +319,6 @@ function populateViTriSelect(viTriList) {
     option.textContent = viTri;
     selectElement.appendChild(option);
   });
-  
-  console.log('Đã đổ', viTriList.length, 'vị trí vào select dropdown');
 }
 
 async function fetchWorkDetailBySTT(stt) {
@@ -544,26 +515,6 @@ function parseDate(str) {
 async function renderWorkDetail(row) {
   // Store current work data globally for use in other functions
   window.currentWorkData = row;
-  
-  // Debug: Log dữ liệu row để kiểm tra
-  console.log('=== renderWorkDetail called ===');
-  console.log('Full row data:', row);
-  console.log('Key time fields:', {
-    thoiGianYeuCau: row.thoiGianYeuCau,
-    thoigianbatdaulam: row.thoigianbatdaulam,
-    thoiGianBanGiao: row.thoiGianBanGiao
-  });
-  
-  // Debug: Kiểm tra định dạng thời gian
-  console.log('Thời gian bắt đầu làm raw:', row.thoigianbatdaulam);
-  console.log('Thời gian bàn giao raw:', row.thoiGianBanGiao);
-  
-  // Debug: Kiểm tra các element tồn tại
-  console.log('Element check:', {
-    tabInfoBatDau: !!document.getElementById('tabInfoBatDau'),
-    tabInfoBanGiao: !!document.getElementById('tabInfoBanGiao'),
-    leftDetailBatDau: !!document.getElementById('leftDetailBatDau')
-  });
   
   // Hiển thị ảnh đính kèm trong tabFileList (tab-files)
   const fileListUl = document.getElementById('tabFileList');
@@ -846,12 +797,9 @@ async function renderWorkDetail(row) {
     updateTimelineStatusColor(row);
   }
 
-  // Cập nhật hiển thị thời gian với log để debug
+  // Cập nhật hiển thị thời gian
   if (typeof window.updateTimeDisplay === 'function') {
-    console.log('Calling updateTimeDisplay with row:', row);
     window.updateTimeDisplay(row);
-  } else {
-    console.log('updateTimeDisplay function not found!');
   }
 
   // Cập nhật trạng thái công việc
@@ -877,17 +825,6 @@ function updateActionButtonsVisibility(row) {
   const userDepartment = localStorage.getItem('slp_bo_phan');
   const userPosition = localStorage.getItem('slp_chuc_vu');
 
-  // Debug: Log để kiểm tra dữ liệu
-  console.log('=== updateActionButtonsVisibility ===');
-  console.log('nguoiLamChinh:', row.nguoiLamChinh);
-  console.log('san_xuat_xac_nhan:', row.sxXacNhan);
-  console.log('nguoiLamPhu1:', row.nguoiLamPhu1);
-  console.log('nguoiLamPhu2:', row.nguoiLamPhu2);
-  console.log('User role:', userRole);
-  console.log('User department:', userDepartment);
-  console.log('User position:', userPosition);
-  console.log('thoiGianBanGiao:', row.thoiGianBanGiao);
-
   // Ẩn nút "Xử lý" nếu đã có người làm chính HOẶC user không thuộc bộ phận Cơ điện
   if (processBtn) {
     const hasMainWorker = row.nguoiLamChinh && row.nguoiLamChinh.trim() !== '';
@@ -895,10 +832,8 @@ function updateActionButtonsVisibility(row) {
     
     if (hasMainWorker || !isElectricalDept) {
       processBtn.style.display = 'none';
-      console.log('Ẩn nút Xử lý - Có người làm chính:', hasMainWorker, '- Không phải Cơ điện:', !isElectricalDept);
     } else {
       processBtn.style.display = 'inline-block';
-      console.log('Hiện nút Xử lý');
     }
   }
 
@@ -910,10 +845,8 @@ function updateActionButtonsVisibility(row) {
     
     if (hasConfirmation || !isManager || !hasHandoverTime) {
       confirmBtn.style.display = 'none';
-      console.log('Ẩn nút Xác nhận - Đã xác nhận:', hasConfirmation, '- Không phải Quản lý:', !isManager, '- Chưa bàn giao:', !hasHandoverTime);
     } else {
       confirmBtn.style.display = 'inline-block';
-      console.log('Hiện nút Xác nhận');
     }
   }
 
@@ -925,10 +858,8 @@ function updateActionButtonsVisibility(row) {
     
     if ((hasHelper1 && hasHelper2) || !isElectricalDept) {
       supportBtn.style.display = 'none';
-      console.log('Ẩn nút Hỗ trợ - Đủ người:', (hasHelper1 && hasHelper2), '- Không phải Cơ điện:', !isElectricalDept);
     } else {
       supportBtn.style.display = 'inline-block';
-      console.log('Hiện nút Hỗ trợ');
     }
   }
 
@@ -938,10 +869,8 @@ function updateActionButtonsVisibility(row) {
     
     if (isElectricalDept) {
       updateBtn.style.display = 'inline-block';
-      console.log('Hiện nút Cập nhật - Thuộc bộ phận Cơ điện');
     } else {
       updateBtn.style.display = 'none';
-      console.log('Ẩn nút Cập nhật - Không thuộc bộ phận Cơ điện');
     }
   }
 }
@@ -952,7 +881,6 @@ async function renderMachineMap(row) {
     const khuVuc = row.khuVuc || '';
     const may = row.may || '';
     if (!khuVuc || !may) {
-      console.log('Không có thông tin khu vực hoặc máy để hiển thị bản đồ');
       return;
     }
     // Lấy dữ liệu máy theo khu vực từ biến toàn cục (hoặc gọi API nếu chưa có)
@@ -967,7 +895,6 @@ async function renderMachineMap(row) {
       (item.ten_may || '').toLowerCase() === may.toLowerCase()
     );
     if (machineInArea.length === 0) {
-      console.log('Không tìm thấy máy trong bản đồ:', may, 'tại khu vực:', khuVuc);
       return;
     }
     // Hiển thị bản đồ máy
@@ -1154,7 +1081,7 @@ window.addEventListener('DOMContentLoaded', async function() {
     await window.checkLoginSLP(function(user) {
       // Callback khi đăng nhập thành công
       if (user) {
-        console.log('Đăng nhập thành công:', user);
+        // Login successful
       }
     });
   }
@@ -1445,9 +1372,7 @@ async function handleSaveUpdate() {
       return;
     }
 
-    console.log('Dữ liệu cập nhật:', updateData);
-
-    const response = await fetch('https://autoslp.duckdns.org:5678/webhook-test/update-congviec', {
+    const response = await fetch('https://autoslp.duckdns.org:5678/webhook/update-congviec', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1541,24 +1466,7 @@ async function handleSaveAndHandover() {
       return;
     }
 
-    console.log('Dữ liệu cập nhật và bàn giao gửi lên n8n:', updateData);
-    console.log('Các trường yêu cầu:', {
-      STT: updateData.stt,
-      hien_trang_loi: updateData.hien_trang_loi,
-      hien_trang: updateData.hien_trang,
-      nguyen_nhan: updateData.nguyen_nhan,
-      phuong_an_xu_ly: updateData.phuong_an_xu_ly,
-      khu_vuc: updateData.khu_vuc,
-      may: updateData.may,
-      thoi_gian_yeu_cau: updateData.thoi_gian_yeu_cau,
-      thoi_gian_ban_giao: updateData.thoi_gian_ban_giao,
-      code_zalo_send: updateData.code_zalo_send,
-      hang_muc: updateData.hang_muc,
-      phan_loai: updateData.phan_loai,
-      vi_tri: updateData.vi_tri
-    });
-
-    const response = await fetch('https://autoslp.duckdns.org:5678/webhook-test/update-congviec', {
+    const response = await fetch('https://autoslp.duckdns.org:5678/webhook/update-congviec', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
