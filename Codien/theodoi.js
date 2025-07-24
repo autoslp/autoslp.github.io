@@ -1,8 +1,9 @@
 // N8N API Configuration
 const N8N_BASE_URL = 'https://autoslp.duckdns.org:5678/webhook';
+const N8N_BASE_URL_API = 'https://autoslp.duckdns.org/api/data';
 const ENDPOINTS = {
-  GET_WORKS: `${N8N_BASE_URL}/get-congviec`,
-  GET_USERS: `${N8N_BASE_URL}/get-users`,
+  GET_WORKS: `${N8N_BASE_URL_API}/congviec`,
+  GET_USERS: `${N8N_BASE_URL_API}/user`,
   UPDATE_WORK: `${N8N_BASE_URL}/update-work`,
   ASSIGN_WORKER: `${N8N_BASE_URL}/assign-worker`,
   CONFIRM_WORK: `${N8N_BASE_URL}/confirm-work`
@@ -1215,7 +1216,7 @@ window.confirmWork = async function(stt, buttonElement, action, event) {
 let positionList = [];
 async function fetchPositionList(tenMay = '') {
   try {
-    const response = await fetch(`${N8N_BASE_URL}/get-khuvuc-may`, {
+    const response = await fetch(`${N8N_BASE_URL_API}/may`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
