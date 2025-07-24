@@ -302,7 +302,7 @@
       async function getUserList() {
         if (userListCache) return userListCache;
         if (!userListPromise) {
-          userListPromise = fetch("https://autoslp.duckdns.org:5678/webhook/get-users")
+          userListPromise = fetch("https://autoslp.duckdns.org/api/data/user")
             .then(res => res.json())
             .then(data => {
               userListCache = Array.isArray(data) ? data : [];
@@ -370,7 +370,7 @@
       async function loadKhuVucAndMay() {
         try {
           // Endpoint n8n trả về: [{ id, khu_vuc, ten_may }, ...]
-          const url = "https://autoslp.duckdns.org:5678/webhook/get-khuvuc-may";
+          const url = "https://autoslp.duckdns.org/api/data/may";
           const response = await fetch(url);
           const data = await response.json();
           if (!Array.isArray(data) || data.length === 0) return;
