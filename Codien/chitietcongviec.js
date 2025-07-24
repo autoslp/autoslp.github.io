@@ -112,7 +112,7 @@ const stt = urlParams.get('stt');
 // Hàm lấy danh sách nhân viên bộ phận Cơ điện
 async function fetchElectricalDepartmentUsers() {
   try {
-    const url = "https://autoslp.duckdns.org:5678/webhook/get-users";
+    const url = "https://autoslp.duckdns.org/api/data/user";
     const response = await fetch(url);
     const data = await response.json();
     
@@ -144,7 +144,7 @@ async function fetchElectricalDepartmentUsers() {
 // Hàm lấy thống kê công việc
 async function fetchWorkStatistics() {
   try {
-    const url = "https://autoslp.duckdns.org:5678/webhook/get-congviec";
+    const url = "https://autoslp.duckdns.org/api/data/congviec";
     const response = await fetch(url);
     
     if (!response.ok) {
@@ -245,7 +245,7 @@ window.testWorkStatistics = async function() {
 // Hàm lấy danh sách vị trí lỗi theo tên máy
 async function fetchViTriLoiByMachine(tenMay) {
   try {
-    const url = "https://autoslp.duckdns.org:5678/webhook/get-khuvuc-may";
+    const url = "https://autoslp.duckdns.org/api/data/may";
     const response = await fetch(url);
     const data = await response.json();
     
@@ -324,7 +324,7 @@ function populateViTriSelect(viTriList) {
 async function fetchWorkDetailBySTT(stt) {
   try {
     // Lấy dữ liệu từ n8n webhook (SQL)
-    const url = 'https://autoslp.duckdns.org:5678/webhook/get-congviec';
+    const url = 'https://autoslp.duckdns.org/api/data/congviec';
     const res = await fetch(url);
     const data = await res.json();
     
@@ -391,7 +391,7 @@ async function fetchKhuVucMayData() {
     return window.khuVucMayData;
   }
   try {
-    const url = 'https://autoslp.duckdns.org:5678/webhook/get-khuvuc-may';
+    const url = 'https://autoslp.duckdns.org/api/data/may';
     const res = await fetch(url);
     const data = await res.json();
     if (Array.isArray(data) && data.length > 0) {

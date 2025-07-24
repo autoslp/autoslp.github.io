@@ -1035,7 +1035,7 @@
       document.getElementById('workTableBody').innerHTML = '<tr><td colspan="6">Đang tải dữ liệu...</td></tr>';
       try {
         // Thay đổi endpoint n8n phù hợp với hệ thống của bạn
-        const url = 'https://autoslp.duckdns.org:5678/webhook/get-congviec';
+        const url = 'https://autoslp.duckdns.org/api/data/congviec';
         const res = await fetch(url);
         const data = await res.json();
         // Nếu data là mảng object (SQL), map về mảng mảng cho tương thích code cũ
