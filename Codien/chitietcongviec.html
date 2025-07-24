@@ -116,6 +116,29 @@ justify-self: center;">
               </div>
             </div>
 
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const hash = window.location.hash;
+  if (hash) {
+    const tabTrigger = document.querySelector(`[data-bs-target="${hash}"]`);
+    if (tabTrigger) {
+      // Kích hoạt tab bằng Bootstrap API
+      const tab = new bootstrap.Tab(tabTrigger);
+      tab.show();
+    }
+  }
+});
+</script>
+
+
+
+
+
+
+
             <script>
             // Hàm tính thời gian giữa hai mốc thời gian
             function calculateTimeDifference(startTime, endTime) {
