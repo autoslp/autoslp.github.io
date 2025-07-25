@@ -1,0 +1,3547 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Điều Hòa - Smart AC Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a67d8;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --success: #48bb78;
+            --warning: #ed8936;
+            --danger: #f56565;
+            --info: #4299e1;
+            --light: #f7fafc;
+            --dark: #2d3748;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.2);
+            --border-radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navbar Styles */
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--dark) !important;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary) !important;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: var(--gradient-1);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .nav-link:hover::after {
+            width: 80%;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: var(--gradient-1);
+            color: white;
+            padding: 6rem 0 3rem;
+            margin-top: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .page-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Card Styles */
+        .smart-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            border: none;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .smart-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-1);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .smart-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .smart-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .status-excellent { background: rgba(72, 187, 120, 0.2); color: #48bb78; border: 1px solid #48bb78; }
+        .status-good { background: rgba(72, 187, 120, 0.15); color: #38a169; border: 1px solid #38a169; }
+        .status-maintenance { background: rgba(237, 137, 54, 0.2); color: #ed8936; border: 1px solid #ed8936; }
+        .status-repair { background: rgba(245, 101, 101, 0.2); color: #f56565; border: 1px solid #f56565; }
+        .status-broken { background: rgba(229, 62, 62, 0.2); color: #e53e3e; border: 1px solid #e53e3e; }
+
+        /* Info Display */
+        .info-item {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 0;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #6b7280;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-value {
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+
+        /* Work History Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--gradient-1);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.25rem;
+            top: 1.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px var(--primary);
+        }
+
+        .work-type-badge {
+            background: var(--gradient-1);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        .work-date {
+            color: #6b7280;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .work-description {
+            color: var(--dark);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .work-images {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .work-image {
+            width: 120px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .work-image:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .worker-info {
+            color: #6b7280;
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        /* Form Styles */
+        .form-control, .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Button Styles */
+        .btn-modern {
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-modern:hover::before {
+            left: 100%;
+        }
+
+        .btn-maintenance { background: var(--gradient-3); color: white; }
+        .btn-repair { background: var(--gradient-2); color: white; }
+        .btn-primary-custom { background: var(--gradient-1); color: white; }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 2rem;
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: ">";
+            color: #6b7280;
+        }
+
+        .breadcrumb-item a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+        }
+
+        .breadcrumb-item a:hover {
+            color: white;
+        }
+
+        .breadcrumb-item.active {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Error/Loading States */
+        .error-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .error-state i {
+            font-size: 4rem;
+            opacity: 0.3;
+            margin-bottom: 1rem;
+        }
+
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+            height: 20px;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .ac-icon-main {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .ac-tools-icon {
+            animation: rotate 8s linear infinite;
+        }
+
+        /* Work History Tabs */
+        .nav-tabs {
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 2rem;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            border-radius: 8px 8px 0 0;
+            color: #6b7280;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            margin-right: 0.5rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: var(--primary);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--primary);
+            background: white;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .tab-content {
+            min-height: 300px;
+        }
+
+        .work-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Enhanced Timeline Items */
+        .timeline-item-enhanced {
+            position: relative;
+            margin-bottom: 2rem;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .timeline-item-enhanced::before {
+            content: '';
+            position: absolute;
+            left: -2.25rem;
+            top: 2rem;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 4px solid white;
+            box-shadow: 0 0 0 4px var(--primary);
+        }
+
+        .work-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .work-title {
+            flex: 1;
+        }
+
+        .work-cost {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .contractor-info {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .document-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .document-tag {
+            background: var(--gradient-1);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .document-tag {
+            background: var(--gradient-1);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Document Selection */
+        .document-selection {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .document-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .document-item:hover {
+            background: #f8fafc;
+            border-color: var(--primary);
+        }
+
+        .document-item.selected {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: var(--primary);
+        }
+
+        .document-checkbox {
+            margin-right: 0.75rem;
+        }
+
+        .document-upload {
+            display: none;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: #f8fafc;
+            border-radius: 6px;
+        }
+
+        .document-upload.show {
+            display: block;
+        }
+
+        .contractor-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .contractor-card:hover {
+            background: #f8fafc;
+            border-color: var(--primary);
+        }
+
+        .contractor-card.selected {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: var(--primary);
+        }
+
+        .contractor-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .contractor-details {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .contractor-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin-top: 0.25rem;
+        }
+
+        .star-rating {
+            color: #ffc107;
+        }
+
+        .contractor-select {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .contractor-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+            outline: none;
+        }
+
+        .selected-contractor-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(13, 110, 253, 0.1), rgba(13, 110, 253, 0.05));
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            display: none;
+        }
+
+        .document-dropdown-selection {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .document-select {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .document-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+            outline: none;
+        }
+
+        .document-upload-area {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .document-upload-area:hover {
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Document Selection */
+        .document-selection {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .document-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .document-item:hover {
+            background: #f8fafc;
+            border-color: var(--primary);
+        }
+
+        .document-item.selected {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: var(--primary);
+        }
+
+        .document-checkbox {
+            margin-right: 0.75rem;
+        }
+
+        .document-upload {
+            display: none;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: #f8fafc;
+            border-radius: 6px;
+        }
+
+        .document-upload.show {
+            display: block;
+        }
+
+        .document-gallery {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .document-gallery h6 {
+            color: var(--dark);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary);
+            display: inline-block;
+        }
+
+        .document-category {
+            margin-bottom: 20px;
+        }
+
+        .document-category h6 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .document-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .document-image {
+            width: 120px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .document-image:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .document-image-container {
+            text-align: center;
+        }
+
+        .document-date {
+            display: block;
+            margin-top: 5px;
+            color: #6b7280;
+            font-size: 0.75rem;
+        }
+
+        .document-stats {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+        }
+
+        .document-stats .row {
+            margin: 0;
+        }
+
+        .document-stats .stat-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .document-stats .stat-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            opacity: 0.8;
+        }
+
+        .document-stats .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .document-stats .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+
+        /* Document Images in Work History */
+        .document-images-section {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .document-category-inline {
+            background: white;
+            border-radius: 6px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .document-category-header {
+            color: var(--primary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .document-images-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .document-image-item {
+            position: relative;
+        }
+
+        .document-image-thumb {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 2px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .document-image-thumb:hover {
+            border-color: var(--primary);
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Calendar Styles */
+        .calendar-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .calendar-day-header {
+            background: var(--primary);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .calendar-day {
+            background: white;
+            min-height: 80px;
+            padding: 8px;
+            position: relative;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-day:hover {
+            background: #f8fafc;
+            border-color: var(--primary);
+        }
+
+        .calendar-day.other-month {
+            background: #f8fafc;
+            color: #9ca3af;
+        }
+
+        .calendar-day.today {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: var(--primary);
+        }
+
+        .calendar-day-number {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .calendar-events {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .calendar-event {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-event:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .calendar-event.maintenance {
+            background: #4facfe;
+        }
+
+        .calendar-event.repair {
+            background: #f093fb;
+        }
+
+        .calendar-event.inspection {
+            background: #43e97b;
+        }
+
+        .calendar-event.cleaning {
+            background: #fbbf24;
+        }
+
+        .calendar-event.replacement {
+            background: #f56565;
+        }
+
+        .calendar-legend {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .legend-color.maintenance { background: #4facfe; }
+        .legend-color.repair { background: #f093fb; }
+        .legend-color.inspection { background: #43e97b; }
+        .legend-color.cleaning { background: #fbbf24; }
+        .legend-color.replacement { background: #f56565; }
+        
+        /* Calendar Filter Styles */
+        .dropdown-menu {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border: 1px solid #e2e8f0;
+        }
+
+        .dropdown-item {
+            padding: 8px 16px;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            margin: 2px;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: var(--primary);
+        }
+
+        .dropdown-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .dropdown-item.active:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .dropdown-divider {
+            margin: 4px 0;
+        }
+
+        /* Export Button Styles */
+        .btn-outline-success:hover {
+            background: #48bb78;
+            border-color: #48bb78;
+            color: white;
+        }
+
+        /* Filter Badge */
+        .filter-badge {
+            background: rgba(102, 126, 234, 0.1);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-left: 8px;
+        }
+        
+
+        .star-rating {
+            color: #fbbf24;
+        }
+
+        .work-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-completed { background: rgba(72, 187, 120, 0.2); color: #48bb78; }
+        .status-in-progress { background: rgba(237, 137, 54, 0.2); color: #ed8936; }
+        .status-pending { background: rgba(156, 163, 175, 0.2); color: #6b7280; }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .timeline {
+                padding-left: 1rem;
+            }
+            
+            .timeline::before {
+                left: 0.25rem;
+            }
+            
+            .timeline-item-enhanced::before {
+                left: -1.75rem;
+            }
+
+            .work-images {
+                gap: 0.5rem;
+            }
+
+            .work-image {
+                width: 80px;
+                height: 60px;
+            }
+
+            .work-stats {
+                gap: 0.5rem;
+            }
+
+            .stat-card {
+                min-width: 100px;
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="baodung-dieuhoa.html">
+                <i class="bi bi-snow2 me-2"></i>
+                Smart AC Manager
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="baodung-dieuhoa.html">
+                            <i class="bi bi-list me-1"></i>Danh Sách
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="home.html">
+                            <i class="bi bi-house-fill me-1"></i>Trang Chủ
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="page-content">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="baodung-dieuhoa.html">
+                                        <i class="bi bi-snow2 me-1"></i>Quản Lý Điều Hòa
+                                    </a>
+                                </li>
+                                <li class="breadcrumb-item active" id="breadcrumbTitle">Chi Tiết Điều Hòa</li>
+                            </ol>
+                        </nav>
+                        <h1 class="display-5 fw-bold mb-3" id="pageTitle">
+                            <i class="bi bi-snow2 me-3"></i>
+                            <span id="acCodeTitle">Đang tải...</span>
+                        </h1>
+                        <p class="lead opacity-90" id="pageSubtitle">
+                            Thông tin chi tiết và lịch sử bảo dưỡng
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="text-center">
+                        <div class="ac-icon-main" style="width: 200px; height: 150px; margin: 0 auto; border-radius: 15px; overflow: hidden; box-shadow: var(--shadow-lg); border: 3px solid rgba(255,255,255,0.3);">
+                            <img class="header-ac-image" 
+                                 src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&h=300&fit=crop&crop=center" 
+                                 alt="Điều hòa" 
+                                 style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="mt-3" style="opacity: 0.8;">
+                            <div style="font-size: 1.5rem; color: white;">
+                                <i class="bi bi-tools me-2"></i>
+                                <i class="bi bi-wrench me-2"></i>
+                                <i class="bi bi-gear-fill ac-tools-icon"></i>
+                            </div>
+                            <p class="mt-2 mb-0" style="font-size: 0.9rem; opacity: 0.7;">
+                                Hệ thống bảo dưỡng chuyên nghiệp
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container my-5">
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-5">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Đang tải...</span>
+            </div>
+            <p class="text-muted">Đang tải thông tin điều hòa...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="error-state" style="display: none;">
+            <i class="bi bi-exclamation-triangle"></i>
+            <h4>Không tìm thấy điều hòa</h4>
+            <p>Mã điều hòa không tồn tại hoặc đã bị xóa.</p>
+            <a href="baodung-dieuhoa.html" class="btn btn-primary-custom btn-modern">
+                <i class="bi bi-arrow-left me-2"></i>Quay về danh sách
+            </a>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" style="display: none;">
+            <div class="row">
+                <!-- Left Panel - Basic Info & Actions -->
+                <div class="col-lg-4 mb-4">
+                    <div class="smart-card h-100">
+                        <div class="p-4">
+                            <h5 class="text-uppercase fw-bold text-muted mb-4">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Thông Tin Cơ Bản
+                            </h5>
+                            <div id="basicInfo">
+                                <!-- Dynamic content -->
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <h6 class="text-uppercase fw-bold text-muted mb-3">
+                                <i class="bi bi-tools me-2"></i>
+                                Hành Động
+                            </h6>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-maintenance btn-modern" onclick="performMaintenance()">
+                                    <i class="bi bi-tools me-2"></i>Thực Hiện Bảo Dưỡng
+                                </button>
+                                <button class="btn btn-repair btn-modern" onclick="performRepair()">
+                                    <i class="bi bi-wrench me-2"></i>Thực Hiện Sửa Chữa
+                                </button>
+                                <button class="btn btn-outline-primary btn-modern" onclick="editAirConditioner()">
+                                    <i class="bi bi-pencil me-2"></i>Chỉnh Sửa Thông Tin
+                                </button>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <a href="baodung-dieuhoa.html" class="btn btn-outline-secondary btn-modern w-100">
+                                <i class="bi bi-arrow-left me-2"></i>Quay về danh sách
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Panel - Work Entry & History -->
+                <div class="col-lg-8">
+                    <!-- Add New Work Entry -->
+                    <div class="smart-card mb-4">
+                        <div class="p-4">
+                            <!-- Toggle Button -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="text-uppercase fw-bold text-muted mb-0">
+                                    <i class="bi bi-plus-circle me-2"></i>
+                                    Thêm Ghi Chú Mới
+                                </h5>
+                                <button class="btn btn-primary-custom btn-modern" id="toggleFormBtn" onclick="toggleWorkForm()">
+                                    <i class="bi bi-plus-circle me-2"></i>Thêm Ghi Chú
+                                </button>
+                            </div>
+                            
+                            <!-- Work Form (Hidden by default) -->
+                            <div id="workFormContainer" style="display: none;">
+                                <hr class="my-3">
+                            <form id="workForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Loại công việc</label>
+                                            <select class="form-select" id="workType" required>
+                                                <option value="">Chọn loại công việc</option>
+                                                <option value="maintenance">Bảo dưỡng định kỳ</option>
+                                                <option value="repair">Sửa chữa</option>
+                                                <option value="inspection">Kiểm tra</option>
+                                                <option value="cleaning">Vệ sinh</option>
+                                                <option value="replacement">Thay thế linh kiện</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Ngày thực hiện</label>
+                                            <input type="date" class="form-control" id="workDate" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Mô tả công việc</label>
+                                    <textarea class="form-control" id="workDescription" rows="3" 
+                                        placeholder="Mô tả chi tiết công việc đã thực hiện..." required></textarea>
+                                </div>
+
+                                <!-- Contractor Selection -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold">
+                                        <i class="bi bi-building me-2"></i>Chọn nhà thầu thi công
+                                    </label>
+                                    <select class="form-select" id="contractorSelect" onchange="selectContractor(this.value)">
+                                        <option value="">-- Chọn nhà thầu --</option>
+                                    </select>
+                                    
+                                    <!-- Selected Contractor Info -->
+                                    <div id="selectedContractorInfo" class="mt-3" style="display: none;">
+                                        <div class="contractor-info">
+                                            <h6 class="mb-2"><i class="bi bi-info-circle me-2"></i>Thông tin nhà thầu:</h6>
+                                            <div id="contractorDetails">
+                                                <!-- Dynamic content -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Chi phí (VNĐ)</label>
+                                            <input type="number" class="form-control" id="workCost" 
+                                                placeholder="0" min="0">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Thời gian bảo hành</label>
+                                            <input type="text" class="form-control" id="warranty" 
+                                                placeholder="VD: 6 tháng, 1 năm">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Trạng thái</label>
+                                    <select class="form-select" id="workStatus">
+                                        <option value="completed">Hoàn thành</option>
+                                        <option value="in-progress">Đang thực hiện</option>
+                                        <option value="pending">Chờ xử lý</option>
+                                    </select>
+                                </div>
+
+                                <!-- Document Selection -->
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="form-label fw-semibold mb-0">
+                                            <i class="bi bi-file-earmark-text me-2"></i>Giấy tờ bàn giao
+                                        </label>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="toggleDocumentBtn" onclick="toggleDocumentSelection()">
+                                            <i class="bi bi-chevron-down me-1"></i>Hiện
+                                        </button>
+                                    </div>
+                                    <div class="document-selection" id="documentSelectionContainer" style="display: none;">
+                                        <div id="documentSelection">
+                                            <!-- Dynamic content -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Tải ảnh (có thể chọn nhiều ảnh)</label>
+                                    <input type="file" class="form-control" id="workImages" accept="image/*" multiple>
+                                    <small class="text-muted">Chọn ảnh trước, trong và sau khi thực hiện công việc</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Người thực hiện</label>
+                                    <input type="text" class="form-control" id="workerName" 
+                                        placeholder="Tên người thực hiện" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Ghi chú thêm</label>
+                                    <textarea class="form-control" id="workNotes" rows="2" 
+                                        placeholder="Ghi chú, nhận xét thêm về công việc..."></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary-custom btn-modern">
+                                    <i class="bi bi-plus-circle me-2"></i>Thêm Ghi Chú
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-modern ms-2" onclick="toggleWorkForm()">
+                                    <i class="bi bi-x-circle me-2"></i>Hủy
+                                </button>
+                            </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Work History -->
+                    <div class="smart-card">
+                        <div class="p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="text-uppercase fw-bold text-muted mb-0">
+                                    <i class="bi bi-clock-history me-2"></i>
+                                    Lịch Sử Bảo Dưỡng & Sửa Chữa
+                                </h5>
+                                <button class="btn btn-outline-primary btn-sm" onclick="exportHistory()">
+                                    <i class="bi bi-download me-1"></i>Xuất PDF
+                                </button>
+                            </div>
+
+                            <!-- Work Statistics -->
+                            <div class="work-stats" id="workStats">
+                                <!-- Dynamic stats -->
+                            </div>
+
+                            <!-- Navigation Tabs -->
+                            <ul class="nav nav-tabs" id="historyTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">
+                                        <i class="bi bi-list-ul me-1"></i>Tất Cả
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="maintenance-tab" data-bs-toggle="tab" data-bs-target="#maintenance" type="button" role="tab">
+                                        <i class="bi bi-tools me-1"></i>Bảo Dưỡng
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="repair-tab" data-bs-toggle="tab" data-bs-target="#repair" type="button" role="tab">
+                                        <i class="bi bi-wrench me-1"></i>Sửa Chữa
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="inspection-tab" data-bs-toggle="tab" data-bs-target="#inspection" type="button" role="tab">
+                                        <i class="bi bi-search me-1"></i>Kiểm Tra
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="other-tab" data-bs-toggle="tab" data-bs-target="#other" type="button" role="tab">
+                                        <i class="bi bi-gear me-1"></i>Khác
+                                    </button>
+                                </li>
+                            </ul>
+
+                            <!-- Tab Content -->
+                            <div class="tab-content" id="historyTabContent">
+                                <div class="tab-pane fade show active" id="all" role="tabpanel">
+                                    <div id="allWorkHistory">
+                                        <!-- Dynamic content -->
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="maintenance" role="tabpanel">
+                                    <div id="maintenanceHistory">
+                                        <!-- Dynamic content -->
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="repair" role="tabpanel">
+                                    <div id="repairHistory">
+                                        <!-- Dynamic content -->
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="inspection" role="tabpanel">
+                                    <div id="inspectionHistory">
+                                        <!-- Dynamic content -->
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="other" role="tabpanel">
+                                    <div id="otherHistory">
+                                        <!-- Dynamic content -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Calendar View -->
+                    <div class="smart-card mt-4">
+                        <div class="p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="text-uppercase fw-bold text-muted mb-0">
+                                    <i class="bi bi-calendar3 me-2"></i>
+                                    Lịch Công Việc
+                                </h5>
+                                <div class="d-flex gap-2">
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown">
+                                            <i class="bi bi-funnel me-1"></i>Lọc
+                                        </button>
+                                        <ul class="dropdown-menu" id="filterMenu">
+                                            <li><a class="dropdown-item active" href="#" onclick="filterCalendar('all')">
+                                                <i class="bi bi-list-ul me-2"></i>Tất cả
+                                            </a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item" href="#" onclick="filterCalendar('maintenance')">
+                                                <i class="bi bi-tools me-2"></i>Bảo dưỡng
+                                            </a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="filterCalendar('repair')">
+                                                <i class="bi bi-wrench me-2"></i>Sửa chữa
+                                            </a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="filterCalendar('inspection')">
+                                                <i class="bi bi-search me-2"></i>Kiểm tra
+                                            </a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="filterCalendar('cleaning')">
+                                                <i class="bi bi-droplet me-2"></i>Vệ sinh
+                                            </a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="filterCalendar('replacement')">
+                                                <i class="bi bi-arrow-repeat me-2"></i>Thay thế
+                                            </a></li>
+                                        </ul>
+                                    </div>
+                                    <button class="btn btn-outline-success btn-sm" onclick="exportCalendar()">
+                                        <i class="bi bi-download me-1"></i>Xuất
+                                    </button>
+                                    <button class="btn btn-outline-primary btn-sm" onclick="goToCurrentMonth()">
+                                        <i class="bi bi-calendar-today me-1"></i>Hôm Nay
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="calendarView">
+                                <!-- Calendar View -->
+                                <div class="calendar-container">
+                                    <div class="calendar-header">
+                                        <button class="btn btn-outline-primary btn-sm" onclick="previousMonth()">
+                                            <i class="bi bi-chevron-left"></i>
+                                        </button>
+                                        <h5 id="currentMonthYear" class="mx-3 mb-0"></h5>
+                                        <button class="btn btn-outline-primary btn-sm" onclick="nextMonth()">
+                                            <i class="bi bi-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                    <div class="calendar-grid" id="calendarGrid">
+                                        <!-- Calendar will be generated here -->
+                                    </div>
+                                    <div class="calendar-legend mt-3">
+                                        <div class="d-flex flex-wrap gap-3">
+                                            <div class="legend-item">
+                                                <span class="legend-color maintenance"></span>
+                                                <small>Bảo dưỡng</small>
+                                            </div>
+                                            <div class="legend-item">
+                                                <span class="legend-color repair"></span>
+                                                <small>Sửa chữa</small>
+                                            </div>
+                                            <div class="legend-item">
+                                                <span class="legend-color inspection"></span>
+                                                <small>Kiểm tra</small>
+                                            </div>
+                                            <div class="legend-item">
+                                                <span class="legend-color cleaning"></span>
+                                                <small>Vệ sinh</small>
+                                            </div>
+                                            <div class="legend-item">
+                                                <span class="legend-color replacement"></span>
+                                                <small>Thay thế</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Document Gallery -->
+                    <div class="smart-card" id="documentGalleryCard" style="display: none;">
+                        <div class="p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="text-uppercase fw-bold text-muted mb-0">
+                                    <i class="bi bi-file-earmark-text me-2"></i>
+                                    Kho Tài Liệu & Giấy Tờ
+                                </h5>
+                                <button class="btn btn-outline-primary btn-sm" onclick="exportDocuments()">
+                                    <i class="bi bi-download me-1"></i>Tải Tất Cả
+                                </button>
+                            </div>
+                            
+                            <!-- Document Statistics -->
+                            <div class="document-stats mb-4" id="documentStats">
+                                <!-- Dynamic stats -->
+                            </div>
+                            
+                            <!-- Document Gallery Content -->
+                            <div class="document-gallery" id="documentGalleryContent">
+                                <!-- Dynamic content -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div class="modal fade" id="imageModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="border-radius: var(--border-radius); border: none;">
+                <div class="modal-header" style="background: var(--gradient-1); color: white; border: none;">
+                    <h5 class="modal-title">Xem Ảnh</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-0">
+                    <img id="previewImage" src="" alt="Preview" style="max-width: 100%; height: auto;">
+                </div>
+                <div class="modal-footer" style="border: none; background: #f8fafc;">
+                    <button type="button" class="btn btn-outline-secondary btn-modern" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Calendar Modal -->
+    <div class="modal fade" id="exportModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content" style="border-radius: var(--border-radius); border: none;">
+                <div class="modal-header" style="background: var(--gradient-1); color: white; border: none;">
+                    <h5 class="modal-title">
+                        <i class="bi bi-download me-2"></i>Xuất Lịch Công Việc
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <h6 class="fw-bold">Chọn định dạng xuất:</h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary d-flex align-items-center justify-content-between" onclick="exportToPDF()">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-file-earmark-pdf me-2"></i>
+                                    <span>Xuất PDF (In ấn)</span>
+                                </div>
+                                <small class="text-muted">Phù hợp để in</small>
+                            </button>
+                            <button class="btn btn-outline-success d-flex align-items-center justify-content-between" onclick="exportToExcel()">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-file-earmark-spreadsheet me-2"></i>
+                                    <span>Xuất Excel (CSV)</span>
+                                </div>
+                                <small class="text-muted">Phù hợp để phân tích</small>
+                            </button>
+                            <button class="btn btn-outline-info d-flex align-items-center justify-content-between" onclick="copyToClipboard()">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-clipboard me-2"></i>
+                                    <span>Sao chép văn bản</span>
+                                </div>
+                                <small class="text-muted">Dán vào email/chat</small>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="exportPreview" class="border rounded p-3" style="background: #f8fafc; max-height: 300px; overflow-y: auto; display: none;">
+                        <h6 class="fw-bold mb-2">Xem trước:</h6>
+                        <div id="previewContent" style="font-size: 0.9rem;"></div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border: none; background: #f8fafc;">
+                    <button type="button" class="btn btn-outline-secondary btn-modern" onclick="togglePreview()">
+                        <i class="bi bi-eye me-1"></i>Xem trước
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-modern" data-bs-dismiss="modal">Hủy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Smart AC API Manager -->
+    <script src="smart-ac-api.js"></script>
+    
+    <script>
+        // Khởi tạo API manager
+        const api = new SmartACAPI();
+        let currentAirConditioner = null;
+            {
+                id: 1,
+                code: "AC-001",
+                type: "split",
+                area: "Tầng 1",
+                location: "Phòng giám đốc",
+                capacity: 12000,
+                brand: "Daikin",
+                installDate: "2023-01-15",
+                warrantyDate: "2026-01-15",
+                status: "excellent",
+                lastMaintenance: "2024-12-01",
+                nextMaintenance: "2025-03-01",
+                notes: "Hoạt động xuất sắc, vừa được bảo dưỡng",
+                workHistory: [
+                    {
+                        id: 1,
+                        date: "2024-12-01",
+                        type: "maintenance",
+                        description: "Bảo dưỡng định kỳ 6 tháng: Vệ sinh filter, kiểm tra gas, làm sạch dàn nóng",
+                        worker: "Nguyễn Văn A",
+                        contractor: {
+                            name: "Công ty TNHH Điều Hòa Miền Nam",
+                            phone: "0909.123.456",
+                            license: "GP-2024-001",
+                            address: "123 Nguyễn Văn Cừ, Q.5, TP.HCM"
+                        },
+                        cost: 850000,
+                        warranty: "6 tháng",
+                        documents: ["Hóa đơn VAT", "Biên bản bàn giao", "Phiếu bảo hành"],
+                        images: ["https://via.placeholder.com/400x300/4facfe/ffffff?text=Trước+bảo+dưỡng", "https://via.placeholder.com/400x300/43e97b/ffffff?text=Sau+bảo+dưỡng"],
+                        status: "completed",
+                        notes: "Hoàn thành tốt, gas đầy đủ, filter được thay mới"
+                    },
+                    {
+                        id: 2,
+                        date: "2024-06-15",
+                        type: "cleaning",
+                        description: "Vệ sinh filter và dàn lạnh",
+                        worker: "Trần Văn B",
+                        contractor: {
+                            name: "Dịch vụ kỹ thuật ABC",
+                            phone: "0912.345.678",
+                            license: "GP-2024-002",
+                            address: "456 Lê Văn Việt, Q.9, TP.HCM"
+                        },
+                        cost: 300000,
+                        warranty: "1 tháng",
+                        documents: ["Hóa đơn", "Biên bản"],
+                        images: ["https://via.placeholder.com/400x300/f093fb/ffffff?text=Filter+cũ", "https://via.placeholder.com/400x300/667eea/ffffff?text=Filter+mới"],
+                        status: "completed",
+                        notes: "Vệ sinh sạch sẽ, khử mùi hoàn toàn"
+                    },
+                    {
+                        id: 3,
+                        date: "2024-03-10",
+                        type: "repair",
+                        description: "Thay thế cảm biến nhiệt độ bị hỏng",
+                        worker: "Lê Văn C",
+                        contractor: {
+                            name: "Trung tâm bảo hành Daikin",
+                            phone: "1800.1234",
+                            license: "GP-2024-003",
+                            address: "789 Điện Biên Phủ, Q.3, TP.HCM"
+                        },
+                        cost: 1200000,
+                        warranty: "12 tháng",
+                        documents: ["Hóa đơn VAT", "Tem bảo hành", "Phiếu xuất kho"],
+                        images: ["https://via.placeholder.com/400x300/f56565/ffffff?text=Cảm+biến+cũ", "https://via.placeholder.com/400x300/48bb78/ffffff?text=Cảm+biến+mới"],
+                        status: "completed",
+                        notes: "Thay linh kiện chính hãng, test hoạt động ổn định"
+                    }
+                ]
+            },
+            {
+                id: 2,
+                code: "AC-002",
+                type: "multi",
+                area: "Tầng 2",
+                location: "Phòng họp lớn",
+                capacity: 24000,
+                brand: "Mitsubishi",
+                installDate: "2022-08-20",
+                warrantyDate: "2025-08-20",
+                status: "maintenance",
+                lastMaintenance: "2024-10-15",
+                nextMaintenance: "2025-01-15",
+                notes: "Cần vệ sinh filter và kiểm tra gas",
+                workHistory: [
+                    {
+                        id: 1,
+                        date: "2024-10-15",
+                        type: "inspection",
+                        description: "Kiểm tra định kỳ, phát hiện filter bẩn cần thay",
+                        worker: "Lê Văn C",
+                        contractor: {
+                            name: "Công ty Kiểm định Kỹ thuật",
+                            phone: "0908.111.222",
+                            license: "GP-2024-004",
+                            address: "321 Võ Văn Tần, Q.3, TP.HCM"
+                        },
+                        cost: 500000,
+                        warranty: "3 tháng",
+                        documents: ["Báo cáo kiểm tra", "Biên bản"],
+                        images: ["https://via.placeholder.com/400x300/ed8936/ffffff?text=Filter+bẩn"],
+                        status: "completed",
+                        notes: "Cần thay filter và bảo dưỡng trong vòng 2 tuần"
+                    },
+                    {
+                        id: 2,
+                        date: "2024-08-20",
+                        type: "maintenance",
+                        description: "Bảo dưỡng định kỳ và nạp gas",
+                        worker: "Phạm Văn D",
+                        contractor: {
+                            name: "Mitsubishi Service Center",
+                            phone: "1800.5678",
+                            license: "GP-2024-005",
+                            address: "555 Nguyễn Thị Minh Khai, Q.1, TP.HCM"
+                        },
+                        cost: 1500000,
+                        warranty: "6 tháng",
+                        documents: ["Hóa đơn VAT", "Giấy chứng nhận gas", "Phiếu bảo hành"],
+                        images: ["https://via.placeholder.com/400x300/4facfe/ffffff?text=Kiểm+tra+gas", "https://via.placeholder.com/400x300/43e97b/ffffff?text=Hoàn+thành"],
+                        status: "completed",
+                        notes: "Nạp gas R410A chính hãng, pressure test OK"
+                    }
+                ]
+            },
+            {
+                id: 3,
+                code: "AC-003",
+                type: "split",
+                area: "Xưởng sản xuất",
+                location: "Khu vực máy cắt",
+                capacity: 18000,
+                brand: "LG",
+                installDate: "2023-05-10",
+                warrantyDate: "2026-05-10",
+                status: "repair",
+                lastMaintenance: "2024-11-20",
+                nextMaintenance: "2025-02-20",
+                notes: "Tiếng ồn bất thường, cần kiểm tra motor quạt",
+                workHistory: [
+                    {
+                        id: 1,
+                        date: "2024-11-20",
+                        type: "repair",
+                        description: "Sửa chữa motor quạt dàn nóng bị rung",
+                        worker: "Phạm Văn D",
+                        contractor: {
+                            name: "LG Electronics Service",
+                            phone: "1800.9999",
+                            license: "GP-2024-006",
+                            address: "777 Cách Mạng Tháng 8, Q.10, TP.HCM"
+                        },
+                        cost: 2500000,
+                        warranty: "12 tháng",
+                        documents: ["Hóa đơn VAT", "Phiếu xuất kho", "Tem bảo hành", "Giấy chứng nhận"],
+                        images: ["https://via.placeholder.com/400x300/f56565/ffffff?text=Motor+hỏng", "https://via.placeholder.com/400x300/48bb78/ffffff?text=Motor+mới"],
+                        status: "in-progress",
+                        notes: "Đang chờ linh kiện về từ nhà máy, dự kiến hoàn thành trong 3-5 ngày"
+                    },
+                    {
+                        id: 2,
+                        date: "2024-09-15",
+                        type: "replacement",
+                        description: "Thay thế board điều khiển chính",
+                        worker: "Nguyễn Văn E",
+                        contractor: {
+                            name: "Trung tâm bảo hành LG",
+                            phone: "0903.444.555",
+                            license: "GP-2024-007",
+                            address: "888 Lý Thường Kiệt, Q.11, TP.HCM"
+                        },
+                        cost: 3200000,
+                        warranty: "24 tháng",
+                        documents: ["Hóa đơn VAT", "Biên bản thay thế", "Phiếu bảo hành", "Chứng nhận chính hãng"],
+                        images: ["https://via.placeholder.com/400x300/f56565/ffffff?text=Board+cũ", "https://via.placeholder.com/400x300/48bb78/ffffff?text=Board+mới"],
+                        status: "completed",
+                        notes: "Thay board chính hãng, test đầy đủ các chức năng"
+                    }
+                ]
+            }
+        ];
+
+        // Contractor database
+        const contractors = [
+            {
+                id: 1,
+                name: "Công ty TNHH Điều Hòa Miền Nam",
+                phone: "0909.123.456",
+                license: "GP-2024-001",
+                address: "123 Nguyễn Văn Cừ, Q.5, TP.HCM",
+                rating: 4.8,
+                specialties: ["Daikin", "Mitsubishi", "LG"],
+                experience: "10+ năm"
+            },
+            {
+                id: 2,
+                name: "Dịch vụ kỹ thuật ABC",
+                phone: "0912.345.678",
+                license: "GP-2024-002",
+                address: "456 Lê Văn Việt, Q.9, TP.HCM",
+                rating: 4.5,
+                specialties: ["Panasonic", "Samsung", "Toshiba"],
+                experience: "8+ năm"
+            },
+            {
+                id: 3,
+                name: "Trung tâm bảo hành Daikin",
+                phone: "1800.1234",
+                license: "GP-2024-003",
+                address: "789 Điện Biên Phủ, Q.3, TP.HCM",
+                rating: 5.0,
+                specialties: ["Daikin", "Tư vấn chuyên sâu"],
+                experience: "15+ năm"
+            },
+            {
+                id: 4,
+                name: "Công ty Kiểm định Kỹ thuật",
+                phone: "0908.111.222",
+                license: "GP-2024-004",
+                address: "321 Võ Văn Tần, Q.3, TP.HCM",
+                rating: 4.7,
+                specialties: ["Kiểm định", "Chứng nhận", "Báo cáo kỹ thuật"],
+                experience: "12+ năm"
+            },
+            {
+                id: 5,
+                name: "LG Electronics Service",
+                phone: "1800.9999",
+                license: "GP-2024-006",
+                address: "777 Cách Mạng Tháng 8, Q.10, TP.HCM",
+                rating: 4.9,
+                specialties: ["LG", "Bảo hành chính hãng"],
+                experience: "20+ năm"
+            }
+        ];
+
+        // Document types database
+        const documentTypes = [
+            {
+                id: 'invoice',
+                name: 'Hóa đơn VAT',
+                icon: 'bi-receipt',
+                required: true,
+                description: 'Hóa đơn giá trị gia tăng'
+            },
+            {
+                id: 'handover',
+                name: 'Biên bản bàn giao',
+                icon: 'bi-file-earmark-text',
+                required: true,
+                description: 'Biên bản nghiệm thu công việc'
+            },
+            {
+                id: 'warranty',
+                name: 'Phiếu bảo hành',
+                icon: 'bi-shield-check',
+                required: false,
+                description: 'Chứng từ bảo hành dịch vụ'
+            },
+            {
+                id: 'certificate',
+                name: 'Giấy chứng nhận',
+                icon: 'bi-patch-check',
+                required: false,
+                description: 'Chứng nhận chất lượng, chính hãng'
+            },
+            {
+                id: 'export',
+                name: 'Phiếu xuất kho',
+                icon: 'bi-box-seam',
+                required: false,
+                description: 'Phiếu xuất linh kiện, vật tư'
+            },
+            {
+                id: 'report',
+                name: 'Báo cáo kỹ thuật',
+                icon: 'bi-graph-up',
+                required: false,
+                description: 'Báo cáo kiểm tra, đánh giá kỹ thuật'
+            }
+        ];
+
+        let currentAC = null;
+        let selectedContractor = null;
+        let selectedDocuments = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default work date to today
+            document.getElementById('workDate').value = new Date().toISOString().split('T')[0];
+            
+            // Load AC data based on URL parameter
+            loadAirConditionerFromURL();
+            
+            // Setup form submission
+            setupFormSubmission();
+
+            // Initialize contractor and document selection
+            initializeContractorSelection();
+            initializeDocumentSelection();
+            
+            // Update document gallery and initialize calendar
+            setTimeout(() => {
+                updateDocumentGallery();
+                initializeCalendar();
+            }, 500);
+        });
+
+        // Initialize contractor selection
+        function initializeContractorSelection() {
+            const select = document.getElementById('contractorSelect');
+            
+            // Populate dropdown with contractors
+            contractors.forEach(contractor => {
+                const option = document.createElement('option');
+                option.value = contractor.id;
+                option.textContent = `${contractor.name} - ${contractor.rating}⭐ (${contractor.experience})`;
+                select.appendChild(option);
+            });
+        }
+
+        // Initialize document selection
+        function initializeDocumentSelection() {
+            const container = document.getElementById('documentSelection');
+            
+            const documentHTML = documentTypes.map(doc => `
+                <div class="document-item" id="doc-${doc.id}">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <input type="checkbox" class="form-check-input document-checkbox me-3" 
+                                   id="checkbox-${doc.id}" onchange="toggleDocument('${doc.id}')">
+                            <div>
+                                <div class="d-flex align-items-center">
+                                    <i class="${doc.icon} me-2"></i>
+                                    <strong>${doc.name}</strong>
+                                    ${doc.required ? '<span class="text-danger ms-1">*</span>' : ''}
+                                </div>
+                                <small class="text-muted">${doc.description}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="document-upload" id="upload-${doc.id}">
+                        <label class="form-label">Tải ảnh ${doc.name}:</label>
+                        <input type="file" class="form-control form-control-sm" 
+                               accept="image/*" multiple id="file-${doc.id}">
+                        <small class="text-muted">Có thể chọn nhiều ảnh</small>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = documentHTML;
+        }
+
+        // Generate star rating HTML
+        function generateStarRating(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 !== 0;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            let html = '';
+            for (let i = 0; i < fullStars; i++) {
+                html += '<i class="bi bi-star-fill"></i>';
+            }
+            if (hasHalfStar) {
+                html += '<i class="bi bi-star-half"></i>';
+            }
+            for (let i = 0; i < emptyStars; i++) {
+                html += '<i class="bi bi-star"></i>';
+            }
+            return html;
+        }
+
+        // Generate star rating HTML
+        function generateStarRating(rating) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    stars += '<i class="bi bi-star-fill"></i>';
+                } else if (i - 0.5 <= rating) {
+                    stars += '<i class="bi bi-star-half"></i>';
+                } else {
+                    stars += '<i class="bi bi-star"></i>';
+                }
+            }
+            return stars;
+        }
+
+        // Select contractor
+        function selectContractor(contractorId) {
+            const contractorInfo = document.getElementById('selectedContractorInfo');
+            const contractorDetails = document.getElementById('contractorDetails');
+            
+            if (!contractorId) {
+                // No contractor selected
+                contractorInfo.style.display = 'none';
+                selectedContractor = null;
+                return;
+            }
+            
+            // Find and store selected contractor
+            selectedContractor = contractors.find(c => c.id == contractorId);
+            
+            if (selectedContractor) {
+                // Show contractor info
+                contractorInfo.style.display = 'block';
+                
+                // Display contractor details
+                contractorDetails.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-8">
+                            <strong>${selectedContractor.name}</strong><br>
+                            <i class="bi bi-telephone me-1"></i>${selectedContractor.phone}<br>
+                            <i class="bi bi-geo-alt me-1"></i>${selectedContractor.address}
+                        </div>
+                        <div class="col-md-4">
+                            <i class="bi bi-patch-check me-1"></i>GP: ${selectedContractor.license}<br>
+                            <div class="contractor-rating">
+                                <div class="star-rating">
+                                    ${generateStarRating(selectedContractor.rating)}
+                                </div>
+                                <span class="ms-1">${selectedContractor.rating}/5</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            <i class="bi bi-tools me-1"></i>Chuyên môn: ${selectedContractor.specialties.join(', ')}
+                        </small>
+                    </div>
+                `;
+            }
+        }
+
+        // Toggle document selection
+        function toggleDocument(docId) {
+            const checkbox = document.getElementById(`checkbox-${docId}`);
+            const uploadDiv = document.getElementById(`upload-${docId}`);
+            const documentItem = document.getElementById(`doc-${docId}`);
+            
+            if (checkbox.checked) {
+                uploadDiv.classList.add('show');
+                documentItem.classList.add('selected');
+                if (!selectedDocuments.includes(docId)) {
+                    selectedDocuments.push(docId);
+                }
+            } else {
+                uploadDiv.classList.remove('show');
+                documentItem.classList.remove('selected');
+                selectedDocuments = selectedDocuments.filter(id => id !== docId);
+            }
+        }
+
+        // Toggle document selection container
+        function toggleDocumentSelection() {
+            const container = document.getElementById('documentSelectionContainer');
+            const toggleBtn = document.getElementById('toggleDocumentBtn');
+            
+            if (container.style.display === 'none') {
+                // Show container
+                container.style.display = 'block';
+                toggleBtn.innerHTML = '<i class="bi bi-chevron-up me-1"></i>Ẩn';
+                toggleBtn.classList.remove('btn-outline-secondary');
+                toggleBtn.classList.add('btn-outline-primary');
+            } else {
+                // Hide container
+                container.style.display = 'none';
+                toggleBtn.innerHTML = '<i class="bi bi-chevron-down me-1"></i>Hiện';
+                toggleBtn.classList.remove('btn-outline-primary');
+                toggleBtn.classList.add('btn-outline-secondary');
+            }
+        }
+
+        // Get AC code from URL parameter
+        function getACCodeFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('ma_dieu_hoa');
+        }
+
+        // Load AC data based on URL parameter
+        function loadAirConditionerFromURL() {
+            const acCode = getACCodeFromURL();
+            
+            if (!acCode) {
+                showError('Không có mã điều hòa trong URL');
+                return;
+            }
+
+            // Find AC by code
+            currentAC = airConditioners.find(ac => ac.code === acCode);
+            
+            if (!currentAC) {
+                showError('Không tìm thấy điều hòa với mã: ' + acCode);
+                return;
+            }
+
+            // Display AC data
+            displayAirConditioner(currentAC);
+        }
+
+        // Show error state
+        function showError(message) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'none';
+            
+            if (message) {
+                document.querySelector('#errorState p').textContent = message;
+            }
+        }
+
+        // Display air conditioner data
+        function displayAirConditioner(ac) {
+            // Hide loading, show content
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+
+            // Update page title and breadcrumb
+            document.getElementById('acCodeTitle').textContent = `${ac.code} - ${ac.location}`;
+            document.getElementById('breadcrumbTitle').textContent = ac.code;
+            document.title = `Chi Tiết ${ac.code} - Smart AC Management`;
+
+            // Update header image
+            const headerImg = document.querySelector('.header-ac-image');
+            if (headerImg) {
+                headerImg.src = getACImage(ac.type);
+            }
+
+            // Display basic info
+            displayBasicInfo(ac);
+            
+            // Display work history
+            displayWorkHistory(ac.workHistory);
+        }
+
+        // Get AC image based on type
+        function getACImage(type) {
+            const imageMap = {
+                'split': 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&h=300&fit=crop&crop=center',
+                'multi': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&crop=center',
+                'central': 'https://images.unsplash.com/photo-1545259741-2ea3ebf61fa4?w=400&h=300&fit=crop&crop=center',
+                'cassette': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop&crop=center'
+            };
+            return imageMap[type] || imageMap['split'];
+        }
+
+        // Get AC image large version
+        function getACImageLarge(type) {
+            const imageMap = {
+                'split': 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&h=600&fit=crop&crop=center',
+                'multi': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&crop=center',
+                'central': 'https://images.unsplash.com/photo-1545259741-2ea3ebf61fa4?w=800&h=600&fit=crop&crop=center',
+                'cassette': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop&crop=center'
+            };
+            return imageMap[type] || imageMap['split'];
+        }
+
+        // Display basic information
+        function displayBasicInfo(ac) {
+            const basicInfo = document.getElementById('basicInfo');
+            const acImage = getACImage(ac.type);
+            const acImageLarge = getACImageLarge(ac.type);
+            
+            basicInfo.innerHTML = `
+                <!-- AC Image -->
+                <div class="text-center mb-4">
+                    <div style="width: 100%; height: 200px; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-md); border: 2px solid #e2e8f0;">
+                        <img src="${acImage}" 
+                             alt="Điều hòa ${ac.code}" 
+                             style="width: 100%; height: 100%; object-fit: cover; cursor: pointer; transition: transform 0.3s ease;"
+                             onclick="previewImage('${acImageLarge}')"
+                             onmouseover="this.style.transform='scale(1.05)'"
+                             onmouseout="this.style.transform='scale(1)'">
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        <i class="bi bi-zoom-in me-1"></i>Click để xem ảnh lớn
+                    </small>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Mã điều hòa</div>
+                    <div class="info-value">${ac.code}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Vị trí</div>
+                    <div class="info-value">${ac.area} - ${ac.location}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Loại & Hãng</div>
+                    <div class="info-value">${getTypeText(ac.type)} - ${ac.brand || 'Chưa có'}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Công suất</div>
+                    <div class="info-value">${ac.capacity ? ac.capacity.toLocaleString() + ' BTU' : 'Chưa có'}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Trạng thái</div>
+                    <div class="info-value">
+                        <span class="status-badge status-${ac.status}">${getStatusText(ac.status)}</span>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Ngày lắp đặt</div>
+                    <div class="info-value">${ac.installDate ? new Date(ac.installDate).toLocaleDateString('vi-VN') : 'Chưa có'}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Bảo hành đến</div>
+                    <div class="info-value">${ac.warrantyDate ? new Date(ac.warrantyDate).toLocaleDateString('vi-VN') : 'Chưa có'}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Bảo dưỡng cuối</div>
+                    <div class="info-value">${ac.lastMaintenance ? new Date(ac.lastMaintenance).toLocaleDateString('vi-VN') : 'Chưa có'}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Bảo dưỡng tiếp theo</div>
+                    <div class="info-value">${ac.nextMaintenance ? new Date(ac.nextMaintenance).toLocaleDateString('vi-VN') : 'Chưa có'}</div>
+                </div>
+                
+                ${ac.notes ? `
+                <div class="info-item">
+                    <div class="info-label">Ghi chú</div>
+                    <div class="info-value">${ac.notes}</div>
+                </div>
+                ` : ''}
+            `;
+        }
+
+        // Display work history with enhanced tabs
+        function displayWorkHistory(history) {
+            if (!history || history.length === 0) {
+                displayEmptyHistory();
+                return;
+            }
+
+            // Calculate and display statistics
+            displayWorkStatistics(history);
+
+            // Display history by categories
+            displayHistoryByCategory(history, 'all', 'allWorkHistory');
+            displayHistoryByCategory(history.filter(h => h.type === 'maintenance'), 'maintenance', 'maintenanceHistory');
+            displayHistoryByCategory(history.filter(h => h.type === 'repair' || h.type === 'replacement'), 'repair', 'repairHistory');
+            displayHistoryByCategory(history.filter(h => h.type === 'inspection'), 'inspection', 'inspectionHistory');
+            displayHistoryByCategory(history.filter(h => !['maintenance', 'repair', 'replacement', 'inspection'].includes(h.type)), 'other', 'otherHistory');
+        }
+
+        // Display work statistics
+        function displayWorkStatistics(history) {
+            const stats = {
+                total: history.length,
+                maintenance: history.filter(h => h.type === 'maintenance').length,
+                repair: history.filter(h => h.type === 'repair' || h.type === 'replacement').length,
+                inspection: history.filter(h => h.type === 'inspection').length,
+                totalCost: history.reduce((sum, h) => sum + (h.cost || 0), 0),
+                avgCost: history.length > 0 ? Math.round(history.reduce((sum, h) => sum + (h.cost || 0), 0) / history.length) : 0
+            };
+
+            document.getElementById('workStats').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${stats.total}</div>
+                    <div class="stat-label">Tổng số lần</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.maintenance}</div>
+                    <div class="stat-label">Bảo dưỡng</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.repair}</div>
+                    <div class="stat-label">Sửa chữa</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.inspection}</div>
+                    <div class="stat-label">Kiểm tra</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${(stats.totalCost / 1000000).toFixed(1)}M</div>
+                    <div class="stat-label">Tổng chi phí</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${(stats.avgCost / 1000).toFixed(0)}K</div>
+                    <div class="stat-label">TB/lần</div>
+                </div>
+            `;
+        }
+
+        // Display history by category
+        function displayHistoryByCategory(history, category, containerId) {
+            const container = document.getElementById(containerId);
+            
+            if (!history || history.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="bi bi-folder-x" style="font-size: 3rem; opacity: 0.3;"></i>
+                        <h5 class="text-muted mt-3">Chưa có dữ liệu ${getCategoryName(category)}</h5>
+                        <p class="text-muted">Thêm ghi chú ${category !== 'all' ? getCategoryName(category) : ''} bằng form ở trên</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const historyHTML = history
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .map(entry => createEnhancedTimelineItem(entry))
+                .join('');
+
+            container.innerHTML = `<div class="timeline">${historyHTML}</div>`;
+        }
+
+        // Create enhanced timeline item
+        function createEnhancedTimelineItem(entry) {
+            return `
+                <div class="timeline-item-enhanced">
+                    <div class="work-header">
+                        <div class="work-title">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <div class="work-type-badge">${getWorkTypeText(entry.type)}</div>
+                                <span class="work-status status-${entry.status}">${getWorkStatusText(entry.status)}</span>
+                            </div>
+                            <div class="work-date">
+                                <i class="bi bi-calendar me-1"></i>
+                                ${new Date(entry.date).toLocaleDateString('vi-VN')}
+                                ${entry.warranty ? `<span class="ms-3"><i class="bi bi-shield-check me-1"></i>BH: ${entry.warranty}</span>` : ''}
+                            </div>
+                        </div>
+                        ${entry.cost ? `<div class="work-cost">${entry.cost.toLocaleString('vi-VN')} ₫</div>` : ''}
+                    </div>
+                    
+                    <div class="work-description">${entry.description}</div>
+
+                    ${entry.contractor ? `
+                        <div class="contractor-info">
+                            <h6 class="mb-2"><i class="bi bi-building me-2"></i>Nhà thầu thi công:</h6>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <strong>${entry.contractor.name}</strong><br>
+                                    <i class="bi bi-telephone me-1"></i>${entry.contractor.phone}<br>
+                                    <i class="bi bi-geo-alt me-1"></i>${entry.contractor.address}
+                                </div>
+                                <div class="col-md-4">
+                                    <i class="bi bi-patch-check me-1"></i>GP: ${entry.contractor.license}<br>
+                                    ${entry.contractor.rating ? `
+                                        <div class="contractor-rating">
+                                            <div class="star-rating">
+                                                ${generateStarRating(entry.contractor.rating)}
+                                            </div>
+                                            <span class="ms-1">${entry.contractor.rating}/5</span>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${entry.images && entry.images.length > 0 ? `
+                        <div class="mb-3">
+                            <h6><i class="bi bi-camera me-2"></i>Hình ảnh công việc:</h6>
+                            <div class="work-images">
+                                ${entry.images.map(img => `
+                                    <img src="${img}" alt="Work image" class="work-image" 
+                                         onclick="previewImage('${img}')">
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${entry.documents && entry.documents.length > 0 ? `
+                        <div class="mb-3">
+                            <h6><i class="bi bi-file-earmark-text me-2"></i>Giấy tờ bàn giao:</h6>
+                            <div class="document-list">
+                                ${entry.documents.map(doc => `<span class="document-tag">${doc}</span>`).join('')}
+                            </div>
+                            
+                            <!-- Document Images - Right below document-list -->
+                            ${entry.documentImages ? `
+                                <div class="document-images-section mt-3">
+                                    ${Object.keys(entry.documentImages).map(docType => {
+                                        const docTypeObj = documentTypes.find(d => d.id === docType);
+                                        const docName = docTypeObj ? docTypeObj.name : docType;
+                                        const docIcon = docTypeObj ? docTypeObj.icon : 'bi-file';
+                                        return `
+                                            <div class="document-category-inline mb-3">
+                                                <div class="document-category-header">
+                                                    <i class="${docIcon} me-2"></i>
+                                                    <strong>${docName}:</strong>
+                                                    <span class="text-muted">(${entry.documentImages[docType].length} ảnh)</span>
+                                                </div>
+                                                <div class="document-images-row mt-2">
+                                                    ${entry.documentImages[docType].map(img => `
+                                                        <div class="document-image-item">
+                                                            <img src="${img}" alt="${docName}" class="document-image-thumb" 
+                                                                 onclick="previewImage('${img}')" 
+                                                                 title="Click để xem ${docName}">
+                                                        </div>
+                                                    `).join('')}
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+
+                    ${entry.notes ? `
+                        <div class="alert alert-info mb-3">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Ghi chú:</strong> ${entry.notes}
+                        </div>
+                    ` : ''}
+
+                    <div class="worker-info">
+                        <i class="bi bi-person me-1"></i>
+                        Thực hiện bởi: <strong>${entry.worker}</strong>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Display empty history
+        function displayEmptyHistory() {
+            const containers = ['allWorkHistory', 'maintenanceHistory', 'repairHistory', 'inspectionHistory', 'otherHistory'];
+            containers.forEach(containerId => {
+                document.getElementById(containerId).innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="bi bi-clock-history" style="font-size: 3rem; opacity: 0.3;"></i>
+                        <h5 class="text-muted mt-3">Chưa có lịch sử bảo dưỡng</h5>
+                        <p class="text-muted">Thêm ghi chú đầu tiên bằng form ở trên</p>
+                    </div>
+                `;
+            });
+
+            // Empty stats
+            document.getElementById('workStats').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Tổng số lần</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Bảo dưỡng</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Sửa chữa</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Kiểm tra</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Tổng chi phí</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">TB/lần</div>
+                </div>
+            `;
+        }
+
+        // Get category name
+        function getCategoryName(category) {
+            const names = {
+                'all': 'tất cả',
+                'maintenance': 'bảo dưỡng',
+                'repair': 'sửa chữa',
+                'inspection': 'kiểm tra',
+                'other': 'khác'
+            };
+            return names[category] || category;
+        }
+
+        // Get work status text
+        function getWorkStatusText(status) {
+            const statusMap = {
+                'completed': 'Hoàn thành',
+                'in-progress': 'Đang thực hiện',
+                'pending': 'Chờ xử lý',
+                'cancelled': 'Đã hủy'
+            };
+            return statusMap[status] || status;
+        }
+
+        // Export history to PDF
+        function exportHistory() {
+            showNotification('Tính năng xuất PDF đang được phát triển', 'info');
+        }
+
+        // Export documents
+        function exportDocuments() {
+            showNotification('Tính năng tải tất cả tài liệu đang được phát triển', 'info');
+        }
+
+        // Update document gallery
+        function updateDocumentGallery() {
+            const ac = getCurrentAC();
+            if (!ac || !ac.workHistory) return;
+            
+            // Collect all document images from work history
+            const allDocuments = {};
+            ac.workHistory.forEach(entry => {
+                if (entry.documentImages) {
+                    Object.keys(entry.documentImages).forEach(docType => {
+                        if (!allDocuments[docType]) {
+                            allDocuments[docType] = [];
+                        }
+                        allDocuments[docType] = allDocuments[docType].concat(
+                            entry.documentImages[docType].map(img => ({
+                                url: img,
+                                date: entry.date,
+                                workType: entry.type,
+                                description: entry.description
+                            }))
+                        );
+                    });
+                }
+            });
+            
+            const galleryCard = document.getElementById('documentGalleryCard');
+            const galleryContent = document.getElementById('documentGalleryContent');
+            const statsContainer = document.getElementById('documentStats');
+            
+            if (Object.keys(allDocuments).length === 0) {
+                galleryCard.style.display = 'none';
+                return;
+            }
+            
+            galleryCard.style.display = 'block';
+            
+            // Update statistics
+            const totalDocs = Object.values(allDocuments).reduce((sum, docs) => sum + docs.length, 0);
+            const docTypes = Object.keys(allDocuments).length;
+            
+            statsContainer.innerHTML = `
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="stat-item">
+                            <i class="bi bi-file-earmark-text stat-icon"></i>
+                            <div>
+                                <div class="stat-number">${totalDocs}</div>
+                                <div class="stat-label">Tổng số tài liệu</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-item">
+                            <i class="bi bi-folder2-open stat-icon"></i>
+                            <div>
+                                <div class="stat-number">${docTypes}</div>
+                                <div class="stat-label">Loại tài liệu</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-item">
+                            <i class="bi bi-calendar-check stat-icon"></i>
+                            <div>
+                                <div class="stat-number">${ac.workHistory.length}</div>
+                                <div class="stat-label">Lần ghi nhận</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Update gallery content
+            const galleryHTML = Object.keys(allDocuments).map(docType => {
+                const docTypeObj = documentTypes.find(d => d.id === docType);
+                const docName = docTypeObj ? docTypeObj.name : docType;
+                const docIcon = docTypeObj ? docTypeObj.icon : 'bi-file';
+                const docs = allDocuments[docType];
+                
+                return `
+                    <div class="document-category">
+                        <h6><i class="${docIcon} me-2"></i>${docName} (${docs.length} ảnh)</h6>
+                        <div class="document-images">
+                            ${docs.map(doc => `
+                                <div class="document-image-container">
+                                    <img src="${doc.url}" alt="${docName}" class="document-image" 
+                                         onclick="previewImage('${doc.url}')" 
+                                         title="Ngày: ${formatDate(doc.date)} - ${doc.description}">
+                                    <small class="document-date">${formatDate(doc.date)}</small>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            galleryContent.innerHTML = galleryHTML || '<p class="text-muted text-center">Chưa có tài liệu nào được tải lên</p>';
+        }
+
+        // Calendar Variables
+        let currentCalendarDate = new Date();
+        let currentCalendarFilter = 'all'; // Filter for calendar events
+
+        // Initialize Calendar
+        function initializeCalendar() {
+            updateCalendar();
+        }
+
+        // Update Calendar Display
+        function updateCalendar() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            
+            // Update header
+            const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                               'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+            document.getElementById('currentMonthYear').textContent = `${monthNames[month]} ${year}`;
+            
+            // Generate calendar grid
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+            
+            // Day headers
+            const dayHeaders = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+            dayHeaders.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'calendar-day-header';
+                header.textContent = day;
+                grid.appendChild(header);
+            });
+            
+            // Get first day of month and days in month
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startDay = firstDay.getDay(); // 0 = Sunday
+            
+            // Get work events for this month
+            const ac = getCurrentAC();
+            let workEvents = ac ? ac.workHistory.filter(work => {
+                const workDate = new Date(work.date);
+                return workDate.getFullYear() === year && workDate.getMonth() === month;
+            }) : [];
+            
+            // Apply calendar filter
+            if (currentCalendarFilter !== 'all') {
+                workEvents = workEvents.filter(work => work.type === currentCalendarFilter);
+            }
+            
+            // Generate calendar days
+            const today = new Date();
+            const totalCells = Math.ceil((daysInMonth + startDay) / 7) * 7;
+            
+            for (let i = 0; i < totalCells; i++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                
+                const dayNumber = i - startDay + 1;
+                
+                if (dayNumber > 0 && dayNumber <= daysInMonth) {
+                    // Current month day
+                    const dayDate = new Date(year, month, dayNumber);
+                    const isToday = dayDate.toDateString() === today.toDateString();
+                    
+                    if (isToday) {
+                        dayElement.classList.add('today');
+                    }
+                    
+                    dayElement.innerHTML = `
+                        <div class="calendar-day-number">${dayNumber}</div>
+                        <div class="calendar-events" id="events-${dayNumber}"></div>
+                    `;
+                    
+                    // Add work events for this day
+                    const dayEvents = workEvents.filter(work => {
+                        const workDate = new Date(work.date);
+                        return workDate.getDate() === dayNumber;
+                    });
+                    
+                    const eventsContainer = dayElement.querySelector('.calendar-events');
+                    dayEvents.forEach(work => {
+                        const eventElement = document.createElement('div');
+                        eventElement.className = `calendar-event ${work.type}`;
+                        eventElement.textContent = work.type === 'maintenance' ? 'BĐ' : 
+                                                   work.type === 'repair' ? 'SC' :
+                                                   work.type === 'inspection' ? 'KT' :
+                                                   work.type === 'cleaning' ? 'VS' : 'TT';
+                        eventElement.title = `${work.description} - ${work.worker}`;
+                        eventElement.onclick = () => showWorkDetails(work);
+                        eventsContainer.appendChild(eventElement);
+                    });
+                } else {
+                    // Other month day
+                    dayElement.classList.add('other-month');
+                    if (dayNumber <= 0) {
+                        const prevMonth = new Date(year, month - 1, 0);
+                        dayElement.innerHTML = `<div class="calendar-day-number">${prevMonth.getDate() + dayNumber}</div>`;
+                    } else {
+                        dayElement.innerHTML = `<div class="calendar-day-number">${dayNumber - daysInMonth}</div>`;
+                    }
+                }
+                
+                grid.appendChild(dayElement);
+            }
+        }
+
+        // Previous Month
+        function previousMonth() {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+            updateCalendar();
+        }
+
+        // Next Month
+        function nextMonth() {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+            updateCalendar();
+        }
+
+        // Go to Current Month
+        function goToCurrentMonth() {
+            currentCalendarDate = new Date();
+            updateCalendar();
+        }
+
+        // Filter Calendar by Work Type
+        function filterCalendar(filterType) {
+            currentCalendarFilter = filterType;
+            
+            // Update filter dropdown UI
+            const filterItems = document.querySelectorAll('#filterMenu .dropdown-item');
+            filterItems.forEach(item => item.classList.remove('active'));
+            
+            // Find and activate the selected filter
+            filterItems.forEach(item => {
+                const onclick = item.getAttribute('onclick');
+                if (onclick && onclick.includes(`'${filterType}'`)) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update calendar display
+            updateCalendar();
+            
+            // Update filter button text
+            const filterBtn = document.getElementById('filterDropdown');
+            const filterNames = {
+                'all': 'Tất cả',
+                'maintenance': 'Bảo dưỡng',
+                'repair': 'Sửa chữa',
+                'inspection': 'Kiểm tra',
+                'cleaning': 'Vệ sinh',
+                'replacement': 'Thay thế'
+            };
+            filterBtn.innerHTML = `<i class="bi bi-funnel me-1"></i>${filterNames[filterType]}`;
+        }
+
+        // Export Calendar to PDF
+        function exportCalendar() {
+            const ac = getCurrentAC();
+            if (!ac) {
+                showNotification('Không có dữ liệu điều hòa để xuất', 'error');
+                return;
+            }
+
+            // Show export modal
+            const exportModal = new bootstrap.Modal(document.getElementById('exportModal'));
+            exportModal.show();
+        }
+
+        // Export to PDF (Print)
+        function exportToPDF() {
+            const ac = getCurrentAC();
+            if (!ac) {
+                alert('Không có dữ liệu điều hòa để xuất');
+                return;
+            }
+
+            // Get current month/year info
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                               'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+            
+            // Get filtered work events
+            let workEvents = ac.workHistory.filter(work => {
+                const workDate = new Date(work.date);
+                return workDate.getFullYear() === year && workDate.getMonth() === month;
+            });
+            
+            if (currentCalendarFilter !== 'all') {
+                workEvents = workEvents.filter(work => work.type === currentCalendarFilter);
+            }
+
+            // Create export content
+            const filterNames = {
+                'all': 'Tất cả',
+                'maintenance': 'Bảo dưỡng',
+                'repair': 'Sửa chữa',
+                'inspection': 'Kiểm tra',
+                'cleaning': 'Vệ sinh',
+                'replacement': 'Thay thế'
+            };
+
+            const typeNames = {
+                'maintenance': 'Bảo dưỡng',
+                'repair': 'Sửa chữa',
+                'inspection': 'Kiểm tra',
+                'cleaning': 'Vệ sinh',
+                'replacement': 'Thay thế'
+            };
+
+            let exportContent = `
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h2>LỊCH CÔNG VIỆC ĐIỀU HÒA</h2>
+                    <h3>${ac.code} - ${ac.location}</h3>
+                    <p><strong>${monthNames[month]} ${year}</strong></p>
+                    <p>Bộ lọc: ${filterNames[currentCalendarFilter]}</p>
+                    <hr>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <strong>Thông tin điều hòa:</strong><br>
+                    • Mã: ${ac.code}<br>
+                    • Vị trí: ${ac.area} - ${ac.location}<br>
+                    • Loại: ${getTypeText(ac.type)} - ${ac.brand}<br>
+                    • Công suất: ${ac.capacity ? ac.capacity.toLocaleString() + ' BTU' : 'Chưa có'}<br>
+                </div>
+                
+                <h4>Danh sách công việc (${workEvents.length} việc):</h4>
+            `;
+
+            if (workEvents.length === 0) {
+                exportContent += '<p style="text-align: center; color: #666;">Không có công việc nào trong tháng này với bộ lọc hiện tại.</p>';
+            } else {
+                // Sort by date
+                workEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                exportContent += '<div style="margin-top: 20px;">';
+                workEvents.forEach((work, index) => {
+                    exportContent += `
+                        <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <strong>${index + 1}. ${typeNames[work.type] || work.type}</strong>
+                                <em>${formatDate(work.date)}</em>
+                            </div>
+                            <p><strong>Mô tả:</strong> ${work.description}</p>
+                            <p><strong>Người thực hiện:</strong> ${work.worker}</p>
+                            ${work.contractor ? `<p><strong>Nhà thầu:</strong> ${work.contractor.name} (${work.contractor.phone})</p>` : ''}
+                            ${work.cost ? `<p><strong>Chi phí:</strong> ${work.cost.toLocaleString()} VNĐ</p>` : ''}
+                            ${work.warranty ? `<p><strong>Bảo hành:</strong> ${work.warranty}</p>` : ''}
+                            <p><strong>Trạng thái:</strong> ${getStatusText(work.status)}</p>
+                            ${work.notes ? `<p><strong>Ghi chú:</strong> ${work.notes}</p>` : ''}
+                        </div>
+                    `;
+                });
+                exportContent += '</div>';
+
+                // Add summary
+                const totalCost = workEvents.reduce((sum, work) => sum + (work.cost || 0), 0);
+                exportContent += `
+                    <div style="border-top: 2px solid #333; padding-top: 15px; margin-top: 30px;">
+                        <h4>Tổng kết:</h4>
+                        <p>• Tổng số công việc: ${workEvents.length}</p>
+                        <p>• Tổng chi phí: ${totalCost.toLocaleString()} VNĐ</p>
+                        <p>• Chi phí trung bình: ${workEvents.length > 0 ? Math.round(totalCost / workEvents.length).toLocaleString() : 0} VNĐ</p>
+                    </div>
+                `;
+            }
+
+            exportContent += `
+                <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ccc; font-size: 12px; color: #666;">
+                    Báo cáo được tạo tự động bởi Smart AC Manager<br>
+                    Ngày xuất: ${new Date().toLocaleDateString('vi-VN')} ${new Date().toLocaleTimeString('vi-VN')}
+                </div>
+            `;
+
+            // Open print window
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Lịch Công Việc - ${ac.code} - ${monthNames[month]} ${year}</title>
+                    <meta charset="utf-8">
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+                        h2, h3 { color: #333; }
+                        .work-item { break-inside: avoid; }
+                        @media print {
+                            body { margin: 0; }
+                            .no-print { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${exportContent}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            
+            // Auto print after a short delay
+            setTimeout(() => {
+                printWindow.print();
+            }, 500);
+            
+            // Close modal
+            bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
+            showNotification('Đã mở cửa sổ in PDF', 'success');
+        }
+
+        // Export to Excel (CSV)
+        function exportToExcel() {
+            const ac = getCurrentAC();
+            if (!ac) {
+                alert('Không có dữ liệu điều hòa để xuất');
+                return;
+            }
+
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                               'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+            
+            // Get filtered work events
+            let workEvents = ac.workHistory.filter(work => {
+                const workDate = new Date(work.date);
+                return workDate.getFullYear() === year && workDate.getMonth() === month;
+            });
+            
+            if (currentCalendarFilter !== 'all') {
+                workEvents = workEvents.filter(work => work.type === currentCalendarFilter);
+            }
+
+            // Create CSV content
+            let csvContent = '\uFEFF'; // UTF-8 BOM for Excel
+            csvContent += `Lịch Công Việc Điều Hòa,${ac.code} - ${ac.location}\n`;
+            csvContent += `Tháng,${monthNames[month]} ${year}\n`;
+            csvContent += `Bộ lọc,${getFilterName(currentCalendarFilter)}\n\n`;
+            
+            // Headers
+            csvContent += 'STT,Ngày,Loại công việc,Mô tả,Người thực hiện,Nhà thầu,Chi phí (VNĐ),Bảo hành,Trạng thái,Ghi chú\n';
+            
+            // Data rows
+            workEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+            workEvents.forEach((work, index) => {
+                const row = [
+                    index + 1,
+                    formatDate(work.date),
+                    getWorkTypeText(work.type),
+                    `"${work.description}"`,
+                    work.worker,
+                    work.contractor ? work.contractor.name : '',
+                    work.cost || 0,
+                    work.warranty || '',
+                    getStatusText(work.status),
+                    `"${work.notes || ''}"`
+                ].join(',');
+                csvContent += row + '\n';
+            });
+
+            // Add summary
+            const totalCost = workEvents.reduce((sum, work) => sum + (work.cost || 0), 0);
+            csvContent += `\nTổng kết:\n`;
+            csvContent += `Tổng số công việc,${workEvents.length}\n`;
+            csvContent += `Tổng chi phí,${totalCost}\n`;
+            csvContent += `Chi phí trung bình,${workEvents.length > 0 ? Math.round(totalCost / workEvents.length) : 0}\n`;
+
+            // Download CSV
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `lich-cong-viec-${ac.code}-${month+1}-${year}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Close modal
+            bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
+            showNotification('Đã tải file Excel CSV', 'success');
+        }
+
+        // Copy to Clipboard
+        function copyToClipboard() {
+            const ac = getCurrentAC();
+            if (!ac) {
+                alert('Không có dữ liệu điều hòa để sao chép');
+                return;
+            }
+
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                               'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+            
+            // Get filtered work events
+            let workEvents = ac.workHistory.filter(work => {
+                const workDate = new Date(work.date);
+                return workDate.getFullYear() === year && workDate.getMonth() === month;
+            });
+            
+            if (currentCalendarFilter !== 'all') {
+                workEvents = workEvents.filter(work => work.type === currentCalendarFilter);
+            }
+
+            // Create text content
+            let textContent = `📋 LỊCH CÔNG VIỆC ĐIỀU HÒA\n`;
+            textContent += `🏷️ ${ac.code} - ${ac.location}\n`;
+            textContent += `📅 ${monthNames[month]} ${year}\n`;
+            textContent += `🔍 Bộ lọc: ${getFilterName(currentCalendarFilter)}\n\n`;
+            
+            textContent += `ℹ️ THÔNG TIN ĐIỀU HÒA:\n`;
+            textContent += `• Mã: ${ac.code}\n`;
+            textContent += `• Vị trí: ${ac.area} - ${ac.location}\n`;
+            textContent += `• Loại: ${getTypeText(ac.type)} - ${ac.brand}\n`;
+            textContent += `• Công suất: ${ac.capacity ? ac.capacity.toLocaleString() + ' BTU' : 'Chưa có'}\n\n`;
+
+            if (workEvents.length === 0) {
+                textContent += `❌ Không có công việc nào trong tháng này với bộ lọc hiện tại.\n`;
+            } else {
+                textContent += `📝 DANH SÁCH CÔNG VIỆC (${workEvents.length} việc):\n\n`;
+                
+                workEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+                workEvents.forEach((work, index) => {
+                    const typeEmoji = {
+                        'maintenance': '🔧',
+                        'repair': '⚒️',
+                        'inspection': '🔍',
+                        'cleaning': '🧽',
+                        'replacement': '🔄'
+                    };
+                    
+                    textContent += `${index + 1}. ${typeEmoji[work.type] || '⚙️'} ${getWorkTypeText(work.type)}\n`;
+                    textContent += `   📅 ${formatDate(work.date)}\n`;
+                    textContent += `   📝 ${work.description}\n`;
+                    textContent += `   👤 ${work.worker}\n`;
+                    if (work.contractor) textContent += `   🏢 ${work.contractor.name} (${work.contractor.phone})\n`;
+                    if (work.cost) textContent += `   💰 ${work.cost.toLocaleString()} VNĐ\n`;
+                    if (work.warranty) textContent += `   🛡️ Bảo hành: ${work.warranty}\n`;
+                    textContent += `   ✅ ${getStatusText(work.status)}\n`;
+                    if (work.notes) textContent += `   💬 ${work.notes}\n`;
+                    textContent += `\n`;
+                });
+
+                // Add summary
+                const totalCost = workEvents.reduce((sum, work) => sum + (work.cost || 0), 0);
+                textContent += `📊 TỔNG KẾT:\n`;
+                textContent += `• Tổng số công việc: ${workEvents.length}\n`;
+                textContent += `• Tổng chi phí: ${totalCost.toLocaleString()} VNĐ\n`;
+                textContent += `• Chi phí trung bình: ${workEvents.length > 0 ? Math.round(totalCost / workEvents.length).toLocaleString() : 0} VNĐ\n\n`;
+            }
+
+            textContent += `🤖 Smart AC Manager - ${new Date().toLocaleDateString('vi-VN')}`;
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(textContent).then(() => {
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
+                showNotification('Đã sao chép vào clipboard', 'success');
+            }).catch(err => {
+                console.error('Could not copy text: ', err);
+                showNotification('Không thể sao chép. Hãy thử lại!', 'error');
+            });
+        }
+
+        // Toggle Export Preview
+        function togglePreview() {
+            const previewDiv = document.getElementById('exportPreview');
+            const previewContent = document.getElementById('previewContent');
+            
+            if (previewDiv.style.display === 'none') {
+                // Generate preview content
+                const ac = getCurrentAC();
+                if (!ac) return;
+
+                const year = currentCalendarDate.getFullYear();
+                const month = currentCalendarDate.getMonth();
+                const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                                   'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+                
+                let workEvents = ac.workHistory.filter(work => {
+                    const workDate = new Date(work.date);
+                    return workDate.getFullYear() === year && workDate.getMonth() === month;
+                });
+                
+                if (currentCalendarFilter !== 'all') {
+                    workEvents = workEvents.filter(work => work.type === currentCalendarFilter);
+                }
+
+                previewContent.innerHTML = `
+                    <strong>📋 ${ac.code} - ${ac.location}</strong><br>
+                    <strong>📅 ${monthNames[month]} ${year}</strong><br>
+                    <strong>🔍 Bộ lọc: ${getFilterName(currentCalendarFilter)}</strong><br><br>
+                    <strong>📊 Thống kê:</strong><br>
+                    • Số công việc: ${workEvents.length}<br>
+                    • Tổng chi phí: ${workEvents.reduce((sum, work) => sum + (work.cost || 0), 0).toLocaleString()} VNĐ<br><br>
+                    ${workEvents.length > 0 ? '<strong>📝 Công việc mới nhất:</strong><br>' + workEvents.slice(0, 3).map(work => 
+                        `• ${formatDate(work.date)}: ${getWorkTypeText(work.type)} - ${work.worker}`
+                    ).join('<br>') : '<em>Không có công việc nào</em>'}
+                `;
+                
+                previewDiv.style.display = 'block';
+            } else {
+                previewDiv.style.display = 'none';
+            }
+        }
+
+        // Helper function to get filter name
+        function getFilterName(filterType) {
+            const filterNames = {
+                'all': 'Tất cả',
+                'maintenance': 'Bảo dưỡng',
+                'repair': 'Sửa chữa',
+                'inspection': 'Kiểm tra',
+                'cleaning': 'Vệ sinh',
+                'replacement': 'Thay thế'
+            };
+            return filterNames[filterType] || filterType;
+        }
+
+        // Show Work Details (Modal or highlight in timeline)
+        function showWorkDetails(work) {
+            // Switch to "Tất Cả" tab and highlight the work
+            const allTab = document.getElementById('all-tab');
+            const allTabContent = document.getElementById('all');
+            
+            // Activate All tab
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('show', 'active');
+            });
+            
+            allTab.classList.add('active');
+            allTabContent.classList.add('show', 'active');
+            
+            // Scroll to and highlight the work entry
+            setTimeout(() => {
+                const workElements = document.querySelectorAll('.timeline-item-enhanced');
+                workElements.forEach(el => {
+                    const workDate = el.querySelector('.work-date')?.textContent;
+                    if (workDate && workDate.includes(formatDate(work.date))) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        el.style.border = '3px solid var(--primary)';
+                        el.style.boxShadow = '0 0 20px rgba(102, 126, 234, 0.3)';
+                        
+                        // Remove highlight after 3 seconds
+                        setTimeout(() => {
+                            el.style.border = '';
+                            el.style.boxShadow = '';
+                        }, 3000);
+                    }
+                });
+            }, 100);
+        }
+
+        // Toggle work form visibility
+        function toggleWorkForm() {
+            const formContainer = document.getElementById('workFormContainer');
+            const toggleBtn = document.getElementById('toggleFormBtn');
+            
+            if (formContainer.style.display === 'none') {
+                // Show form
+                formContainer.style.display = 'block';
+                toggleBtn.innerHTML = '<i class="bi bi-chevron-up me-2"></i>Thu Gọn';
+                toggleBtn.classList.remove('btn-primary-custom');
+                toggleBtn.classList.add('btn-outline-primary');
+                
+                // Scroll to form
+                formContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                // Hide form
+                formContainer.style.display = 'none';
+                toggleBtn.innerHTML = '<i class="bi bi-plus-circle me-2"></i>Thêm Ghi Chú';
+                toggleBtn.classList.remove('btn-outline-primary');
+                toggleBtn.classList.add('btn-primary-custom');
+                
+                // Reset form
+                document.getElementById('workForm').reset();
+                document.getElementById('workDate').value = new Date().toISOString().split('T')[0];
+            }
+        }
+
+        // Setup form submission
+        function setupFormSubmission() {
+            document.getElementById('workForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addWorkEntry();
+            });
+        }
+
+        // Add new work entry
+        function addWorkEntry() {
+            const type = document.getElementById('workType').value;
+            const date = document.getElementById('workDate').value;
+            const description = document.getElementById('workDescription').value;
+            const worker = document.getElementById('workerName').value;
+            const imageFiles = document.getElementById('workImages').files;
+            
+            // New fields
+            const cost = document.getElementById('workCost').value;
+            const warranty = document.getElementById('warranty').value;
+            const status = document.getElementById('workStatus').value || 'completed';
+            const notes = document.getElementById('workNotes').value;
+
+            if (!type || !date || !description || !worker) {
+                alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+                return;
+            }
+
+            if (!selectedContractor) {
+                alert('Vui lòng chọn nhà thầu thi công!');
+                return;
+            }
+
+            // Collect document images
+            const documentImages = {};
+            selectedDocuments.forEach(docId => {
+                const fileInput = document.getElementById(`file-${docId}`);
+                if (fileInput.files.length > 0) {
+                    documentImages[docId] = Array.from(fileInput.files);
+                }
+            });
+
+            // Create new work entry
+            const newEntry = {
+                id: currentAC.workHistory.length + 1,
+                date: date,
+                type: type,
+                description: description,
+                worker: worker,
+                images: [],
+                status: status,
+                cost: cost ? parseInt(cost) : null,
+                warranty: warranty || null,
+                notes: notes || null,
+                contractor: selectedContractor,
+                documents: selectedDocuments.map(docId => {
+                    const docType = documentTypes.find(d => d.id === docId);
+                    return docType ? docType.name : docId;
+                }),
+                documentImages: {}
+            };
+
+            // Handle main work images
+            const allFiles = Array.from(imageFiles);
+            
+            // Add document images to processing queue
+            Object.keys(documentImages).forEach(docId => {
+                documentImages[docId].forEach(file => {
+                    allFiles.push({...file, documentType: docId});
+                });
+            });
+
+            if (allFiles.length > 0) {
+                let processedFiles = 0;
+                allFiles.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        if (file.documentType) {
+                            // This is a document image
+                            if (!newEntry.documentImages[file.documentType]) {
+                                newEntry.documentImages[file.documentType] = [];
+                            }
+                            newEntry.documentImages[file.documentType].push(e.target.result);
+                        } else {
+                            // This is a regular work image
+                            newEntry.images.push(e.target.result);
+                        }
+                        
+                        processedFiles++;
+                        if (processedFiles === allFiles.length) {
+                            // All files processed, add entry
+                            addEntryToHistory(newEntry);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+            } else {
+                // No files, add entry directly
+                addEntryToHistory(newEntry);
+            }
+        }
+
+        // Add entry to history and update display
+        function addEntryToHistory(entry) {
+            currentAC.workHistory.push(entry);
+            
+            // Update last maintenance date if it's a maintenance
+            if (entry.type === 'maintenance') {
+                currentAC.lastMaintenance = entry.date;
+                // Set next maintenance to 6 months later
+                const nextDate = new Date(entry.date);
+                nextDate.setMonth(nextDate.getMonth() + 6);
+                currentAC.nextMaintenance = nextDate.toISOString().split('T')[0];
+                
+                // Update basic info display
+                displayBasicInfo(currentAC);
+            }
+            
+            // Refresh work history display
+            displayWorkHistory(currentAC.workHistory);
+            
+            // Update document gallery and calendar
+            updateDocumentGallery();
+            updateCalendar();
+            
+            // Reset form
+            document.getElementById('workForm').reset();
+            document.getElementById('workDate').value = new Date().toISOString().split('T')[0];
+            
+            // Reset selections
+            selectedContractor = null;
+            selectedDocuments = [];
+            
+            // Reset UI
+            document.querySelectorAll('.contractor-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Reset contractor dropdown
+            document.getElementById('contractorSelect').value = '';
+            document.getElementById('selectedContractorInfo').style.display = 'none';
+            
+            // Reset document checkboxes and UI
+            document.querySelectorAll('.document-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            document.querySelectorAll('.document-upload').forEach(upload => {
+                upload.classList.remove('show');
+            });
+            
+            document.querySelectorAll('.document-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            // Reset document selection toggle to hidden state
+            const documentContainer = document.getElementById('documentSelectionContainer');
+            const documentToggleBtn = document.getElementById('toggleDocumentBtn');
+            if (documentContainer && documentToggleBtn) {
+                documentContainer.style.display = 'none';
+                documentToggleBtn.innerHTML = '<i class="bi bi-chevron-down me-1"></i>Hiện';
+                documentToggleBtn.classList.remove('btn-outline-primary');
+                documentToggleBtn.classList.add('btn-outline-secondary');
+            }
+            
+            // Hide form after success
+            const formContainer = document.getElementById('workFormContainer');
+            if (formContainer.style.display !== 'none') {
+                toggleWorkForm();
+            }
+            
+            // Show success message
+            showNotification('Thêm ghi chú thành công!', 'success');
+        }
+
+        // Preview image in modal
+        function previewImage(src) {
+            document.getElementById('previewImage').src = src;
+            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            modal.show();
+        }
+
+        // Action functions
+        function performMaintenance() {
+            // Show form if hidden
+            const formContainer = document.getElementById('workFormContainer');
+            if (formContainer.style.display === 'none') {
+                toggleWorkForm();
+            }
+            
+            // Pre-fill maintenance form
+            document.getElementById('workType').value = 'maintenance';
+            document.getElementById('workDescription').value = 'Bảo dưỡng định kỳ: Vệ sinh filter, kiểm tra gas, làm sạch dàn nóng/lạnh';
+            document.getElementById('workDescription').focus();
+            
+            // Scroll to form
+            document.getElementById('workForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function performRepair() {
+            // Show form if hidden
+            const formContainer = document.getElementById('workFormContainer');
+            if (formContainer.style.display === 'none') {
+                toggleWorkForm();
+            }
+            
+            // Pre-fill repair form
+            document.getElementById('workType').value = 'repair';
+            document.getElementById('workDescription').value = '';
+            document.getElementById('workDescription').focus();
+            
+            // Scroll to form
+            document.getElementById('workForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function editAirConditioner() {
+            // Redirect to main page with edit parameter
+            window.location.href = `baodung-dieuhoa.html?edit=${currentAC.code}`;
+        }
+
+        // Utility functions
+        function getStatusText(status) {
+            const statusMap = {
+                'excellent': 'Hoạt động xuất sắc',
+                'good': 'Hoạt động tốt',
+                'maintenance': 'Cần bảo dưỡng',
+                'repair': 'Cần sửa chữa',
+                'broken': 'Hỏng'
+            };
+            return statusMap[status] || status;
+        }
+
+        // Get current AC object
+        function getCurrentAC() {
+            return currentAC;
+        }
+
+        // Get status text
+        function getStatusText(status) {
+            const statusMap = {
+                'completed': 'Hoàn thành',
+                'in-progress': 'Đang thực hiện',
+                'pending': 'Chờ xử lý'
+            };
+            return statusMap[status] || status;
+        }
+
+        function getTypeText(type) {
+            const typeMap = {
+                'split': 'Điều hòa Split',
+                'multi': 'Điều hòa Multi',
+                'central': 'Điều hòa trung tâm',
+                'cassette': 'Điều hòa âm trần'
+            };
+            return typeMap[type] || type;
+        }
+
+        function getWorkTypeText(type) {
+            const typeMap = {
+                'maintenance': 'Bảo dưỡng định kỳ',
+                'repair': 'Sửa chữa',
+                'inspection': 'Kiểm tra',
+                'cleaning': 'Vệ sinh',
+                'replacement': 'Thay thế linh kiện'
+            };
+            return typeMap[type] || type;
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'success' ? 'success' : 'info'} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 100px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `
+                <i class="bi bi-${type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

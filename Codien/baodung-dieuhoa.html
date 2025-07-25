@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart AC Management - Hệ Thống Quản Lý Điều Hòa Thông Minh</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a67d8;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --success: #48bb78;
+            --warning: #ed8936;
+            --danger: #f56565;
+            --info: #4299e1;
+            --light: #f7fafc;
+            --dark: #2d3748;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.2);
+            --border-radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navbar Styles */
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--dark) !important;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary) !important;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: var(--gradient-1);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .nav-link:hover::after {
+            width: 80%;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: var(--gradient-1);
+            color: white;
+            padding: 8rem 0 4rem;
+            margin-top: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        /* Card Styles */
+        .smart-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            border: none;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .smart-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-1);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .smart-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .smart-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        /* Stats Cards */
+        .stat-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            border: none;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient-1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+            color: white;
+            background: var(--gradient-1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        /* Status Badges */
+        .status-excellent { background: rgba(72, 187, 120, 0.2); color: #48bb78; border: 1px solid #48bb78; }
+        .status-good { background: rgba(72, 187, 120, 0.15); color: #38a169; border: 1px solid #38a169; }
+        .status-maintenance { background: rgba(237, 137, 54, 0.2); color: #ed8936; border: 1px solid #ed8936; }
+        .status-repair { background: rgba(245, 101, 101, 0.2); color: #f56565; border: 1px solid #f56565; }
+        .status-broken { background: rgba(229, 62, 62, 0.2); color: #e53e3e; border: 1px solid #e53e3e; }
+
+        /* Table Styles - Simple Design */
+        .ac-table {
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .table {
+            margin: 0;
+            font-size: 0.85rem;
+        }
+
+        .table thead th {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+        }
+
+        .table tbody td {
+            padding: 0.5rem;
+            vertical-align: middle;
+            border-color: #dee2e6;
+            font-size: 0.8rem;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge-table {
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-block;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .status-excellent { background-color: #28a745; color: white; }
+        .status-good { background-color: #20c997; color: white; }
+        .status-maintenance { background-color: #ffc107; color: #212529; }
+        .status-repair { background-color: #dc3545; color: white; }
+        .status-broken { background-color: #6c757d; color: white; }
+
+        .capacity-badge {
+            background-color: #17a2b8;
+            color: white;
+            padding: 0.2rem 0.4rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .brand-badge {
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 0.2rem 0.4rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .action-btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.7rem;
+            border-radius: 4px;
+            margin: 0.05rem;
+            min-width: 35px;
+            border: none;
+            background: transparent;
+            color: #6c757d;
+        }
+
+        .action-btn-sm:hover {
+            color: #495057;
+            background: rgba(108, 117, 125, 0.1);
+        }
+
+        /* Dropdown in table */
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            min-width: 150px;
+        }
+
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            border-radius: 0;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .date-text {
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+
+        .code-text {
+            font-weight: 700;
+            color: #007bff;
+            font-size: 0.8rem;
+        }
+
+        .location-text {
+            font-weight: 500;
+            color: #212529;
+            font-size: 0.8rem;
+        }
+
+        .location-area {
+            font-size: 0.7rem;
+            color: #6c757d;
+        }
+
+        /* Filter Section */
+        .filter-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-modern {
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-modern:hover::before {
+            left: 100%;
+        }
+
+        .btn-maintenance { background: var(--gradient-3); color: white; }
+        .btn-repair { background: var(--gradient-2); color: white; }
+        .btn-detail { background: var(--gradient-1); color: white; }
+
+        /* Modal Styles */
+        .modal-content {
+            border-radius: var(--border-radius);
+            border: none;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            background: var(--gradient-1);
+            color: white;
+            border-bottom: none;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title { 
+                font-size: 2.5rem; 
+            }
+            .navbar-brand { 
+                font-size: 1.25rem; 
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* Loading Animation */
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Simple animations for buttons */
+        .smart-card, .stat-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .btn {
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-snow2 me-2"></i>
+                Smart AC Manager
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#maintenance">Bảo Dưỡng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#reports">Báo Cáo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="home.html">
+                            <i class="bi bi-house-fill me-1"></i>Trang Chủ
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="dashboard">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="hero-content animate-fade-up">
+                        <h1 class="hero-title">
+                            Quản Lý Điều Hòa
+                            <span style="background: var(--gradient-4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Thông Minh</span>
+                        </h1>
+                        <p class="hero-subtitle">
+                            Hệ thống quản lý bảo dưỡng và sửa chữa điều hòa hiện đại với theo dõi hình ảnh chi tiết
+                        </p>
+                        <div class="d-flex gap-3">
+                            <button class="btn btn-light btn-lg btn-modern" onclick="showAddModal()">
+                                <i class="bi bi-plus-circle me-2"></i>Thêm Điều Hòa
+                            </button>
+                            <button class="btn btn-outline-light btn-lg btn-modern" onclick="viewReports()">
+                                <i class="bi bi-graph-up me-2"></i>Xem Báo Cáo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="text-center">
+                        <div style="font-size: 8rem; opacity: 0.3;">
+                            <i class="bi bi-snow2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container my-5">
+        <!-- Statistics -->
+        <div class="row mb-5">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-card animate-fade-up">
+                    <div class="stat-icon">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div class="stat-number" id="totalGood">0</div>
+                    <div class="stat-label">Hoạt Động Tốt</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-card animate-fade-up" style="animation-delay: 0.1s;">
+                    <div class="stat-icon">
+                        <i class="bi bi-tools"></i>
+                    </div>
+                    <div class="stat-number" id="totalMaintenance">0</div>
+                    <div class="stat-label">Cần Bảo Dưỡng</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-card animate-fade-up" style="animation-delay: 0.2s;">
+                    <div class="stat-icon">
+                        <i class="bi bi-wrench"></i>
+                    </div>
+                    <div class="stat-number" id="totalRepair">0</div>
+                    <div class="stat-label">Cần Sửa Chữa</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-card animate-fade-up" style="animation-delay: 0.3s;">
+                    <div class="stat-icon">
+                        <i class="bi bi-snow2"></i>
+                    </div>
+                    <div class="stat-number" id="totalUnits">0</div>
+                    <div class="stat-label">Tổng Điều Hòa</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Schedule Alert -->
+        <div class="smart-card mb-4" style="background: var(--gradient-1); color: white;">
+            <div class="p-4">
+                <h5 class="mb-3">
+                    <i class="bi bi-bell me-2"></i>
+                    Lịch Bảo Dưỡng Sắp Tới
+                </h5>
+                <div id="upcomingSchedule">
+                    <div class="d-flex align-items-center">
+                        <div class="loading-skeleton" style="width: 100%; height: 20px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-card" id="maintenance">
+            <h5 class="mb-4">
+                <i class="bi bi-funnel me-2"></i>
+                Bộ Lọc & Tìm Kiếm
+            </h5>
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <label class="form-label fw-semibold">Khu vực</label>
+                    <select class="form-select" id="filterArea">
+                        <option value="">Tất cả khu vực</option>
+                        <option value="Tầng 1">Tầng 1</option>
+                        <option value="Tầng 2">Tầng 2</option>
+                        <option value="Tầng 3">Tầng 3</option>
+                        <option value="Xưởng sản xuất">Xưởng sản xuất</option>
+                    </select>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <label class="form-label fw-semibold">Trạng thái</label>
+                    <select class="form-select" id="filterStatus">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="excellent">Hoạt động xuất sắc</option>
+                        <option value="good">Hoạt động tốt</option>
+                        <option value="maintenance">Cần bảo dưỡng</option>
+                        <option value="repair">Cần sửa chữa</option>
+                        <option value="broken">Hỏng</option>
+                    </select>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <label class="form-label fw-semibold">Loại điều hòa</label>
+                    <select class="form-select" id="filterType">
+                        <option value="">Tất cả loại</option>
+                        <option value="split">Điều hòa Split</option>
+                        <option value="multi">Điều hòa Multi</option>
+                        <option value="central">Điều hòa trung tâm</option>
+                        <option value="cassette">Điều hòa âm trần</option>
+                    </select>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <label class="form-label fw-semibold">Tìm kiếm</label>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Mã, vị trí, hãng...">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <button class="btn btn-detail btn-modern me-2" onclick="applyFilter()">
+                        <i class="bi bi-search me-1"></i>Tìm kiếm
+                    </button>
+                    <button class="btn btn-outline-secondary btn-modern" onclick="resetFilter()">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Đặt lại
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- AC List -->
+        <div id="airConditionerList">
+            <!-- Dynamic content -->
+        </div>
+    </div>
+
+    <!-- Modal Add/Edit AC -->
+    <div class="modal fade" id="acModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content" style="border-radius: var(--border-radius); border: none;">
+                <div class="modal-header" style="background: var(--gradient-1); color: white; border: none;">
+                    <h5 class="modal-title" id="modalTitle">Thêm Điều Hòa Mới</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="acForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Mã điều hòa *</label>
+                                    <input type="text" class="form-control" id="acCode" required>
+                                    <input type="hidden" id="acId">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Loại điều hòa *</label>
+                                    <select class="form-select" id="acType" required>
+                                        <option value="">Chọn loại</option>
+                                        <option value="split">Điều hòa Split</option>
+                                        <option value="multi">Điều hòa Multi</option>
+                                        <option value="central">Điều hòa trung tâm</option>
+                                        <option value="cassette">Điều hòa âm trần</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Khu vực *</label>
+                                    <select class="form-select" id="acArea" required>
+                                        <option value="">Chọn khu vực</option>
+                                        <option value="Tầng 1">Tầng 1</option>
+                                        <option value="Tầng 2">Tầng 2</option>
+                                        <option value="Tầng 3">Tầng 3</option>
+                                        <option value="Xưởng sản xuất">Xưởng sản xuất</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Vị trí cụ thể *</label>
+                                    <input type="text" class="form-control" id="acLocation" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Công suất (BTU)</label>
+                                    <input type="number" class="form-control" id="acCapacity">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Hãng sản xuất</label>
+                                    <input type="text" class="form-control" id="acBrand">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Trạng thái hiện tại</label>
+                                    <select class="form-select" id="acStatus">
+                                        <option value="excellent">Hoạt động xuất sắc</option>
+                                        <option value="good">Hoạt động tốt</option>
+                                        <option value="maintenance">Cần bảo dưỡng</option>
+                                        <option value="repair">Cần sửa chữa</option>
+                                        <option value="broken">Hỏng</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Ngày lắp đặt</label>
+                                    <input type="date" class="form-control" id="acInstallDate">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Bảo hành đến</label>
+                                    <input type="date" class="form-control" id="acWarrantyDate">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Ghi chú</label>
+                            <textarea class="form-control" id="acNotes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer" style="border: none; background: #f8fafc;">
+                    <button type="button" class="btn btn-outline-secondary btn-modern" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-detail btn-modern" onclick="saveAirConditioner()">
+                        <i class="bi bi-save me-1"></i>Lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div class="modal fade" id="imageModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="border-radius: var(--border-radius); border: none;">
+                <div class="modal-header" style="background: var(--gradient-1); color: white; border: none;">
+                    <h5 class="modal-title">Xem Ảnh</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-0">
+                    <img id="previewImage" src="" alt="Preview" style="max-width: 100%; height: auto;">
+                </div>
+                <div class="modal-footer" style="border: none; background: #f8fafc;">
+                    <button type="button" class="btn btn-outline-secondary btn-modern" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Smart AC API Manager -->
+    <script src="smart-ac-api.js"></script>
+    
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'https://autoslp.duckdns.org/api/data';
+        const WEBHOOK_BASE_URL = 'https://autoslp.duckdns.org:5678/webhook';
+
+        // Global data variables
+        let airConditioners = [];
+        let filteredAirConditioners = [];
+        let statistics = {};
+
+        // API Functions
+        async function fetchAirConditioners() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/air_conditioners`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                
+                // Transform data to match frontend format
+                airConditioners = Array.isArray(data) ? data.map(ac => ({
+                    id: ac.id,
+                    code: ac.ma_dieu_hoa || ac.code,
+                    type: ac.loai || ac.type,
+                    area: ac.khu_vuc || ac.area,
+                    location: ac.vi_tri || ac.location,
+                    capacity: ac.cong_suat || ac.capacity,
+                    brand: ac.hang || ac.brand,
+                    installDate: ac.ngay_lap_dat || ac.install_date,
+                    warrantyDate: ac.ngay_bao_hanh || ac.warranty_date,
+                    status: ac.trang_thai || ac.status,
+                    lastMaintenance: ac.bao_duong_gan_nhat || ac.last_maintenance,
+                    nextMaintenance: ac.bao_duong_tiep_theo || ac.next_maintenance,
+                    notes: ac.ghi_chu || ac.notes || '',
+                    totalWorks: ac.tong_cong_viec || 0,
+                    maintenanceCount: ac.so_lan_bao_duong || 0,
+                    repairCount: ac.so_lan_sua_chua || 0,
+                    totalCost: ac.tong_chi_phi || 0,
+                    lastContractorName: ac.nha_thau_gan_nhat || '',
+                    workHistory: []
+                })) : [];
+                
+                filteredAirConditioners = [...airConditioners];
+                return airConditioners;
+            } catch (error) {
+                console.error('Error fetching air conditioners:', error);
+                showNotification('Lỗi khi tải dữ liệu điều hòa: ' + error.message, 'error');
+                // Return sample data for fallback
+                return getSampleAirConditioners();
+            }
+        }
+
+        async function fetchWorkHistory() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/work_history`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                return Array.isArray(data) ? data : [];
+            } catch (error) {
+                console.error('Error fetching work history:', error);
+                return [];
+            }
+        }
+
+        async function fetchStatistics() {
+            try {
+                // Calculate statistics from current air conditioners data
+                const stats = {
+                    ac_by_status: {},
+                    total_acs: airConditioners.length,
+                    upcoming_maintenance: []
+                };
+                
+                // Count by status
+                airConditioners.forEach(ac => {
+                    const status = ac.status || 'good';
+                    stats.ac_by_status[status] = (stats.ac_by_status[status] || 0) + 1;
+                });
+                
+                // Find upcoming maintenance
+                const now = new Date();
+                const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+                
+                stats.upcoming_maintenance = airConditioners
+                    .filter(ac => ac.nextMaintenance && new Date(ac.nextMaintenance) <= thirtyDaysFromNow)
+                    .sort((a, b) => new Date(a.nextMaintenance) - new Date(b.nextMaintenance))
+                    .slice(0, 5);
+                
+                statistics = stats;
+                return stats;
+            } catch (error) {
+                console.error('Error calculating statistics:', error);
+                return {
+                    ac_by_status: {},
+                    total_acs: 0,
+                    upcoming_maintenance: []
+                };
+            }
+        }
+
+        async function saveAirConditionerData(data, isEdit = false, id = null) {
+            try {
+                // Prepare data for webhook
+                const webhookData = {
+                    action: isEdit ? 'update' : 'create',
+                    data: {
+                        ma_dieu_hoa: data.code,
+                        loai: data.type,
+                        khu_vuc: data.area,
+                        vi_tri: data.location,
+                        cong_suat: data.capacity,
+                        hang: data.brand,
+                        ngay_lap_dat: data.install_date,
+                        ngay_bao_hanh: data.warranty_date,
+                        trang_thai: data.status,
+                        bao_duong_tiep_theo: data.next_maintenance,
+                        ghi_chu: data.notes
+                    },
+                    id: id,
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Send to webhook
+                const response = await fetch(`${WEBHOOK_BASE_URL}/air_conditioner`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(webhookData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Webhook error! status: ${response.status}`);
+                }
+                
+                return { success: true };
+            } catch (error) {
+                console.error('Error saving air conditioner:', error);
+                throw error;
+            }
+        }
+
+        // Sample data for fallback
+        function getSampleAirConditioners() {
+            return [
+                {
+                    id: 1,
+                    code: "AC-001",
+                    type: "split",
+                    area: "Tầng 1",
+                    location: "Phòng giám đốc",
+                    capacity: 12000,
+                    brand: "Daikin",
+                    installDate: "2023-01-15",
+                    warrantyDate: "2026-01-15",
+                    status: "excellent",
+                    lastMaintenance: "2024-12-01",
+                    nextMaintenance: "2025-03-01",
+                    notes: "Hoạt động xuất sắc, vừa được bảo dưỡng",
+                    totalWorks: 2,
+                    maintenanceCount: 1,
+                    repairCount: 0,
+                    totalCost: 850000,
+                    workHistory: []
+                },
+                {
+                    id: 2,
+                    code: "AC-002",
+                    type: "multi",
+                    area: "Tầng 2",
+                    location: "Phòng họp lớn",
+                    capacity: 24000,
+                    brand: "Mitsubishi",
+                    installDate: "2022-08-20",
+                    warrantyDate: "2025-08-20",
+                    status: "maintenance",
+                    lastMaintenance: "2024-10-15",
+                    nextMaintenance: "2025-01-15",
+                    notes: "Cần vệ sinh filter và kiểm tra gas",
+                    totalWorks: 1,
+                    maintenanceCount: 0,
+                    repairCount: 0,
+                    totalCost: 0,
+                    workHistory: []
+                },
+                {
+                    id: 3,
+                    code: "AC-003",
+                    type: "split",
+                    area: "Xưởng sản xuất",
+                    location: "Khu vực máy cắt",
+                    capacity: 18000,
+                    brand: "LG",
+                    installDate: "2023-05-10",
+                    warrantyDate: "2026-05-10",
+                    status: "repair",
+                    lastMaintenance: "2024-11-20",
+                    nextMaintenance: "2025-02-20",
+                    notes: "Tiếng ồn bất thường, cần kiểm tra motor quạt",
+                    totalWorks: 1,
+                    maintenanceCount: 0,
+                    repairCount: 1,
+                    totalCost: 2500000,
+                    workHistory: []
+                }
+            ];
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async function() {
+            showNotification('Đang tải dữ liệu...', 'info');
+            
+            try {
+                // Load data from API
+                await Promise.all([
+                    fetchAirConditioners(),
+                    fetchStatistics()
+                ]);
+                
+                // Update UI
+                updateStats();
+                updateUpcomingSchedule();
+                displayAirConditioners();
+                
+                // Add refresh button
+                setTimeout(addRefreshButton, 100);
+                
+                showNotification('Tải dữ liệu thành công!', 'success');
+            } catch (error) {
+                console.error('Error initializing:', error);
+                showNotification('Lỗi khi khởi tạo: ' + error.message, 'error');
+                
+                // Load sample data as fallback
+                airConditioners = getSampleAirConditioners();
+                filteredAirConditioners = [...airConditioners];
+                await fetchStatistics();
+                updateStats();
+                updateUpcomingSchedule();
+                displayAirConditioners();
+                
+                showNotification('Đã tải dữ liệu mẫu do lỗi kết nối API', 'warning');
+            }
+        });
+
+        // Update statistics
+        async function updateStats() {
+            try {
+                // Use API statistics if available, otherwise calculate from current data
+                let stats;
+                if (statistics.ac_by_status) {
+                    stats = {
+                        excellent: statistics.ac_by_status.excellent || 0,
+                        good: statistics.ac_by_status.good || 0,
+                        maintenance: statistics.ac_by_status.maintenance || 0,
+                        repair: statistics.ac_by_status.repair || 0,
+                        total: statistics.total_acs || 0
+                    };
+                } else {
+                    // Fallback to local calculation
+                    stats = {
+                        excellent: airConditioners.filter(ac => ac.status === 'excellent').length,
+                        good: airConditioners.filter(ac => ac.status === 'good').length,
+                        maintenance: airConditioners.filter(ac => ac.status === 'maintenance').length,
+                        repair: airConditioners.filter(ac => ac.status === 'repair').length,
+                        total: airConditioners.length
+                    };
+                }
+
+                document.getElementById('totalGood').textContent = stats.excellent + stats.good;
+                document.getElementById('totalMaintenance').textContent = stats.maintenance;
+                document.getElementById('totalRepair').textContent = stats.repair;
+                document.getElementById('totalUnits').textContent = stats.total;
+            } catch (error) {
+                console.error('Error updating stats:', error);
+            }
+        }
+
+        // Update upcoming schedule
+        async function updateUpcomingSchedule() {
+            try {
+                const scheduleEl = document.getElementById('upcomingSchedule');
+                
+                // Use API upcoming maintenance if available
+                let upcoming;
+                if (statistics.upcoming_maintenance && statistics.upcoming_maintenance.length > 0) {
+                    upcoming = statistics.upcoming_maintenance;
+                } else {
+                    // Fallback to local calculation
+                    upcoming = airConditioners
+                        .filter(ac => ac.nextMaintenance && new Date(ac.nextMaintenance) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
+                        .sort((a, b) => new Date(a.nextMaintenance) - new Date(b.nextMaintenance))
+                        .slice(0, 5);
+                }
+                
+                if (upcoming.length === 0) {
+                    scheduleEl.innerHTML = '<p class="mb-0 opacity-75">✅ Không có lịch bảo dưỡng khẩn cấp trong 30 ngày tới</p>';
+                    return;
+                }
+
+                const scheduleHTML = upcoming.map(item => {
+                    const ac = item.code ? item : airConditioners.find(a => a.id === item.id);
+                    if (!ac) return '';
+                    
+                    return `
+                        <div class="d-flex justify-content-between align-items-center mb-2 p-2 rounded" style="background: rgba(255,255,255,0.1);">
+                            <div>
+                                <strong>${ac.code}</strong> - ${ac.location}
+                                <br><small class="opacity-75">${ac.area}</small>
+                            </div>
+                            <span class="badge bg-light text-dark px-3 py-2">
+                                ${new Date(ac.nextMaintenance || ac.next_maintenance).toLocaleDateString('vi-VN')}
+                            </span>
+                        </div>
+                    `;
+                }).filter(Boolean).join('');
+
+                scheduleEl.innerHTML = scheduleHTML;
+            } catch (error) {
+                console.error('Error updating upcoming schedule:', error);
+            }
+        }
+
+        // Display air conditioners in table format
+        function displayAirConditioners() {
+            const container = document.getElementById('airConditionerList');
+            
+            if (filteredAirConditioners.length === 0) {
+                container.innerHTML = `
+                    <div class="ac-table">
+                        <div class="text-center py-5">
+                            <div style="font-size: 4rem; opacity: 0.3;">
+                                <i class="bi bi-search"></i>
+                            </div>
+                            <h4 class="mt-3 text-muted">Không tìm thấy điều hòa nào</h4>
+                            <p class="text-muted">Thử thay đổi bộ lọc hoặc thêm điều hòa mới</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const tableHTML = `
+                <div class="ac-table">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm">
+                            <thead>
+                                <tr>
+                                    <th style="width: 8%;">Mã</th>
+                                    <th style="width: 20%;">Vị Trí</th>
+                                    <th style="width: 10%;">Loại</th>
+                                    <th style="width: 8%;">Hãng</th>
+                                    <th style="width: 8%;">BTU</th>
+                                    <th style="width: 12%;">Trạng Thái</th>
+                                    <th style="width: 10%;">BĐ Cuối</th>
+                                    <th style="width: 10%;">BĐ Tiếp</th>
+                                    <th style="width: 14%;">Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${filteredAirConditioners.map(ac => `
+                                    <tr>
+                                        <td class="text-center">
+                                            <span class="code-text">${ac.code}</span>
+                                        </td>
+                                        <td>
+                                            <div class="location-text">${ac.location}</div>
+                                            <div class="location-area">${ac.area}</div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="brand-badge">${getTypeText(ac.type).replace('Điều hòa ', '')}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="brand-badge">${ac.brand || '-'}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            ${ac.capacity ? `<span class="capacity-badge">${(ac.capacity/1000).toFixed(0)}K</span>` : '<span class="text-muted">-</span>'}
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="status-badge-table status-${ac.status}">
+                                                ${getStatusText(ac.status).replace('Hoạt động ', '').replace('Cần ', '')}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="date-text">
+                                                ${new Date(ac.lastMaintenance).toLocaleDateString('vi-VN', {day: '2-digit', month: '2-digit'})}
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="date-text">
+                                                ${new Date(ac.nextMaintenance).toLocaleDateString('vi-VN', {day: '2-digit', month: '2-digit'})}
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="d-flex justify-content-center gap-1">
+                                                <button class="action-btn-sm" onclick="showDetail(${ac.id})" title="Xem chi tiết">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                                <div class="dropdown d-inline">
+                                                    <button class="action-btn-sm" type="button" data-bs-toggle="dropdown" title="Xem thêm">
+                                                        <i class="bi bi-three-dots"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li><a class="dropdown-item" href="#" onclick="performMaintenance(${ac.id})">
+                                                            <i class="bi bi-tools me-2"></i>Bảo dưỡng
+                                                        </a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="performRepair(${ac.id})">
+                                                            <i class="bi bi-wrench me-2"></i>Sửa chữa
+                                                        </a></li>
+                                                        <li><hr class="dropdown-divider"></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="editAirConditioner(${ac.id})">
+                                                            <i class="bi bi-pencil me-2"></i>Chỉnh sửa
+                                                        </a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Table Summary -->
+                    <div class="p-2 bg-light border-top">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    <strong>${filteredAirConditioners.length}</strong>/${airConditioners.length} điều hòa
+                                </small>
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                <div class="d-flex justify-content-md-end gap-1 mt-1 mt-md-0">
+                                    <button class="btn btn-outline-primary btn-sm" onclick="exportToExcel()">
+                                        <i class="bi bi-download"></i> Excel
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="printTable()">
+                                        <i class="bi bi-printer"></i> In
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = tableHTML;
+        }
+
+        // Utility functions
+        function getStatusText(status) {
+            const statusMap = {
+                'excellent': 'Hoạt động xuất sắc',
+                'good': 'Hoạt động tốt',
+                'maintenance': 'Cần bảo dưỡng',
+                'repair': 'Cần sửa chữa',
+                'broken': 'Hỏng'
+            };
+            return statusMap[status] || status;
+        }
+
+        function getTypeText(type) {
+            const typeMap = {
+                'split': 'Điều hòa Split',
+                'multi': 'Điều hòa Multi',
+                'central': 'Điều hòa trung tâm',
+                'cassette': 'Điều hòa âm trần'
+            };
+            return typeMap[type] || type;
+        }
+
+        function getWorkTypeText(type) {
+            const typeMap = {
+                'maintenance': 'Bảo dưỡng định kỳ',
+                'repair': 'Sửa chữa',
+                'inspection': 'Kiểm tra',
+                'cleaning': 'Vệ sinh',
+                'replacement': 'Thay thế linh kiện'
+            };
+            return typeMap[type] || type;
+        }
+
+        // Filter functions
+        function applyFilter() {
+            const area = document.getElementById('filterArea').value;
+            const status = document.getElementById('filterStatus').value;
+            const type = document.getElementById('filterType').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+
+            filteredAirConditioners = airConditioners.filter(ac => {
+                return (!area || ac.area === area) &&
+                       (!status || ac.status === status) &&
+                       (!type || ac.type === type) &&
+                       (!search || ac.code.toLowerCase().includes(search) || 
+                        ac.location.toLowerCase().includes(search) ||
+                        (ac.brand && ac.brand.toLowerCase().includes(search)));
+            });
+
+            displayAirConditioners();
+        }
+
+        function resetFilter() {
+            document.getElementById('filterArea').value = '';
+            document.getElementById('filterStatus').value = '';
+            document.getElementById('filterType').value = '';
+            document.getElementById('searchInput').value = '';
+            filteredAirConditioners = [...airConditioners];
+            displayAirConditioners();
+        }
+
+        // Modal functions
+        function showAddModal() {
+            document.getElementById('modalTitle').textContent = 'Thêm Điều Hòa Mới';
+            document.getElementById('acForm').reset();
+            document.getElementById('acId').value = '';
+            const modal = new bootstrap.Modal(document.getElementById('acModal'));
+            modal.show();
+        }
+
+        function editAirConditioner(id) {
+            const ac = airConditioners.find(a => a.id === id);
+            if (!ac) return;
+
+            document.getElementById('modalTitle').textContent = 'Chỉnh Sửa Điều Hòa';
+            document.getElementById('acId').value = ac.id;
+            document.getElementById('acCode').value = ac.code;
+            document.getElementById('acType').value = ac.type;
+            document.getElementById('acArea').value = ac.area;
+            document.getElementById('acLocation').value = ac.location;
+            document.getElementById('acCapacity').value = ac.capacity || '';
+            document.getElementById('acBrand').value = ac.brand || '';
+            document.getElementById('acInstallDate').value = ac.installDate || '';
+            document.getElementById('acWarrantyDate').value = ac.warrantyDate || '';
+            document.getElementById('acStatus').value = ac.status;
+            document.getElementById('acNotes').value = ac.notes || '';
+
+            const modal = new bootstrap.Modal(document.getElementById('acModal'));
+            modal.show();
+        }
+
+        async function saveAirConditioner() {
+            const formData = {
+                code: document.getElementById('acCode').value,
+                type: document.getElementById('acType').value,
+                area: document.getElementById('acArea').value,
+                location: document.getElementById('acLocation').value,
+                capacity: parseInt(document.getElementById('acCapacity').value) || null,
+                brand: document.getElementById('acBrand').value,
+                install_date: document.getElementById('acInstallDate').value,
+                warranty_date: document.getElementById('acWarrantyDate').value,
+                status: document.getElementById('acStatus').value,
+                notes: document.getElementById('acNotes').value
+            };
+
+            const acId = document.getElementById('acId').value;
+            const isEdit = !!acId;
+
+            if (!formData.code || !formData.type || !formData.area || !formData.location) {
+                alert('Vui lòng điền đầy đủ các trường bắt buộc!');
+                return;
+            }
+
+            try {
+                // Calculate next maintenance date if not editing
+                if (!isEdit) {
+                    const nextMaintenanceDate = new Date();
+                    nextMaintenanceDate.setDate(nextMaintenanceDate.getDate() + 180); // 6 months
+                    formData.next_maintenance = nextMaintenanceDate.toISOString().split('T')[0];
+                }
+
+                // Save to API
+                const result = await saveAirConditionerData(formData, isEdit, acId);
+                
+                // Refresh data from API
+                await fetchAirConditioners();
+                
+                // Update UI
+                updateStats();
+                updateUpcomingSchedule();
+                displayAirConditioners();
+
+                const modal = bootstrap.Modal.getInstance(document.getElementById('acModal'));
+                modal.hide();
+
+                showNotification(isEdit ? 'Cập nhật thành công!' : 'Thêm mới thành công!', 'success');
+                
+            } catch (error) {
+                console.error('Error saving air conditioner:', error);
+                showNotification('Lỗi khi lưu dữ liệu: ' + error.message, 'error');
+            }
+        }
+
+        // Detail Modal Functions
+        function showDetail(id) {
+            const ac = airConditioners.find(a => a.id === id);
+            if (!ac) return;
+
+            // Redirect to detail page with AC code parameter
+            window.location.href = `chitietdieuhoa.html?ma_dieu_hoa=${ac.code}`;
+        }
+
+        function previewImage(src) {
+            document.getElementById('previewImage').src = src;
+            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            modal.show();
+        }
+
+        // Action functions
+        async function performMaintenance(id) {
+            if (confirm('Xác nhận thực hiện bảo dưỡng điều hòa này?')) {
+                try {
+                    const ac = airConditioners.find(a => a.id === id);
+                    if (!ac) {
+                        showNotification('Không tìm thấy điều hòa!', 'error');
+                        return;
+                    }
+
+                    // Prepare maintenance data
+                    const maintenanceData = {
+                        action: 'maintenance',
+                        air_conditioner: {
+                            id: ac.id,
+                            code: ac.code,
+                            area: ac.area,
+                            location: ac.location
+                        },
+                        work_data: {
+                            work_date: new Date().toISOString().split('T')[0],
+                            type: 'maintenance',
+                            description: 'Bảo dưỡng định kỳ',
+                            worker_name: 'Nhân viên kỹ thuật',
+                            status: 'completed',
+                            notes: 'Thực hiện bảo dưỡng qua hệ thống'
+                        },
+                        timestamp: new Date().toISOString()
+                    };
+
+                    // Send to webhook
+                    const response = await fetch(`${WEBHOOK_BASE_URL}/maintenance`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(maintenanceData)
+                    });
+
+                    if (response.ok) {
+                        // Update local data
+                        ac.lastMaintenance = new Date().toISOString().split('T')[0];
+                        ac.nextMaintenance = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                        ac.status = ac.status === 'maintenance' ? 'good' : ac.status;
+                        
+                        updateStats();
+                        updateUpcomingSchedule();
+                        displayAirConditioners();
+                        
+                        showNotification('Đã ghi nhận thực hiện bảo dưỡng!', 'success');
+                    } else {
+                        throw new Error('Lỗi khi gửi dữ liệu bảo dưỡng');
+                    }
+                } catch (error) {
+                    console.error('Error performing maintenance:', error);
+                    showNotification('Lỗi khi thực hiện bảo dưỡng: ' + error.message, 'error');
+                }
+            }
+        }
+
+        async function performRepair(id) {
+            if (confirm('Xác nhận thực hiện sửa chữa điều hòa này?')) {
+                try {
+                    const ac = airConditioners.find(a => a.id === id);
+                    if (!ac) {
+                        showNotification('Không tìm thấy điều hòa!', 'error');
+                        return;
+                    }
+
+                    // Prepare repair data
+                    const repairData = {
+                        action: 'repair',
+                        air_conditioner: {
+                            id: ac.id,
+                            code: ac.code,
+                            area: ac.area,
+                            location: ac.location
+                        },
+                        work_data: {
+                            work_date: new Date().toISOString().split('T')[0],
+                            type: 'repair',
+                            description: 'Sửa chữa hỏng hóc',
+                            worker_name: 'Nhân viên kỹ thuật',
+                            status: 'completed',
+                            notes: 'Thực hiện sửa chữa qua hệ thống'
+                        },
+                        timestamp: new Date().toISOString()
+                    };
+
+                    // Send to webhook
+                    const response = await fetch(`${WEBHOOK_BASE_URL}/repair`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(repairData)
+                    });
+
+                    if (response.ok) {
+                        // Update local data
+                        ac.status = 'good';
+                        
+                        updateStats();
+                        displayAirConditioners();
+                        
+                        showNotification('Đã ghi nhận thực hiện sửa chữa!', 'success');
+                    } else {
+                        throw new Error('Lỗi khi gửi dữ liệu sửa chữa');
+                    }
+                } catch (error) {
+                    console.error('Error performing repair:', error);
+                    showNotification('Lỗi khi thực hiện sửa chữa: ' + error.message, 'error');
+                }
+            }
+        }
+
+        function viewReports() {
+            alert('Chức năng báo cáo đang được phát triển!');
+        }
+
+        // Data refresh function
+        async function refreshData() {
+            try {
+                showNotification('Đang làm mới dữ liệu...', 'info');
+                
+                await Promise.all([
+                    fetchAirConditioners(),
+                    fetchStatistics()
+                ]);
+                
+                updateStats();
+                updateUpcomingSchedule();
+                displayAirConditioners();
+                
+                showNotification('Đã cập nhật dữ liệu mới nhất!', 'success');
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                showNotification('Lỗi khi làm mới dữ liệu: ' + error.message, 'error');
+            }
+        }
+
+        // Auto refresh every 5 minutes
+        setInterval(refreshData, 5 * 60 * 1000);
+
+        // Add refresh button to interface
+        function addRefreshButton() {
+            const refreshBtn = document.createElement('button');
+            refreshBtn.className = 'btn btn-outline-primary btn-sm me-2';
+            refreshBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Làm mới';
+            refreshBtn.onclick = refreshData;
+            
+            // Find a suitable place to add the button (you can adjust this)
+            const filterCard = document.querySelector('.filter-card .row:last-child');
+            if (filterCard) {
+                const col = document.createElement('div');
+                col.className = 'col-md-2';
+                col.appendChild(refreshBtn);
+                filterCard.appendChild(col);
+            }
+        }
+
+        // Utility function to format Vietnamese date
+        function formatVietnameseDate(dateString) {
+            if (!dateString) return '-';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('vi-VN');
+            } catch (error) {
+                return dateString;
+            }
+        }
+
+        // Utility function to format currency
+        function formatCurrency(amount) {
+            if (!amount || amount === 0) return '0₫';
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(amount);
+        }
+
+        // Notification function
+        function showNotification(message, type = 'info') {
+            const alertClass = type === 'success' ? 'alert-success' : type === 'error' ? 'alert-danger' : 'alert-info';
+            const notification = document.createElement('div');
+            notification.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 100px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 5000);
+        }
+
+        // Export and Print functions
+        function exportToExcel() {
+            // Tạo dữ liệu cho Excel
+            const data = filteredAirConditioners.map(ac => ({
+                'Mã điều hòa': ac.code,
+                'Khu vực': ac.area,
+                'Vị trí': ac.location,
+                'Loại': getTypeText(ac.type),
+                'Hãng': ac.brand || 'Chưa có',
+                'Công suất (BTU)': ac.capacity || 'Chưa có',
+                'Trạng thái': getStatusText(ac.status),
+                'Ngày lắp đặt': ac.installDate ? new Date(ac.installDate).toLocaleDateString('vi-VN') : 'Chưa có',
+                'Bảo dưỡng cuối': new Date(ac.lastMaintenance).toLocaleDateString('vi-VN'),
+                'Bảo dưỡng tiếp': new Date(ac.nextMaintenance).toLocaleDateString('vi-VN'),
+                'Ghi chú': ac.notes || ''
+            }));
+
+            // Tạo CSV content
+            const headers = Object.keys(data[0]);
+            const csvContent = [
+                headers.join(','),
+                ...data.map(row => headers.map(field => `"${row[field]}"`).join(','))
+            ].join('\n');
+
+            // Download file
+            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `danh_sach_dieu_hoa_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            showNotification('Đã xuất file Excel thành công!', 'success');
+        }
+
+        function printTable() {
+            const printWindow = window.open('', '_blank');
+            const printContent = `
+                <html>
+                <head>
+                    <title>Danh Sách Điều Hòa</title>
+                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+                    <style>
+                        body { font-family: Arial, sans-serif; }
+                        .header { text-align: center; margin-bottom: 30px; }
+                        .table { font-size: 12px; }
+                        .status-excellent { background: #d4edda; color: #155724; }
+                        .status-good { background: #d4edda; color: #155724; }
+                        .status-maintenance { background: #fff3cd; color: #856404; }
+                        .status-repair { background: #f8d7da; color: #721c24; }
+                        .status-broken { background: #f8d7da; color: #721c24; }
+                        @media print {
+                            .no-print { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container-fluid">
+                        <div class="header">
+                            <h2>DANH SÁCH ĐIỀU HÒA CÔNG TY</h2>
+                            <p>Ngày in: ${new Date().toLocaleDateString('vi-VN')}</p>
+                        </div>
+                        <table class="table table-bordered table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Mã ĐH</th>
+                                    <th>Vị Trí</th>
+                                    <th>Loại</th>
+                                    <th>Hãng</th>
+                                    <th>Công Suất</th>
+                                    <th>Trạng Thái</th>
+                                    <th>Bảo Dưỡng Cuối</th>
+                                    <th>Bảo Dưỡng Tiếp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${filteredAirConditioners.map((ac, index) => `
+                                    <tr>
+                                        <td>${index + 1}</td>
+                                        <td><strong>${ac.code}</strong></td>
+                                        <td>${ac.area} - ${ac.location}</td>
+                                        <td>${getTypeText(ac.type)}</td>
+                                        <td>${ac.brand || 'Chưa có'}</td>
+                                        <td>${ac.capacity ? ac.capacity.toLocaleString() + ' BTU' : '-'}</td>
+                                        <td><span class="status-${ac.status} px-2 py-1 rounded">${getStatusText(ac.status)}</span></td>
+                                        <td>${new Date(ac.lastMaintenance).toLocaleDateString('vi-VN')}</td>
+                                        <td>${new Date(ac.nextMaintenance).toLocaleDateString('vi-VN')}</td>
+                                    </tr>
+                                    ${ac.notes ? `
+                                        <tr>
+                                            <td colspan="9" class="text-muted" style="font-size: 11px;">
+                                                <em>Ghi chú: ${ac.notes}</em>
+                                            </td>
+                                        </tr>
+                                    ` : ''}
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <div class="mt-4">
+                            <p><strong>Tổng số điều hòa:</strong> ${filteredAirConditioners.length}</p>
+                            <p><strong>Người lập:</strong> _________________ &nbsp;&nbsp;&nbsp; <strong>Ngày:</strong> _________________</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.focus();
+            
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 250);
+        }
+
+        // Search on Enter key
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                applyFilter();
+            }
+        });
+    </script>
+</body>
+</html>

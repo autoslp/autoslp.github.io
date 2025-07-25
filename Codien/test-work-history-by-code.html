@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Work History by AC Code</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .debug-panel {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin: 20px 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Test Work History by AC Code</h2>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Test Work History Loading</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="acCodeInput" class="form-label">Mã điều hòa:</label>
+                            <input type="text" class="form-control" id="acCodeInput" value="AC-002" placeholder="Nhập mã điều hòa">
+                        </div>
+                        <button class="btn btn-primary" onclick="testWorkHistory()">Test Work History</button>
+                        <button class="btn btn-secondary" onclick="testAllWorkHistory()">Get All Work History</button>
+                        <button class="btn btn-success" onclick="clearLogs()">Clear Logs</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Debug Logs</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="debugPanel" class="debug-panel">
+                            Debug logs will appear here...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Work History Results</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="workHistoryResults">
+                            Work history results will appear here...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="smart-ac-api.js"></script>
+    <script>
+        // Override console.log to display in debug panel
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const debugPanel = document.getElementById('debugPanel');
+            if (debugPanel) {
+                const logMessage = args.map(arg => 
+                    typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+                ).join(' ');
+                debugPanel.innerHTML += new Date().toLocaleTimeString() + ': ' + logMessage + '\n';
+                debugPanel.scrollTop = debugPanel.scrollHeight;
+            }
+        };
+        
+        function clearLogs() {
+            document.getElementById('debugPanel').innerHTML = 'Debug cleared...\n';
+            document.getElementById('workHistoryResults').innerHTML = 'Work history results will appear here...';
+        }
+        
+        async function testWorkHistory() {
+            const acCode = document.getElementById('acCodeInput').value;
+            
+            if (!acCode) {
+                console.log('ERROR: No AC code provided');
+                return;
+            }
+            
+            try {
+                console.log('=== TESTING WORK HISTORY FOR AC CODE ===');
+                console.log('AC Code:', acCode);
+                
+                // First get AC data to get ID
+                const acList = await window.SmartACAPI.getAirConditioners();
+                const foundAC = acList.find(ac => {
+                    const code = ac.code || ac.ma_dieu_hoa;
+                    return code === acCode;
+                });
+                
+                if (!foundAC) {
+                    console.error('AC not found with code:', acCode);
+                    return;
+                }
+                
+                console.log('Found AC:', foundAC);
+                
+                // Test work history with both ID and code
+                console.log('Getting work history with ID only...');
+                const historyById = await window.SmartACAPI.getWorkHistory(foundAC.id);
+                console.log('Work history by ID:', historyById);
+                
+                console.log('Getting work history with code only...');
+                const historyByCode = await window.SmartACAPI.getWorkHistory(null, acCode);
+                console.log('Work history by code:', historyByCode);
+                
+                console.log('Getting work history with both ID and code...');
+                const historyByBoth = await window.SmartACAPI.getWorkHistory(foundAC.id, acCode);
+                console.log('Work history by both:', historyByBoth);
+                
+                // Display results
+                const resultsDiv = document.getElementById('workHistoryResults');
+                resultsDiv.innerHTML = `
+                    <h6>Work History by ID (${foundAC.id}):</h6>
+                    <pre>${JSON.stringify(historyById, null, 2)}</pre>
+                    
+                    <h6>Work History by Code (${acCode}):</h6>
+                    <pre>${JSON.stringify(historyByCode, null, 2)}</pre>
+                    
+                    <h6>Work History by Both:</h6>
+                    <pre>${JSON.stringify(historyByBoth, null, 2)}</pre>
+                `;
+                
+            } catch (error) {
+                console.error('Test Error:', error);
+            }
+        }
+        
+        async function testAllWorkHistory() {
+            try {
+                console.log('=== GETTING ALL WORK HISTORY ===');
+                
+                const allHistory = await window.SmartACAPI.getWorkHistory();
+                console.log('All work history:', allHistory);
+                
+                // Display results
+                const resultsDiv = document.getElementById('workHistoryResults');
+                resultsDiv.innerHTML = `
+                    <h6>All Work History (${allHistory.length} records):</h6>
+                    <pre>${JSON.stringify(allHistory, null, 2)}</pre>
+                `;
+                
+                // Group by AC code
+                const groupedByCode = {};
+                allHistory.forEach(work => {
+                    const acCode = work.ac_code || work.code || 'unknown';
+                    if (!groupedByCode[acCode]) {
+                        groupedByCode[acCode] = [];
+                    }
+                    groupedByCode[acCode].push(work);
+                });
+                
+                console.log('Work history grouped by AC code:', groupedByCode);
+                
+            } catch (error) {
+                console.error('Test All Error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

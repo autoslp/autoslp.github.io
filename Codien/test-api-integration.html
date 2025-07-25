@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Integration - Smart AC Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.loading { background: #d1ecf1; color: #0c5460; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+            max-height: 300px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test API Integration - Smart AC Management</h1>
+        <p>Kiểm tra kết nối và chức năng API của hệ thống quản lý điều hòa</p>
+
+        <!-- Test API Connection -->
+        <div class="test-section">
+            <h3>1. Test Kết Nối API</h3>
+            <button onclick="testAPIConnection()">Test Kết Nối</button>
+            <div id="connection-status" class="status loading">Chưa test</div>
+            <pre id="connection-result"></pre>
+        </div>
+
+        <!-- Test Get Air Conditioners -->
+        <div class="test-section">
+            <h3>2. Test Lấy Danh Sách Điều Hòa</h3>
+            <button onclick="testGetAirConditioners()">Lấy Danh Sách AC</button>
+            <div id="ac-status" class="status loading">Chưa test</div>
+            <pre id="ac-result"></pre>
+        </div>
+
+        <!-- Test Get Contractors -->
+        <div class="test-section">
+            <h3>3. Test Lấy Danh Sách Nhà Thầu</h3>
+            <button onclick="testGetContractors()">Lấy Danh Sách Contractors</button>
+            <div id="contractor-status" class="status loading">Chưa test</div>
+            <pre id="contractor-result"></pre>
+        </div>
+
+        <!-- Test Get Work History -->
+        <div class="test-section">
+            <h3>4. Test Lấy Lịch Sử Công Việc</h3>
+            <button onclick="testGetWorkHistory()">Lấy Work History</button>
+            <div id="work-status" class="status loading">Chưa test</div>
+            <pre id="work-result"></pre>
+        </div>
+
+        <!-- Test Save Work History -->
+        <div class="test-section">
+            <h3>5. Test Lưu Công Việc Mới</h3>
+            <button onclick="testSaveWorkHistory()">Thêm Work Entry</button>
+            <div id="save-status" class="status loading">Chưa test</div>
+            <pre id="save-result"></pre>
+        </div>
+
+        <!-- Test Maintenance -->
+        <div class="test-section">
+            <h3>6. Test Thực Hiện Bảo Dưỡng</h3>
+            <button onclick="testPerformMaintenance()">Thực Hiện Bảo Dưỡng</button>
+            <div id="maintenance-status" class="status loading">Chưa test</div>
+            <pre id="maintenance-result"></pre>
+        </div>
+
+        <!-- Test Statistics -->
+        <div class="test-section">
+            <h3>7. Test Lấy Thống Kê</h3>
+            <button onclick="testGetStatistics()">Lấy Statistics</button>
+            <div id="stats-status" class="status loading">Chưa test</div>
+            <pre id="stats-result"></pre>
+        </div>
+
+        <!-- Run All Tests -->
+        <div class="test-section">
+            <h3>🚀 Chạy Tất Cả Tests</h3>
+            <button onclick="runAllTests()" id="run-all-btn">Chạy Tất Cả Tests</button>
+            <div id="overall-status" class="status loading">Sẵn sàng</div>
+        </div>
+    </div>
+
+    <!-- Load Smart AC API -->
+    <script src="smart-ac-api.js"></script>
+    
+    <script>
+        // Test functions
+        async function testAPIConnection() {
+            const statusDiv = document.getElementById('connection-status');
+            const resultDiv = document.getElementById('connection-result');
+            
+            statusDiv.className = 'status loading';
+            statusDiv.textContent = 'Đang test...';
+            
+            try {
+                // Test basic API availability
+                const response = await fetch(window.SmartACAPI.API_BASE_URL + '/air_conditioners', {
+                    method: 'HEAD',
+                    mode: 'cors'
+                });
+                
+                if (response.ok) {
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = '✅ Kết nối thành công';
+                    resultDiv.textContent = `API Base URL: ${window.SmartACAPI.API_BASE_URL}\nStatus: ${response.status} ${response.statusText}`;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ Kết nối thất bại';
+                resultDiv.textContent = `Error: ${error.message}\nCheck if API server is running and CORS is configured properly.`;
+            }
+        }
+
+        async function testGetAirConditioners() {
+            const statusDiv = document.getElementById('ac-status');
+            const resultDiv = document.getElementById('ac-result');
+            
+            statusDiv.className = 'status loading';
+            statusDiv.textContent = 'Đang lấy dữ liệu...';
+            
+            try {
+                const airConditioners = await window.SmartACAPI.getAirConditioners();
+                
+                statusDiv.className = 'status success';
+                statusDiv.textContent = `✅ Lấy ${airConditioners.length} điều hòa`;
+                resultDiv.textContent = JSON.stringify(airConditioners, null, 2);
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ Lỗi lấy dữ liệu';
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function testGetContractors() {
+            const statusDiv = document.getElementById('contractor-status');
+            const resultDiv = document.getElementById('contractor-result');
+            
+            statusDiv.className = 'status loading';
+            statusDiv.textContent = 'Đang lấy dữ liệu...';
+            
+            try {
+                const contractors = await window.SmartACAPI.getContractors();
+                
+                statusDiv.className = 'status success';
+                statusDiv.textContent = `✅ Lấy ${contractors.length} nhà thầu`;
+                resultDiv.textContent = JSON.stringify(contractors, null, 2);
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ Lỗi lấy dữ liệu';
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function testGetWorkHistory() {
+            const statusDiv = document.getElementById('work-status');
+            const resultDiv = document.getElementById('work-result');
+            
+            statusDiv.className = 'status loading';
+            statusDiv.textContent = 'Đang lấy dữ liệu...';
+            
+            try {
+                const workHistory = await window.SmartACAPI.getWorkHistory();
+                
+                statusDiv.className = 'status success';
+                statusDiv.textContent = `✅ Lấy ${workHistory.length} record`;
+                resultDiv.textContent = JSON.stringify(workHistory.slice(0, 3), null, 2) + '\n... (showing first 3 records)';
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ Lỗi lấy dữ liệu';
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function testSaveWorkHistory() {
+            const statusDiv = document.getElementById('save-status');
+            const resultDiv = document.getElementById('save-result');
+            
+            statusDiv.className = 'status loading';
+            statusDiv.textContent = 'Đang lưu dữ liệu test...';
+            
+            try {
+                const testWorkData = {
+                    ac_id: 1,
+                    contractor_id: 1,
+                    work_date: new Date().toISOString().split('T')[0],
+                    type: 'inspection',
+                    description: 'Test inspection từ API integration test',
+                    worker_name: 'Test Worker',
+                    cost: 100000,
+                    warranty: '1 tháng',
+                    status: 'completed',
+                    notes: 'Đây là test data từ API integration',
+                    documents: JSON.stringify([]),
+                    images_before: JSON.stringify([]),
+                    images_during: JSON.stringify([]),
+                    images_after: JSON.stringify([])
+                };
+                
+                const result = await window.SmartACAPI.saveWorkHistory(testWorkData);
+                
+                statusDiv.className = 'status success';
+                statusDiv.textContent = '✅ Lưu thành công';
+                resultDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ Lỗi lưu dữ liệu';
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function testPerformMaintenance() {
+            const statusDiv = document.getElementById('maintenance-status');
+            const resultDiv = document.getElementById('maintenance-result');
+            
+            statusDiv.className = 'status loading';
+            statusDiv.textContent = 'Đang thực hiện bảo dưỡng test...';
+            
+            try {
+                const testACData = {
+                    air_conditioner: { id: 1, code: 'AC-001' },
+                    description: 'Test maintenance từ API integration',
+                    worker_name: 'Test Maintenance Worker',
+                    notes: 'Bảo dưỡng test từ integration'
+                };
+                
+                const result = await window.SmartACAPI.performMaintenance(testACData);
+                
+                statusDiv.className = 'status success';
+                statusDiv.textContent = '✅ Bảo dưỡng thành công';
+                resultDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ Lỗi bảo dưỡng';
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function testGetStatistics() {
+            const statusDiv = document.getElementById('stats-status');
+            const resultDiv = document.getElementById('stats-result');
+            
+            statusDiv.className = 'status loading';
+            statusDiv.textContent = 'Đang lấy thống kê...';
+            
+            try {
+                const statistics = await window.SmartACAPI.getStatistics();
+                
+                statusDiv.className = 'status success';
+                statusDiv.textContent = '✅ Lấy thống kê thành công';
+                resultDiv.textContent = JSON.stringify(statistics, null, 2);
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ Lỗi lấy thống kê';
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function runAllTests() {
+            const runAllBtn = document.getElementById('run-all-btn');
+            const overallStatus = document.getElementById('overall-status');
+            
+            runAllBtn.disabled = true;
+            runAllBtn.textContent = 'Đang chạy...';
+            overallStatus.className = 'status loading';
+            overallStatus.textContent = 'Đang chạy tất cả tests...';
+            
+            const tests = [
+                testAPIConnection,
+                testGetAirConditioners,
+                testGetContractors,
+                testGetWorkHistory,
+                testSaveWorkHistory,
+                testPerformMaintenance,
+                testGetStatistics
+            ];
+            
+            let successCount = 0;
+            let totalCount = tests.length;
+            
+            for (const test of tests) {
+                try {
+                    await test();
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s between tests
+                    successCount++;
+                } catch (error) {
+                    console.error('Test failed:', error);
+                }
+            }
+            
+            runAllBtn.disabled = false;
+            runAllBtn.textContent = 'Chạy Tất Cả Tests';
+            
+            if (successCount === totalCount) {
+                overallStatus.className = 'status success';
+                overallStatus.textContent = `✅ Tất cả ${totalCount} tests PASSED`;
+            } else {
+                overallStatus.className = 'status error';
+                overallStatus.textContent = `❌ ${successCount}/${totalCount} tests PASSED`;
+            }
+        }
+
+        // Auto test API connection on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('API Test Page Loaded');
+            console.log('Smart AC API:', window.SmartACAPI);
+            
+            setTimeout(() => {
+                testAPIConnection();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

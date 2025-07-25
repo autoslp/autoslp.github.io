@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Contractor Loading</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Test Contractor Loading</h2>
+        
+        <div class="mb-3">
+            <label for="contractorSelect" class="form-label">Chọn nhà thầu thi công</label>
+            <select class="form-select" id="contractorSelect" onchange="selectContractor(this.value)">
+                <option value="">-- Chọn nhà thầu --</option>
+            </select>
+        </div>
+        
+        <div id="selectedContractorInfo" class="mt-3" style="display: none;">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Thông tin nhà thầu được chọn</h6>
+                    <div id="contractorDetails">
+                        <!-- Contractor details will be displayed here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="debug" class="mt-4">
+            <h4>Debug Info</h4>
+            <pre id="debugOutput" style="background: #f5f5f5; padding: 10px; border-radius: 5px; font-size: 12px;"></pre>
+        </div>
+    </div>
+
+    <script src="smart-ac-api.js"></script>
+    <script>
+        let contractors = [];
+        let selectedContractor = null;
+        
+        function log(message) {
+            const debug = document.getElementById('debugOutput');
+            debug.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+            console.log(message);
+        }
+        
+        // Initialize contractor selection
+        async function initializeContractorSelection() {
+            try {
+                log('Loading contractors from API...');
+                
+                // Check if API is available
+                if (typeof window.SmartACAPI === 'undefined') {
+                    log('SmartACAPI not found, using fallback data');
+                    contractors = getFallbackContractors();
+                } else {
+                    // Load contractors from API
+                    contractors = await window.SmartACAPI.getContractors(true);
+                    log('Contractors loaded from API: ' + JSON.stringify(contractors, null, 2));
+                }
+                
+                // If API fails or returns empty, use fallback data
+                if (!contractors || contractors.length === 0) {
+                    log('No contractors from API, using fallback data');
+                    contractors = getFallbackContractors();
+                }
+                
+                const select = document.getElementById('contractorSelect');
+                
+                if (!select) {
+                    log('ERROR: Cannot find contractorSelect element');
+                    return;
+                }
+                
+                // Clear existing options except first one
+                while (select.children.length > 1) {
+                    select.removeChild(select.lastChild);
+                }
+                
+                // Populate dropdown with contractors
+                contractors.forEach(contractor => {
+                    const option = document.createElement('option');
+                    option.value = contractor.id;
+                    option.textContent = `${contractor.name} - ${contractor.rating || 4.5}⭐ (${contractor.experience || 'N/A'})`;
+                    select.appendChild(option);
+                });
+                
+                log(`SUCCESS: Added ${contractors.length} contractors to dropdown`);
+                
+            } catch (error) {
+                log('ERROR loading contractors: ' + error.message);
+                
+                // Use fallback contractors
+                contractors = getFallbackContractors();
+                
+                const select = document.getElementById('contractorSelect');
+                if (select) {
+                    contractors.forEach(contractor => {
+                        const option = document.createElement('option');
+                        option.value = contractor.id;
+                        option.textContent = `${contractor.name} - ${contractor.rating}⭐`;
+                        select.appendChild(option);
+                    });
+                    log(`Fallback: Added ${contractors.length} contractors to dropdown`);
+                }
+            }
+        }
+        
+        function getFallbackContractors() {
+            return [
+                {
+                    id: 1,
+                    name: "Công ty TNHH Điều Hòa Miền Nam",
+                    phone: "0909.123.456",
+                    license: "GP-2024-001",
+                    address: "123 Nguyễn Văn Cừ, Q.5, TP.HCM",
+                    rating: 4.8,
+                    specialties: ["Daikin", "Mitsubishi", "LG"],
+                    experience: "10+ năm"
+                },
+                {
+                    id: 2,
+                    name: "Dịch vụ kỹ thuật ABC",
+                    phone: "0912.345.678",
+                    license: "GP-2024-002", 
+                    address: "456 Lê Văn Việt, Q.9, TP.HCM",
+                    rating: 4.5,
+                    specialties: ["Panasonic", "Samsung", "Toshiba"],
+                    experience: "8+ năm"
+                },
+                {
+                    id: 3,
+                    name: "Trung tâm bảo hành Daikin",
+                    phone: "1800.1234",
+                    license: "GP-2024-003",
+                    address: "789 Điện Biên Phủ, Q.3, TP.HCM",
+                    rating: 5.0,
+                    specialties: ["Daikin", "Tư vấn chuyên sâu"],
+                    experience: "15+ năm"
+                }
+            ];
+        }
+        
+        // Select contractor
+        function selectContractor(contractorId) {
+            log('Selecting contractor: ' + contractorId);
+            
+            const contractorInfo = document.getElementById('selectedContractorInfo');
+            const contractorDetails = document.getElementById('contractorDetails');
+            
+            if (!contractorId) {
+                // No contractor selected
+                contractorInfo.style.display = 'none';
+                selectedContractor = null;
+                log('No contractor selected');
+                return;
+            }
+            
+            // Find and store selected contractor
+            selectedContractor = contractors.find(c => c.id == contractorId);
+            log('Found contractor: ' + JSON.stringify(selectedContractor, null, 2));
+            
+            if (selectedContractor) {
+                // Show contractor info
+                contractorInfo.style.display = 'block';
+                
+                // Display contractor details
+                contractorDetails.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-8">
+                            <strong>${selectedContractor.name}</strong><br>
+                            <i class="bi bi-telephone me-1"></i>${selectedContractor.phone || 'N/A'}<br>
+                            <i class="bi bi-geo-alt me-1"></i>${selectedContractor.address || 'N/A'}
+                        </div>
+                        <div class="col-md-4">
+                            <i class="bi bi-patch-check me-1"></i>GP: ${selectedContractor.license || 'N/A'}<br>
+                            <div class="contractor-rating">
+                                <div class="star-rating">
+                                    ${generateStarRating(selectedContractor.rating || 0)}
+                                </div>
+                                <span class="ms-1">${selectedContractor.rating || 0}/5</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            <i class="bi bi-tools me-1"></i>Chuyên môn: ${Array.isArray(selectedContractor.specialties) ? selectedContractor.specialties.join(', ') : (selectedContractor.specialties || 'N/A')}
+                        </small>
+                    </div>
+                `;
+                
+                log('Contractor details displayed successfully');
+            } else {
+                log('ERROR: Contractor not found with ID: ' + contractorId);
+            }
+        }
+        
+        // Generate star rating HTML
+        function generateStarRating(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 !== 0;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            let html = '';
+            for (let i = 0; i < fullStars; i++) {
+                html += '<i class="bi bi-star-fill"></i>';
+            }
+            if (hasHalfStar) {
+                html += '<i class="bi bi-star-half"></i>';
+            }
+            for (let i = 0; i < emptyStars; i++) {
+                html += '<i class="bi bi-star"></i>';
+            }
+            return html;
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Page loaded, initializing contractor selection...');
+            initializeContractorSelection();
+        });
+    </script>
+</body>
+</html>

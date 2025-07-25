@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Placeholder Images</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .download-area { margin: 20px 0; }
+        canvas { border: 1px solid #ccc; margin: 10px; }
+        button { margin: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Tạo ảnh placeholder cho test</h1>
+    <p>Click các nút bên dưới để tải ảnh placeholder:</p>
+    
+    <div class="download-area">
+        <canvas id="canvas1" width="400" height="300"></canvas>
+        <button onclick="downloadImage('warranty_001.jpg', 'Phiếu bảo hành #001')">Download warranty_001.jpg</button>
+    </div>
+    
+    <div class="download-area">
+        <canvas id="canvas2" width="400" height="300"></canvas>
+        <button onclick="downloadImage('handover_002.jpg', 'Biên bản bàn giao #002')">Download handover_002.jpg</button>
+    </div>
+    
+    <div class="download-area">
+        <canvas id="canvas3" width="400" height="300"></canvas>
+        <button onclick="downloadImage('completion_002.png', 'Ảnh hoàn thành #002')">Download completion_002.png</button>
+    </div>
+    
+    <div class="download-area">
+        <canvas id="canvas4" width="400" height="300"></canvas>
+        <button onclick="downloadImage('warranty_003.jpg', 'Tem bảo hành #003')">Download warranty_003.jpg</button>
+    </div>
+
+    <script>
+        function createPlaceholderImage(canvasId, text, bgColor = '#f0f0f0', textColor = '#333') {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Fill background
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Add border
+            ctx.strokeStyle = '#ccc';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(0, 0, canvas.width, canvas.height);
+            
+            // Add text
+            ctx.fillStyle = textColor;
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Split text into multiple lines if needed
+            const lines = text.split('\n');
+            const lineHeight = 30;
+            const startY = canvas.height / 2 - (lines.length - 1) * lineHeight / 2;
+            
+            lines.forEach((line, index) => {
+                ctx.fillText(line, canvas.width / 2, startY + index * lineHeight);
+            });
+            
+            // Add current date
+            ctx.font = '14px Arial';
+            ctx.fillStyle = '#666';
+            const today = new Date().toLocaleDateString('vi-VN');
+            ctx.fillText(`Ngày: ${today}`, canvas.width / 2, canvas.height - 30);
+        }
+        
+        function downloadImage(filename, text) {
+            const canvasMap = {
+                'warranty_001.jpg': 'canvas1',
+                'handover_002.jpg': 'canvas2', 
+                'completion_002.png': 'canvas3',
+                'warranty_003.jpg': 'canvas4'
+            };
+            
+            const canvasId = canvasMap[filename];
+            const canvas = document.getElementById(canvasId);
+            
+            // Create image
+            createPlaceholderImage(canvasId, text, getBackgroundColor(filename));
+            
+            // Download
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL(filename.endsWith('.png') ? 'image/png' : 'image/jpeg');
+            link.click();
+        }
+        
+        function getBackgroundColor(filename) {
+            if (filename.includes('warranty')) return '#e8f5e8';
+            if (filename.includes('handover')) return '#e8f0ff';
+            if (filename.includes('completion')) return '#fff8e8';
+            return '#f0f0f0';
+        }
+        
+        // Initialize placeholder images
+        window.onload = function() {
+            createPlaceholderImage('canvas1', 'PHIẾU BẢO HÀNH\n#001', '#e8f5e8');
+            createPlaceholderImage('canvas2', 'BIÊN BẢN BÀN GIAO\n#002', '#e8f0ff');
+            createPlaceholderImage('canvas3', 'ẢNH HOÀN THÀNH\n#002', '#fff8e8');
+            createPlaceholderImage('canvas4', 'TEM BẢO HÀNH\n#003', '#e8f5e8');
+        }
+    </script>
+</body>
+</html>

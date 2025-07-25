@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Điều Hòa - Smart AC Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="chitietcongviec.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="baodung-dieuhoa.html">
+                <i class="bi bi-snow2 me-2"></i>
+                Smart AC Manager
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="baodung-dieuhoa.html">
+                            <i class="bi bi-list me-1"></i>Danh Sách
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="home.html">
+                            <i class="bi bi-house-fill me-1"></i>Trang Chủ
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="page-content">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="baodung-dieuhoa.html">
+                                        <i class="bi bi-snow2 me-1"></i>Quản Lý Điều Hòa
+                                    </a>
+                                </li>
+                                <li class="breadcrumb-item active">Chi Tiết Điều Hòa</li>
+                            </ol>
+                        </nav>
+                        <h1 class="display-5 fw-bold mb-3">
+                            <i class="bi bi-snow2 me-3"></i>
+                            <span id="ac-name">Chi Tiết Điều Hòa</span>
+                        </h1>
+                        <p class="lead opacity-90">
+                            Thông tin chi tiết và lịch sử bảo dưỡng
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="text-center">
+                        <div class="ac-icon-main" style="width: 200px; height: 150px; margin: 0 auto; border-radius: 15px; overflow: hidden; box-shadow: var(--shadow-lg); border: 3px solid rgba(255,255,255,0.3);">
+                            <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&h=300&fit=crop&crop=center" 
+                                 alt="Điều hòa" 
+                                 style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container my-5">
+        <div class="row">
+            <!-- Left Panel - Basic Info -->
+            <div class="col-lg-4 mb-4">
+                <div class="smart-card h-100">
+                    <div class="p-4">
+                        <h5 class="text-uppercase fw-bold text-muted mb-4">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Thông Tin Cơ Bản
+                        </h5>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Tên Điều Hòa</div>
+                            <div class="info-value" id="ac-name">Đang tải...</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Loại</div>
+                            <div class="info-value" id="ac-type">-</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Thương Hiệu</div>
+                            <div class="info-value" id="ac-brand">-</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Model</div>
+                            <div class="info-value" id="ac-model">-</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Công Suất</div>
+                            <div class="info-value" id="ac-capacity">-</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Vị Trí</div>
+                            <div class="info-value" id="ac-location">-</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Trạng Thái</div>
+                            <div class="info-value">
+                                <span class="badge" id="ac-status">-</span>
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Bảo Dưỡng Lần Cuối</div>
+                            <div class="info-value" id="ac-last-maintenance">-</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Tình Trạng Bảo Hành</div>
+                            <div class="info-value" id="ac-warranty">-</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Ngày Lắp Đặt</div>
+                            <div class="info-value" id="ac-install-date">-</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Tiêu Thụ Điện</div>
+                            <div class="info-value" id="ac-power">-</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Xếp Hạng Năng Lượng</div>
+                            <div class="info-value" id="ac-energy-rating">-</div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <h6 class="text-uppercase fw-bold text-muted mb-3">
+                            <i class="bi bi-tools me-2"></i>
+                            Hành Động
+                        </h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-maintenance btn-modern" data-bs-toggle="modal" data-bs-target="#maintenanceModal">
+                                <i class="bi bi-tools me-2"></i>Thực Hiện Bảo Dưỡng
+                            </button>
+                            <button class="btn btn-repair btn-modern" data-bs-toggle="modal" data-bs-target="#repairModal">
+                                <i class="bi bi-wrench me-2"></i>Thực Hiện Sửa Chữa
+                            </button>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <a href="baodung-dieuhoa.html" class="btn btn-outline-secondary btn-modern w-100">
+                            <i class="bi bi-arrow-left me-2"></i>Quay về danh sách
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Panel - Work History -->
+            <div class="col-lg-8">
+                <div class="smart-card">
+                    <div class="p-4">
+                        <h5 class="text-uppercase fw-bold text-muted mb-4">
+                            <i class="bi bi-clock-history me-2"></i>
+                            Lịch Sử Công Việc
+                        </h5>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Ngày</th>
+                                        <th>Loại</th>
+                                        <th>Kỹ Thuật Viên</th>
+                                        <th>Chi Tiết</th>
+                                        <th>Trạng Thái</th>
+                                        <th>Chi Phí</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="work-history-tbody">
+                                    <tr>
+                                        <td colspan="6" class="text-center">Đang tải dữ liệu...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Maintenance Modal -->
+    <div class="modal fade" id="maintenanceModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Lên Lịch Bảo Dưỡng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="maintenance-form">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Ngày bảo dưỡng</label>
+                            <input type="date" class="form-control" name="maintenance-date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kỹ thuật viên</label>
+                            <input type="text" class="form-control" name="technician" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Chi tiết công việc</label>
+                            <textarea class="form-control" name="maintenance-details" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Chi phí (VNĐ)</label>
+                            <input type="number" class="form-control" name="maintenance-cost">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary">Lên Lịch</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Repair Modal -->
+    <div class="modal fade" id="repairModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tạo Phiếu Sửa Chữa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="repair-form">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Ngày sửa chữa</label>
+                            <input type="date" class="form-control" name="repair-date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kỹ thuật viên</label>
+                            <input type="text" class="form-control" name="repair-technician" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Chi tiết sự cố</label>
+                            <textarea class="form-control" name="repair-details" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Chi phí (VNĐ)</label>
+                            <input type="number" class="form-control" name="repair-cost">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-danger">Tạo Phiếu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Smart AC API Manager -->
+    <script src="smart-ac-api.js"></script>
+    
+    <script>
+        // Khởi tạo API manager
+        const api = new SmartACAPI();
+        let currentAirConditioner = null;
+
+        // Lấy ID từ URL
+        function getAirConditionerIdFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return parseInt(urlParams.get('id')) || 1;
+        }
+
+        // Tải dữ liệu điều hòa từ API
+        async function loadAirConditionerData() {
+            try {
+                const acId = getAirConditionerIdFromURL();
+                const airConditioners = await api.getAirConditioners();
+                currentAirConditioner = airConditioners.find(ac => ac.id === acId);
+                
+                if (currentAirConditioner) {
+                    displayAirConditionerDetails(currentAirConditioner);
+                    await loadWorkHistory(acId);
+                } else {
+                    document.getElementById('ac-name').textContent = 'Không tìm thấy điều hòa';
+                }
+            } catch (error) {
+                console.error('Lỗi khi tải dữ liệu:', error);
+                showNotification('Lỗi khi tải dữ liệu điều hòa', 'danger');
+            }
+        }
+
+        // Tải lịch sử công việc
+        async function loadWorkHistory(acId) {
+            try {
+                const workHistory = await api.getWorkHistory(acId);
+                displayWorkHistory(workHistory);
+            } catch (error) {
+                console.error('Lỗi khi tải lịch sử:', error);
+                document.getElementById('work-history-tbody').innerHTML = 
+                    '<tr><td colspan="6" class="text-center text-danger">Lỗi khi tải lịch sử công việc</td></tr>';
+            }
+        }
+
+        // Hiển thị thông tin chi tiết
+        function displayAirConditionerDetails(ac) {
+            if (!ac) {
+                document.getElementById('ac-name').textContent = 'Không tìm thấy điều hòa';
+                return;
+            }
+
+            // Thông tin cơ bản
+            document.getElementById('ac-name').textContent = ac.name || ac.ten || 'N/A';
+            document.getElementById('ac-type').textContent = ac.type || ac.loai || 'N/A';
+            document.getElementById('ac-brand').textContent = ac.brand || ac.thuong_hieu || 'N/A';
+            document.getElementById('ac-model').textContent = ac.model || ac.mo_hinh || 'N/A';
+            document.getElementById('ac-capacity').textContent = ac.capacity || ac.cong_suat || 'N/A';
+            document.getElementById('ac-location').textContent = ac.location || ac.vi_tri || 'N/A';
+            document.getElementById('ac-status').textContent = ac.status || ac.trang_thai || 'N/A';
+            document.getElementById('ac-last-maintenance').textContent = ac.lastMaintenance || ac.bao_duong_cuoi || 'N/A';
+            document.getElementById('ac-warranty').textContent = ac.warranty || ac.bao_hanh || 'N/A';
+            document.getElementById('ac-install-date').textContent = ac.installDate || ac.ngay_lap_dat || 'N/A';
+            document.getElementById('ac-power').textContent = ac.powerConsumption || ac.tieu_thu_dien || 'N/A';
+            document.getElementById('ac-energy-rating').textContent = ac.energy_rating || ac.xep_hang_nang_luong || 'N/A';
+
+            // Cập nhật trạng thái
+            const statusElement = document.getElementById('ac-status');
+            statusElement.className = 'badge';
+            const status = ac.status || ac.trang_thai || '';
+            
+            switch(status) {
+                case 'Hoạt động':
+                case 'active':
+                    statusElement.classList.add('bg-success');
+                    break;
+                case 'Cần bảo dưỡng':
+                case 'maintenance_needed':
+                    statusElement.classList.add('bg-warning');
+                    break;
+                case 'Hỏng':
+                case 'broken':
+                    statusElement.classList.add('bg-danger');
+                    break;
+                default:
+                    statusElement.classList.add('bg-secondary');
+            }
+        }
+
+        // Hiển thị lịch sử công việc
+        function displayWorkHistory(workHistory) {
+            const tbody = document.getElementById('work-history-tbody');
+            tbody.innerHTML = '';
+
+            if (!workHistory || workHistory.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">Chưa có lịch sử công việc</td></tr>';
+                return;
+            }
+
+            workHistory.forEach(work => {
+                const row = document.createElement('tr');
+                
+                // Badge cho loại công việc
+                let typeBadge = '';
+                const type = work.type || work.loai_cong_viec || '';
+                switch(type) {
+                    case 'Bảo dưỡng':
+                    case 'maintenance':
+                        typeBadge = '<span class="badge bg-info">Bảo dưỡng</span>';
+                        break;
+                    case 'Sửa chữa':
+                    case 'repair':
+                        typeBadge = '<span class="badge bg-warning">Sửa chữa</span>';
+                        break;
+                    case 'Kiểm tra':
+                    case 'inspection':
+                        typeBadge = '<span class="badge bg-primary">Kiểm tra</span>';
+                        break;
+                    default:
+                        typeBadge = '<span class="badge bg-secondary">' + type + '</span>';
+                }
+
+                // Badge cho trạng thái
+                let statusBadge = '';
+                const status = work.status || work.trang_thai || '';
+                switch(status) {
+                    case 'Hoàn thành':
+                    case 'completed':
+                        statusBadge = '<span class="badge bg-success">Hoàn thành</span>';
+                        break;
+                    case 'Đang xử lý':
+                    case 'in_progress':
+                        statusBadge = '<span class="badge bg-warning">Đang xử lý</span>';
+                        break;
+                    case 'Cần xử lý':
+                    case 'pending':
+                        statusBadge = '<span class="badge bg-danger">Cần xử lý</span>';
+                        break;
+                    default:
+                        statusBadge = '<span class="badge bg-secondary">' + status + '</span>';
+                }
+
+                const cost = work.cost || work.chi_phi || 0;
+                const costDisplay = cost ? parseInt(cost).toLocaleString('vi-VN') + ' VNĐ' : '0 VNĐ';
+
+                row.innerHTML = `
+                    <td>${work.date || work.ngay || 'N/A'}</td>
+                    <td>${typeBadge}</td>
+                    <td>${work.technician || work.ky_thuat_vien || 'N/A'}</td>
+                    <td>${work.details || work.chi_tiet || 'N/A'}</td>
+                    <td>${statusBadge}</td>
+                    <td>${costDisplay}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Xử lý form bảo dưỡng
+        function handleMaintenanceForm() {
+            const form = document.getElementById('maintenance-form');
+            
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                try {
+                    const formData = new FormData(form);
+                    const maintenanceData = {
+                        acId: getAirConditionerIdFromURL(),
+                        date: formData.get('maintenance-date'),
+                        technician: formData.get('technician'),
+                        details: formData.get('maintenance-details'),
+                        cost: formData.get('maintenance-cost'),
+                        type: 'maintenance'
+                    };
+
+                    await api.addMaintenance(maintenanceData);
+                    showNotification('Đã lên lịch bảo dưỡng thành công!', 'success');
+                    
+                    // Tải lại lịch sử công việc
+                    await loadWorkHistory(getAirConditionerIdFromURL());
+                    
+                    // Đóng modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('maintenanceModal'));
+                    modal.hide();
+                    
+                    // Reset form
+                    form.reset();
+                } catch (error) {
+                    console.error('Lỗi khi tạo bảo dưỡng:', error);
+                    showNotification('Lỗi khi tạo lịch bảo dưỡng', 'danger');
+                }
+            });
+        }
+
+        // Xử lý form sửa chữa
+        function handleRepairForm() {
+            const form = document.getElementById('repair-form');
+            
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                try {
+                    const formData = new FormData(form);
+                    const repairData = {
+                        acId: getAirConditionerIdFromURL(),
+                        date: formData.get('repair-date'),
+                        technician: formData.get('repair-technician'),
+                        details: formData.get('repair-details'),
+                        cost: formData.get('repair-cost'),
+                        type: 'repair'
+                    };
+
+                    await api.addRepair(repairData);
+                    showNotification('Đã tạo phiếu sửa chữa thành công!', 'success');
+                    
+                    // Tải lại lịch sử công việc
+                    await loadWorkHistory(getAirConditionerIdFromURL());
+                    
+                    // Đóng modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('repairModal'));
+                    modal.hide();
+                    
+                    // Reset form
+                    form.reset();
+                } catch (error) {
+                    console.error('Lỗi khi tạo sửa chữa:', error);
+                    showNotification('Lỗi khi tạo phiếu sửa chữa', 'danger');
+                }
+            });
+        }
+
+        // Khởi tạo khi trang load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAirConditionerData();
+            handleMaintenanceForm();
+            handleRepairForm();
+        });
+
+        // Hàm hiển thị thông báo
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Tự động ẩn sau 3 giây
+            setTimeout(() => {
+                if (notification && notification.parentNode) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

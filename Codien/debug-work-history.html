@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Work History</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .debug-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .json-display {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Debug Work History - AC Database Lookup</h2>
+        
+        <div class="debug-section">
+            <h5>Step 1: Get All Air Conditioners</h5>
+            <button class="btn btn-primary" onclick="debugStep1()">Get All ACs</button>
+            <div id="step1Result" class="json-display mt-3">Click button to get AC data...</div>
+        </div>
+        
+        <div class="debug-section">
+            <h5>Step 2: Get All Work History</h5>
+            <button class="btn btn-secondary" onclick="debugStep2()">Get All Work History</button>
+            <div id="step2Result" class="json-display mt-3">Click button to get work history data...</div>
+        </div>
+        
+        <div class="debug-section">
+            <h5>Step 3: Find AC by Code</h5>
+            <div class="mb-3">
+                <label for="acCodeInput" class="form-label">AC Code:</label>
+                <input type="text" class="form-control" id="acCodeInput" value="AC-002" placeholder="Enter AC code">
+            </div>
+            <button class="btn btn-success" onclick="debugStep3()">Find AC & Filter Work History</button>
+            <div id="step3Result" class="json-display mt-3">Enter AC code and click button...</div>
+        </div>
+        
+        <div class="debug-section">
+            <h5>Step 4: Test API URL endpoints</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <button class="btn btn-info" onclick="testAPIEndpoint('air_conditioners')">Test AC API</button>
+                </div>
+                <div class="col-md-6">
+                    <button class="btn btn-warning" onclick="testAPIEndpoint('work_history')">Test Work History API</button>
+                </div>
+            </div>
+            <div id="step4Result" class="json-display mt-3">Click buttons to test API endpoints...</div>
+        </div>
+    </div>
+
+    <script src="smart-ac-api.js"></script>
+    <script>
+        let allACs = [];
+        let allWorkHistory = [];
+        
+        async function debugStep1() {
+            try {
+                console.log('=== STEP 1: Getting All Air Conditioners ===');
+                allACs = await window.SmartACAPI.getAirConditioners();
+                
+                const result = {
+                    count: allACs.length,
+                    data: allACs,
+                    sampleRecord: allACs.length > 0 ? allACs[0] : null,
+                    fields: allACs.length > 0 ? Object.keys(allACs[0]) : []
+                };
+                
+                document.getElementById('step1Result').textContent = JSON.stringify(result, null, 2);
+                console.log('Step 1 Result:', result);
+                
+            } catch (error) {
+                document.getElementById('step1Result').textContent = 'ERROR: ' + error.message;
+                console.error('Step 1 Error:', error);
+            }
+        }
+        
+        async function debugStep2() {
+            try {
+                console.log('=== STEP 2: Getting All Work History ===');
+                allWorkHistory = await window.SmartACAPI.getAllWorkHistory();
+                
+                const result = {
+                    count: allWorkHistory.length,
+                    data: allWorkHistory,
+                    sampleRecord: allWorkHistory.length > 0 ? allWorkHistory[0] : null,
+                    fields: allWorkHistory.length > 0 ? Object.keys(allWorkHistory[0]) : [],
+                    acIds: allWorkHistory.map(w => w.ac_id || w.air_conditioner_id).filter(id => id)
+                };
+                
+                document.getElementById('step2Result').textContent = JSON.stringify(result, null, 2);
+                console.log('Step 2 Result:', result);
+                
+            } catch (error) {
+                document.getElementById('step2Result').textContent = 'ERROR: ' + error.message;
+                console.error('Step 2 Error:', error);
+            }
+        }
+        
+        async function debugStep3() {
+            try {
+                const acCode = document.getElementById('acCodeInput').value;
+                console.log('=== STEP 3: Find AC and Filter Work History ===');
+                console.log('Looking for AC code:', acCode);
+                
+                // Make sure we have data
+                if (allACs.length === 0) {
+                    allACs = await window.SmartACAPI.getAirConditioners();
+                }
+                if (allWorkHistory.length === 0) {
+                    allWorkHistory = await window.SmartACAPI.getAllWorkHistory();
+                }
+                
+                // Find AC by code
+                const foundAC = allACs.find(ac => {
+                    const code = ac.code || ac.ma_dieu_hoa;
+                    return code === acCode;
+                });
+                
+                console.log('Found AC:', foundAC);
+                
+                if (!foundAC) {
+                    throw new Error(`AC not found with code: ${acCode}. Available codes: ${allACs.map(ac => ac.code || ac.ma_dieu_hoa).join(', ')}`);
+                }
+                
+                // Filter work history by AC ID
+                const filteredWorkHistory = allWorkHistory.filter(work => {
+                    return work.ac_id == foundAC.id || work.air_conditioner_id == foundAC.id;
+                });
+                
+                console.log('Filtered work history:', filteredWorkHistory);
+                
+                const result = {
+                    inputCode: acCode,
+                    foundAC: foundAC,
+                    acId: foundAC.id,
+                    totalWorkHistory: allWorkHistory.length,
+                    filteredWorkHistory: filteredWorkHistory,
+                    filteredCount: filteredWorkHistory.length,
+                    allWorkHistoryAcIds: allWorkHistory.map(w => ({
+                        id: w.id,
+                        ac_id: w.ac_id,
+                        air_conditioner_id: w.air_conditioner_id,
+                        description: w.description || w.work_description
+                    }))
+                };
+                
+                document.getElementById('step3Result').textContent = JSON.stringify(result, null, 2);
+                console.log('Step 3 Result:', result);
+                
+            } catch (error) {
+                document.getElementById('step3Result').textContent = 'ERROR: ' + error.message;
+                console.error('Step 3 Error:', error);
+            }
+        }
+        
+        async function testAPIEndpoint(endpoint) {
+            try {
+                console.log(`=== TESTING API ENDPOINT: ${endpoint} ===`);
+                const url = `${window.SmartACAPI.API_BASE_URL}/${endpoint}`;
+                console.log('Testing URL:', url);
+                
+                const response = await fetch(url);
+                console.log('Response status:', response.status);
+                console.log('Response headers:', [...response.headers.entries()]);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                const result = {
+                    url: url,
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: Object.fromEntries(response.headers.entries()),
+                    dataType: Array.isArray(data) ? 'array' : typeof data,
+                    dataLength: Array.isArray(data) ? data.length : 'N/A',
+                    sampleData: Array.isArray(data) && data.length > 0 ? data[0] : data
+                };
+                
+                document.getElementById('step4Result').textContent = JSON.stringify(result, null, 2);
+                console.log('API Test Result:', result);
+                
+            } catch (error) {
+                document.getElementById('step4Result').textContent = 'ERROR: ' + error.message;
+                console.error('API Test Error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

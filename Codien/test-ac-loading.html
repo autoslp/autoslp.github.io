@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Data Format</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .debug-panel {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin: 20px 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .json-output {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Test API Data Format - AC Loading</h2>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Test URL Parameters</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="acCodeInput" class="form-label">Mã điều hòa:</label>
+                            <input type="text" class="form-control" id="acCodeInput" value="AC-002" placeholder="Nhập mã điều hòa">
+                        </div>
+                        <button class="btn btn-primary" onclick="testLoadAC()">Test Load AC</button>
+                        <button class="btn btn-secondary" onclick="testAPIDirectly()">Test API Directly</button>
+                        <button class="btn btn-success" onclick="clearLogs()">Clear Logs</button>
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5>Current URL</h5>
+                    </div>
+                    <div class="card-body">
+                        <p id="currentUrl"></p>
+                        <button class="btn btn-sm btn-info" onclick="updateURL()">Update URL with AC Code</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Debug Logs</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="debugPanel" class="debug-panel">
+                            Debug logs will appear here...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>API Response Data</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="apiResponse" class="json-output">
+                            API response will appear here...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="smart-ac-api.js"></script>
+    <script>
+        // Override console.log to display in debug panel
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const debugPanel = document.getElementById('debugPanel');
+            if (debugPanel) {
+                const logMessage = args.map(arg => 
+                    typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+                ).join(' ');
+                debugPanel.innerHTML += new Date().toLocaleTimeString() + ': ' + logMessage + '\n';
+                debugPanel.scrollTop = debugPanel.scrollHeight;
+            }
+        };
+        
+        function clearLogs() {
+            document.getElementById('debugPanel').innerHTML = 'Debug cleared...\n';
+            document.getElementById('apiResponse').textContent = 'API response will appear here...';
+        }
+        
+        function updateURL() {
+            const acCode = document.getElementById('acCodeInput').value;
+            const newUrl = window.location.pathname + '?ma_dieu_hoa=' + acCode;
+            window.history.pushState({}, '', newUrl);
+            document.getElementById('currentUrl').textContent = window.location.href;
+        }
+        
+        function getACCodeFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('ma_dieu_hoa');
+        }
+        
+        async function testAPIDirectly() {
+            try {
+                console.log('=== TESTING API DIRECTLY ===');
+                
+                // Test getAirConditioners
+                const acList = await window.SmartACAPI.getAirConditioners();
+                console.log('Raw API Response - Air Conditioners:', acList);
+                
+                document.getElementById('apiResponse').textContent = JSON.stringify(acList, null, 2);
+                
+                // Check field names
+                if (acList && acList.length > 0) {
+                    console.log('First AC fields:', Object.keys(acList[0]));
+                    console.log('Sample AC data:', acList[0]);
+                    
+                    acList.forEach((ac, index) => {
+                        console.log(`AC ${index + 1}: ID=${ac.id}, code="${ac.code}", ma_dieu_hoa="${ac.ma_dieu_hoa}"`);
+                    });
+                }
+                
+                // Test contractors
+                const contractors = await window.SmartACAPI.getContractors(true);
+                console.log('Contractors:', contractors);
+                
+            } catch (error) {
+                console.error('API Test Error:', error);
+                document.getElementById('apiResponse').textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        async function testLoadAC() {
+            const acCode = document.getElementById('acCodeInput').value;
+            
+            if (!acCode) {
+                console.log('ERROR: No AC code provided');
+                return;
+            }
+            
+            try {
+                console.log('=== TESTING AC LOADING ===');
+                console.log('Looking for AC with code:', acCode);
+                
+                // Get AC data from API
+                const acList = await window.SmartACAPI.getAirConditioners();
+                console.log('AC List from API:', acList);
+                
+                // Search for AC by code
+                const foundAC = acList.find(ac => {
+                    const acCodeValue = ac.code || ac.ma_dieu_hoa;
+                    console.log('Checking AC:', {id: ac.id, code: ac.code, ma_dieu_hoa: ac.ma_dieu_hoa}, 'Comparing with:', acCode);
+                    return acCodeValue === acCode;
+                });
+                
+                console.log('Found AC:', foundAC);
+                
+                if (!foundAC) {
+                    console.log('Available ACs:', acList.map(ac => ({
+                        id: ac.id,
+                        code: ac.code || ac.ma_dieu_hoa,
+                        original: ac
+                    })));
+                    console.error(`AC not found! Available codes: ${acList.map(ac => ac.code || ac.ma_dieu_hoa).join(', ')}`);
+                    return;
+                }
+
+                // Transform data format
+                const transformedAC = window.SmartACAPI.transformFromAPIFormat(foundAC);
+                console.log('Transformed AC:', transformedAC);
+                
+                // Test work history
+                const workHistory = await window.SmartACAPI.getWorkHistory(transformedAC.id);
+                console.log('Work history:', workHistory);
+                
+                document.getElementById('apiResponse').textContent = JSON.stringify({
+                    raw: foundAC,
+                    transformed: transformedAC,
+                    workHistory: workHistory
+                }, null, 2);
+                
+            } catch (error) {
+                console.error('Load Test Error:', error);
+                document.getElementById('apiResponse').textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('currentUrl').textContent = window.location.href;
+            
+            // Auto-load if URL has AC code
+            const acCode = getACCodeFromURL();
+            if (acCode) {
+                document.getElementById('acCodeInput').value = acCode;
+                console.log('Found AC code in URL:', acCode);
+            }
+        });
+    </script>
+</body>
+</html>

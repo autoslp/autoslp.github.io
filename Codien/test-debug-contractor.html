@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Chi tiết điều hòa với dữ liệu mẫu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .contractor-info {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid #007bff;
+        }
+        .star-rating {
+            display: inline-flex;
+            color: #fbbf24;
+        }
+        .debug-panel {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Test Debug: Contractor Info trong Work History</h2>
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div id="workHistoryContainer">
+                    <!-- Work history will be rendered here -->
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6>Debug Console</h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="debugPanel" class="debug-panel">
+                            Console logs sẽ hiện ở đây...
+                        </div>
+                        <button class="btn btn-sm btn-secondary" onclick="clearDebug()">Clear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="smart-ac-api.js"></script>
+    <script>
+        let contractors = [];
+        let workHistory = [];
+        
+        // Override console.log to display in debug panel
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const debugPanel = document.getElementById('debugPanel');
+            if (debugPanel) {
+                const logMessage = args.map(arg => 
+                    typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+                ).join(' ');
+                debugPanel.innerHTML += new Date().toLocaleTimeString() + ': ' + logMessage + '\n';
+                debugPanel.scrollTop = debugPanel.scrollHeight;
+            }
+        };
+        
+        function clearDebug() {
+            document.getElementById('debugPanel').innerHTML = 'Debug cleared...\n';
+        }
+        
+        // Mock contractors data (giống y chang trong chitietdieuhoa.html)
+        contractors = [
+            {
+                id: 1,
+                name: "Công ty TNHH Điều Hòa Miền Nam",
+                phone: "0909.123.456",
+                license: "GP-2024-001",
+                address: "123 Nguyễn Văn Cừ, Q.5, TP.HCM",
+                rating: 4.8,
+                specialties: ["Daikin", "Mitsubishi", "LG"],
+                experience: "10+ năm"
+            },
+            {
+                id: 2,
+                name: "Dịch vụ kỹ thuật ABC",
+                phone: "0912.345.678",
+                license: "GP-2024-002", 
+                address: "456 Lê Văn Việt, Q.9, TP.HCM",
+                rating: 4.5,
+                specialties: ["Panasonic", "Samsung", "Toshiba"],
+                experience: "8+ năm"
+            },
+            {
+                id: 3,
+                name: "Trung tâm bảo hành Daikin",
+                phone: "1800.1234",
+                license: "GP-2024-003",
+                address: "789 Điện Biên Phủ, Q.3, TP.HCM",
+                rating: 5.0,
+                specialties: ["Daikin", "Tư vấn chuyên sâu"],
+                experience: "15+ năm"
+            }
+        ];
+
+        // Mock work history data (với contractor_id)
+        workHistory = [
+            {
+                id: 1,
+                contractor_id: 1, // Should match contractor with id: 1
+                work_date: "2024-12-01",
+                type: "maintenance",
+                description: "Bảo dưỡng định kỳ 6 tháng: Vệ sinh filter, kiểm tra gas, làm sạch dàn nóng",
+                worker_name: "Nguyễn Văn AAAA",
+                cost: 850000,
+                warranty: "6 tháng",
+                status: "completed",
+                notes: "Hoàn thành tốt, gas đầy đủ, filter được thay mới"
+            },
+            {
+                id: 2,
+                contractor_id: 999, // Should NOT match any contractor (test case)
+                work_date: "2024-11-15",
+                type: "repair",
+                description: "Sửa chữa lỗi không làm lạnh - Thay thế bo mạch điều khiển",
+                worker_name: "Trần Văn B",
+                cost: 1200000,
+                warranty: "12 tháng",
+                status: "completed",
+                notes: "Thay bo mạch chính, test hoạt động bình thường"
+            },
+            {
+                id: 3,
+                // No contractor_id - test embedded data
+                contractor_name: "Nhà thầu nhúng trong data",
+                contractor_phone: "0888.999.000", 
+                contractor_address: "Địa chỉ nhúng trong entry",
+                contractor_license: "GP-EMBEDDED",
+                contractor_rating: 3.5,
+                work_date: "2024-10-20",
+                type: "inspection",
+                description: "Kiểm tra định kỳ với contractor info nhúng trong entry",
+                worker_name: "Lê Văn C",
+                cost: 300000,
+                warranty: "1 tháng",
+                status: "completed",
+                notes: "Test case với contractor info embedded"
+            }
+        ];
+        
+        // Generate star rating HTML - giống y chang trong chitietdieuhoa.html
+        function generateStarRating(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 !== 0;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            let html = '';
+            for (let i = 0; i < fullStars; i++) {
+                html += '<i class="bi bi-star-fill"></i>';
+            }
+            if (hasHalfStar) {
+                html += '<i class="bi bi-star-half"></i>';
+            }
+            for (let i = 0; i < emptyStars; i++) {
+                html += '<i class="bi bi-star"></i>';
+            }
+            return html;
+        }
+        
+        // createEnhancedTimelineItem - giống y chang logic trong chitietdieuhoa.html  
+        function createEnhancedTimelineItem(entry) {
+            console.log('Processing work entry:', entry);
+            console.log('Available contractors:', contractors);
+            console.log('Looking for contractor_id:', entry.contractor_id);
+            
+            // Transform API data to display format
+            const workDate = entry.work_date || entry.date;
+            const workType = entry.type;
+            const workDescription = entry.description;
+            const workerName = entry.worker_name || entry.worker;
+            const workCost = entry.cost;
+            const workWarranty = entry.warranty;
+            const workStatus = entry.status;
+            const workNotes = entry.notes;
+            
+            // Handle contractor info - Find contractor by ID if available
+            let contractorInfo = '';
+            let contractor = null;
+            
+            // Try to find contractor from ID first
+            if (entry.contractor_id && contractors && contractors.length > 0) {
+                contractor = contractors.find(c => c.id == entry.contractor_id);
+                console.log('Found contractor by ID:', contractor);
+            }
+            
+            // Fallback to embedded contractor data
+            if (!contractor && (entry.contractor || entry.contractor_name)) {
+                contractor = entry.contractor || {
+                    name: entry.contractor_name,
+                    phone: entry.contractor_phone,
+                    address: entry.contractor_address,
+                    license: entry.contractor_license,
+                    rating: entry.contractor_rating
+                };
+                console.log('Using embedded contractor data:', contractor);
+            }
+            
+            // Default contractor if none found
+            if (!contractor && entry.contractor_id) {
+                contractor = {
+                    name: "Nhà thầu không xác định",
+                    phone: "N/A",
+                    address: "N/A",
+                    license: "N/A",
+                    rating: 0
+                };
+                console.log('Using default contractor data:', contractor);
+            }
+            
+            // Force fallback data for testing if no contractor found
+            if (!contractor) {
+                contractor = {
+                    name: "Công ty TNHH Điều Hòa Miền Nam (Fallback)",
+                    phone: "0909.123.456",
+                    address: "123 Nguyễn Văn Cừ, Q.5, TP.HCM", 
+                    license: "GP-2024-001",
+                    rating: 4.8,
+                    specialties: ["Daikin", "Mitsubishi", "LG"]
+                };
+                console.log('Using fallback contractor for testing:', contractor);
+            }
+            
+            if (contractor) {
+                contractorInfo = `
+                    <div class="contractor-info mt-3">
+                        <h6 class="mb-2"><i class="bi bi-building me-2"></i>Nhà thầu thi công:</h6>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <strong>${contractor.name}</strong><br>
+                                <i class="bi bi-telephone me-1"></i>${contractor.phone || 'N/A'}<br>
+                                <i class="bi bi-geo-alt me-1"></i>${contractor.address || 'N/A'}
+                            </div>
+                            <div class="col-md-4">
+                                <i class="bi bi-patch-check me-1"></i>GP: ${contractor.license || 'N/A'}<br>
+                                ${contractor.rating ? `
+                                    <div class="contractor-rating">
+                                        <div class="star-rating">
+                                            ${generateStarRating(contractor.rating)}
+                                        </div>
+                                        <span class="ms-1">${contractor.rating}/5</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                        ${contractor.specialties && Array.isArray(contractor.specialties) ? `
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="bi bi-tools me-1"></i>Chuyên môn: ${contractor.specialties.join(', ')}
+                                </small>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                console.log('Generated contractor info HTML');
+            } else {
+                console.log('NO CONTRACTOR FOUND - this should not happen');
+            }
+
+            return `
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6 class="card-title">${workType.toUpperCase()} - ${new Date(workDate).toLocaleDateString('vi-VN')}</h6>
+                        <p class="card-text">${workDescription}</p>
+                        ${contractorInfo}
+                        <small class="text-muted">Thực hiện bởi: ${workerName}</small>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Display work history
+        function displayWorkHistory() {
+            const container = document.getElementById('workHistoryContainer');
+            console.log('Starting to display work history...');
+            console.log('Work history data:', workHistory);
+            console.log('Contractors data:', contractors);
+            
+            const historyHTML = workHistory
+                .map(entry => createEnhancedTimelineItem(entry))
+                .join('');
+
+            container.innerHTML = historyHTML;
+            console.log('Work history displayed successfully');
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, starting test...');
+            console.log('Contractors loaded:', contractors.length);
+            console.log('Work history loaded:', workHistory.length);
+            displayWorkHistory();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,4158 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Điều Hòa - Smart AC Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a67d8;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --success: #48bb78;
+            --warning: #ed8936;
+            --danger: #f56565;
+            --info: #4299e1;
+            --light: #f7fafc;
+            --dark: #2d3748;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.2);
+            --border-radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navbar Styles */
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--dark) !important;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary) !important;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: var(--gradient-1);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .nav-link:hover::after {
+            width: 80%;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: var(--gradient-1);
+            color: white;
+            padding: 6rem 0 3rem;
+            margin-top: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .page-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Card Styles */
+        .smart-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            border: none;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .smart-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-1);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .smart-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .smart-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .status-excellent { background: rgba(72, 187, 120, 0.2); color: #48bb78; border: 1px solid #48bb78; }
+        .status-good { background: rgba(72, 187, 120, 0.15); color: #38a169; border: 1px solid #38a169; }
+        .status-maintenance { background: rgba(237, 137, 54, 0.2); color: #ed8936; border: 1px solid #ed8936; }
+        .status-repair { background: rgba(245, 101, 101, 0.2); color: #f56565; border: 1px solid #f56565; }
+        .status-broken { background: rgba(229, 62, 62, 0.2); color: #e53e3e; border: 1px solid #e53e3e; }
+
+        /* Info Display */
+        .info-item {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 0;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #6b7280;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-value {
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+
+        /* Work History Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--gradient-1);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.25rem;
+            top: 1.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px var(--primary);
+        }
+
+        .work-type-badge {
+            background: var(--gradient-1);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        .work-date {
+            color: #6b7280;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .work-description {
+            color: var(--dark);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .work-images {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .work-image {
+            width: 120px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .work-image:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .worker-info {
+            color: #6b7280;
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        /* Form Styles */
+        .form-control, .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Button Styles */
+        .btn-modern {
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-modern:hover::before {
+            left: 100%;
+        }
+
+        .btn-maintenance { background: var(--gradient-3); color: white; }
+        .btn-repair { background: var(--gradient-2); color: white; }
+        .btn-primary-custom { background: var(--gradient-1); color: white; }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 2rem;
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: ">";
+            color: #6b7280;
+        }
+
+        .breadcrumb-item a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+        }
+
+        .breadcrumb-item a:hover {
+            color: white;
+        }
+
+        .breadcrumb-item.active {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Error/Loading States */
+        .error-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .error-state i {
+            font-size: 4rem;
+            opacity: 0.3;
+            margin-bottom: 1rem;
+        }
+
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+            height: 20px;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .ac-icon-main {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .ac-tools-icon {
+            animation: rotate 8s linear infinite;
+        }
+
+        /* Work History Tabs */
+        .nav-tabs {
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 2rem;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            border-radius: 8px 8px 0 0;
+            color: #6b7280;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            margin-right: 0.5rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: var(--primary);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--primary);
+            background: white;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .tab-content {
+            min-height: 300px;
+        }
+
+        .work-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Enhanced Timeline Items */
+        .timeline-item-enhanced {
+            position: relative;
+            margin-bottom: 2rem;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .timeline-item-enhanced::before {
+            content: '';
+            position: absolute;
+            left: -2.25rem;
+            top: 2rem;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 4px solid white;
+            box-shadow: 0 0 0 4px var(--primary);
+        }
+
+        /* Timeline Modal Content */
+        .timeline-modal-content {
+            padding: 1.5rem;
+        }
+
+        .timeline-modal-content .timeline-item-enhanced {
+            margin-bottom: 0;
+            box-shadow: none;
+            border: none;
+            padding: 0;
+            background: transparent;
+        }
+
+        .timeline-modal-content .timeline-item-enhanced::before {
+            display: none;
+        }
+
+        .timeline-modal-content .timeline-item-enhanced:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .work-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .work-title {
+            flex: 1;
+        }
+
+        .work-cost {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .contractor-info {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .document-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .document-tag {
+            background: var(--gradient-1);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .document-tag {
+            background: var(--gradient-1);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Document Selection */
+        .document-selection {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .document-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .document-item:hover {
+            background: #f8fafc;
+            border-color: var(--primary);
+        }
+
+        .document-item.selected {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: var(--primary);
+        }
+
+        .document-checkbox {
+            margin-right: 0.75rem;
+        }
+
+        .document-upload {
+            display: none;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: #f8fafc;
+            border-radius: 6px;
+        }
+
+        .document-upload.show {
+            display: block;
+        }
+
+        /* Work History Table View */
+        .work-history-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+        }
+
+        .work-history-table table {
+            width: 100%;
+            margin: 0;
+            border-collapse: collapse;
+        }
+
+        .work-history-table th {
+            background: #f8fafc;
+            color: #374151;
+            font-weight: 600;
+            padding: 1rem 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .work-history-table td {
+            padding: 1rem 0.75rem;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: top;
+        }
+
+        .work-history-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .work-history-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table-work-type {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+            margin-bottom: 0.25rem;
+        }
+
+        .table-work-type.maintenance {
+            background: rgba(34, 197, 94, 0.15);
+            color: #16a34a;
+        }
+
+        .table-work-type.repair {
+            background: rgba(239, 68, 68, 0.15);
+            color: #dc2626;
+        }
+
+        .table-work-type.replacement {
+            background: rgba(239, 68, 68, 0.15);
+            color: #dc2626;
+        }
+
+        .table-work-type.inspection {
+            background: rgba(59, 130, 246, 0.15);
+            color: #2563eb;
+        }
+
+        .table-work-type.cleaning {
+            background: rgba(168, 85, 247, 0.15);
+            color: #7c3aed;
+        }
+
+        .table-work-type.installation {
+            background: rgba(245, 158, 11, 0.15);
+            color: #d97706;
+        }
+
+        .table-work-status {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .table-work-status.status-completed {
+            background: rgba(34, 197, 94, 0.15);
+            color: #16a34a;
+        }
+
+        .table-work-status.status-in-progress {
+            background: rgba(245, 158, 11, 0.15);
+            color: #d97706;
+        }
+
+        .table-work-status.status-pending {
+            background: rgba(156, 163, 175, 0.15);
+            color: #6b7280;
+        }
+
+        .table-work-status.status-cancelled {
+            background: rgba(239, 68, 68, 0.15);
+            color: #dc2626;
+        }
+
+        .table-work-cost {
+            font-weight: 600;
+            color: var(--primary);
+            text-align: right;
+        }
+
+        .table-work-date {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .table-contractor-info {
+            font-size: 0.85rem;
+        }
+
+        .table-contractor-name {
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .table-documents {
+            font-size: 0.8rem;
+        }
+
+        .table-document-tag {
+            display: inline-block;
+            background: #e0f2fe;
+            color: #0277bd;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin: 0.1rem;
+        }
+
+        .table-images {
+            display: flex;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+        }
+
+        .table-image-thumb {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 1px solid #e2e8f0;
+        }
+
+        .table-image-thumb:hover {
+            border-color: var(--primary);
+        }
+
+        /* View Toggle Buttons */
+        .view-toggle {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 0.25rem;
+            gap: 0.25rem;
+        }
+
+        .view-toggle-btn {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .view-toggle-btn:hover {
+            color: var(--primary);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .view-toggle-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Work Details Modal */
+        .work-details-modal .modal-header {
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .work-details-modal .modal-body {
+            padding: 1.5rem;
+        }
+
+        .work-details-modal .work-images {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .work-details-modal .work-image {
+            width: 80px;
+            height: 60px;
+            border-radius: 6px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+
+        .work-details-modal .work-image:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .contractor-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .contractor-card:hover {
+            background: #f8fafc;
+            border-color: var(--primary);
+        }
+
+        .contractor-card.selected {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: var(--primary);
+        }
+
+        .contractor-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .contractor-details {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .contractor-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin-top: 0.25rem;
+        }
+
+        .star-rating {
+            color: #ffc107;
+        }
+
+        .contractor-select {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .contractor-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+            outline: none;
+        }
+
+        .selected-contractor-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(13, 110, 253, 0.1), rgba(13, 110, 253, 0.05));
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            display: none;
+        }
+
+        .document-dropdown-selection {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .document-select {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .document-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+            outline: none;
+        }
+
+        .document-upload-area {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .document-upload-area:hover {
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Document Selection */
+        .document-selection {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .document-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .document-item:hover {
+            background: #f8fafc;
+            border-color: var(--primary);
+        }
+
+        .document-item.selected {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: var(--primary);
+        }
+
+        .document-checkbox {
+            margin-right: 0.75rem;
+        }
+
+        .document-upload {
+            display: none;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: #f8fafc;
+            border-radius: 6px;
+        }
+
+        .document-upload.show {
+            display: block;
+        }
+
+        .document-gallery {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .document-gallery h6 {
+            color: var(--dark);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary);
+            display: inline-block;
+        }
+
+        .document-category {
+            margin-bottom: 20px;
+        }
+
+        .document-category h6 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .document-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .document-image {
+            width: 120px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .document-image:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .document-image-container {
+            text-align: center;
+        }
+
+        .document-date {
+            display: block;
+            margin-top: 5px;
+            color: #6b7280;
+            font-size: 0.75rem;
+        }
+
+        .document-stats {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+        }
+
+        .document-stats .row {
+            margin: 0;
+        }
+
+        .document-stats .stat-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .document-stats .stat-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            opacity: 0.8;
+        }
+
+        .document-stats .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .document-stats .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+
+        /* Document Images in Work History */
+        .document-images-section {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .document-category-inline {
+            background: white;
+            border-radius: 6px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .document-category-header {
+            color: var(--primary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .document-images-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .document-image-item {
+            position: relative;
+        }
+
+        .document-image-thumb {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 2px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .document-image-thumb:hover {
+            border-color: var(--primary);
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Calendar Styles */
+        .calendar-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .calendar-day-header {
+            background: var(--primary);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .calendar-day {
+            background: white;
+            min-height: 80px;
+            padding: 8px;
+            position: relative;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-day:hover {
+            background: #f8fafc;
+            border-color: var(--primary);
+        }
+
+        .calendar-day.other-month {
+            background: #f8fafc;
+            color: #9ca3af;
+        }
+
+        .calendar-day.today {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: var(--primary);
+        }
+
+        .calendar-day-number {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .calendar-events {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .calendar-event {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-event:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .calendar-event.maintenance {
+            background: #4facfe;
+        }
+
+        .calendar-event.repair {
+            background: #f093fb;
+        }
+
+        .calendar-event.inspection {
+            background: #43e97b;
+        }
+
+        .calendar-event.cleaning {
+            background: #fbbf24;
+        }
+
+        .calendar-event.replacement {
+            background: #f56565;
+        }
+
+        .calendar-legend {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .legend-color.maintenance { background: #4facfe; }
+        .legend-color.repair { background: #f093fb; }
+        .legend-color.inspection { background: #43e97b; }
+        .legend-color.cleaning { background: #fbbf24; }
+        .legend-color.replacement { background: #f56565; }
+        
+        /* Calendar Filter Styles */
+        .dropdown-menu {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border: 1px solid #e2e8f0;
+        }
+
+        .dropdown-item {
+            padding: 8px 16px;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            margin: 2px;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: var(--primary);
+        }
+
+        .dropdown-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .dropdown-item.active:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .dropdown-divider {
+            margin: 4px 0;
+        }
+
+        /* Export Button Styles */
+        .btn-outline-success:hover {
+            background: #48bb78;
+            border-color: #48bb78;
+            color: white;
+        }
+
+        /* Filter Badge */
+        .filter-badge {
+            background: rgba(102, 126, 234, 0.1);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-left: 8px;
+        }
+        
+
+        .star-rating {
+            color: #fbbf24;
+        }
+
+        .work-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-completed { background: rgba(72, 187, 120, 0.2); color: #48bb78; }
+        .status-in-progress { background: rgba(237, 137, 54, 0.2); color: #ed8936; }
+        .status-pending { background: rgba(156, 163, 175, 0.2); color: #6b7280; }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .timeline {
+                padding-left: 1rem;
+            }
+            
+            .timeline::before {
+                left: 0.25rem;
+            }
+            
+            .timeline-item-enhanced::before {
+                left: -1.75rem;
+            }
+
+            .work-images {
+                gap: 0.5rem;
+            }
+
+            .work-image {
+                width: 80px;
+                height: 60px;
+            }
+
+            .work-stats {
+                gap: 0.5rem;
+            }
+
+            .stat-card {
+                min-width: 100px;
+                padding: 0.75rem;
+            }
+
+            /* Table responsive */
+            .work-history-table {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .work-history-table table {
+                min-width: 700px;
+            }
+
+            .work-history-table th,
+            .work-history-table td {
+                padding: 0.5rem 0.25rem;
+                font-size: 0.8rem;
+            }
+
+            .table-image-thumb {
+                width: 25px;
+                height: 25px;
+            }
+
+            .view-toggle {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .view-toggle-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+
+            .view-toggle-btn span {
+                display: none;
+            }
+        }
+
+        /* Timeline Modal Content Styles */
+        .timeline-modal-content {
+            padding: 1.5rem;
+        }
+
+        .timeline-modal-content .timeline-item-enhanced {
+            margin-bottom: 0;
+            box-shadow: none;
+            border: none;
+            padding: 0;
+            background: transparent;
+            border-radius: 0;
+        }
+
+        .timeline-modal-content .timeline-item-enhanced::before {
+            display: none;
+        }
+
+        .timeline-modal-content .timeline-item-enhanced:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .timeline-modal-content .work-header {
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline-modal-content .work-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline-modal-content .contractor-info {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .timeline-modal-content .work-images {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+
+        .timeline-modal-content .work-image {
+            width: 120px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .timeline-modal-content .work-image:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .timeline-modal-content .document-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .timeline-modal-content .document-tag {
+            background: var(--gradient-1);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .timeline-modal-content .document-images-section {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border: 1px solid #e2e8f0;
+        }
+
+        .timeline-modal-content .alert {
+            margin: 1rem 0;
+        }
+
+        .timeline-modal-content .worker-info {
+            background: #f8fafc;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border-left: 4px solid var(--success);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="baodung-dieuhoa.html">
+                <i class="bi bi-snow2 me-2"></i>
+                Smart AC Manager
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="baodung-dieuhoa.html">
+                            <i class="bi bi-list me-1"></i>Danh Sách
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="home.html">
+                            <i class="bi bi-house-fill me-1"></i>Trang Chủ
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="page-content">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="baodung-dieuhoa.html">
+                                        <i class="bi bi-snow2 me-1"></i>Quản Lý Điều Hòa
+                                    </a>
+                                </li>
+                                <li class="breadcrumb-item active" id="breadcrumbTitle">Chi Tiết Điều Hòa</li>
+                            </ol>
+                        </nav>
+                        <h1 class="display-5 fw-bold mb-3" id="pageTitle">
+                            <i class="bi bi-snow2 me-3"></i>
+                            <span id="acCodeTitle">Đang tải...</span>
+                        </h1>
+                        <p class="lead opacity-90" id="pageSubtitle">
+                            Thông tin chi tiết và lịch sử bảo dưỡng
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="text-center">
+                        <div class="ac-icon-main" style="width: 200px; height: 150px; margin: 0 auto; border-radius: 15px; overflow: hidden; box-shadow: var(--shadow-lg); border: 3px solid rgba(255,255,255,0.3);">
+                            <img class="header-ac-image" 
+                                 src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&h=300&fit=crop&crop=center" 
+                                 alt="Điều hòa" 
+                                 style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="mt-3" style="opacity: 0.8;">
+                            <div style="font-size: 1.5rem; color: white;">
+                                <i class="bi bi-tools me-2"></i>
+                                <i class="bi bi-wrench me-2"></i>
+                                <i class="bi bi-gear-fill ac-tools-icon"></i>
+                            </div>
+                            <p class="mt-2 mb-0" style="font-size: 0.9rem; opacity: 0.7;">
+                                Hệ thống bảo dưỡng chuyên nghiệp
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container my-5">
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-5">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Đang tải...</span>
+            </div>
+            <p class="text-muted">Đang tải thông tin điều hòa...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="error-state" style="display: none;">
+            <i class="bi bi-exclamation-triangle"></i>
+            <h4>Không tìm thấy điều hòa</h4>
+            <p>Mã điều hòa không tồn tại hoặc đã bị xóa.</p>
+            <a href="baodung-dieuhoa.html" class="btn btn-primary-custom btn-modern">
+                <i class="bi bi-arrow-left me-2"></i>Quay về danh sách
+            </a>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" style="display: none;">
+            <div class="row">
+                <!-- Left Panel - Basic Info & Actions -->
+                <div class="col-lg-4 mb-4">
+                    <div class="smart-card h-100">
+                        <div class="p-4">
+                            <h5 class="text-uppercase fw-bold text-muted mb-4">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Thông Tin Cơ Bản
+                            </h5>
+                            <div id="basicInfo">
+                                <!-- Dynamic content -->
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <h6 class="text-uppercase fw-bold text-muted mb-3">
+                                <i class="bi bi-tools me-2"></i>
+                                Hành Động
+                            </h6>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-maintenance btn-modern" onclick="performMaintenance()">
+                                    <i class="bi bi-tools me-2"></i>Thực Hiện Bảo Dưỡng
+                                </button>
+                                <button class="btn btn-repair btn-modern" onclick="performRepair()">
+                                    <i class="bi bi-wrench me-2"></i>Thực Hiện Sửa Chữa
+                                </button>
+                                <button class="btn btn-outline-primary btn-modern" onclick="editAirConditioner()">
+                                    <i class="bi bi-pencil me-2"></i>Chỉnh Sửa Thông Tin
+                                </button>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <a href="baodung-dieuhoa.html" class="btn btn-outline-secondary btn-modern w-100">
+                                <i class="bi bi-arrow-left me-2"></i>Quay về danh sách
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Panel - Work Entry & History -->
+                <div class="col-lg-8">
+                    <!-- Add New Work Entry -->
+                    <div class="smart-card mb-4">
+                        <div class="p-4">
+                            <!-- Toggle Button -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="text-uppercase fw-bold text-muted mb-0">
+                                    <i class="bi bi-plus-circle me-2"></i>
+                                    Thêm Ghi Chú Mới
+                                </h5>
+                                <button class="btn btn-primary-custom btn-modern" id="toggleFormBtn" onclick="toggleWorkForm()">
+                                    <i class="bi bi-plus-circle me-2"></i>Thêm Ghi Chú
+                                </button>
+                            </div>
+                            
+                            <!-- Work Form (Hidden by default) -->
+                            <div id="workFormContainer" style="display: none;">
+                                <hr class="my-3">
+                            <form id="workForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Loại công việc</label>
+                                            <select class="form-select" id="workType" required>
+                                                <option value="">Chọn loại công việc</option>
+                                                <option value="maintenance">Bảo dưỡng định kỳ</option>
+                                                <option value="repair">Sửa chữa</option>
+                                                <option value="inspection">Kiểm tra</option>
+                                                <option value="cleaning">Vệ sinh</option>
+                                                <option value="replacement">Thay thế linh kiện</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Ngày thực hiện</label>
+                                            <input type="date" class="form-control" id="workDate" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Mô tả công việc</label>
+                                    <textarea class="form-control" id="workDescription" rows="3" 
+                                        placeholder="Mô tả chi tiết công việc đã thực hiện..." required></textarea>
+                                </div>
+
+                                <!-- Contractor Selection -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-semibold">
+                                        <i class="bi bi-building me-2"></i>Chọn nhà thầu thi công
+                                    </label>
+                                    <select class="form-select" id="contractorSelect" onchange="selectContractor(this.value)">
+                                        <option value="">-- Chọn nhà thầu --</option>
+                                    </select>
+                                    
+                                    <!-- Selected Contractor Info -->
+                                    <div id="selectedContractorInfo" class="mt-3" style="display: none;">
+                                        <div class="contractor-info">
+                                            <h6 class="mb-2"><i class="bi bi-info-circle me-2"></i>Thông tin nhà thầu:</h6>
+                                            <div id="contractorDetails">
+                                                <!-- Dynamic content -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Chi phí (VNĐ)</label>
+                                            <input type="number" class="form-control" id="workCost" 
+                                                placeholder="0" min="0">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Thời gian bảo hành</label>
+                                            <input type="text" class="form-control" id="warranty" 
+                                                placeholder="VD: 6 tháng, 1 năm">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Trạng thái</label>
+                                    <select class="form-select" id="workStatus">
+                                        <option value="completed">Hoàn thành</option>
+                                        <option value="in-progress">Đang thực hiện</option>
+                                        <option value="pending">Chờ xử lý</option>
+                                    </select>
+                                </div>
+
+                                <!-- Document Selection -->
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="form-label fw-semibold mb-0">
+                                            <i class="bi bi-file-earmark-text me-2"></i>Giấy tờ bàn giao
+                                        </label>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="toggleDocumentBtn" onclick="toggleDocumentSelection()">
+                                            <i class="bi bi-chevron-down me-1"></i>Hiện
+                                        </button>
+                                    </div>
+                                    <div class="document-selection" id="documentSelectionContainer" style="display: none;">
+                                        <div id="documentSelection">
+                                            <!-- Dynamic content -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Tải ảnh (có thể chọn nhiều ảnh)</label>
+                                    <input type="file" class="form-control" id="workImages" accept="image/*" multiple>
+                                    <small class="text-muted">Chọn ảnh trước, trong và sau khi thực hiện công việc</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Người thực hiện</label>
+                                    <input type="text" class="form-control" id="workerName" 
+                                        placeholder="Tên người thực hiện" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Ghi chú thêm</label>
+                                    <textarea class="form-control" id="workNotes" rows="2" 
+                                        placeholder="Ghi chú, nhận xét thêm về công việc..."></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary-custom btn-modern">
+                                    <i class="bi bi-plus-circle me-2"></i>Thêm Ghi Chú
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-modern ms-2" onclick="toggleWorkForm()">
+                                    <i class="bi bi-x-circle me-2"></i>Hủy
+                                </button>
+                            </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Work History -->
+                    <div class="smart-card">
+                        <div class="p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="text-uppercase fw-bold text-muted mb-0">
+                                    <i class="bi bi-clock-history me-2"></i>
+                                    Lịch Sử Bảo Dưỡng & Sửa Chữa
+                                </h5>
+                                <div class="d-flex align-items-center gap-3">
+                                    <!-- View Toggle -->
+                                    <div class="view-toggle">
+                                        <button class="view-toggle-btn active" id="timelineViewBtn" onclick="switchHistoryView('timeline')">
+                                            <i class="bi bi-list-ul"></i>
+                                            <span>Timeline</span>
+                                        </button>
+                                        <button class="view-toggle-btn" id="tableViewBtn" onclick="switchHistoryView('table')">
+                                            <i class="bi bi-table"></i>
+                                            <span>Bảng</span>
+                                        </button>
+                                    </div>
+                                    <button class="btn btn-outline-primary btn-sm" onclick="exportHistory()">
+                                        <i class="bi bi-download me-1"></i>Xuất PDF
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Work Statistics -->
+                            <div class="work-stats" id="workStats">
+                                <!-- Dynamic stats -->
+                            </div>
+
+                            <!-- Navigation Tabs -->
+                            <ul class="nav nav-tabs" id="historyTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">
+                                        <i class="bi bi-list-ul me-1"></i>Tất Cả
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="maintenance-tab" data-bs-toggle="tab" data-bs-target="#maintenance" type="button" role="tab">
+                                        <i class="bi bi-tools me-1"></i>Bảo Dưỡng
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="repair-tab" data-bs-toggle="tab" data-bs-target="#repair" type="button" role="tab">
+                                        <i class="bi bi-wrench me-1"></i>Sửa Chữa
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="inspection-tab" data-bs-toggle="tab" data-bs-target="#inspection" type="button" role="tab">
+                                        <i class="bi bi-search me-1"></i>Kiểm Tra
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="other-tab" data-bs-toggle="tab" data-bs-target="#other" type="button" role="tab">
+                                        <i class="bi bi-gear me-1"></i>Khác
+                                    </button>
+                                </li>
+                            </ul>
+
+                            <!-- Tab Content -->
+                            <div class="tab-content" id="historyTabContent">
+                                <div class="tab-pane fade show active" id="all" role="tabpanel">
+                                    <div id="allWorkHistory">
+                                        <!-- Dynamic content -->
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="maintenance" role="tabpanel">
+                                    <div id="maintenanceHistory">
+                                        <!-- Dynamic content -->
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="repair" role="tabpanel">
+                                    <div id="repairHistory">
+                                        <!-- Dynamic content -->
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="inspection" role="tabpanel">
+                                    <div id="inspectionHistory">
+                                        <!-- Dynamic content -->
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="other" role="tabpanel">
+                                    <div id="otherHistory">
+                                        <!-- Dynamic content -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Calendar View -->
+                    <div class="smart-card mt-4">
+                        <div class="p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="text-uppercase fw-bold text-muted mb-0">
+                                    <i class="bi bi-calendar3 me-2"></i>
+                                    Lịch Công Việc
+                                </h5>
+                                <div class="d-flex gap-2">
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown">
+                                            <i class="bi bi-funnel me-1"></i>Lọc
+                                        </button>
+                                        <ul class="dropdown-menu" id="filterMenu">
+                                            <li><a class="dropdown-item active" href="#" onclick="filterCalendar('all')">
+                                                <i class="bi bi-list-ul me-2"></i>Tất cả
+                                            </a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item" href="#" onclick="filterCalendar('maintenance')">
+                                                <i class="bi bi-tools me-2"></i>Bảo dưỡng
+                                            </a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="filterCalendar('repair')">
+                                                <i class="bi bi-wrench me-2"></i>Sửa chữa
+                                            </a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="filterCalendar('inspection')">
+                                                <i class="bi bi-search me-2"></i>Kiểm tra
+                                            </a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="filterCalendar('cleaning')">
+                                                <i class="bi bi-droplet me-2"></i>Vệ sinh
+                                            </a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="filterCalendar('replacement')">
+                                                <i class="bi bi-arrow-repeat me-2"></i>Thay thế
+                                            </a></li>
+                                        </ul>
+                                    </div>
+                                    <button class="btn btn-outline-success btn-sm" onclick="exportCalendar()">
+                                        <i class="bi bi-download me-1"></i>Xuất
+                                    </button>
+                                    <button class="btn btn-outline-primary btn-sm" onclick="goToCurrentMonth()">
+                                        <i class="bi bi-calendar-today me-1"></i>Hôm Nay
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="calendarView">
+                                <!-- Calendar View -->
+                                <div class="calendar-container">
+                                    <div class="calendar-header">
+                                        <button class="btn btn-outline-primary btn-sm" onclick="previousMonth()">
+                                            <i class="bi bi-chevron-left"></i>
+                                        </button>
+                                        <h5 id="currentMonthYear" class="mx-3 mb-0"></h5>
+                                        <button class="btn btn-outline-primary btn-sm" onclick="nextMonth()">
+                                            <i class="bi bi-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                    <div class="calendar-grid" id="calendarGrid">
+                                        <!-- Calendar will be generated here -->
+                                    </div>
+                                    <div class="calendar-legend mt-3">
+                                        <div class="d-flex flex-wrap gap-3">
+                                            <div class="legend-item">
+                                                <span class="legend-color maintenance"></span>
+                                                <small>Bảo dưỡng</small>
+                                            </div>
+                                            <div class="legend-item">
+                                                <span class="legend-color repair"></span>
+                                                <small>Sửa chữa</small>
+                                            </div>
+                                            <div class="legend-item">
+                                                <span class="legend-color inspection"></span>
+                                                <small>Kiểm tra</small>
+                                            </div>
+                                            <div class="legend-item">
+                                                <span class="legend-color cleaning"></span>
+                                                <small>Vệ sinh</small>
+                                            </div>
+                                            <div class="legend-item">
+                                                <span class="legend-color replacement"></span>
+                                                <small>Thay thế</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Document Gallery -->
+                    <div class="smart-card" id="documentGalleryCard" style="display: none;">
+                        <div class="p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="text-uppercase fw-bold text-muted mb-0">
+                                    <i class="bi bi-file-earmark-text me-2"></i>
+                                    Kho Tài Liệu & Giấy Tờ
+                                </h5>
+                                <button class="btn btn-outline-primary btn-sm" onclick="exportDocuments()">
+                                    <i class="bi bi-download me-1"></i>Tải Tất Cả
+                                </button>
+                            </div>
+                            
+                            <!-- Document Statistics -->
+                            <div class="document-stats mb-4" id="documentStats">
+                                <!-- Dynamic stats -->
+                            </div>
+                            
+                            <!-- Document Gallery Content -->
+                            <div class="document-gallery" id="documentGalleryContent">
+                                <!-- Dynamic content -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div class="modal fade" id="imageModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="border-radius: var(--border-radius); border: none;">
+                <div class="modal-header" style="background: var(--gradient-1); color: white; border: none;">
+                    <h5 class="modal-title">Xem Ảnh</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-0">
+                    <img id="previewImage" src="" alt="Preview" style="max-width: 100%; height: auto;">
+                </div>
+                <div class="modal-footer" style="border: none; background: #f8fafc;">
+                    <button type="button" class="btn btn-outline-secondary btn-modern" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Calendar Modal -->
+    <div class="modal fade" id="exportModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content" style="border-radius: var(--border-radius); border: none;">
+                <div class="modal-header" style="background: var(--gradient-1); color: white; border: none;">
+                    <h5 class="modal-title">
+                        <i class="bi bi-download me-2"></i>Xuất Lịch Công Việc
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <h6 class="fw-bold">Chọn định dạng xuất:</h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary d-flex align-items-center justify-content-between" onclick="exportToPDF()">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-file-earmark-pdf me-2"></i>
+                                    <span>Xuất PDF (In ấn)</span>
+                                </div>
+                                <small class="text-muted">Phù hợp để in</small>
+                            </button>
+                            <button class="btn btn-outline-success d-flex align-items-center justify-content-between" onclick="exportToExcel()">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-file-earmark-spreadsheet me-2"></i>
+                                    <span>Xuất Excel (CSV)</span>
+                                </div>
+                                <small class="text-muted">Phù hợp để phân tích</small>
+                            </button>
+                            <button class="btn btn-outline-info d-flex align-items-center justify-content-between" onclick="copyToClipboard()">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-clipboard me-2"></i>
+                                    <span>Sao chép văn bản</span>
+                                </div>
+                                <small class="text-muted">Dán vào email/chat</small>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="exportPreview" class="border rounded p-3" style="background: #f8fafc; max-height: 300px; overflow-y: auto; display: none;">
+                        <h6 class="fw-bold mb-2">Xem trước:</h6>
+                        <div id="previewContent" style="font-size: 0.9rem;"></div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border: none; background: #f8fafc;">
+                    <button type="button" class="btn btn-outline-secondary btn-modern" onclick="togglePreview()">
+                        <i class="bi bi-eye me-1"></i>Xem trước
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-modern" data-bs-dismiss="modal">Hủy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Smart AC API Manager -->
+    <script src="smart-ac-api.js"></script>
+    
+    <script>
+        // Document types database (from API settings)
+        const documentTypes = [
+            {
+                id: 'invoice',
+                name: 'Hóa đơn VAT',
+                icon: 'bi-receipt',
+                required: true,
+                description: 'Hóa đơn giá trị gia tăng'
+            },
+            {
+                id: 'handover',
+                name: 'Biên bản bàn giao',
+                icon: 'bi-file-earmark-text',
+                required: true,
+                description: 'Biên bản nghiệm thu công việc'
+            },
+            {
+                id: 'warranty',
+                name: 'Phiếu bảo hành',
+                icon: 'bi-shield-check',
+                required: false,
+                description: 'Chứng từ bảo hành dịch vụ'
+            },
+            {
+                id: 'certificate',
+                name: 'Giấy chứng nhận',
+                icon: 'bi-patch-check',
+                required: false,
+                description: 'Chứng nhận chất lượng, chính hãng'
+            },
+            {
+                id: 'export',
+                name: 'Phiếu xuất kho',
+                icon: 'bi-box-seam',
+                required: false,
+                description: 'Phiếu xuất linh kiện, vật tư'
+            },
+            {
+                id: 'report',
+                name: 'Báo cáo kỹ thuật',
+                icon: 'bi-graph-up',
+                required: false,
+                description: 'Báo cáo kiểm tra, đánh giá kỹ thuật'
+            }
+        ];
+
+        // Global variables
+        let currentAC = null;
+        let selectedContractor = null;
+        let selectedDocuments = [];
+        let contractors = [];
+        let workHistory = [];
+        let currentHistoryView = 'timeline'; // 'timeline' or 'table'
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Restore view preference from localStorage
+            const savedView = localStorage.getItem('workHistoryView');
+            if (savedView && (savedView === 'timeline' || savedView === 'table')) {
+                currentHistoryView = savedView;
+            }
+            
+            // Set default work date to today
+            document.getElementById('workDate').value = new Date().toISOString().split('T')[0];
+            
+            // IMPORTANT: Load contractors FIRST before loading AC data
+            await initializeContractorSelection();
+            
+            // Load AC data based on URL parameter
+            await loadAirConditionerFromURL();
+            
+            // Setup form submission
+            setupFormSubmission();
+
+            // Initialize document selection
+            initializeDocumentSelection();
+            
+            // Update document gallery and initialize calendar
+            setTimeout(() => {
+                updateDocumentGallery();
+                initializeCalendar();
+                
+                // Update view toggle buttons based on saved preference
+                document.getElementById('timelineViewBtn').classList.toggle('active', currentHistoryView === 'timeline');
+                document.getElementById('tableViewBtn').classList.toggle('active', currentHistoryView === 'table');
+            }, 500);
+        });
+
+        // Initialize contractor selection
+        async function initializeContractorSelection() {
+            try {
+                console.log('Loading contractors from API...');
+                
+                // Load contractors from API
+                contractors = await window.SmartACAPI.getContractors(true);
+                console.log('Contractors loaded:', contractors);
+                
+                const select = document.getElementById('contractorSelect');
+                
+                if (!select) {
+                    console.error('Cannot find contractorSelect element');
+                    return;
+                }
+                
+                // Clear existing options except first one
+                while (select.children.length > 1) {
+                    select.removeChild(select.lastChild);
+                }
+                
+                // Populate dropdown with contractors
+                if (contractors && contractors.length > 0) {
+                    contractors.forEach(contractor => {
+                        const option = document.createElement('option');
+                        option.value = contractor.id;
+                        option.textContent = `${contractor.name} - ${contractor.rating || 4.5}⭐ (${contractor.experience || 'N/A'})`;
+                        select.appendChild(option);
+                    });
+                    
+                    console.log(`Added ${contractors.length} contractors to dropdown`);
+                } else {
+                    console.warn('No contractors available');
+                }
+                
+            } catch (error) {
+                console.error('Error loading contractors:', error);
+                showNotification('Không thể tải danh sách nhà thầu từ API', 'error');
+            }
+        }
+
+        // Initialize document selection
+        function initializeDocumentSelection() {
+            const container = document.getElementById('documentSelection');
+            
+            const documentHTML = documentTypes.map(doc => `
+                <div class="document-item" id="doc-${doc.id}">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <input type="checkbox" class="form-check-input document-checkbox me-3" 
+                                   id="checkbox-${doc.id}" onchange="toggleDocument('${doc.id}')">
+                            <div>
+                                <div class="d-flex align-items-center">
+                                    <i class="${doc.icon} me-2"></i>
+                                    <strong>${doc.name}</strong>
+                                    ${doc.required ? '<span class="text-danger ms-1">*</span>' : ''}
+                                </div>
+                                <small class="text-muted">${doc.description}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="document-upload" id="upload-${doc.id}">
+                        <label class="form-label">Tải ảnh ${doc.name}:</label>
+                        <input type="file" class="form-control form-control-sm" 
+                               accept="image/*" multiple id="file-${doc.id}">
+                        <small class="text-muted">Có thể chọn nhiều ảnh</small>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = documentHTML;
+        }
+
+        // Generate star rating HTML
+        function generateStarRating(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 !== 0;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            let html = '';
+            for (let i = 0; i < fullStars; i++) {
+                html += '<i class="bi bi-star-fill"></i>';
+            }
+            if (hasHalfStar) {
+                html += '<i class="bi bi-star-half"></i>';
+            }
+            for (let i = 0; i < emptyStars; i++) {
+                html += '<i class="bi bi-star"></i>';
+            }
+            return html;
+        }
+
+        // Select contractor
+        function selectContractor(contractorId) {
+            const contractorInfo = document.getElementById('selectedContractorInfo');
+            const contractorDetails = document.getElementById('contractorDetails');
+            
+            if (!contractorId) {
+                // No contractor selected
+                contractorInfo.style.display = 'none';
+                selectedContractor = null;
+                return;
+            }
+            
+            // Find and store selected contractor
+            selectedContractor = contractors.find(c => c.id == contractorId);
+            
+            if (selectedContractor) {
+                // Show contractor info
+                contractorInfo.style.display = 'block';
+                
+                // Display contractor details
+                contractorDetails.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-8">
+                            <strong>${selectedContractor.name}</strong><br>
+                            <i class="bi bi-telephone me-1"></i>${selectedContractor.phone || 'N/A'}<br>
+                            <i class="bi bi-geo-alt me-1"></i>${selectedContractor.address || 'N/A'}
+                        </div>
+                        <div class="col-md-4">
+                            <i class="bi bi-patch-check me-1"></i>GP: ${selectedContractor.license || 'N/A'}<br>
+                            <div class="contractor-rating">
+                                <div class="star-rating">
+                                    ${generateStarRating(selectedContractor.rating || 0)}
+                                </div>
+                                <span class="ms-1">${selectedContractor.rating || 0}/5</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            <i class="bi bi-tools me-1"></i>Chuyên môn: ${Array.isArray(selectedContractor.specialties) ? selectedContractor.specialties.join(', ') : (selectedContractor.specialties || 'N/A')}
+                        </small>
+                    </div>
+                `;
+            }
+        }
+
+        // Toggle document selection
+        function toggleDocument(docId) {
+            const checkbox = document.getElementById(`checkbox-${docId}`);
+            const uploadDiv = document.getElementById(`upload-${docId}`);
+            const documentItem = document.getElementById(`doc-${docId}`);
+            
+            if (checkbox.checked) {
+                uploadDiv.classList.add('show');
+                documentItem.classList.add('selected');
+                if (!selectedDocuments.includes(docId)) {
+                    selectedDocuments.push(docId);
+                }
+            } else {
+                uploadDiv.classList.remove('show');
+                documentItem.classList.remove('selected');
+                selectedDocuments = selectedDocuments.filter(id => id !== docId);
+            }
+        }
+
+        // Toggle document selection container
+        function toggleDocumentSelection() {
+            const container = document.getElementById('documentSelectionContainer');
+            const toggleBtn = document.getElementById('toggleDocumentBtn');
+            
+            if (container.style.display === 'none') {
+                // Show container
+                container.style.display = 'block';
+                toggleBtn.innerHTML = '<i class="bi bi-chevron-up me-1"></i>Ẩn';
+                toggleBtn.classList.remove('btn-outline-secondary');
+                toggleBtn.classList.add('btn-outline-primary');
+            } else {
+                // Hide container
+                container.style.display = 'none';
+                toggleBtn.innerHTML = '<i class="bi bi-chevron-down me-1"></i>Hiện';
+                toggleBtn.classList.remove('btn-outline-primary');
+                toggleBtn.classList.add('btn-outline-secondary');
+            }
+        }
+
+        // Get AC code from URL parameter
+        function getACCodeFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('ma_dieu_hoa');
+        }
+
+        // Load AC data based on URL parameter
+        async function loadAirConditionerFromURL() {
+            const acCode = getACCodeFromURL();
+            
+            if (!acCode) {
+                showError('Không có mã điều hòa trong URL');
+                return;
+            }
+
+            try {
+                console.log('Looking for AC with code:', acCode);
+                
+                // Show loading state
+                document.getElementById('loadingState').style.display = 'block';
+                
+                // Get AC data from API
+                const acList = await window.SmartACAPI.getAirConditioners();
+                console.log('AC List from API:', acList);
+                
+                // Search for AC by code (prioritize 'code' field from database)
+                currentAC = acList.find(ac => {
+                    const acCodeValue = ac.code || ac.ma_dieu_hoa;
+                    console.log('Checking AC:', {id: ac.id, code: ac.code, ma_dieu_hoa: ac.ma_dieu_hoa}, 'Comparing with:', acCode);
+                    return acCodeValue === acCode;
+                });
+                
+                console.log('Found AC:', currentAC);
+                
+                if (!currentAC) {
+                    console.log('Available ACs:', acList.map(ac => ({
+                        id: ac.id,
+                        code: ac.code || ac.ma_dieu_hoa,
+                        original: ac
+                    })));
+                    throw new Error(`Không tìm thấy điều hòa với mã: ${acCode}. Available codes: ${acList.map(ac => ac.code || ac.ma_dieu_hoa).join(', ')}`);
+                }
+
+                // Transform data format if needed
+                currentAC = window.SmartACAPI.transformFromAPIFormat(currentAC);
+                console.log('Transformed AC:', currentAC);
+                
+                // Get work history for this AC using code
+                const workHistoryACCode = currentAC.code || currentAC.ma_dieu_hoa;
+                console.log('Loading work history for AC code:', workHistoryACCode);
+                workHistory = await window.SmartACAPI.getWorkHistory(currentAC.id, workHistoryACCode);
+                currentAC.workHistory = workHistory;
+                console.log('Work history loaded:', workHistory);
+
+                // Display AC data
+                displayAirConditioner(currentAC);
+                
+            } catch (error) {
+                console.error('Error loading AC data:', error);
+                showError(error.message || 'Lỗi khi tải dữ liệu điều hòa');
+            }
+        }
+
+        // Show error state
+        function showError(message) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'none';
+            
+            if (message) {
+                document.querySelector('#errorState p').textContent = message;
+            }
+        }
+
+        // Display air conditioner data
+        function displayAirConditioner(ac) {
+            // Hide loading, show content
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+
+            // Update page title and breadcrumb
+            document.getElementById('acCodeTitle').textContent = `${ac.code} - ${ac.location}`;
+            document.getElementById('breadcrumbTitle').textContent = ac.code;
+            document.title = `Chi Tiết ${ac.code} - Smart AC Management`;
+
+            // Update header image
+            const headerImg = document.querySelector('.header-ac-image');
+            if (headerImg) {
+                headerImg.src = getACImage(ac.type);
+            }
+
+            // Display basic info
+            displayBasicInfo(ac);
+            
+            // Display work history
+            displayWorkHistory(ac.workHistory);
+        }
+
+        // Get AC image based on type
+        function getACImage(type) {
+            const imageMap = {
+                'split': 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&h=300&fit=crop&crop=center',
+                'multi': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&crop=center',
+                'central': 'https://images.unsplash.com/photo-1545259741-2ea3ebf61fa4?w=400&h=300&fit=crop&crop=center',
+                'cassette': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop&crop=center'
+            };
+            return imageMap[type] || imageMap['split'];
+        }
+
+        // Get AC image large version
+        function getACImageLarge(type) {
+            const imageMap = {
+                'split': 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&h=600&fit=crop&crop=center',
+                'multi': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&crop=center',
+                'central': 'https://images.unsplash.com/photo-1545259741-2ea3ebf61fa4?w=800&h=600&fit=crop&crop=center',
+                'cassette': 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop&crop=center'
+            };
+            return imageMap[type] || imageMap['split'];
+        }
+
+        // Display basic information
+        function displayBasicInfo(ac) {
+            const basicInfo = document.getElementById('basicInfo');
+            const acImage = getACImage(ac.type);
+            const acImageLarge = getACImageLarge(ac.type);
+            
+            // Handle different field names from API
+            const code = ac.code || ac.ma_dieu_hoa;
+            const area = ac.area || ac.khu_vuc;
+            const location = ac.location || ac.vi_tri;
+            const type = ac.type || ac.loai;
+            const brand = ac.brand || ac.hang;
+            const capacity = ac.capacity || ac.cong_suat;
+            const status = ac.status || ac.trang_thai;
+            const installDate = ac.installDate || ac.install_date || ac.ngay_lap_dat;
+            const warrantyDate = ac.warrantyDate || ac.warranty_date || ac.ngay_bao_hanh;
+            const lastMaintenance = ac.lastMaintenance || ac.last_maintenance || ac.bao_duong_gan_nhat;
+            const nextMaintenance = ac.nextMaintenance || ac.next_maintenance || ac.bao_duong_tiep_theo;
+            const notes = ac.notes || ac.ghi_chu;
+            
+            basicInfo.innerHTML = `
+                <!-- AC Image -->
+                <div class="text-center mb-4">
+                    <div style="width: 100%; height: 200px; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-md); border: 2px solid #e2e8f0;">
+                        <img src="${acImage}" 
+                             alt="Điều hòa ${code}" 
+                             style="width: 100%; height: 100%; object-fit: cover; cursor: pointer; transition: transform 0.3s ease;"
+                             onclick="previewImage('${acImageLarge}')"
+                             onmouseover="this.style.transform='scale(1.05)'"
+                             onmouseout="this.style.transform='scale(1)'">
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        <i class="bi bi-zoom-in me-1"></i>Click để xem ảnh lớn
+                    </small>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Mã điều hòa</div>
+                    <div class="info-value">${code}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Vị trí</div>
+                    <div class="info-value">${area} - ${location}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Loại & Hãng</div>
+                    <div class="info-value">${getTypeText(type)} - ${brand || 'Chưa có'}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Công suất</div>
+                    <div class="info-value">${capacity ? parseInt(capacity).toLocaleString() + ' BTU' : 'Chưa có'}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Trạng thái</div>
+                    <div class="info-value">
+                        <span class="status-badge status-${status}">${getStatusText(status)}</span>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Ngày lắp đặt</div>
+                    <div class="info-value">${installDate ? formatDate(installDate) : 'Chưa có'}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Bảo hành đến</div>
+                    <div class="info-value">${warrantyDate ? formatDate(warrantyDate) : 'Chưa có'}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Bảo dưỡng cuối</div>
+                    <div class="info-value">${lastMaintenance ? formatDate(lastMaintenance) : 'Chưa có'}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Bảo dưỡng tiếp theo</div>
+                    <div class="info-value">${nextMaintenance ? formatDate(nextMaintenance) : 'Chưa có'}</div>
+                </div>
+                
+                ${notes ? `
+                <div class="info-item">
+                    <div class="info-label">Ghi chú</div>
+                    <div class="info-value">${notes}</div>
+                </div>
+                ` : ''}
+            `;
+        }
+
+        // Display work history with enhanced tabs
+        function displayWorkHistory(history) {
+            console.log('displayWorkHistory called with:', history);
+            console.log('History length:', history ? history.length : 0);
+            
+            if (!history || history.length === 0) {
+                displayEmptyHistory();
+                return;
+            }
+
+            // Calculate and display statistics
+            displayWorkStatistics(history);
+
+            // Display history by categories
+            console.log('Calling displayHistoryByCategory for different categories...');
+            displayHistoryByCategory(history, 'all', 'allWorkHistory');
+            displayHistoryByCategory(history.filter(h => h.type === 'maintenance'), 'maintenance', 'maintenanceHistory');
+            displayHistoryByCategory(history.filter(h => h.type === 'repair' || h.type === 'replacement'), 'repair', 'repairHistory');
+            displayHistoryByCategory(history.filter(h => h.type === 'inspection'), 'inspection', 'inspectionHistory');
+            displayHistoryByCategory(history.filter(h => !['maintenance', 'repair', 'replacement', 'inspection'].includes(h.type)), 'other', 'otherHistory');
+        }
+
+        // Display work statistics
+        function displayWorkStatistics(history) {
+            const stats = {
+                total: history.length,
+                maintenance: history.filter(h => h.type === 'maintenance').length,
+                repair: history.filter(h => h.type === 'repair' || h.type === 'replacement').length,
+                inspection: history.filter(h => h.type === 'inspection').length,
+                totalCost: history.reduce((sum, h) => sum + (parseFloat(h.cost) || 0), 0),
+                avgCost: history.length > 0 ? Math.round(history.reduce((sum, h) => sum + (parseFloat(h.cost) || 0), 0) / history.length) : 0
+            };
+
+            document.getElementById('workStats').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${stats.total}</div>
+                    <div class="stat-label">Tổng số lần</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.maintenance}</div>
+                    <div class="stat-label">Bảo dưỡng</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.repair}</div>
+                    <div class="stat-label">Sửa chữa</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.inspection}</div>
+                    <div class="stat-label">Kiểm tra</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${(stats.totalCost / 1000000).toFixed(1)}M</div>
+                    <div class="stat-label">Tổng chi phí</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${(stats.avgCost / 1000).toFixed(0)}K</div>
+                    <div class="stat-label">TB/lần</div>
+                </div>
+            `;
+        }
+
+        // Switch history view between timeline and table
+        function switchHistoryView(viewType) {
+            currentHistoryView = viewType;
+            
+            // Save preference to localStorage
+            localStorage.setItem('workHistoryView', viewType);
+            
+            // Update toggle buttons
+            document.getElementById('timelineViewBtn').classList.toggle('active', viewType === 'timeline');
+            document.getElementById('tableViewBtn').classList.toggle('active', viewType === 'table');
+            
+            // Re-display current work history with new view
+            if (currentAC && currentAC.workHistory) {
+                displayWorkHistory(currentAC.workHistory);
+            }
+        }
+
+        // Display history by category
+        function displayHistoryByCategory(history, category, containerId) {
+            const container = document.getElementById(containerId);
+            
+            console.log(`displayHistoryByCategory called for category: ${category}, containerId: ${containerId}`);
+            console.log(`Input history length: ${history ? history.length : 0}`, history);
+            
+            if (!history || history.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="bi bi-folder-x" style="font-size: 3rem; opacity: 0.3;"></i>
+                        <h5 class="text-muted mt-3">Chưa có dữ liệu ${getCategoryName(category)}</h5>
+                        <p class="text-muted">Thêm ghi chú ${category !== 'all' ? getCategoryName(category) : ''} bằng form ở trên</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort by date (newest first)
+            const sortedHistory = history.sort((a, b) => {
+                const dateA = new Date(a.work_date || a.date);
+                const dateB = new Date(b.work_date || b.date);
+                return dateB - dateA;
+            });
+
+            console.log(`After sorting - category: ${category}, length: ${sortedHistory.length}`);
+            console.log('Original history:', history);
+            console.log('Sorted history:', sortedHistory);
+
+            if (currentHistoryView === 'table') {
+                console.log(`Creating table for category: ${category} with ${sortedHistory.length} items`);
+                container.innerHTML = createWorkHistoryTable(sortedHistory);
+            } else {
+                // Display as timeline (default)
+                const historyHTML = sortedHistory
+                    .map(entry => createEnhancedTimelineItem(entry))
+                    .join('');
+                container.innerHTML = `<div class="timeline">${historyHTML}</div>`;
+            }
+        }
+
+        // Create work history table
+        function createWorkHistoryTable(history) {
+            if (!history || history.length === 0) {
+                return '<div class="text-center py-4"><p class="text-muted">Không có dữ liệu</p></div>';
+            }
+
+            // Store work data globally for access from detail buttons
+            // IMPORTANT: Store with unique key per container to avoid conflicts
+            const containerId = arguments.callee.caller?.name || 'default';
+            window.workHistoryData = history;
+            console.log(`Storing work history data for ${containerId}:`, history);
+            console.log('Data length:', history.length);
+
+            const tableRows = history.map((entry, index) => {
+                console.log(`Creating row for index ${index}:`, entry);
+                
+                // Transform API data to display format
+                const workDate = entry.work_date || entry.date;
+                const workType = entry.type;
+                const workDescription = entry.description;
+                const workerName = entry.worker_name || entry.worker;
+                const workCost = entry.cost;
+                const workWarranty = entry.warranty;
+                const workStatus = entry.status;
+                const workNotes = entry.notes;
+
+                // Handle contractor info
+                let contractorName = 'N/A';
+                if (entry.contractor_id && contractors && contractors.length > 0) {
+                    const contractor = contractors.find(c => c.id == entry.contractor_id);
+                    if (contractor) {
+                        contractorName = contractor.name;
+                    }
+                } else if (entry.contractor_name) {
+                    contractorName = entry.contractor_name;
+                }
+
+                // Handle documents
+                let documentsHtml = '';
+                try {
+                    if (entry.documents) {
+                        const parsedDocs = typeof entry.documents === 'string' ? JSON.parse(entry.documents) : entry.documents;
+                        if (Array.isArray(parsedDocs)) {
+                            documentsHtml = '<div class="table-documents">' +
+                                parsedDocs.slice(0, 2).map(doc => { // Limit to 2 document images
+                                    const docName = typeof doc === 'object' ? doc.name : doc;
+                                    return `<img src="/api/placeholder/50/50" alt="${docName}" class="table-doc-thumb" title="${docName}">`;
+                                }).join('') +
+                                (parsedDocs.length > 2 ? `<span class="text-muted small">+${parsedDocs.length - 2}</span>` : '') +
+                                '</div>';
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Error parsing document data:', e);
+                }
+
+                // Handle document images
+                let documentImagesHtml = '';
+                try {
+                    if (entry.documents) {
+                        const parsedDocs = typeof entry.documents === 'string' ? JSON.parse(entry.documents) : entry.documents;
+                        if (Array.isArray(parsedDocs)) {
+                            const imagesOnly = parsedDocs.filter(doc => typeof doc === 'object' && doc.file_path && doc.file_path.match(/\.(jpg|jpeg|png|gif)$/i));
+                            if (imagesOnly.length > 0) {
+                                documentImagesHtml = '<div class="table-images">' +
+                                    imagesOnly.slice(0, 2).map(img => `<img src="${img.file_path}" alt="${img.name}" class="table-image-thumb" onclick="previewImage('${img.file_path}')">`).join('') +
+                                    (imagesOnly.length > 2 ? `<span class="text-muted small">+${imagesOnly.length - 2}</span>` : '') +
+                                    '</div>';
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Error parsing document images:', e);
+                }
+
+                // Handle work images
+                let workImagesHtml = '';
+                const allImages = [];
+                try {
+                    if (entry.images_before) {
+                        const beforeImages = typeof entry.images_before === 'string' ? JSON.parse(entry.images_before) : entry.images_before;
+                        allImages.push(...beforeImages);
+                    }
+                    if (entry.images_during) {
+                        const duringImages = typeof entry.images_during === 'string' ? JSON.parse(entry.images_during) : entry.images_during;
+                        allImages.push(...duringImages);
+                    }
+                    if (entry.images_after) {
+                        const afterImages = typeof entry.images_after === 'string' ? JSON.parse(entry.images_after) : entry.images_after;
+                        allImages.push(...afterImages);
+                    }
+                } catch (e) {
+                    console.warn('Error parsing image data:', e);
+                }
+
+                if (allImages.length > 0) {
+                    workImagesHtml = '<div class="table-images">' +
+                        allImages.slice(0, 3).map(img => { // Limit to 3 images in table
+                            const imgUrl = typeof img === 'object' ? (img.path || img.url) : img;
+                            return `<img src="${imgUrl}" alt="Work image" class="table-image-thumb" onclick="previewImage('${imgUrl}')">`;
+                        }).join('') +
+                        (allImages.length > 3 ? `<span class="text-muted small">+${allImages.length - 3}</span>` : '') +
+                        '</div>';
+                }
+
+                return `
+                    <tr>
+                        <td>
+                            <span class="table-date">${formatDate(workDate)}</span>
+                        </td>
+                        <td>
+                            <span class="table-work-type ${workType}">${getWorkTypeText(workType)}</span><br>
+                            <span class="table-work-status status-${workStatus}">${getWorkStatusText(workStatus)}</span>
+                        </td>
+                        <td>
+                            <div class="table-description" title="${workDescription}">
+                                ${workDescription.length > 50 ? workDescription.substring(0, 50) + '...' : workDescription}
+                            </div>
+                        </td>
+                        <td>
+                            ${documentImagesHtml}
+                        </td>
+                        <td>
+                            ${workImagesHtml}
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-outline-primary btn-sm" onclick="showWorkDetails(${index})" title="Xem chi tiết (Index: ${index}, Total: ${history.length})">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            return `
+                <div class="work-history-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;">Ngày</th>
+                                <th style="width: 120px;">Loại/Trạng thái</th>
+                                <th style="width: 300px;">Mô tả</th>
+                                <th style="width: 150px;">Giấy tờ</th>
+                                <th style="width: 150px;">Hình ảnh</th>
+                                <th style="width: 80px;">Chi tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // Create enhanced timeline item
+        function createEnhancedTimelineItem(entry) {
+            // Transform API data to display format
+            const workDate = entry.work_date || entry.date;
+            const workType = entry.type;
+            const workDescription = entry.description;
+            const workerName = entry.worker_name || entry.worker;
+            const workCost = entry.cost;
+            const workWarranty = entry.warranty;
+            const workStatus = entry.status;
+            const workNotes = entry.notes;
+            
+            // Handle contractor info - Find contractor by ID if available
+            let contractorInfo = '';
+            let contractor = null;
+            
+            // Try to find contractor from ID first
+            if (entry.contractor_id && contractors && contractors.length > 0) {
+                contractor = contractors.find(c => c.id == entry.contractor_id);
+            }
+            
+            // Fallback to embedded contractor data
+            if (!contractor && (entry.contractor || entry.contractor_name)) {
+                contractor = entry.contractor || {
+                    name: entry.contractor_name,
+                    phone: entry.contractor_phone,
+                    address: entry.contractor_address,
+                    license: entry.contractor_license,
+                    rating: entry.contractor_rating
+                };
+            }
+            
+            // Default contractor if none found
+            if (!contractor && entry.contractor_id) {
+                contractor = {
+                    name: "Nhà thầu không xác định",
+                    phone: "N/A",
+                    address: "N/A",
+                    license: "N/A",
+                    rating: 0
+                };
+            }
+            
+            if (contractor) {
+                contractorInfo = `
+                    <div class="contractor-info mt-3">
+                        <h6 class="mb-2"><i class="bi bi-building me-2"></i>Nhà thầu thi công:</h6>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <strong>${contractor.name}</strong><br>
+                                <i class="bi bi-telephone me-1"></i>${contractor.phone || 'N/A'}<br>
+                                <i class="bi bi-geo-alt me-1"></i>${contractor.address || 'N/A'}
+                            </div>
+                            <div class="col-md-4">
+                                <i class="bi bi-patch-check me-1"></i>GP: ${contractor.license || 'N/A'}<br>
+                                ${contractor.rating ? `
+                                    <div class="contractor-rating">
+                                        <div class="star-rating">
+                                            ${generateStarRating(contractor.rating)}
+                                        </div>
+                                        <span class="ms-1">${contractor.rating}/5</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                        ${contractor.specialties && Array.isArray(contractor.specialties) ? `
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="bi bi-tools me-1"></i>Chuyên môn: ${contractor.specialties.join(', ')}
+                                </small>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+            
+            // Handle images
+            let imagesSection = '';
+            const allImages = [];
+            
+            // Parse JSON images from API
+            try {
+                if (entry.images_before) {
+                    const beforeImages = typeof entry.images_before === 'string' ? JSON.parse(entry.images_before) : entry.images_before;
+                    allImages.push(...beforeImages);
+                }
+                if (entry.images_during) {
+                    const duringImages = typeof entry.images_during === 'string' ? JSON.parse(entry.images_during) : entry.images_during;
+                    allImages.push(...duringImages);
+                }
+                if (entry.images_after) {
+                    const afterImages = typeof entry.images_after === 'string' ? JSON.parse(entry.images_after) : entry.images_after;
+                    allImages.push(...afterImages);
+                }
+            } catch (e) {
+                console.warn('Error parsing image data:', e);
+            }
+            
+            // Fallback for legacy image format
+            if (entry.images && Array.isArray(entry.images)) {
+                allImages.push(...entry.images);
+            }
+            
+            if (allImages.length > 0) {
+                imagesSection = `
+                    <div class="mb-3">
+                        <h6><i class="bi bi-camera me-2"></i>Hình ảnh công việc:</h6>
+                        <div class="work-images">
+                            ${allImages.map(img => {
+                                const imgUrl = typeof img === 'object' ? (img.path || img.url) : img;
+                                return `<img src="${imgUrl}" alt="Work image" class="work-image" onclick="previewImage('${imgUrl}')">`;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Handle documents
+            let documentsSection = '';
+            const documents = [];
+            
+            // Parse documents from API
+            try {
+                if (entry.documents) {
+                    const parsedDocs = typeof entry.documents === 'string' ? JSON.parse(entry.documents) : entry.documents;
+                    console.log('Parsed documents for entry:', entry.id || 'unknown', parsedDocs); // Debug log
+                    if (Array.isArray(parsedDocs)) {
+                        documents.push(...parsedDocs.map(doc => typeof doc === 'object' ? doc.name : doc));
+                    }
+                }
+            } catch (e) {
+                console.warn('Error parsing document data:', e);
+            }
+            
+            if (documents.length > 0) {
+                // Get document images from documents field itself
+                let documentImages = '';
+                try {
+                    if (entry.documents) {
+                        const parsedDocs = typeof entry.documents === 'string' ? JSON.parse(entry.documents) : entry.documents;
+                        
+                        if (Array.isArray(parsedDocs)) {
+                            // Extract file_path from documents that have images/files (only image files)
+                            const docImagesArray = parsedDocs
+                                .filter(doc => {
+                                    if (!doc.file_path || doc.file_path.trim() === '') return false;
+                                    // Check if file is an image (jpg, jpeg, png, gif, webp)
+                                    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+                                    const lowercasePath = doc.file_path.toLowerCase();
+                                    return imageExtensions.some(ext => lowercasePath.endsWith(ext));
+                                })
+                                .map(doc => ({
+                                    path: doc.file_path,
+                                    name: doc.name || 'Document',
+                                    type: doc.type || 'unknown'
+                                }));
+                            
+                            console.log('Document images found:', docImagesArray); // Debug log
+                            
+                            if (docImagesArray.length > 0) {
+                                documentImages = `
+                                    <div class="mt-2">
+                                        <small class="text-muted d-block mb-2">
+                                            <i class="bi bi-camera me-1"></i>Ảnh giấy tờ:
+                                        </small>
+                                        <div class="work-images">
+                                            ${docImagesArray.map(img => {
+                                                return `<img src="${img.path}" alt="${img.name}" class="work-image" onclick="previewImage('${img.path}')" title="${img.name}">`;
+                                            }).join('')}
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Error parsing document images:', e);
+                }
+                
+                documentsSection = `
+                    <div class="mb-3">
+                        <h6><i class="bi bi-file-earmark-text me-2"></i>Giấy tờ bàn giao:</h6>
+                        <div class="document-list">
+                            ${documents.map(doc => `<span class="document-tag">${doc}</span>`).join('')}
+                        </div>
+                        ${documentImages}
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="timeline-item-enhanced">
+                    <div class="work-header">
+                        <div class="work-title">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <div class="work-type-badge">${getWorkTypeText(workType)}</div>
+                                <span class="work-status status-${workStatus}">${getWorkStatusText(workStatus)}</span>
+                            </div>
+                            <div class="work-date">
+                                <i class="bi bi-calendar me-1"></i>
+                                ${formatDate(workDate)}
+                                ${workWarranty ? `<span class="ms-3"><i class="bi bi-shield-check me-1"></i>BH: ${workWarranty}</span>` : ''}
+                            </div>
+                        </div>
+                        ${workCost ? `<div class="work-cost">${parseFloat(workCost).toLocaleString('vi-VN')} ₫</div>` : ''}
+                    </div>
+                    
+                    <div class="work-description">${workDescription}</div>
+
+                    ${contractorInfo}
+                    ${imagesSection}
+                    ${documentsSection}
+
+                    ${workNotes ? `
+                        <div class="alert alert-info mb-3">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Ghi chú:</strong> ${workNotes}
+                        </div>
+                    ` : ''}
+
+                    <div class="worker-info">
+                        <i class="bi bi-person me-1"></i>
+                        Thực hiện bởi: <strong>${workerName}</strong>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Display empty history
+        function displayEmptyHistory() {
+            const containers = ['allWorkHistory', 'maintenanceHistory', 'repairHistory', 'inspectionHistory', 'otherHistory'];
+            containers.forEach(containerId => {
+                document.getElementById(containerId).innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="bi bi-clock-history" style="font-size: 3rem; opacity: 0.3;"></i>
+                        <h5 class="text-muted mt-3">Chưa có lịch sử bảo dưỡng</h5>
+                        <p class="text-muted">Thêm ghi chú đầu tiên bằng form ở trên</p>
+                    </div>
+                `;
+            });
+
+            // Empty stats
+            document.getElementById('workStats').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Tổng số lần</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Bảo dưỡng</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Sửa chữa</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Kiểm tra</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Tổng chi phí</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">TB/lần</div>
+                </div>
+            `;
+        }
+
+        // Get category name
+        function getCategoryName(category) {
+            const names = {
+                'all': 'tất cả',
+                'maintenance': 'bảo dưỡng',
+                'repair': 'sửa chữa',
+                'inspection': 'kiểm tra',
+                'other': 'khác'
+            };
+            return names[category] || category;
+        }
+
+        // Get work status text
+        function getWorkStatusText(status) {
+            const statusMap = {
+                'completed': 'Hoàn thành',
+                'in-progress': 'Đang thực hiện',
+                'pending': 'Chờ xử lý',
+                'cancelled': 'Đã hủy'
+            };
+            return statusMap[status] || status;
+        }
+
+        // Export history to PDF
+        function exportHistory() {
+            showNotification('Tính năng xuất PDF đang được phát triển', 'info');
+        }
+
+        // Export documents
+        function exportDocuments() {
+            showNotification('Tính năng tải tất cả tài liệu đang được phát triển', 'info');
+        }
+
+        // Show work details in popup
+        function showWorkDetails(workIndex) {
+            try {
+                console.log('showWorkDetails called with index:', workIndex);
+                console.log('window.workHistoryData:', window.workHistoryData);
+                console.log('window.workHistoryData.length:', window.workHistoryData ? window.workHistoryData.length : 'undefined');
+                
+                // Get work data from global storage
+                if (!window.workHistoryData || !window.workHistoryData[workIndex]) {
+                    console.error(`No data found at index ${workIndex}. Available data:`, window.workHistoryData);
+                    alert('Không tìm thấy dữ liệu công việc tại index: ' + workIndex + 
+                          '\nSố lượng dữ liệu có sẵn: ' + (window.workHistoryData ? window.workHistoryData.length : 0));
+                    return;
+                }
+                
+                const entry = window.workHistoryData[workIndex];
+                console.log('Entry data for index', workIndex, ':', entry);
+                
+                // Update modal title
+                document.getElementById('workDetailsModalLabel').innerHTML = 
+                    `<i class="bi bi-eye me-2"></i>Chi tiết công việc - ${formatDate(entry.work_date || entry.date)}`;
+                
+                // Use the same function as timeline to create the content
+                const timelineItemContent = createEnhancedTimelineItem(entry);
+                console.log('Timeline content created, length:', timelineItemContent.length);
+                
+                // Update modal body
+                document.getElementById('workDetailsModalBody').innerHTML = `
+                    <div class="timeline-modal-content">
+                        ${timelineItemContent}
+                    </div>
+                `;
+                console.log('Modal body updated');
+
+                // Show modal using Bootstrap's API
+                const modalElement = document.getElementById('workDetailsModal');
+                console.log('Modal element found:', modalElement ? 'Yes' : 'No');
+                const modal = new bootstrap.Modal(modalElement);
+                console.log('Bootstrap modal created');
+                modal.show();
+                console.log('Modal show() called');
+                
+            } catch (error) {
+                console.error('Error showing work details:', error);
+                alert('Lỗi hiển thị chi tiết: ' + error.message);
+            }
+        }
+
+        // Update document gallery
+        function updateDocumentGallery() {
+            const ac = getCurrentAC();
+            if (!ac || !ac.workHistory) return;
+            
+            // Collect all document images from work history
+            const allDocuments = {};
+            ac.workHistory.forEach(entry => {
+                if (entry.documentImages) {
+                    Object.keys(entry.documentImages).forEach(docType => {
+                        if (!allDocuments[docType]) {
+                            allDocuments[docType] = [];
+                        }
+                        allDocuments[docType] = allDocuments[docType].concat(
+                            entry.documentImages[docType].map(img => ({
+                                url: img,
+                                date: entry.date,
+                                workType: entry.type,
+                                description: entry.description
+                            }))
+                        );
+                    });
+                }
+            });
+            
+            const galleryCard = document.getElementById('documentGalleryCard');
+            const galleryContent = document.getElementById('documentGalleryContent');
+            const statsContainer = document.getElementById('documentStats');
+            
+            if (Object.keys(allDocuments).length === 0) {
+                galleryCard.style.display = 'none';
+                return;
+            }
+            
+            galleryCard.style.display = 'block';
+            
+            // Update statistics
+            const totalDocs = Object.values(allDocuments).reduce((sum, docs) => sum + docs.length, 0);
+            const docTypes = Object.keys(allDocuments).length;
+            
+            statsContainer.innerHTML = `
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="stat-item">
+                            <i class="bi bi-file-earmark-text stat-icon"></i>
+                            <div>
+                                <div class="stat-number">${totalDocs}</div>
+                                <div class="stat-label">Tổng số tài liệu</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-item">
+                            <i class="bi bi-folder2-open stat-icon"></i>
+                            <div>
+                                <div class="stat-number">${docTypes}</div>
+                                <div class="stat-label">Loại tài liệu</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-item">
+                            <i class="bi bi-calendar-check stat-icon"></i>
+                            <div>
+                                <div class="stat-number">${ac.workHistory.length}</div>
+                                <div class="stat-label">Lần ghi nhận</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Update gallery content
+            const galleryHTML = Object.keys(allDocuments).map(docType => {
+                const docTypeObj = documentTypes.find(d => d.id === docType);
+                const docName = docTypeObj ? docTypeObj.name : docType;
+                const docIcon = docTypeObj ? docTypeObj.icon : 'bi-file';
+                const docs = allDocuments[docType];
+                
+                return `
+                    <div class="document-category">
+                        <h6><i class="${docIcon} me-2"></i>${docName} (${docs.length} ảnh)</h6>
+                        <div class="document-images">
+                            ${docs.map(doc => `
+                                <div class="document-image-container">
+                                    <img src="${doc.url}" alt="${docName}" class="document-image" 
+                                         onclick="previewImage('${doc.url}')" 
+                                         title="Ngày: ${formatDate(doc.date)} - ${doc.description}">
+                                    <small class="document-date">${formatDate(doc.date)}</small>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            galleryContent.innerHTML = galleryHTML || '<p class="text-muted text-center">Chưa có tài liệu nào được tải lên</p>';
+        }
+
+        // Calendar Variables
+        let currentCalendarDate = new Date();
+        let currentCalendarFilter = 'all'; // Filter for calendar events
+
+        // Initialize Calendar
+        function initializeCalendar() {
+            updateCalendar();
+        }
+
+        // Update Calendar Display
+        function updateCalendar() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            
+            // Update header
+            const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                               'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+            document.getElementById('currentMonthYear').textContent = `${monthNames[month]} ${year}`;
+            
+            // Generate calendar grid
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+            
+            // Day headers
+            const dayHeaders = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+            dayHeaders.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'calendar-day-header';
+                header.textContent = day;
+                grid.appendChild(header);
+            });
+            
+            // Get first day of month and days in month
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startDay = firstDay.getDay(); // 0 = Sunday
+            
+            // Get work events for this month
+            const ac = getCurrentAC();
+            let workEvents = ac ? ac.workHistory.filter(work => {
+                const workDate = new Date(work.work_date || work.date);
+                return workDate.getFullYear() === year && workDate.getMonth() === month;
+            }) : [];
+            
+            // Apply calendar filter
+            if (currentCalendarFilter !== 'all') {
+                workEvents = workEvents.filter(work => work.type === currentCalendarFilter);
+            }
+            
+            // Generate calendar days
+            const today = new Date();
+            const totalCells = Math.ceil((daysInMonth + startDay) / 7) * 7;
+            
+            for (let i = 0; i < totalCells; i++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                
+                const dayNumber = i - startDay + 1;
+                
+                if (dayNumber > 0 && dayNumber <= daysInMonth) {
+                    // Current month day
+                    const dayDate = new Date(year, month, dayNumber);
+                    const isToday = dayDate.toDateString() === today.toDateString();
+                    
+                    if (isToday) {
+                        dayElement.classList.add('today');
+                    }
+                    
+                    dayElement.innerHTML = `
+                        <div class="calendar-day-number">${dayNumber}</div>
+                        <div class="calendar-events" id="events-${dayNumber}"></div>
+                    `;
+                    
+                    // Add work events for this day
+                    const dayEvents = workEvents.filter(work => {
+                        const workDate = new Date(work.work_date || work.date);
+                        return workDate.getDate() === dayNumber;
+                    });
+                    
+                    const eventsContainer = dayElement.querySelector('.calendar-events');
+                    dayEvents.forEach(work => {
+                        const eventElement = document.createElement('div');
+                        eventElement.className = `calendar-event ${work.type}`;
+                        eventElement.textContent = work.type === 'maintenance' ? 'BĐ' : 
+                                                   work.type === 'repair' ? 'SC' :
+                                                   work.type === 'inspection' ? 'KT' :
+                                                   work.type === 'cleaning' ? 'VS' : 'TT';
+                        eventElement.title = `${work.description} - ${work.worker_name || work.worker}`;
+                        eventElement.onclick = () => showWorkDetails(work);
+                        eventsContainer.appendChild(eventElement);
+                    });
+                } else {
+                    // Other month day
+                    dayElement.classList.add('other-month');
+                    if (dayNumber <= 0) {
+                        const prevMonth = new Date(year, month - 1, 0);
+                        dayElement.innerHTML = `<div class="calendar-day-number">${prevMonth.getDate() + dayNumber}</div>`;
+                    } else {
+                        dayElement.innerHTML = `<div class="calendar-day-number">${dayNumber - daysInMonth}</div>`;
+                    }
+                }
+                
+                grid.appendChild(dayElement);
+            }
+        }
+
+        // Previous Month
+        function previousMonth() {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+            updateCalendar();
+        }
+
+        // Next Month
+        function nextMonth() {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+            updateCalendar();
+        }
+
+        // Go to Current Month
+        function goToCurrentMonth() {
+            currentCalendarDate = new Date();
+            updateCalendar();
+        }
+
+        // Filter Calendar by Work Type
+        function filterCalendar(filterType) {
+            currentCalendarFilter = filterType;
+            
+            // Update filter dropdown UI
+            const filterItems = document.querySelectorAll('#filterMenu .dropdown-item');
+            filterItems.forEach(item => item.classList.remove('active'));
+            
+            // Find and activate the selected filter
+            filterItems.forEach(item => {
+                const onclick = item.getAttribute('onclick');
+                if (onclick && onclick.includes(`'${filterType}'`)) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update calendar display
+            updateCalendar();
+            
+            // Update filter button text
+            const filterBtn = document.getElementById('filterDropdown');
+            const filterNames = {
+                'all': 'Tất cả',
+                'maintenance': 'Bảo dưỡng',
+                'repair': 'Sửa chữa',
+                'inspection': 'Kiểm tra',
+                'cleaning': 'Vệ sinh',
+                'replacement': 'Thay thế'
+            };
+            filterBtn.innerHTML = `<i class="bi bi-funnel me-1"></i>${filterNames[filterType]}`;
+        }
+
+        // Export Calendar to PDF
+        function exportCalendar() {
+            const ac = getCurrentAC();
+            if (!ac) {
+                showNotification('Không có dữ liệu điều hòa để xuất', 'error');
+                return;
+            }
+
+            // Show export modal
+            const exportModal = new bootstrap.Modal(document.getElementById('exportModal'));
+            exportModal.show();
+        }
+
+        // Export to PDF (Print)
+        function exportToPDF() {
+            const ac = getCurrentAC();
+            if (!ac) {
+                alert('Không có dữ liệu điều hòa để xuất');
+                return;
+            }
+
+            // Get current month/year info
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                               'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+            
+            // Get filtered work events
+            let workEvents = ac.workHistory.filter(work => {
+                const workDate = new Date(work.work_date || work.date);
+                return workDate.getFullYear() === year && workDate.getMonth() === month;
+            });
+            
+            if (currentCalendarFilter !== 'all') {
+                workEvents = workEvents.filter(work => work.type === currentCalendarFilter);
+            }
+
+            // Create export content
+            const filterNames = {
+                'all': 'Tất cả',
+                'maintenance': 'Bảo dưỡng',
+                'repair': 'Sửa chữa',
+                'inspection': 'Kiểm tra',
+                'cleaning': 'Vệ sinh',
+                'replacement': 'Thay thế'
+            };
+
+            const typeNames = {
+                'maintenance': 'Bảo dưỡng',
+                'repair': 'Sửa chữa',
+                'inspection': 'Kiểm tra',
+                'cleaning': 'Vệ sinh',
+                'replacement': 'Thay thế'
+            };
+
+            let exportContent = `
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h2>LỊCH CÔNG VIỆC ĐIỀU HÒA</h2>
+                    <h3>${ac.code} - ${ac.location}</h3>
+                    <p><strong>${monthNames[month]} ${year}</strong></p>
+                    <p>Bộ lọc: ${filterNames[currentCalendarFilter]}</p>
+                    <hr>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <strong>Thông tin điều hòa:</strong><br>
+                    • Mã: ${ac.code}<br>
+                    • Vị trí: ${ac.area} - ${ac.location}<br>
+                    • Loại: ${getTypeText(ac.type)} - ${ac.brand}<br>
+                    • Công suất: ${ac.capacity ? ac.capacity.toLocaleString() + ' BTU' : 'Chưa có'}<br>
+                </div>
+                
+                <h4>Danh sách công việc (${workEvents.length} việc):</h4>
+            `;
+
+            if (workEvents.length === 0) {
+                exportContent += '<p style="text-align: center; color: #666;">Không có công việc nào trong tháng này với bộ lọc hiện tại.</p>';
+            } else {
+                // Sort by date
+                workEvents.sort((a, b) => new Date(a.work_date || a.date) - new Date(b.work_date || b.date));
+                
+                exportContent += '<div style="margin-top: 20px;">';
+                workEvents.forEach((work, index) => {
+                    exportContent += `
+                        <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <strong>${index + 1}. ${typeNames[work.type] || work.type}</strong>
+                                <em>${formatDate(work.date)}</em>
+                            </div>
+                            <p><strong>Mô tả:</strong> ${work.description}</p>
+                            <p><strong>Người thực hiện:</strong> ${work.worker_name || work.worker}</p>
+                            ${work.contractor ? `<p><strong>Nhà thầu:</strong> ${work.contractor.name} (${work.contractor.phone})</p>` : ''}
+                            ${work.cost ? `<p><strong>Chi phí:</strong> ${parseFloat(work.cost).toLocaleString()} VNĐ</p>` : ''}
+                            ${work.warranty ? `<p><strong>Bảo hành:</strong> ${work.warranty}</p>` : ''}
+                            <p><strong>Trạng thái:</strong> ${getStatusText(work.status)}</p>
+                            ${work.notes ? `<p><strong>Ghi chú:</strong> ${work.notes}</p>` : ''}
+                        </div>
+                    `;
+                });
+                exportContent += '</div>';
+
+                // Add summary
+                const totalCost = workEvents.reduce((sum, work) => sum + (work.cost || 0), 0);
+                exportContent += `
+                    <div style="border-top: 2px solid #333; padding-top: 15px; margin-top: 30px;">
+                        <h4>Tổng kết:</h4>
+                        <p>• Tổng số công việc: ${workEvents.length}</p>
+                        <p>• Tổng chi phí: ${totalCost.toLocaleString()} VNĐ</p>
+                        <p>• Chi phí trung bình: ${workEvents.length > 0 ? Math.round(totalCost / workEvents.length).toLocaleString() : 0} VNĐ</p>
+                    </div>
+                `;
+            }
+
+            exportContent += `
+                <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ccc; font-size: 12px; color: #666;">
+                    Báo cáo được tạo tự động bởi Smart AC Manager<br>
+                    Ngày xuất: ${new Date().toLocaleDateString('vi-VN')} ${new Date().toLocaleTimeString('vi-VN')}
+                </div>
+            `;
+
+            // Open print window
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Lịch Công Việc - ${ac.code} - ${monthNames[month]} ${year}</title>
+                    <meta charset="utf-8">
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+                        h2, h3 { color: #333; }
+                        .work-item { break-inside: avoid; }
+                        @media print {
+                            body { margin: 0; }
+                            .no-print { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${exportContent}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            
+            // Auto print after a short delay
+            setTimeout(() => {
+                printWindow.print();
+            }, 500);
+            
+            // Close modal
+            bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
+            showNotification('Đã mở cửa sổ in PDF', 'success');
+        }
+
+        // Export to Excel (CSV)
+        function exportToExcel() {
+            const ac = getCurrentAC();
+            if (!ac) {
+                alert('Không có dữ liệu điều hòa để xuất');
+                return;
+            }
+
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                               'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+            
+            // Get filtered work events
+            let workEvents = ac.workHistory.filter(work => {
+                const workDate = new Date(work.date);
+                return workDate.getFullYear() === year && workDate.getMonth() === month;
+            });
+            
+            if (currentCalendarFilter !== 'all') {
+                workEvents = workEvents.filter(work => work.type === currentCalendarFilter);
+            }
+
+            // Create CSV content
+            let csvContent = '\uFEFF'; // UTF-8 BOM for Excel
+            csvContent += `Lịch Công Việc Điều Hòa,${ac.code} - ${ac.location}\n`;
+            csvContent += `Tháng,${monthNames[month]} ${year}\n`;
+            csvContent += `Bộ lọc,${getFilterName(currentCalendarFilter)}\n\n`;
+            
+            // Headers
+            csvContent += 'STT,Ngày,Loại công việc,Mô tả,Người thực hiện,Nhà thầu,Chi phí (VNĐ),Bảo hành,Trạng thái,Ghi chú\n';
+            
+            // Data rows
+            workEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+            workEvents.forEach((work, index) => {
+                const row = [
+                    index + 1,
+                    formatDate(work.date),
+                    getWorkTypeText(work.type),
+                    `"${work.description}"`,
+                    work.worker,
+                    work.contractor ? work.contractor.name : '',
+                    work.cost || 0,
+                    work.warranty || '',
+                    getStatusText(work.status),
+                    `"${work.notes || ''}"`
+                ].join(',');
+                csvContent += row + '\n';
+            });
+
+            // Add summary
+            const totalCost = workEvents.reduce((sum, work) => sum + (work.cost || 0), 0);
+            csvContent += `\nTổng kết:\n`;
+            csvContent += `Tổng số công việc,${workEvents.length}\n`;
+            csvContent += `Tổng chi phí,${totalCost}\n`;
+            csvContent += `Chi phí trung bình,${workEvents.length > 0 ? Math.round(totalCost / workEvents.length) : 0}\n`;
+
+            // Download CSV
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `lich-cong-viec-${ac.code}-${month+1}-${year}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Close modal
+            bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
+            showNotification('Đã tải file Excel CSV', 'success');
+        }
+
+        // Copy to Clipboard
+        function copyToClipboard() {
+            const ac = getCurrentAC();
+            if (!ac) {
+                alert('Không có dữ liệu điều hòa để sao chép');
+                return;
+            }
+
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                               'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+            
+            // Get filtered work events
+            let workEvents = ac.workHistory.filter(work => {
+                const workDate = new Date(work.date);
+                return workDate.getFullYear() === year && workDate.getMonth() === month;
+            });
+            
+            if (currentCalendarFilter !== 'all') {
+                workEvents = workEvents.filter(work => work.type === currentCalendarFilter);
+            }
+
+            // Create text content
+            let textContent = `📋 LỊCH CÔNG VIỆC ĐIỀU HÒA\n`;
+            textContent += `🏷️ ${ac.code} - ${ac.location}\n`;
+            textContent += `📅 ${monthNames[month]} ${year}\n`;
+            textContent += `🔍 Bộ lọc: ${getFilterName(currentCalendarFilter)}\n\n`;
+            
+            textContent += `ℹ️ THÔNG TIN ĐIỀU HÒA:\n`;
+            textContent += `• Mã: ${ac.code}\n`;
+            textContent += `• Vị trí: ${ac.area} - ${ac.location}\n`;
+            textContent += `• Loại: ${getTypeText(ac.type)} - ${ac.brand}\n`;
+            textContent += `• Công suất: ${ac.capacity ? ac.capacity.toLocaleString() + ' BTU' : 'Chưa có'}\n\n`;
+
+            if (workEvents.length === 0) {
+                textContent += `❌ Không có công việc nào trong tháng này với bộ lọc hiện tại.\n`;
+            } else {
+                textContent += `📝 DANH SÁCH CÔNG VIỆC (${workEvents.length} việc):\n\n`;
+                
+                workEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+                workEvents.forEach((work, index) => {
+                    const typeEmoji = {
+                        'maintenance': '🔧',
+                        'repair': '⚒️',
+                        'inspection': '🔍',
+                        'cleaning': '🧽',
+                        'replacement': '🔄'
+                    };
+                    
+                    textContent += `${index + 1}. ${typeEmoji[work.type] || '⚙️'} ${getWorkTypeText(work.type)}\n`;
+                    textContent += `   📅 ${formatDate(work.date)}\n`;
+                    textContent += `   📝 ${work.description}\n`;
+                    textContent += `   👤 ${work.worker}\n`;
+                    if (work.contractor) textContent += `   🏢 ${work.contractor.name} (${work.contractor.phone})\n`;
+                    if (work.cost) textContent += `   💰 ${work.cost.toLocaleString()} VNĐ\n`;
+                    if (work.warranty) textContent += `   🛡️ Bảo hành: ${work.warranty}\n`;
+                    textContent += `   ✅ ${getStatusText(work.status)}\n`;
+                    if (work.notes) textContent += `   💬 ${work.notes}\n`;
+                    textContent += `\n`;
+                });
+
+                // Add summary
+                const totalCost = workEvents.reduce((sum, work) => sum + (work.cost || 0), 0);
+                textContent += `📊 TỔNG KẾT:\n`;
+                textContent += `• Tổng số công việc: ${workEvents.length}\n`;
+                textContent += `• Tổng chi phí: ${totalCost.toLocaleString()} VNĐ\n`;
+                textContent += `• Chi phí trung bình: ${workEvents.length > 0 ? Math.round(totalCost / workEvents.length).toLocaleString() : 0} VNĐ\n\n`;
+            }
+
+            textContent += `🤖 Smart AC Manager - ${new Date().toLocaleDateString('vi-VN')}`;
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(textContent).then(() => {
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide();
+                showNotification('Đã sao chép vào clipboard', 'success');
+            }).catch(err => {
+                console.error('Could not copy text: ', err);
+                showNotification('Không thể sao chép. Hãy thử lại!', 'error');
+            });
+        }
+
+        // Toggle Export Preview
+        function togglePreview() {
+            const previewDiv = document.getElementById('exportPreview');
+            const previewContent = document.getElementById('previewContent');
+            
+            if (previewDiv.style.display === 'none') {
+                // Generate preview content
+                const ac = getCurrentAC();
+                if (!ac) return;
+
+                const year = currentCalendarDate.getFullYear();
+                const month = currentCalendarDate.getMonth();
+                const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                                   'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+                
+                let workEvents = ac.workHistory.filter(work => {
+                    const workDate = new Date(work.date);
+                    return workDate.getFullYear() === year && workDate.getMonth() === month;
+                });
+                
+                if (currentCalendarFilter !== 'all') {
+                    workEvents = workEvents.filter(work => work.type === currentCalendarFilter);
+                }
+
+                previewContent.innerHTML = `
+                    <strong>📋 ${ac.code} - ${ac.location}</strong><br>
+                    <strong>📅 ${monthNames[month]} ${year}</strong><br>
+                    <strong>🔍 Bộ lọc: ${getFilterName(currentCalendarFilter)}</strong><br><br>
+                    <strong>📊 Thống kê:</strong><br>
+                    • Số công việc: ${workEvents.length}<br>
+                    • Tổng chi phí: ${workEvents.reduce((sum, work) => sum + (work.cost || 0), 0).toLocaleString()} VNĐ<br><br>
+                    ${workEvents.length > 0 ? '<strong>📝 Công việc mới nhất:</strong><br>' + workEvents.slice(0, 3).map(work => 
+                        `• ${formatDate(work.date)}: ${getWorkTypeText(work.type)} - ${work.worker}`
+                    ).join('<br>') : '<em>Không có công việc nào</em>'}
+                `;
+                
+                previewDiv.style.display = 'block';
+            } else {
+                previewDiv.style.display = 'none';
+            }
+        }
+
+        // Helper function to get filter name
+        function getFilterName(filterType) {
+            const filterNames = {
+                'all': 'Tất cả',
+                'maintenance': 'Bảo dưỡng',
+                'repair': 'Sửa chữa',
+                'inspection': 'Kiểm tra',
+                'cleaning': 'Vệ sinh',
+                'replacement': 'Thay thế'
+            };
+            return filterNames[filterType] || filterType;
+        }
+
+        // Toggle work form visibility
+        function toggleWorkForm() {
+            const formContainer = document.getElementById('workFormContainer');
+            const toggleBtn = document.getElementById('toggleFormBtn');
+            
+            if (formContainer.style.display === 'none') {
+                // Show form
+                formContainer.style.display = 'block';
+                toggleBtn.innerHTML = '<i class="bi bi-chevron-up me-2"></i>Thu Gọn';
+                toggleBtn.classList.remove('btn-primary-custom');
+                toggleBtn.classList.add('btn-outline-primary');
+                
+                // Scroll to form
+                formContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                // Hide form
+                formContainer.style.display = 'none';
+                toggleBtn.innerHTML = '<i class="bi bi-plus-circle me-2"></i>Thêm Ghi Chú';
+                toggleBtn.classList.remove('btn-outline-primary');
+                toggleBtn.classList.add('btn-primary-custom');
+                
+                // Reset form
+                document.getElementById('workForm').reset();
+                document.getElementById('workDate').value = new Date().toISOString().split('T')[0];
+            }
+        }
+
+        // Setup form submission
+        function setupFormSubmission() {
+            document.getElementById('workForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addWorkEntry();
+            });
+        }
+
+        // Add new work entry
+        async function addWorkEntry() {
+            const type = document.getElementById('workType').value;
+            const date = document.getElementById('workDate').value;
+            const description = document.getElementById('workDescription').value;
+            const worker = document.getElementById('workerName').value;
+            const imageFiles = document.getElementById('workImages').files;
+            
+            // New fields
+            const cost = document.getElementById('workCost').value;
+            const warranty = document.getElementById('warranty').value;
+            const status = document.getElementById('workStatus').value || 'completed';
+            const notes = document.getElementById('workNotes').value;
+
+            if (!type || !date || !description || !worker) {
+                alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+                return;
+            }
+
+            if (!selectedContractor) {
+                alert('Vui lòng chọn nhà thầu thi công!');
+                return;
+            }
+
+            try {
+                // Show loading state
+                showNotification('Đang lưu công việc...', 'info');
+
+                // Collect document images
+                const documentImages = {};
+                selectedDocuments.forEach(docId => {
+                    const fileInput = document.getElementById(`file-${docId}`);
+                    if (fileInput.files.length > 0) {
+                        documentImages[docId] = Array.from(fileInput.files);
+                    }
+                });
+
+                // Prepare work data for API
+                const workData = {
+                    ac_id: currentAC.id,
+                    contractor_id: selectedContractor.id,
+                    work_date: date,
+                    type: type,
+                    description: description,
+                    worker_name: worker,
+                    cost: cost ? parseFloat(cost) : 0,
+                    warranty: warranty || null,
+                    status: status,
+                    notes: notes || null,
+                    
+                    // Handle documents
+                    documents: JSON.stringify(selectedDocuments.map(docId => {
+                        const docType = documentTypes.find(d => d.id === docId);
+                        return {
+                            type: docId,
+                            name: docType ? docType.name : docId,
+                            file_path: '', // Will be updated after file upload
+                            file_size: 0,
+                            uploaded_at: new Date().toISOString()
+                        };
+                    })),
+                    
+                    // Handle image placeholders (actual upload would be separate)
+                    images_before: JSON.stringify([]),
+                    images_during: JSON.stringify([]),
+                    images_after: JSON.stringify([])
+                };
+
+                // TODO: Handle file uploads to server
+                // For now, we'll create placeholder URLs
+                const allFiles = Array.from(imageFiles);
+                Object.keys(documentImages).forEach(docId => {
+                    documentImages[docId].forEach(file => {
+                        allFiles.push({...file, documentType: docId});
+                    });
+                });
+
+                // Save work history to database via API
+                const result = await window.SmartACAPI.saveWorkHistory(workData);
+                
+                if (result.success) {
+                    // Reload work history using AC code
+                    const workHistoryACCode = currentAC.code || currentAC.ma_dieu_hoa;
+                    workHistory = await window.SmartACAPI.getWorkHistory(currentAC.id, workHistoryACCode);
+                    currentAC.workHistory = workHistory;
+                    
+                    // Update displays
+                    displayWorkHistory(currentAC.workHistory);
+                    updateDocumentGallery();
+                    updateCalendar();
+                    
+                    // Update AC info if maintenance
+                    if (type === 'maintenance') {
+                        currentAC.lastMaintenance = date;
+                        const nextDate = new Date(date);
+                        nextDate.setMonth(nextDate.getMonth() + 6);
+                        currentAC.nextMaintenance = nextDate.toISOString().split('T')[0];
+                        displayBasicInfo(currentAC);
+                    }
+                    
+                    // Reset form and UI
+                    resetFormAndUI();
+                    
+                    showNotification('Thêm ghi chú thành công!', 'success');
+                } else {
+                    throw new Error('Không thể lưu công việc');
+                }
+                
+            } catch (error) {
+                console.error('Error saving work entry:', error);
+                showNotification('Lỗi khi lưu công việc: ' + error.message, 'error');
+            }
+        }
+
+        // Reset form and UI after successful submission
+        function resetFormAndUI() {
+            // Reset form
+            document.getElementById('workForm').reset();
+            document.getElementById('workDate').value = new Date().toISOString().split('T')[0];
+            
+            // Reset selections
+            selectedContractor = null;
+            selectedDocuments = [];
+            
+            // Reset contractor dropdown
+            document.getElementById('contractorSelect').value = '';
+            document.getElementById('selectedContractorInfo').style.display = 'none';
+            
+            // Reset document checkboxes and UI
+            document.querySelectorAll('.document-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            document.querySelectorAll('.document-upload').forEach(upload => {
+                upload.classList.remove('show');
+            });
+            
+            document.querySelectorAll('.document-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            // Reset document selection toggle to hidden state
+            const documentContainer = document.getElementById('documentSelectionContainer');
+            const documentToggleBtn = document.getElementById('toggleDocumentBtn');
+            if (documentContainer && documentToggleBtn) {
+                documentContainer.style.display = 'none';
+                documentToggleBtn.innerHTML = '<i class="bi bi-chevron-down me-1"></i>Hiện';
+                documentToggleBtn.classList.remove('btn-outline-primary');
+                documentToggleBtn.classList.add('btn-outline-secondary');
+            }
+            
+            // Hide form after success
+            const formContainer = document.getElementById('workFormContainer');
+            if (formContainer.style.display !== 'none') {
+                toggleWorkForm();
+            }
+        }
+
+        // Preview image in modal
+        function previewImage(src) {
+            document.getElementById('previewImage').src = src;
+            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            modal.show();
+        }
+
+        // Action functions
+        async function performMaintenance() {
+            try {
+                showNotification('Đang thực hiện bảo dưỡng...', 'info');
+                
+                const result = await window.SmartACAPI.performMaintenance({
+                    air_conditioner: currentAC,
+                    description: 'Bảo dưỡng định kỳ qua hệ thống',
+                    worker_name: 'Nhân viên kỹ thuật',
+                    notes: 'Thực hiện bảo dưỡng tự động'
+                });
+                
+                if (result.success) {
+                    // Reload AC data
+                    await loadAirConditionerFromURL();
+                    showNotification('Bảo dưỡng thành công!', 'success');
+                } else {
+                    throw new Error('Không thể thực hiện bảo dưỡng');
+                }
+            } catch (error) {
+                console.error('Error performing maintenance:', error);
+                showNotification('Lỗi khi thực hiện bảo dưỡng: ' + error.message, 'error');
+            }
+        }
+
+        async function performRepair() {
+            try {
+                showNotification('Đang thực hiện sửa chữa...', 'info');
+                
+                const result = await window.SmartACAPI.performRepair({
+                    air_conditioner: currentAC,
+                    description: 'Sửa chữa qua hệ thống',
+                    worker_name: 'Nhân viên kỹ thuật',
+                    notes: 'Thực hiện sửa chữa tự động'
+                });
+                
+                if (result.success) {
+                    // Reload AC data
+                    await loadAirConditionerFromURL();
+                    showNotification('Sửa chữa thành công!', 'success');
+                } else {
+                    throw new Error('Không thể thực hiện sửa chữa');
+                }
+            } catch (error) {
+                console.error('Error performing repair:', error);
+                showNotification('Lỗi khi thực hiện sửa chữa: ' + error.message, 'error');
+            }
+        }
+
+        function editAirConditioner() {
+            // Redirect to main page with edit parameter
+            window.location.href = `baodung-dieuhoa.html?edit=${currentAC.code}`;
+        }
+
+        // Utility functions
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('vi-VN');
+            } catch (e) {
+                return dateString;
+            }
+        }
+        
+        function getStatusText(status) {
+            const statusMap = {
+                'excellent': 'Hoạt động xuất sắc',
+                'good': 'Hoạt động tốt',
+                'maintenance': 'Cần bảo dưỡng',
+                'repair': 'Cần sửa chữa',
+                'broken': 'Hỏng',
+                'completed': 'Hoàn thành',
+                'in-progress': 'Đang thực hiện',
+                'pending': 'Chờ xử lý'
+            };
+            return statusMap[status] || status;
+        }
+
+        // Get current AC object
+        function getCurrentAC() {
+            return currentAC;
+        }
+
+        function getTypeText(type) {
+            const typeMap = {
+                'split': 'Điều hòa Split',
+                'multi': 'Điều hòa Multi',
+                'central': 'Điều hòa trung tâm',
+                'cassette': 'Điều hòa âm trần'
+            };
+            return typeMap[type] || type;
+        }
+
+        function getWorkTypeText(type) {
+            const typeMap = {
+                'maintenance': 'Bảo dưỡng định kỳ',
+                'repair': 'Sửa chữa',
+                'inspection': 'Kiểm tra',
+                'cleaning': 'Vệ sinh',
+                'replacement': 'Thay thế linh kiện'
+            };
+            return typeMap[type] || type;
+        }
+
+        function getWorkStatusText(status) {
+            const statusMap = {
+                'completed': 'Hoàn thành',
+                'in-progress': 'Đang thực hiện',
+                'pending': 'Chờ xử lý',
+                'cancelled': 'Đã hủy'
+            };
+            return statusMap[status] || status;
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const iconMap = {
+                'success': 'check-circle',
+                'error': 'exclamation-triangle',
+                'warning': 'exclamation-triangle',
+                'info': 'info-circle'
+            };
+            
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 100px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `
+                <i class="bi bi-${iconMap[type] || 'info-circle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+    </script>
+
+    <!-- Work Details Modal -->
+    <div class="modal fade" id="workDetailsModal" tabindex="-1" aria-labelledby="workDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="workDetailsModalLabel">Chi tiết công việc</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="workDetailsModalBody">
+                    <!-- Content will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
