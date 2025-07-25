@@ -2789,7 +2789,7 @@
                             ${workImagesHtml}
                         </td>
                         <td class="text-center">
-                            <button class="btn btn-outline-primary btn-sm" onclick="showWorkDetails(${index})" title="Xem chi tiết (Index: ${index}, Total: ${history.length})">
+                            <button class="btn btn-outline-primary btn-sm" onclick="showWorkDetailsById('${entry.id}')" title="Xem chi tiết">
                                 <i class="bi bi-eye"></i>
                             </button>
                         </td>
@@ -4134,6 +4134,37 @@
                     notification.remove();
                 }
             }, 5000);
+        }
+
+        // Thêm hàm mới thay cho showWorkDetails(index):
+        function showWorkDetailsById(entryId) {
+            try {
+                // Tìm entry trong currentAC.workHistory theo id
+                const entry = (currentAC && currentAC.workHistory)
+                    ? currentAC.workHistory.find(e => e.id == entryId)
+                    : null;
+                if (!entry) {
+                    alert('Không tìm thấy dữ liệu công việc với id: ' + entryId);
+                    return;
+                }
+                // Update modal title
+                document.getElementById('workDetailsModalLabel').innerHTML = 
+                    `<i class="bi bi-eye me-2"></i>Chi tiết công việc - ${formatDate(entry.work_date || entry.date)}`;
+                // Use the same function as timeline to create the content
+                const timelineItemContent = createEnhancedTimelineItem(entry);
+                document.getElementById('workDetailsModalBody').innerHTML = `
+                    <div class="timeline-modal-content">
+                        ${timelineItemContent}
+                    </div>
+                `;
+                // Show modal using Bootstrap's API
+                const modalElement = document.getElementById('workDetailsModal');
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+            } catch (error) {
+                console.error('Error showing work details:', error);
+                alert('Lỗi hiển thị chi tiết: ' + error.message);
+            }
         }
     </script>
 
