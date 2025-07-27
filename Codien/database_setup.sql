@@ -10,6 +10,64 @@ DROP TABLE IF EXISTS air_contractors;
 DROP TABLE IF EXISTS air_conditioners;
 DROP TABLE IF EXISTS air_users;
 DROP TABLE IF EXISTS air_system_settings;
+DROP TABLE IF EXISTS air_ac_types;
+DROP TABLE IF EXISTS air_areas;
+DROP TABLE IF EXISTS air_locations;
+DROP TABLE IF EXISTS air_brands;
+
+-- ========================================
+-- CÁC BẢNG CẤU HÌNH DANH MỤC
+-- ========================================
+
+-- Bảng loại điều hòa
+CREATE TABLE air_ac_types (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    code VARCHAR(20) UNIQUE NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Bảng khu vực
+CREATE TABLE air_areas (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    code VARCHAR(20) UNIQUE NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Bảng vị trí cụ thể
+CREATE TABLE air_locations (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    area_id INT NOT NULL,
+    code VARCHAR(20) UNIQUE NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (area_id) REFERENCES air_areas(id) ON DELETE CASCADE
+);
+
+-- Bảng hãng sản xuất
+CREATE TABLE air_brands (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    code VARCHAR(20) UNIQUE NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    country VARCHAR(50),
+    logo_url VARCHAR(255),
+    website VARCHAR(255),
+    description TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
 
 -- ========================================
 -- 1. BẢNG USERS - Người dùng hệ thống
@@ -34,6 +92,10 @@ CREATE TABLE air_users (
 CREATE TABLE air_conditioners (
     id INT PRIMARY KEY AUTO_INCREMENT,
     code VARCHAR(50) UNIQUE NOT NULL,
+    type_id INT,
+    area_id INT,
+    location_id INT,
+    brand_id INT,
     type ENUM('split', 'multi', 'central', 'cassette') NOT NULL,
     area VARCHAR(100) NOT NULL,
     location VARCHAR(255) NOT NULL,
@@ -46,7 +108,12 @@ CREATE TABLE air_conditioners (
     next_maintenance DATE,
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (type_id) REFERENCES air_ac_types(id) ON DELETE SET NULL,
+    FOREIGN KEY (area_id) REFERENCES air_areas(id) ON DELETE SET NULL,
+    FOREIGN KEY (location_id) REFERENCES air_locations(id) ON DELETE SET NULL,
+    FOREIGN KEY (brand_id) REFERENCES air_brands(id) ON DELETE SET NULL
 );
 
 -- ========================================
@@ -265,6 +332,43 @@ INSERT INTO air_system_settings (setting_key, setting_value, description) VALUES
     {"id": "export", "name": "Phiếu xuất kho", "icon": "bi-box-seam", "required": false, "description": "Phiếu xuất linh kiện, vật tư"},
     {"id": "report", "name": "Báo cáo kỹ thuật", "icon": "bi-graph-up", "required": false, "description": "Báo cáo kiểm tra, đánh giá kỹ thuật"}
 ]', 'Cấu hình các loại giấy tờ');
+
+-- ========================================
+-- SAMPLE DATA FOR CONFIGURATION TABLES
+-- ========================================
+
+-- Insert sample AC types
+INSERT INTO air_ac_types (code, name, description) VALUES
+('SPLIT', 'Điều hòa Split', 'Điều hòa treo tường một chiều'),
+('MULTI', 'Điều hòa Multi', 'Điều hòa nhiều dàn lạnh'),
+('CENTRAL', 'Điều hòa trung tâm', 'Hệ thống điều hòa trung tâm'),
+('CASSETTE', 'Điều hòa âm trần', 'Điều hòa lắp âm trần');
+
+-- Insert sample areas
+INSERT INTO air_areas (code, name, description) VALUES
+('FLOOR1', 'Tầng 1', 'Tầng trệt của tòa nhà'),
+('FLOOR2', 'Tầng 2', 'Tầng 2 của tòa nhà'),
+('FLOOR3', 'Tầng 3', 'Tầng 3 của tòa nhà'),
+('WORKSHOP', 'Xưởng sản xuất', 'Khu vực xưởng sản xuất');
+
+-- Insert sample locations
+INSERT INTO air_locations (area_id, code, name, description) VALUES
+(1, 'F1-DIRECTOR', 'Phòng giám đốc', 'Phòng làm việc của giám đốc'),
+(1, 'F1-RECEPTION', 'Lễ tân', 'Khu vực lễ tân tầng 1'),
+(2, 'F2-MEETING', 'Phòng họp lớn', 'Phòng họp chính tầng 2'),
+(2, 'F2-OFFICE', 'Văn phòng chung', 'Khu vực làm việc chung tầng 2'),
+(3, 'F3-FINANCE', 'Phòng kế toán', 'Phòng làm việc của bộ phận kế toán'),
+(4, 'WS-CUTTING', 'Khu vực máy cắt', 'Khu vực máy cắt trong xưởng'),
+(4, 'WS-ASSEMBLY', 'Khu vực lắp ráp', 'Khu vực lắp ráp sản phẩm');
+
+-- Insert sample brands
+INSERT INTO air_brands (code, name, country, website, description) VALUES
+('DAIKIN', 'Daikin', 'Nhật Bản', 'https://www.daikin.com', 'Thương hiệu điều hòa cao cấp của Nhật'),
+('MITS', 'Mitsubishi', 'Nhật Bản', 'https://www.mitsubishielectric.com', 'Thương hiệu điều hòa nổi tiếng Nhật Bản'),
+('LG', 'LG Electronics', 'Hàn Quốc', 'https://www.lg.com', 'Thương hiệu điện tử Hàn Quốc'),
+('PANA', 'Panasonic', 'Nhật Bản', 'https://www.panasonic.com', 'Thương hiệu điện tử đa quốc gia'),
+('SAMSUNG', 'Samsung', 'Hàn Quốc', 'https://www.samsung.com', 'Tập đoàn điện tử Samsung'),
+('TOSHIBA', 'Toshiba', 'Nhật Bản', 'https://www.toshiba.com', 'Thương hiệu điện tử Nhật Bản');
 
 -- ========================================
 -- USEFUL VIEWS

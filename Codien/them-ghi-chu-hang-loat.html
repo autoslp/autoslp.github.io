@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm Ghi Chú Hàng Loạt - Smart AC Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a67d8;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --success: #48bb78;
+            --warning: #ed8936;
+            --danger: #f56565;
+            --info: #4299e1;
+            --light: #f7fafc;
+            --dark: #2d3748;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.2);
+            --border-radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navbar Styles */
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--dark) !important;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary) !important;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: var(--gradient-1);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .nav-link:hover::after {
+            width: 80%;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: var(--gradient-1);
+            color: white;
+            padding: 6rem 0 3rem;
+            margin-top: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .page-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Card Styles */
+        .smart-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            border: none;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .smart-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-1);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .smart-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .smart-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        /* Form Styles */
+        .form-control, .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Button Styles */
+        .btn-modern {
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-modern:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary-custom { background: var(--gradient-1); color: white; }
+        .btn-success-custom { background: var(--gradient-4); color: white; }
+        .btn-warning-custom { background: var(--gradient-2); color: white; }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .status-excellent { background: rgba(72, 187, 120, 0.2); color: #48bb78; border: 1px solid #48bb78; }
+        .status-good { background: rgba(72, 187, 120, 0.15); color: #38a169; border: 1px solid #38a169; }
+        .status-maintenance { background: rgba(237, 137, 54, 0.2); color: #ed8936; border: 1px solid #ed8936; }
+        .status-repair { background: rgba(245, 101, 101, 0.2); color: #f56565; border: 1px solid #f56565; }
+        .status-broken { background: rgba(229, 62, 62, 0.2); color: #e53e3e; border: 1px solid #e53e3e; }
+
+        /* AC List Styles */
+        .ac-list-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+        }
+
+        .ac-list-item {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.3s ease;
+        }
+
+        .ac-list-item:hover {
+            background: #f8fafc;
+        }
+
+        .ac-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .ac-list-item.selected {
+            background: rgba(102, 126, 234, 0.1);
+            border-left: 4px solid var(--primary);
+        }
+
+        /* Document Selection */
+        .document-selection {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .document-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .document-item:hover {
+            background: #f8fafc;
+            border-color: var(--primary);
+        }
+
+        .document-item.selected {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: var(--primary);
+        }
+
+        .document-checkbox {
+            margin-right: 0.75rem;
+        }
+
+        .document-upload {
+            display: none;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: #f8fafc;
+            border-radius: 6px;
+        }
+
+        .document-upload.show {
+            display: block;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 9999;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success { background: var(--success); }
+        .notification.error { background: var(--danger); }
+        .notification.info { background: var(--info); }
+        .notification.warning { background: var(--warning); }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 4rem 0 2rem;
+                margin-top: 60px;
+            }
+            
+            .smart-card {
+                margin-bottom: 1rem;
+            }
+            
+            .ac-list-container {
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="baodung-dieuhoa.html">
+                <i class="bi bi-snow2 me-2"></i>
+                Smart AC Manager
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="baodung-dieuhoa.html">
+                            <i class="bi bi-list me-1"></i>Danh Sách
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="home.html">
+                            <i class="bi bi-house-fill me-1"></i>Trang Chủ
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="page-content">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="baodung-dieuhoa.html" style="color: rgba(255, 255, 255, 0.8); text-decoration: none;">
+                                        <i class="bi bi-snow2 me-1"></i>Quản Lý Điều Hòa
+                                    </a>
+                                </li>
+                                <li class="breadcrumb-item active" style="color: rgba(255, 255, 255, 0.7);">
+                                    Thêm Ghi Chú Hàng Loạt
+                                </li>
+                            </ol>
+                        </nav>
+                        <h1 class="display-5 fw-bold mb-3">
+                            <i class="bi bi-plus-circle me-3"></i>
+                            Thêm Ghi Chú Hàng Loạt
+                        </h1>
+                        <p class="lead opacity-90">
+                            Thêm ghi chú công việc cho nhiều điều hòa cùng lúc
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="text-center">
+                        <div style="width: 200px; height: 150px; margin: 0 auto; border-radius: 15px; overflow: hidden; box-shadow: var(--shadow-lg); border: 3px solid rgba(255,255,255,0.3);">
+                            <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&h=300&fit=crop&crop=center" 
+                                 alt="Thêm ghi chú hàng loạt" 
+                                 style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="mt-3" style="opacity: 0.8;">
+                            <div style="font-size: 1.5rem; color: white;">
+                                <i class="bi bi-clipboard-data me-2"></i>
+                                <i class="bi bi-gear-fill me-2"></i>
+                                <i class="bi bi-tools"></i>
+                            </div>
+                            <p class="mt-2 mb-0" style="font-size: 0.9rem; opacity: 0.7;">
+                                Quản lý công việc hiệu quả
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container my-5">
+        <div class="row">
+            <!-- Left Panel - AC Selection -->
+            <div class="col-lg-6 mb-4">
+                <div class="smart-card h-100">
+                    <div class="p-4">
+                        <h5 class="text-uppercase fw-bold text-muted mb-4">
+                            <i class="bi bi-list-check me-2"></i>
+                            Chọn Điều Hòa
+                        </h5>
+                        
+                        <!-- Filters -->
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Khu vực</label>
+                                <select class="form-select" id="filterArea" onchange="filterAcList()">
+                                    <option value="">Tất cả</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Loại</label>
+                                <select class="form-select" id="filterType" onchange="filterAcList()">
+                                    <option value="">Tất cả</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Tìm kiếm</label>
+                                <input type="text" class="form-control" id="searchInput" 
+                                       placeholder="Mã, vị trí..." onkeyup="filterAcList()">
+                            </div>
+                        </div>
+                        
+                        <!-- Selection Controls -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span id="selectedCount" class="text-muted">0 điều hòa được chọn</span>
+                            <div>
+                                <button class="btn btn-outline-primary btn-sm me-2" onclick="selectAll()">
+                                    <i class="bi bi-check-all me-1"></i>Chọn tất cả
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="deselectAll()">
+                                    <i class="bi bi-x-circle me-1"></i>Bỏ chọn
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- AC List -->
+                        <div class="ac-list-container" id="acList">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Panel - Work Form -->
+            <div class="col-lg-6 mb-4">
+                <div class="smart-card h-100">
+                    <div class="p-4">
+                        <h5 class="text-uppercase fw-bold text-muted mb-4">
+                            <i class="bi bi-clipboard-plus me-2"></i>
+                            Thông Tin Công Việc
+                        </h5>
+                        
+                        <form id="workForm">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Loại công việc *</label>
+                                    <select class="form-select" id="workType" required>
+                                        <option value="">Chọn loại công việc</option>
+                                        <option value="maintenance">Bảo dưỡng định kỳ</option>
+                                        <option value="repair">Sửa chữa</option>
+                                        <option value="inspection">Kiểm tra</option>
+                                        <option value="cleaning">Vệ sinh</option>
+                                        <option value="replacement">Thay thế linh kiện</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Ngày thực hiện *</label>
+                                    <input type="date" class="form-control" id="workDate" required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Mô tả *</label>
+                                <textarea class="form-control" id="workNotes" rows="3" 
+                                          placeholder="Mô tả công việc thực hiện..." required></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Nhà thầu thi công *</label>
+                                <select class="form-select" id="contractorSelect" required>
+                                    <option value="">-- Chọn nhà thầu --</option>
+                                </select>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Chi phí (VNĐ)</label>
+                                    <input type="number" class="form-control" id="workCost" 
+                                           placeholder="0" min="0">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Thời gian bảo hành</label>
+                                    <input type="text" class="form-control" id="workWarranty" 
+                                           placeholder="VD: 6 tháng, 1 năm">
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Trạng thái</label>
+                                    <select class="form-select" id="workStatus">
+                                        <option value="completed">Hoàn thành</option>
+                                        <option value="in-progress">Đang thực hiện</option>
+                                        <option value="pending">Chờ xử lý</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Người thực hiện *</label>
+                                    <input type="text" class="form-control" id="workerName" 
+                                           placeholder="Tên người thực hiện" required>
+                                </div>
+                            </div>
+                            
+                            <!-- Document Selection -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label class="form-label fw-semibold mb-0">
+                                        <i class="bi bi-file-earmark-text me-2"></i>Giấy tờ bàn giao
+                                    </label>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="toggleDocumentBtn" onclick="toggleDocumentSelection()">
+                                        <i class="bi bi-chevron-down me-1"></i>Hiện
+                                    </button>
+                                </div>
+                                <div id="documentSelectionContainer" style="display: none;">
+                                    <div class="document-selection" id="documentSelection">
+                                        <!-- Dynamic content -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Tải ảnh công việc</label>
+                                <input type="file" class="form-control" id="workImages" accept="image/*" multiple>
+                                <small class="text-muted">Chọn ảnh trước, trong và sau khi thực hiện công việc</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Ghi chú thêm</label>
+                                <textarea class="form-control" id="workAdditionalNotes" rows="2" 
+                                          placeholder="Ghi chú, nhận xét thêm về công việc..."></textarea>
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="sendNotification">
+                                <label class="form-check-label" for="sendNotification">
+                                    Gửi thông báo cho quản lý
+                                </label>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success-custom btn-modern">
+                                    <i class="bi bi-save me-2"></i>Lưu Ghi Chú
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-modern" onclick="resetForm()">
+                                    <i class="bi bi-arrow-clockwise me-2"></i>Làm Mới
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="text-center">
+            <div class="loading-spinner mb-3"></div>
+            <p class="text-white">Đang xử lý...</p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Smart AC API Manager -->
+    <script src="smart-ac-api.js"></script>
+    
+    <script>
+        // Global variables
+        let airConditioners = [];
+        let contractors = [];
+        let selectedAcIds = [];
+        let filteredAcList = [];
+        let selectedDocuments = [];
+
+        // Document types
+        const documentTypes = [
+            { id: 'invoice', name: 'Hóa đơn VAT', icon: 'bi-receipt', required: false },
+            { id: 'handover', name: 'Biên bản bàn giao', icon: 'bi-file-earmark-text', required: false },
+            { id: 'warranty', name: 'Phiếu bảo hành', icon: 'bi-shield-check', required: false },
+            { id: 'certificate', name: 'Giấy chứng nhận', icon: 'bi-patch-check', required: false },
+            { id: 'export', name: 'Phiếu xuất kho', icon: 'bi-box-seam', required: false },
+            { id: 'report', name: 'Báo cáo kỹ thuật', icon: 'bi-graph-up', required: false }
+        ];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Set default date to today
+            document.getElementById('workDate').value = new Date().toISOString().split('T')[0];
+            
+            // Set default worker name from localStorage
+            const savedWorker = localStorage.getItem('userName');
+            if (savedWorker) {
+                document.getElementById('workerName').value = savedWorker;
+            }
+            
+            // Load data
+            await loadData();
+            
+            // Initialize document selection
+            initializeDocumentSelection();
+            
+            // Setup form submission
+            document.getElementById('workForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveWorkNotes();
+            });
+        });
+
+        // Load all necessary data
+        async function loadData() {
+            try {
+                showLoading(true);
+                
+                // Load air conditioners
+                airConditioners = await window.SmartACAPI.getAirConditioners();
+                filteredAcList = [...airConditioners];
+                
+                // Load contractors
+                contractors = await window.SmartACAPI.getContractors(true);
+                
+                // Populate filters
+                populateFilters();
+                
+                // Populate contractor dropdown
+                populateContractorDropdown();
+                
+                // Display AC list
+                displayAcList();
+                
+                showLoading(false);
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showNotification('Lỗi khi tải dữ liệu: ' + error.message, 'error');
+                showLoading(false);
+            }
+        }
+
+        // Populate filter dropdowns
+        function populateFilters() {
+            const areaSelect = document.getElementById('filterArea');
+            const typeSelect = document.getElementById('filterType');
+            
+            // Get unique areas and types
+            const areas = [...new Set(airConditioners.map(ac => ac.area).filter(Boolean))];
+            const types = [...new Set(airConditioners.map(ac => ac.type).filter(Boolean))];
+            
+            // Populate area filter
+            areas.forEach(area => {
+                const option = document.createElement('option');
+                option.value = area;
+                option.textContent = area;
+                areaSelect.appendChild(option);
+            });
+            
+            // Populate type filter
+            types.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = getTypeText(type);
+                typeSelect.appendChild(option);
+            });
+        }
+
+        // Populate contractor dropdown
+        function populateContractorDropdown() {
+            const select = document.getElementById('contractorSelect');
+            
+            // Clear existing options except first one
+            while (select.children.length > 1) {
+                select.removeChild(select.lastChild);
+            }
+            
+            // Add contractors
+            if (contractors && contractors.length > 0) {
+                contractors.forEach(contractor => {
+                    const option = document.createElement('option');
+                    option.value = contractor.id;
+                    option.textContent = `${contractor.name} - ${contractor.rating || 4.5}⭐ (${contractor.experience || 'N/A'})`;
+                    select.appendChild(option);
+                });
+            }
+        }
+
+        // Initialize document selection
+        function initializeDocumentSelection() {
+            const container = document.getElementById('documentSelection');
+            
+            const documentHTML = documentTypes.map(doc => `
+                <div class="document-item" id="doc-${doc.id}">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <input type="checkbox" class="form-check-input document-checkbox me-3" 
+                                   id="checkbox-${doc.id}" onchange="toggleDocument('${doc.id}')">
+                            <div>
+                                <div class="d-flex align-items-center">
+                                    <i class="${doc.icon} me-2"></i>
+                                    <strong>${doc.name}</strong>
+                                    ${doc.required ? '<span class="text-danger ms-1">*</span>' : ''}
+                                </div>
+                                <small class="text-muted">Đính kèm khi có</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="document-upload" id="upload-${doc.id}">
+                        <label class="form-label">Tải ảnh ${doc.name}:</label>
+                        <input type="file" class="form-control form-control-sm" 
+                               accept="image/*" multiple id="file-${doc.id}">
+                        <small class="text-muted">Có thể chọn nhiều ảnh</small>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = documentHTML;
+        }
+
+        // Display AC list
+        function displayAcList() {
+            const container = document.getElementById('acList');
+            
+            if (filteredAcList.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-search mb-2" style="font-size: 2rem;"></i>
+                        <p class="mb-0">Không tìm thấy điều hòa nào</p>
+                    </div>
+                `;
+                updateSelectedCount();
+                return;
+            }
+            
+            container.innerHTML = filteredAcList.map(ac => `
+                <div class="ac-list-item ${selectedAcIds.includes(ac.id) ? 'selected' : ''}" 
+                     onclick="toggleAcSelection(${ac.id})">
+                    <div class="d-flex align-items-center">
+                        <input type="checkbox" class="form-check-input me-3" 
+                               ${selectedAcIds.includes(ac.id) ? 'checked' : ''}
+                               onclick="event.stopPropagation()">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center mb-1">
+                                <strong class="me-2">${ac.code}</strong>
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary">${ac.area}</span>
+                            </div>
+                            <div class="small text-muted">
+                                <span class="me-2">${ac.location}</span>
+                                <span class="me-2">${getTypeText(ac.type)}</span>
+                                ${ac.brand ? `<span class="badge bg-info bg-opacity-10 text-info">${ac.brand}</span>` : ''}
+                            </div>
+                        </div>
+                        <span class="status-badge status-${ac.status}">
+                            ${getStatusText(ac.status)}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+            
+            updateSelectedCount();
+        }
+
+        // Filter AC list
+        function filterAcList() {
+            const area = document.getElementById('filterArea').value;
+            const type = document.getElementById('filterType').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            
+            filteredAcList = airConditioners.filter(ac => {
+                return (!area || ac.area === area) &&
+                       (!type || ac.type === type) &&
+                       (!search || ac.code.toLowerCase().includes(search) || 
+                        ac.location.toLowerCase().includes(search) ||
+                        (ac.brand && ac.brand.toLowerCase().includes(search)));
+            });
+            
+            displayAcList();
+        }
+
+        // Toggle AC selection
+        function toggleAcSelection(id) {
+            const index = selectedAcIds.indexOf(id);
+            if (index > -1) {
+                selectedAcIds.splice(index, 1);
+            } else {
+                selectedAcIds.push(id);
+            }
+            displayAcList();
+        }
+
+        // Select all ACs
+        function selectAll() {
+            selectedAcIds = filteredAcList.map(ac => ac.id);
+            displayAcList();
+        }
+
+        // Deselect all ACs
+        function deselectAll() {
+            selectedAcIds = [];
+            displayAcList();
+        }
+
+        // Update selected count
+        function updateSelectedCount() {
+            const countElement = document.getElementById('selectedCount');
+            countElement.textContent = `${selectedAcIds.length} điều hòa được chọn`;
+        }
+
+        // Toggle document selection
+        function toggleDocument(docId) {
+            const checkbox = document.getElementById(`checkbox-${docId}`);
+            const uploadDiv = document.getElementById(`upload-${docId}`);
+            const documentItem = document.getElementById(`doc-${docId}`);
+            
+            if (checkbox.checked) {
+                uploadDiv.classList.add('show');
+                documentItem.classList.add('selected');
+                if (!selectedDocuments.includes(docId)) {
+                    selectedDocuments.push(docId);
+                }
+            } else {
+                uploadDiv.classList.remove('show');
+                documentItem.classList.remove('selected');
+                selectedDocuments = selectedDocuments.filter(id => id !== docId);
+            }
+        }
+
+        // Toggle document selection container
+        function toggleDocumentSelection() {
+            const container = document.getElementById('documentSelectionContainer');
+            const toggleBtn = document.getElementById('toggleDocumentBtn');
+            
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                toggleBtn.innerHTML = '<i class="bi bi-chevron-up me-1"></i>Ẩn';
+                toggleBtn.classList.remove('btn-outline-secondary');
+                toggleBtn.classList.add('btn-outline-primary');
+            } else {
+                container.style.display = 'none';
+                toggleBtn.innerHTML = '<i class="bi bi-chevron-down me-1"></i>Hiện';
+                toggleBtn.classList.remove('btn-outline-primary');
+                toggleBtn.classList.add('btn-outline-secondary');
+            }
+        }
+
+        // Save work notes
+        async function saveWorkNotes() {
+            // Validate form
+            if (selectedAcIds.length === 0) {
+                showNotification('Vui lòng chọn ít nhất một điều hòa', 'error');
+                return;
+            }
+
+            const notes = document.getElementById('workNotes').value;
+            if (!notes) {
+                showNotification('Vui lòng nhập nội dung mô tả', 'error');
+                document.getElementById('workNotes').focus();
+                return;
+            }
+
+            const workType = document.getElementById('workType').value;
+            if (!workType) {
+                showNotification('Vui lòng chọn loại công việc', 'error');
+                document.getElementById('workType').focus();
+                return;
+            }
+            
+            const workDate = document.getElementById('workDate').value;
+            if (!workDate) {
+                showNotification('Vui lòng chọn ngày thực hiện', 'error');
+                document.getElementById('workDate').focus();
+                return;
+            }
+            
+            const worker = document.getElementById('workerName').value;
+            if (!worker) {
+                showNotification('Vui lòng nhập tên người thực hiện', 'error');
+                document.getElementById('workerName').focus();
+                return;
+            }
+            
+            const contractorId = document.getElementById('contractorSelect').value;
+            if (!contractorId) {
+                showNotification('Vui lòng chọn nhà thầu thi công', 'error');
+                document.getElementById('contractorSelect').focus();
+                return;
+            }
+            
+            try {
+                showLoading(true);
+                showNotification('Đang lưu ghi chú cho ' + selectedAcIds.length + ' điều hòa...', 'info');
+                
+                const formData = new FormData();
+                
+                // Basic work information
+                formData.append('action', 'add_bulk_work_history');
+                formData.append('work_date', workDate);
+                formData.append('worker_name', worker);
+                formData.append('description', notes);
+                formData.append('type', workType);
+                formData.append('contractor_id', contractorId);
+                
+                // Additional notes
+                const additionalNotes = document.getElementById('workAdditionalNotes').value;
+                if (additionalNotes) {
+                    formData.append('notes', additionalNotes);
+                }
+                
+                // Additional information
+                const cost = document.getElementById('workCost').value;
+                const warranty = document.getElementById('workWarranty').value;
+                const status = document.getElementById('workStatus').value;
+                const sendNotification = document.getElementById('sendNotification').checked;
+                
+                formData.append('cost', cost ? parseFloat(cost) : 0);
+                if (warranty) formData.append('warranty', warranty);
+                formData.append('status', status);
+                formData.append('send_notification', sendNotification);
+                
+                // Selected ACs
+                formData.append('ac_ids', JSON.stringify(selectedAcIds));
+                
+                // Selected documents
+                formData.append('document_types', JSON.stringify(selectedDocuments));
+                                formData.append('document_types', JSON.stringify(selectedDocuments));
+
+                // Work images
+                const workImages = document.getElementById('workImages').files;
+                if (workImages.length > 0) {
+                    for (let i = 0; i < workImages.length; i++) {
+                        formData.append('work_images', workImages[i]);
+                    }
+                }
+                
+                // Document images
+                selectedDocuments.forEach(docType => {
+                    const fileInput = document.getElementById(`file-${docType}`);
+                    if (fileInput && fileInput.files.length > 0) {
+                        for (let i = 0; i < fileInput.files.length; i++) {
+                            formData.append(`doc_images_${docType}`, fileInput.files[i]);
+                        }
+                    }
+                });
+                
+                // Send to webhook
+                const response = await fetch('https://autoslp.duckdns.org:5678/webhook/bulk_work_history', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                showNotification(`Đã thêm ghi chú cho ${selectedAcIds.length} điều hòa thành công!`, 'success');
+                
+                // Save worker name to localStorage
+                localStorage.setItem('userName', worker);
+                
+                // Reset form
+                resetForm();
+                
+            } catch (error) {
+                console.error('Error saving work notes:', error);
+                showNotification('Lỗi khi lưu ghi chú: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Reset form
+        function resetForm() {
+            document.getElementById('workForm').reset();
+            document.getElementById('workDate').value = new Date().toISOString().split('T')[0];
+            
+            // Reset selections
+            selectedAcIds = [];
+            selectedDocuments = [];
+            
+            // Reset document checkboxes
+            document.querySelectorAll('.document-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            document.querySelectorAll('.document-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            document.querySelectorAll('.document-upload').forEach(upload => {
+                upload.classList.remove('show');
+            });
+            
+            // Hide document selection
+            const container = document.getElementById('documentSelectionContainer');
+            const toggleBtn = document.getElementById('toggleDocumentBtn');
+            if (container && toggleBtn) {
+                container.style.display = 'none';
+                toggleBtn.innerHTML = '<i class="bi bi-chevron-down me-1"></i>Hiện';
+                toggleBtn.classList.remove('btn-outline-primary');
+                toggleBtn.classList.add('btn-outline-secondary');
+            }
+            
+            // Refresh AC list
+            displayAcList();
+        }
+
+        // Show/hide loading
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = show ? 'flex' : 'none';
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // Hide and remove notification
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Utility functions
+        function getTypeText(type) {
+            const typeMap = {
+                'split': 'Split',
+                'multi': 'Multi Split',
+                'central': 'Central',
+                'cassette': 'Cassette'
+            };
+            return typeMap[type] || type;
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'excellent': 'Xuất sắc',
+                'good': 'Tốt',
+                'maintenance': 'Cần bảo dưỡng',
+                'repair': 'Cần sửa chữa',
+                'broken': 'Hỏng'
+            };
+            return statusMap[status] || status;
+        }
+    </script>
+</body>
+</html> 

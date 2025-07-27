@@ -1,37 +1,37 @@
-// Smart AC Management - API Manager
-// Quản lý tất cả các API calls và webhook cho hệ thống điều hòa
+// Smart Machine Management - API Manager
+// Quản lý tất cả các API calls và webhook cho hệ thống máy móc
 
-class SmartACAPI {
+class SmartMachineAPI {
     constructor() {
         this.API_BASE_URL = 'https://autoslp.duckdns.org/api/data';
         this.WEBHOOK_BASE_URL = 'https://autoslp.duckdns.org:5678/webhook';
     }
 
-    // === AIR CONDITIONERS API ===
-    async getAirConditioners() {
+    // === MACHINES API ===
+    async getMachines() {
         try {
-            const response = await fetch(`${this.API_BASE_URL}/air_conditioners`);
+            const response = await fetch(`${this.API_BASE_URL}/machines`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
             return Array.isArray(data) ? data : [];
         } catch (error) {
-            console.error('Error fetching air conditioners:', error);
+            console.error('Error fetching machines:', error);
             throw error;
         }
     }
 
-    async getAirConditioner(id) {
+    async getMachine(id) {
         try {
-            const response = await fetch(`${this.API_BASE_URL}/air_conditioners/${id}`);
+            const response = await fetch(`${this.API_BASE_URL}/machines/${id}`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return await response.json();
         } catch (error) {
-            console.error('Error fetching air conditioner:', error);
+            console.error('Error fetching machine:', error);
             throw error;
         }
     }
 
-    async saveAirConditioner(data, isEdit = false, id = null) {
+    async saveMachine(data, isEdit = false, id = null) {
         try {
             const webhookData = {
                 action: isEdit ? 'update' : 'create',
@@ -40,7 +40,7 @@ class SmartACAPI {
                 timestamp: new Date().toISOString()
             };
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/air_conditioner`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -54,41 +54,39 @@ class SmartACAPI {
 
             return { success: true, data: await response.json() };
         } catch (error) {
-            console.error('Error saving air conditioner:', error);
+            console.error('Error saving machine:', error);
             throw error;
         }
     }
 
     // === WORK HISTORY API ===
-    async getWorkHistory(acId = null, acCode = null) {
+    async getWorkHistory(machineId = null, machineCode = null) {
         try {
-            // Since you're not using PHP backend, we need to filter work history by AC ID
-            // Get all work history first, then filter by ac_id
+            // Since you're not using PHP backend, we need to filter work history by Machine ID
+            // Get all work history first, then filter by machine_id
             const allWorkHistory = await this.getAllWorkHistory();
             
-            if (!acId && acCode) {
-                // If only acCode provided, find AC first to get ID
-                const acList = await this.getAirConditioners();
-                const ac = acList.find(ac => {
-                    const code = ac.code || ac.ma_dieu_hoa;
-                    return code === acCode;
+            if (!machineId && machineCode) {
+                // If only machineCode provided, find Machine first to get ID
+                const machineList = await this.getMachines();
+                const machine = machineList.find(machine => {
+                    const code = machine.code || machine.ma_may;
+                    return code === machineCode;
                 });
-                if (ac) {
-                    acId = ac.id;
+                if (machine) {
+                    machineId = machine.id;
                 }
             }
             
-            if (!acId) {
-                console.log('No AC ID found for work history lookup');
+            if (!machineId) {
                 return [];
             }
             
-            // Filter work history by ac_id
+            // Filter work history by machine_id
             const filteredHistory = allWorkHistory.filter(work => {
-                return work.ac_id == acId || work.air_conditioner_id == acId;
+                return work.machine_id == machineId || work.may_id == machineId;
             });
             
-            console.log(`Found ${filteredHistory.length} work history records for AC ID: ${acId}`);
             return filteredHistory;
             
         } catch (error) {
@@ -100,7 +98,7 @@ class SmartACAPI {
     // Get all work history records
     async getAllWorkHistory() {
         try {
-            const response = await fetch(`${this.API_BASE_URL}/work_history`);
+            const response = await fetch(`${this.API_BASE_URL}/machine_work_history`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
             return Array.isArray(data) ? data : [];
@@ -118,7 +116,7 @@ class SmartACAPI {
                 timestamp: new Date().toISOString()
             };
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/work_history`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine_work_history`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -138,23 +136,23 @@ class SmartACAPI {
     }
 
     // === MAINTENANCE & REPAIR ===
-    async performMaintenance(acData) {
+    async performMaintenance(machineData) {
         try {
             const maintenanceData = {
                 action: 'maintenance',
-                air_conditioner: acData.air_conditioner,
+                machine: machineData.machine,
                 work_data: {
                     work_date: new Date().toISOString().split('T')[0],
                     type: 'maintenance',
-                    description: acData.description || 'Bảo dưỡng định kỳ',
-                    worker_name: acData.worker_name || 'Nhân viên kỹ thuật',
+                    description: machineData.description || 'Bảo dưỡng định kỳ',
+                    worker_name: machineData.worker_name || 'Nhân viên kỹ thuật',
                     status: 'completed',
-                    notes: acData.notes || 'Thực hiện bảo dưỡng qua hệ thống'
+                    notes: machineData.notes || 'Thực hiện bảo dưỡng qua hệ thống'
                 },
                 timestamp: new Date().toISOString()
             };
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/maintenance`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine_maintenance`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -173,23 +171,23 @@ class SmartACAPI {
         }
     }
 
-    async performRepair(acData) {
+    async performRepair(machineData) {
         try {
             const repairData = {
                 action: 'repair',
-                air_conditioner: acData.air_conditioner,
+                machine: machineData.machine,
                 work_data: {
                     work_date: new Date().toISOString().split('T')[0],
                     type: 'repair',
-                    description: acData.description || 'Sửa chữa hỏng hóc',
-                    worker_name: acData.worker_name || 'Nhân viên kỹ thuật',
+                    description: machineData.description || 'Sửa chữa hỏng hóc',
+                    worker_name: machineData.worker_name || 'Nhân viên kỹ thuật',
                     status: 'completed',
-                    notes: acData.notes || 'Thực hiện sửa chữa qua hệ thống'
+                    notes: machineData.notes || 'Thực hiện sửa chữa qua hệ thống'
                 },
                 timestamp: new Date().toISOString()
             };
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/repair`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine_repair`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -227,15 +225,15 @@ class SmartACAPI {
     // === STATISTICS ===
     async getStatistics() {
         try {
-            const response = await fetch(`${this.API_BASE_URL}/statistics`);
+            const response = await fetch(`${this.API_BASE_URL}/machine_statistics`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return await response.json();
         } catch (error) {
             console.error('Error fetching statistics:', error);
             // Return empty stats as fallback
             return {
-                ac_by_status: {},
-                total_acs: 0,
+                machine_by_status: {},
+                total_machines: 0,
                 upcoming_maintenance: [],
                 work_by_type: [],
                 monthly_works: []
@@ -246,7 +244,7 @@ class SmartACAPI {
     // === UTILITY FUNCTIONS ===
     transformToAPIFormat(data) {
         return {
-            ma_dieu_hoa: data.code,
+            ma_may: data.code,
             loai: data.type,
             khu_vuc: data.area,
             vi_tri: data.location,
@@ -264,7 +262,7 @@ class SmartACAPI {
     transformFromAPIFormat(data) {
         return {
             id: data.id,
-            code: data.code || data.ma_dieu_hoa,  // Prioritize 'code' field from database
+            code: data.code || data.ma_may,
             type: data.type || data.loai,
             area: data.area || data.khu_vuc,
             location: data.location || data.vi_tri,
@@ -289,7 +287,7 @@ class SmartACAPI {
                 timestamp: new Date().toISOString()
             };
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/batch_update`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine_batch_update`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -309,15 +307,15 @@ class SmartACAPI {
     }
 
     // === FILE UPLOAD ===
-    async uploadImage(file, acId, imageType = 'general') {
+    async uploadImage(file, machineId, imageType = 'general') {
         try {
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('ac_id', acId);
+            formData.append('machine_id', machineId);
             formData.append('type', imageType);
             formData.append('timestamp', new Date().toISOString());
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/upload_image`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine_upload_image`, {
                 method: 'POST',
                 body: formData
             });
@@ -335,37 +333,36 @@ class SmartACAPI {
 }
 
 // Create global instance
-window.SmartACAPI = {
+window.SmartMachineAPI = {
     // API Configuration
     API_BASE_URL: 'https://autoslp.duckdns.org/api/data',
     WEBHOOK_BASE_URL: 'https://autoslp.duckdns.org:5678/webhook',
 
-    // === AIR CONDITIONERS API ===
-    getAirConditioners: async function() {
+    // === MACHINES API ===
+    getMachines: async function() {
         try {
-            const response = await fetch(`${this.API_BASE_URL}/air_conditioners`);
+            const response = await fetch(`${this.API_BASE_URL}/machines`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
-            console.log("API response:", data);
             return Array.isArray(data) ? data : [];
         } catch (error) {
-            console.error('Error fetching air conditioners:', error);
+            console.error('Error fetching machines:', error);
             throw error;
         }
     },
 
-    getAirConditioner: async function(id) {
+    getMachine: async function(id) {
         try {
-            const response = await fetch(`${this.API_BASE_URL}/air_conditioners/${id}`);
+            const response = await fetch(`${this.API_BASE_URL}/machines/${id}`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return await response.json();
         } catch (error) {
-            console.error('Error fetching air conditioner:', error);
+            console.error('Error fetching machine:', error);
             throw error;
         }
     },
 
-    saveAirConditioner: async function(data, isEdit = false, id = null) {
+    saveMachine: async function(data, isEdit = false, id = null) {
         try {
             const webhookData = {
                 action: isEdit ? 'update' : 'create',
@@ -374,7 +371,7 @@ window.SmartACAPI = {
                 timestamp: new Date().toISOString()
             };
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/air_conditioner`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -388,44 +385,38 @@ window.SmartACAPI = {
 
             return { success: true, data: await response.json() };
         } catch (error) {
-            console.error('Error saving air conditioner:', error);
+            console.error('Error saving machine:', error);
             throw error;
         }
     },
 
     // === WORK HISTORY API ===
-    getWorkHistory: async function(acId = null, acCode = null) {
+    getWorkHistory: async function(machineId = null, machineCode = null) {
         try {
-            // Since you're not using PHP backend, we need to filter work history by AC ID
-            // Get all work history first, then filter by ac_id
+            // Get all work history first, then filter by machine_id
             const allWorkHistory = await this.getAllWorkHistory();
             
-            console.log("Looking for work history for AC ID:", acId, "or code:", acCode);
-            
-            if (!acId && acCode) {
-                // If only acCode provided, find AC first to get ID
-                const acList = await this.getAirConditioners();
-                const ac = acList.find(ac => {
-                    const code = ac.code || ac.ma_dieu_hoa;
-                    return code === acCode;
+            if (!machineId && machineCode) {
+                // If only machineCode provided, find Machine first to get ID
+                const machineList = await this.getMachines();
+                const machine = machineList.find(machine => {
+                    const code = machine.code || machine.ma_may;
+                    return code === machineCode;
                 });
-                if (ac) {
-                    acId = ac.id;
-                    console.log("Found AC ID:", acId, "for code:", acCode);
+                if (machine) {
+                    machineId = machine.id;
                 }
             }
             
-            if (!acId) {
-                console.log('No AC ID found for work history lookup');
+            if (!machineId) {
                 return [];
             }
             
-            // Filter work history by ac_id
+            // Filter work history by machine_id
             const filteredHistory = allWorkHistory.filter(work => {
-                return work.ac_id == acId || work.air_conditioner_id == acId;
+                return work.machine_id == machineId || work.may_id == machineId;
             });
             
-            console.log(`Found ${filteredHistory.length} work history records for AC ID: ${acId}`);
             return filteredHistory;
             
         } catch (error) {
@@ -437,7 +428,7 @@ window.SmartACAPI = {
     // Get all work history records
     getAllWorkHistory: async function() {
         try {
-            const response = await fetch(`${this.API_BASE_URL}/work_history`);
+            const response = await fetch(`${this.API_BASE_URL}/machine_work_history`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
             return Array.isArray(data) ? data : [];
@@ -455,7 +446,7 @@ window.SmartACAPI = {
                 timestamp: new Date().toISOString()
             };
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/work_history`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine_work_history`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -475,23 +466,23 @@ window.SmartACAPI = {
     },
 
     // === MAINTENANCE & REPAIR ===
-    performMaintenance: async function(acData) {
+    performMaintenance: async function(machineData) {
         try {
             const maintenanceData = {
                 action: 'maintenance',
-                air_conditioner: acData.air_conditioner,
+                machine: machineData.machine,
                 work_data: {
                     work_date: new Date().toISOString().split('T')[0],
                     type: 'maintenance',
-                    description: acData.description || 'Bảo dưỡng định kỳ',
-                    worker_name: acData.worker_name || 'Nhân viên kỹ thuật',
+                    description: machineData.description || 'Bảo dưỡng định kỳ',
+                    worker_name: machineData.worker_name || 'Nhân viên kỹ thuật',
                     status: 'completed',
-                    notes: acData.notes || 'Thực hiện bảo dưỡng qua hệ thống'
+                    notes: machineData.notes || 'Thực hiện bảo dưỡng qua hệ thống'
                 },
                 timestamp: new Date().toISOString()
             };
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/maintenance`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine_maintenance`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -510,23 +501,23 @@ window.SmartACAPI = {
         }
     },
 
-    performRepair: async function(acData) {
+    performRepair: async function(machineData) {
         try {
             const repairData = {
                 action: 'repair',
-                air_conditioner: acData.air_conditioner,
+                machine: machineData.machine,
                 work_data: {
                     work_date: new Date().toISOString().split('T')[0],
                     type: 'repair',
-                    description: acData.description || 'Sửa chữa hỏng hóc',
-                    worker_name: acData.worker_name || 'Nhân viên kỹ thuật',
+                    description: machineData.description || 'Sửa chữa hỏng hóc',
+                    worker_name: machineData.worker_name || 'Nhân viên kỹ thuật',
                     status: 'completed',
-                    notes: acData.notes || 'Thực hiện sửa chữa qua hệ thống'
+                    notes: machineData.notes || 'Thực hiện sửa chữa qua hệ thống'
                 },
                 timestamp: new Date().toISOString()
             };
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/repair`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine_repair`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -564,15 +555,15 @@ window.SmartACAPI = {
     // === STATISTICS ===
     getStatistics: async function() {
         try {
-            const response = await fetch(`${this.API_BASE_URL}/statistics`);
+            const response = await fetch(`${this.API_BASE_URL}/machine_statistics`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return await response.json();
         } catch (error) {
             console.error('Error fetching statistics:', error);
             // Return empty stats as fallback
             return {
-                ac_by_status: {},
-                total_acs: 0,
+                machine_by_status: {},
+                total_machines: 0,
                 upcoming_maintenance: [],
                 work_by_type: [],
                 monthly_works: []
@@ -583,7 +574,7 @@ window.SmartACAPI = {
     // === UTILITY FUNCTIONS ===
     transformToAPIFormat: function(data) {
         return {
-            ma_dieu_hoa: data.code,
+            ma_may: data.code,
             loai: data.type,
             khu_vuc: data.area,
             vi_tri: data.location,
@@ -600,15 +591,13 @@ window.SmartACAPI = {
 
     // Transform API data to frontend format
     transformFromAPIFormat: function(apiData) {
-        console.log("Transforming API data:", apiData);
-        
         // Return immediately if data is null or undefined
         if (!apiData) return null;
         
         // Transform data to match frontend format
         return {
             id: apiData.id,
-            code: apiData.ma_dieu_hoa || apiData.code,
+            code: apiData.ma_may || apiData.code,
             type: apiData.loai || apiData.type,
             area: apiData.khu_vuc || apiData.area,
             location: apiData.vi_tri || apiData.location,
@@ -647,7 +636,7 @@ window.SmartACAPI = {
                 timestamp: new Date().toISOString()
             };
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/batch_update`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine_batch_update`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -667,15 +656,15 @@ window.SmartACAPI = {
     },
 
     // === FILE UPLOAD ===
-    uploadImage: async function(file, acId, imageType = 'general') {
+    uploadImage: async function(file, machineId, imageType = 'general') {
         try {
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('ac_id', acId);
+            formData.append('machine_id', machineId);
             formData.append('type', imageType);
             formData.append('timestamp', new Date().toISOString());
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/upload_image`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine_upload_image`, {
                 method: 'POST',
                 body: formData
             });
@@ -694,5 +683,5 @@ window.SmartACAPI = {
 
 // Export for module usage
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = SmartACAPI;
-}
+    module.exports = SmartMachineAPI;
+} 

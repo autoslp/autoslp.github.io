@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cài Đặt Hệ Thống - Smart AC Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a67d8;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --success: #48bb78;
+            --warning: #ed8936;
+            --danger: #f56565;
+            --info: #4299e1;
+            --light: #f7fafc;
+            --dark: #2d3748;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.2);
+            --border-radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navbar Styles */
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--dark) !important;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary) !important;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: var(--gradient-1);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .nav-link:hover::after {
+            width: 80%;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: var(--gradient-1);
+            color: white;
+            padding: 8rem 0 4rem;
+            margin-top: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        /* Card Styles */
+        .smart-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            border: none;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .smart-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-1);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .smart-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .smart-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        /* Settings Section Styles */
+        .settings-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .settings-header {
+            background: var(--gradient-1);
+            color: white;
+            padding: 1.5rem;
+            border: none;
+        }
+
+        .settings-body {
+            padding: 2rem;
+        }
+
+        /* Table Styles */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table thead th {
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            padding: 1rem;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-color: #e2e8f0;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Form Styles */
+        .form-control, .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-modern {
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-modern:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary-modern { background: var(--gradient-1); color: white; }
+        .btn-success-modern { background: var(--gradient-4); color: white; }
+        .btn-danger-modern { background: var(--gradient-2); color: white; }
+        .btn-warning-modern { background: var(--gradient-3); color: white; }
+
+        /* Badge Styles */
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-active { background: #d4edda; color: #155724; }
+        .badge-inactive { background: #f8d7da; color: #721c24; }
+
+        /* Action Button Styles */
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border: none;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            margin: 0 2px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-edit { background: var(--info); color: white; }
+        .btn-delete { background: var(--danger); color: white; }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2rem; }
+            .settings-body { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-gear me-2"></i>
+                Cài Đặt Hệ Thống
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="baodung-dieuhoa.html">
+                            <i class="bi bi-arrow-left me-1"></i>Quay lại
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#types">Loại ĐH</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#areas">Khu vực</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#locations">Vị trí</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#brands">Hãng SX</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="hero-content animate-fade-up">
+                        <h1 class="hero-title">
+                            Cài Đặt 
+                            <span style="background: var(--gradient-4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Hệ Thống</span>
+                        </h1>
+                        <p class="hero-subtitle">
+                            Quản lý các danh mục cơ bản: Loại điều hòa, Khu vực, Vị trí và Hãng sản xuất
+                        </p>
+                        <div class="d-flex gap-3">
+                            <button class="btn btn-light btn-lg btn-modern" onclick="exportAllSettings()">
+                                <i class="bi bi-download me-2"></i>Xuất Dữ Liệu
+                            </button>
+                            <button class="btn btn-outline-light btn-lg btn-modern" onclick="importSettings()">
+                                <i class="bi bi-upload me-2"></i>Nhập Dữ Liệu
+                            </button>
+                            <button class="btn btn-outline-light btn-lg btn-modern" onclick="syncWithDatabase()">
+                                <i class="bi bi-arrow-repeat me-2"></i>Đồng Bộ Database
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="text-center">
+                        <div style="font-size: 8rem; opacity: 0.3;">
+                            <i class="bi bi-gear"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container my-5">
+        <!-- AC Types Section -->
+        <div class="settings-card" id="types">
+            <div class="settings-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-list me-2"></i>
+                    Loại Điều Hòa
+                </h4>
+            </div>
+            <div class="settings-body">
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" id="newTypeName" placeholder="Tên loại điều hòa">
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" id="newTypeCode" placeholder="Mã loại (vd: split)">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-success-modern btn-modern w-100" onclick="addACType()">
+                            <i class="bi bi-plus-circle me-1"></i>Thêm Loại
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%;">STT</th>
+                                    <th style="width: 30%;">Tên Loại</th>
+                                    <th style="width: 25%;">Mã Loại</th>
+                                    <th style="width: 20%;">Trạng Thái</th>
+                                    <th style="width: 15%;">Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="acTypesTable">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Areas Section -->
+        <div class="settings-card" id="areas">
+            <div class="settings-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-building me-2"></i>
+                    Khu Vực
+                </h4>
+            </div>
+            <div class="settings-body">
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" id="newAreaName" placeholder="Tên khu vực">
+                            </div>
+                            <div class="col-md-6">
+                                <textarea class="form-control" id="newAreaDescription" placeholder="Mô tả khu vực" rows="1"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-success-modern btn-modern w-100" onclick="addArea()">
+                            <i class="bi bi-plus-circle me-1"></i>Thêm Khu Vực
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%;">STT</th>
+                                    <th style="width: 25%;">Tên Khu Vực</th>
+                                    <th style="width: 40%;">Mô Tả</th>
+                                    <th style="width: 10%;">Số ĐH</th>
+                                    <th style="width: 15%;">Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="areasTable">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Locations Section -->
+        <div class="settings-card" id="locations">
+            <div class="settings-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-geo-alt me-2"></i>
+                    Vị Trí Cụ Thể
+                </h4>
+            </div>
+            <div class="settings-body">
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <select class="form-select" id="newLocationArea">
+                                    <option value="">Chọn khu vực</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="newLocationName" placeholder="Tên vị trí">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="newLocationCode" placeholder="Mã vị trí">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-success-modern btn-modern w-100" onclick="addLocation()">
+                            <i class="bi bi-plus-circle me-1"></i>Thêm Vị Trí
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 8%;">STT</th>
+                                    <th style="width: 20%;">Khu Vực</th>
+                                    <th style="width: 30%;">Tên Vị Trí</th>
+                                    <th style="width: 20%;">Mã Vị Trí</th>
+                                    <th style="width: 10%;">Số ĐH</th>
+                                    <th style="width: 12%;">Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="locationsTable">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Brands Section -->
+        <div class="settings-card" id="brands">
+            <div class="settings-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-award me-2"></i>
+                    Hãng Sản Xuất
+                </h4>
+            </div>
+            <div class="settings-body">
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="newBrandName" placeholder="Tên hãng">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="newBrandCountry" placeholder="Quốc gia">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="url" class="form-control" id="newBrandWebsite" placeholder="Website">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-success-modern btn-modern w-100" onclick="addBrand()">
+                            <i class="bi bi-plus-circle me-1"></i>Thêm Hãng
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 8%;">STT</th>
+                                    <th style="width: 25%;">Tên Hãng</th>
+                                    <th style="width: 20%;">Quốc Gia</th>
+                                    <th style="width: 25%;">Website</th>
+                                    <th style="width: 10%;">Số ĐH</th>
+                                    <th style="width: 12%;">Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="brandsTable">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content" style="border-radius: var(--border-radius); border: none;">
+                <div class="modal-header" style="background: var(--gradient-1); color: white; border: none;">
+                    <h5 class="modal-title" id="editModalTitle">Chỉnh Sửa</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="editModalBody">
+                    <!-- Dynamic content -->
+                </div>
+                <div class="modal-footer" style="border: none; background: #f8fafc;">
+                    <button type="button" class="btn btn-outline-secondary btn-modern" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary-modern btn-modern" id="saveEditBtn">
+                        <i class="bi bi-save me-1"></i>Lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Settings Manager -->
+    <script src="settings-manager.js"></script>
+    
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'https://autoslp.duckdns.org/api/data';
+        const WEBHOOK_BASE_URL = 'https://autoslp.duckdns.org:5678/webhook';
+
+        // Global data variables
+        let acTypes = [];
+        let areas = [];
+        let locations = [];
+        let brands = [];
+        let currentEditType = '';
+        let currentEditId = null;
+
+        // Load data from Settings Manager
+        function loadData() {
+            acTypes = settingsManager.data.acTypes;
+            areas = settingsManager.data.areas;
+            locations = settingsManager.data.locations;
+            brands = settingsManager.data.brands;
+        }
+
+        // Save data to Settings Manager
+        function saveData() {
+            settingsManager.setACTypes(acTypes);
+            settingsManager.setAreas(areas);
+            settingsManager.setLocations(locations);
+            settingsManager.setBrands(brands);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async function() {
+            showNotification('Đang tải dữ liệu cài đặt...', 'info');
+            
+            try {
+                // Try to sync with API first
+                const syncResult = await settingsManager.syncWithAPI();
+                
+                if (syncResult.success) {
+                    if (syncResult.failedCount > 0) {
+                        showNotification(`Đã đồng bộ thành công! ${syncResult.failedCount} mục không thể tải từ API.`, 'warning');
+                    } else {
+                        showNotification('Đã đồng bộ dữ liệu từ API thành công!', 'success');
+                    }
+                } else {
+                    throw new Error(syncResult.error);
+                }
+            } catch (error) {
+                console.error('API sync failed, using local data:', error);
+                showNotification('Sử dụng dữ liệu local do không thể kết nối API', 'warning');
+            }
+            
+            // Load and display data
+            loadData();
+            displayACTypes();
+            displayAreas();
+            displayLocations();
+            displayBrands();
+            updateLocationAreaOptions();
+        });
+
+        // Display functions
+        function displayACTypes() {
+            const tbody = document.getElementById('acTypesTable');
+            tbody.innerHTML = acTypes.map((type, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><strong>${type.name}</strong></td>
+                    <td><code>${type.code}</code></td>
+                    <td>
+                        <span class="status-badge badge-${type.status}">
+                            ${type.status === 'active' ? 'Hoạt động' : 'Tạm dừng'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="action-btn btn-edit" onclick="editACType(${type.id})" title="Chỉnh sửa">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="action-btn btn-delete" onclick="deleteACType(${type.id})" title="Xóa">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function displayAreas() {
+            const tbody = document.getElementById('areasTable');
+            tbody.innerHTML = areas.map((area, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><strong>${area.name}</strong></td>
+                    <td>${area.description}</td>
+                    <td><span class="badge bg-info">${area.count}</span></td>
+                    <td>
+                        <button class="action-btn btn-edit" onclick="editArea(${area.id})" title="Chỉnh sửa">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="action-btn btn-delete" onclick="deleteArea(${area.id})" title="Xóa">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function displayLocations() {
+            const tbody = document.getElementById('locationsTable');
+            tbody.innerHTML = locations.map((location, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><span class="badge bg-secondary">${location.area}</span></td>
+                    <td><strong>${location.name}</strong></td>
+                    <td><code>${location.code}</code></td>
+                    <td><span class="badge bg-info">${location.count}</span></td>
+                    <td>
+                        <button class="action-btn btn-edit" onclick="editLocation(${location.id})" title="Chỉnh sửa">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="action-btn btn-delete" onclick="deleteLocation(${location.id})" title="Xóa">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function displayBrands() {
+            const tbody = document.getElementById('brandsTable');
+            tbody.innerHTML = brands.map((brand, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><strong>${brand.name}</strong></td>
+                    <td>${brand.country}</td>
+                    <td>
+                        ${brand.website ? `<a href="${brand.website}" target="_blank" class="text-primary">${brand.website}</a>` : '-'}
+                    </td>
+                    <td><span class="badge bg-info">${brand.count}</span></td>
+                    <td>
+                        <button class="action-btn btn-edit" onclick="editBrand(${brand.id})" title="Chỉnh sửa">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="action-btn btn-delete" onclick="deleteBrand(${brand.id})" title="Xóa">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateLocationAreaOptions() {
+            const select = document.getElementById('newLocationArea');
+            select.innerHTML = '<option value="">Chọn khu vực</option>' + 
+                areas.map(area => `<option value="${area.name}">${area.name}</option>`).join('');
+        }
+
+        // Add functions
+        async function addACType() {
+            const name = document.getElementById('newTypeName').value.trim();
+            const code = document.getElementById('newTypeCode').value.trim();
+
+            if (!name || !code) {
+                showNotification('Vui lòng điền đầy đủ thông tin!', 'error');
+                return;
+            }
+
+            // Check duplicate
+            if (acTypes.some(type => type.code === code)) {
+                showNotification('Mã loại đã tồn tại!', 'error');
+                return;
+            }
+
+            const newType = {
+                id: Date.now(),
+                name: name,
+                code: code,
+                status: 'active',
+                count: 0
+            };
+
+            try {
+                // Save to API first
+                await settingsManager.saveACTypeToAPI(newType, false);
+                
+                // Add to local data
+                acTypes.push(newType);
+                saveData();
+                displayACTypes();
+                
+                // Clear form
+                document.getElementById('newTypeName').value = '';
+                document.getElementById('newTypeCode').value = '';
+                
+                showNotification('Đã thêm loại điều hòa mới và lưu vào database!', 'success');
+            } catch (error) {
+                console.error('Error adding AC type:', error);
+                
+                // Add to local data as fallback
+                acTypes.push(newType);
+                saveData();
+                displayACTypes();
+                
+                // Clear form
+                document.getElementById('newTypeName').value = '';
+                document.getElementById('newTypeCode').value = '';
+                
+                showNotification('Đã thêm loại điều hòa mới (chỉ lưu local do lỗi API)!', 'warning');
+            }
+        }
+
+        async function addArea() {
+            const name = document.getElementById('newAreaName').value.trim();
+            const description = document.getElementById('newAreaDescription').value.trim();
+
+            if (!name) {
+                showNotification('Vui lòng nhập tên khu vực!', 'error');
+                return;
+            }
+
+            // Check duplicate
+            if (areas.some(area => area.name === name)) {
+                showNotification('Tên khu vực đã tồn tại!', 'error');
+                return;
+            }
+
+            const newArea = {
+                id: Date.now(),
+                name: name,
+                description: description || '',
+                count: 0
+            };
+
+            try {
+                // Save to API first
+                await settingsManager.saveAreaToAPI(newArea, false);
+                
+                // Add to local data
+                areas.push(newArea);
+                saveData();
+                displayAreas();
+                updateLocationAreaOptions();
+                
+                // Clear form
+                document.getElementById('newAreaName').value = '';
+                document.getElementById('newAreaDescription').value = '';
+                
+                showNotification('Đã thêm khu vực mới và lưu vào database!', 'success');
+            } catch (error) {
+                console.error('Error adding area:', error);
+                
+                // Add to local data as fallback
+                areas.push(newArea);
+                saveData();
+                displayAreas();
+                updateLocationAreaOptions();
+                
+                // Clear form
+                document.getElementById('newAreaName').value = '';
+                document.getElementById('newAreaDescription').value = '';
+                
+                showNotification('Đã thêm khu vực mới (chỉ lưu local do lỗi API)!', 'warning');
+            }
+        }
+
+        async function addLocation() {
+            const area = document.getElementById('newLocationArea').value;
+            const name = document.getElementById('newLocationName').value.trim();
+            const code = document.getElementById('newLocationCode').value.trim();
+
+            if (!area || !name || !code) {
+                showNotification('Vui lòng điền đầy đủ thông tin!', 'error');
+                return;
+            }
+
+            // Check duplicate
+            if (locations.some(loc => loc.code === code)) {
+                showNotification('Mã vị trí đã tồn tại!', 'error');
+                return;
+            }
+
+            const newLocation = {
+                id: Date.now(),
+                area: area,
+                name: name,
+                code: code,
+                count: 0
+            };
+
+            try {
+                // Save to API first
+                await settingsManager.saveLocationToAPI(newLocation, false);
+                
+                // Add to local data
+                locations.push(newLocation);
+                saveData();
+                displayLocations();
+                
+                // Clear form
+                document.getElementById('newLocationArea').value = '';
+                document.getElementById('newLocationName').value = '';
+                document.getElementById('newLocationCode').value = '';
+                
+                showNotification('Đã thêm vị trí mới và lưu vào database!', 'success');
+            } catch (error) {
+                console.error('Error adding location:', error);
+                
+                // Add to local data as fallback
+                locations.push(newLocation);
+                saveData();
+                displayLocations();
+                
+                // Clear form
+                document.getElementById('newLocationArea').value = '';
+                document.getElementById('newLocationName').value = '';
+                document.getElementById('newLocationCode').value = '';
+                
+                showNotification('Đã thêm vị trí mới (chỉ lưu local do lỗi API)!', 'warning');
+            }
+        }
+
+        async function addBrand() {
+            const name = document.getElementById('newBrandName').value.trim();
+            const country = document.getElementById('newBrandCountry').value.trim();
+            const website = document.getElementById('newBrandWebsite').value.trim();
+
+            if (!name) {
+                showNotification('Vui lòng nhập tên hãng!', 'error');
+                return;
+            }
+
+            // Check duplicate
+            if (brands.some(brand => brand.name === name)) {
+                showNotification('Tên hãng đã tồn tại!', 'error');
+                return;
+            }
+
+            const newBrand = {
+                id: Date.now(),
+                name: name,
+                country: country || '',
+                website: website || '',
+                count: 0
+            };
+
+            try {
+                // Save to API first
+                await settingsManager.saveBrandToAPI(newBrand, false);
+                
+                // Add to local data
+                brands.push(newBrand);
+                saveData();
+                displayBrands();
+                
+                // Clear form
+                document.getElementById('newBrandName').value = '';
+                document.getElementById('newBrandCountry').value = '';
+                document.getElementById('newBrandWebsite').value = '';
+                
+                showNotification('Đã thêm hãng sản xuất mới và lưu vào database!', 'success');
+            } catch (error) {
+                console.error('Error adding brand:', error);
+                
+                // Add to local data as fallback
+                brands.push(newBrand);
+                saveData();
+                displayBrands();
+                
+                // Clear form
+                document.getElementById('newBrandName').value = '';
+                document.getElementById('newBrandCountry').value = '';
+                document.getElementById('newBrandWebsite').value = '';
+                
+                showNotification('Đã thêm hãng sản xuất mới (chỉ lưu local do lỗi API)!', 'warning');
+            }
+        }
+
+        // Edit functions
+        function editACType(id) {
+            const type = acTypes.find(t => t.id === id);
+            if (!type) return;
+
+            currentEditType = 'actype';
+            currentEditId = id;
+
+            document.getElementById('editModalTitle').textContent = 'Chỉnh Sửa Loại Điều Hòa';
+            document.getElementById('editModalBody').innerHTML = `
+                <div class="mb-3">
+                    <label class="form-label">Tên loại điều hòa</label>
+                    <input type="text" class="form-control" id="editName" value="${type.name}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Mã loại</label>
+                    <input type="text" class="form-control" id="editCode" value="${type.code}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Trạng thái</label>
+                    <select class="form-select" id="editStatus">
+                        <option value="active" ${type.status === 'active' ? 'selected' : ''}>Hoạt động</option>
+                        <option value="inactive" ${type.status === 'inactive' ? 'selected' : ''}>Tạm dừng</option>
+                    </select>
+                </div>
+            `;
+
+            const modal = new bootstrap.Modal(document.getElementById('editModal'));
+            modal.show();
+        }
+
+        function editArea(id) {
+            const area = areas.find(a => a.id === id);
+            if (!area) return;
+
+            currentEditType = 'area';
+            currentEditId = id;
+
+            document.getElementById('editModalTitle').textContent = 'Chỉnh Sửa Khu Vực';
+            document.getElementById('editModalBody').innerHTML = `
+                <div class="mb-3">
+                    <label class="form-label">Tên khu vực</label>
+                    <input type="text" class="form-control" id="editName" value="${area.name}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Mô tả</label>
+                    <textarea class="form-control" id="editDescription" rows="3">${area.description}</textarea>
+                </div>
+            `;
+
+            const modal = new bootstrap.Modal(document.getElementById('editModal'));
+            modal.show();
+        }
+
+        function editLocation(id) {
+            const location = locations.find(l => l.id === id);
+            if (!location) return;
+
+            currentEditType = 'location';
+            currentEditId = id;
+
+            document.getElementById('editModalTitle').textContent = 'Chỉnh Sửa Vị Trí';
+            document.getElementById('editModalBody').innerHTML = `
+                <div class="mb-3">
+                    <label class="form-label">Khu vực</label>
+                    <select class="form-select" id="editArea">
+                        ${areas.map(area => `<option value="${area.name}" ${area.name === location.area ? 'selected' : ''}>${area.name}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tên vị trí</label>
+                    <input type="text" class="form-control" id="editName" value="${location.name}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Mã vị trí</label>
+                    <input type="text" class="form-control" id="editCode" value="${location.code}">
+                </div>
+            `;
+
+            const modal = new bootstrap.Modal(document.getElementById('editModal'));
+            modal.show();
+        }
+
+        function editBrand(id) {
+            const brand = brands.find(b => b.id === id);
+            if (!brand) return;
+
+            currentEditType = 'brand';
+            currentEditId = id;
+
+            document.getElementById('editModalTitle').textContent = 'Chỉnh Sửa Hãng Sản Xuất';
+            document.getElementById('editModalBody').innerHTML = `
+                <div class="mb-3">
+                    <label class="form-label">Tên hãng</label>
+                    <input type="text" class="form-control" id="editName" value="${brand.name}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Quốc gia</label>
+                    <input type="text" class="form-control" id="editCountry" value="${brand.country}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Website</label>
+                    <input type="url" class="form-control" id="editWebsite" value="${brand.website}">
+                </div>
+            `;
+
+            const modal = new bootstrap.Modal(document.getElementById('editModal'));
+            modal.show();
+        }
+
+        // Save edit function
+        document.getElementById('saveEditBtn').addEventListener('click', async function() {
+            if (!currentEditType || !currentEditId) return;
+
+            try {
+                switch (currentEditType) {
+                    case 'actype':
+                        const typeIndex = acTypes.findIndex(t => t.id === currentEditId);
+                        if (typeIndex !== -1) {
+                            const updatedType = {
+                                ...acTypes[typeIndex],
+                                name: document.getElementById('editName').value,
+                                code: document.getElementById('editCode').value,
+                                status: document.getElementById('editStatus').value
+                            };
+                            
+                            // Save to API first
+                            await settingsManager.saveACTypeToAPI(updatedType, true);
+                            
+                            // Update local data
+                            acTypes[typeIndex] = updatedType;
+                            saveData();
+                            displayACTypes();
+                            showNotification('Đã cập nhật loại điều hòa trong database!', 'success');
+                        }
+                        break;
+
+                    case 'area':
+                        const areaIndex = areas.findIndex(a => a.id === currentEditId);
+                        if (areaIndex !== -1) {
+                            const updatedArea = {
+                                ...areas[areaIndex],
+                                name: document.getElementById('editName').value,
+                                description: document.getElementById('editDescription').value
+                            };
+                            
+                            // Save to API first
+                            await settingsManager.saveAreaToAPI(updatedArea, true);
+                            
+                            // Update local data
+                            areas[areaIndex] = updatedArea;
+                            saveData();
+                            displayAreas();
+                            updateLocationAreaOptions();
+                            showNotification('Đã cập nhật khu vực trong database!', 'success');
+                        }
+                        break;
+
+                    case 'location':
+                        const locationIndex = locations.findIndex(l => l.id === currentEditId);
+                        if (locationIndex !== -1) {
+                            const updatedLocation = {
+                                ...locations[locationIndex],
+                                area: document.getElementById('editArea').value,
+                                name: document.getElementById('editName').value,
+                                code: document.getElementById('editCode').value
+                            };
+                            
+                            // Save to API first
+                            await settingsManager.saveLocationToAPI(updatedLocation, true);
+                            
+                            // Update local data
+                            locations[locationIndex] = updatedLocation;
+                            saveData();
+                            displayLocations();
+                            showNotification('Đã cập nhật vị trí trong database!', 'success');
+                        }
+                        break;
+
+                    case 'brand':
+                        const brandIndex = brands.findIndex(b => b.id === currentEditId);
+                        if (brandIndex !== -1) {
+                            const updatedBrand = {
+                                ...brands[brandIndex],
+                                name: document.getElementById('editName').value,
+                                country: document.getElementById('editCountry').value,
+                                website: document.getElementById('editWebsite').value
+                            };
+                            
+                            // Save to API first
+                            await settingsManager.saveBrandToAPI(updatedBrand, true);
+                            
+                            // Update local data
+                            brands[brandIndex] = updatedBrand;
+                            saveData();
+                            displayBrands();
+                            showNotification('Đã cập nhật hãng sản xuất trong database!', 'success');
+                        }
+                        break;
+                }
+            } catch (error) {
+                console.error('Error saving edit:', error);
+                showNotification('Lỗi khi lưu vào database: ' + error.message, 'error');
+                
+                // Still update local data as fallback
+                switch (currentEditType) {
+                    case 'actype':
+                        const typeIndex = acTypes.findIndex(t => t.id === currentEditId);
+                        if (typeIndex !== -1) {
+                            acTypes[typeIndex].name = document.getElementById('editName').value;
+                            acTypes[typeIndex].code = document.getElementById('editCode').value;
+                            acTypes[typeIndex].status = document.getElementById('editStatus').value;
+                            saveData();
+                            displayACTypes();
+                            showNotification('Đã cập nhật loại điều hòa (chỉ local)!', 'warning');
+                        }
+                        break;
+                    // Similar fallback for other cases...
+                }
+            }
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+            modal.hide();
+            currentEditType = '';
+            currentEditId = null;
+        });
+
+        // Delete functions
+        async function deleteACType(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa loại điều hòa này?')) {
+                try {
+                    // Delete from API first
+                    await settingsManager.deleteACTypeFromAPI(id);
+                    
+                    // Remove from local data
+                    acTypes = acTypes.filter(t => t.id !== id);
+                    saveData();
+                    displayACTypes();
+                    showNotification('Đã xóa loại điều hòa khỏi database!', 'success');
+                } catch (error) {
+                    console.error('Error deleting AC type:', error);
+                    
+                    // Remove from local data as fallback
+                    acTypes = acTypes.filter(t => t.id !== id);
+                    saveData();
+                    displayACTypes();
+                    showNotification('Đã xóa loại điều hòa (chỉ local do lỗi API)!', 'warning');
+                }
+            }
+        }
+
+        async function deleteArea(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa khu vực này? Các vị trí thuộc khu vực này cũng sẽ bị ảnh hưởng.')) {
+                try {
+                    // Delete from API first
+                    await settingsManager.deleteAreaFromAPI(id);
+                    
+                    // Remove from local data
+                    areas = areas.filter(a => a.id !== id);
+                    saveData();
+                    displayAreas();
+                    updateLocationAreaOptions();
+                    showNotification('Đã xóa khu vực khỏi database!', 'success');
+                } catch (error) {
+                    console.error('Error deleting area:', error);
+                    
+                    // Remove from local data as fallback
+                    areas = areas.filter(a => a.id !== id);
+                    saveData();
+                    displayAreas();
+                    updateLocationAreaOptions();
+                    showNotification('Đã xóa khu vực (chỉ local do lỗi API)!', 'warning');
+                }
+            }
+        }
+
+        async function deleteLocation(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa vị trí này?')) {
+                try {
+                    // Delete from API first
+                    await settingsManager.deleteLocationFromAPI(id);
+                    
+                    // Remove from local data
+                    locations = locations.filter(l => l.id !== id);
+                    saveData();
+                    displayLocations();
+                    showNotification('Đã xóa vị trí khỏi database!', 'success');
+                } catch (error) {
+                    console.error('Error deleting location:', error);
+                    
+                    // Remove from local data as fallback
+                    locations = locations.filter(l => l.id !== id);
+                    saveData();
+                    displayLocations();
+                    showNotification('Đã xóa vị trí (chỉ local do lỗi API)!', 'warning');
+                }
+            }
+        }
+
+        async function deleteBrand(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa hãng sản xuất này?')) {
+                try {
+                    // Delete from API first
+                    await settingsManager.deleteBrandFromAPI(id);
+                    
+                    // Remove from local data
+                    brands = brands.filter(b => b.id !== id);
+                    saveData();
+                    displayBrands();
+                    showNotification('Đã xóa hãng sản xuất khỏi database!', 'success');
+                } catch (error) {
+                    console.error('Error deleting brand:', error);
+                    
+                    // Remove from local data as fallback
+                    brands = brands.filter(b => b.id !== id);
+                    saveData();
+                    displayBrands();
+                    showNotification('Đã xóa hãng sản xuất (chỉ local do lỗi API)!', 'warning');
+                }
+            }
+        }
+
+        // Export/Import functions
+        function exportAllSettings() {
+            try {
+                const result = settingsManager.exportAllSettings();
+                if (result.success) {
+                    showNotification('Đã xuất dữ liệu cài đặt thành công!', 'success');
+                }
+            } catch (error) {
+                console.error('Error exporting settings:', error);
+                showNotification('Lỗi khi xuất dữ liệu: ' + error.message, 'error');
+            }
+        }
+
+        function importSettings() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const result = settingsManager.importSettings(e.target.result);
+                        
+                        if (result.success) {
+                            // Reload data and refresh displays
+                            loadData();
+                            displayACTypes();
+                            displayAreas();
+                            displayLocations();
+                            displayBrands();
+                            updateLocationAreaOptions();
+                            showNotification('Đã nhập dữ liệu cài đặt thành công!', 'success');
+                        } else {
+                            showNotification('Lỗi khi nhập file: ' + result.error, 'error');
+                        }
+                    } catch (error) {
+                        showNotification('Lỗi khi đọc file: ' + error.message, 'error');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // Sync with database function
+        async function syncWithDatabase() {
+            showNotification('Đang đồng bộ với database...', 'info');
+            
+            try {
+                const result = await settingsManager.syncWithAPI();
+                
+                if (result.success) {
+                    // Reload data and refresh displays
+                    loadData();
+                    displayACTypes();
+                    displayAreas();
+                    displayLocations();
+                    displayBrands();
+                    updateLocationAreaOptions();
+                    
+                    if (result.failedCount > 0) {
+                        showNotification(`Đồng bộ thành công! ${result.failedCount} mục không thể tải từ database.`, 'warning');
+                    } else {
+                        showNotification('Đã đồng bộ với database thành công!', 'success');
+                    }
+                } else {
+                    showNotification('Lỗi khi đồng bộ với database: ' + result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error syncing with database:', error);
+                showNotification('Lỗi kết nối database: ' + error.message, 'error');
+            }
+        }
+
+        // Notification function
+        function showNotification(message, type = 'info') {
+            const alertClass = type === 'success' ? 'alert-success' : type === 'error' ? 'alert-danger' : 'alert-info';
+            const notification = document.createElement('div');
+            notification.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 100px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

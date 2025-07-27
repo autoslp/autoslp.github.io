@@ -491,8 +491,7 @@
         <div class="container">
             <a class="navbar-brand" href="#">
                 <i class="bi bi-snow2 me-2"></i>
-                Smart AC Manager
-            </a>
+ĐIỀU HÒA CƠ ĐIỆN </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -506,6 +505,11 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#reports">Báo Cáo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="caidat-hethong.html">
+                            <i class="bi bi-gear-fill me-1"></i>Cài Đặt
+                        </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="home.html">
@@ -534,8 +538,11 @@
                             <button class="btn btn-light btn-lg btn-modern" onclick="showAddModal()">
                                 <i class="bi bi-plus-circle me-2"></i>Thêm Điều Hòa
                             </button>
-                            <button class="btn btn-outline-light btn-lg btn-modern" onclick="viewReports()">
+                            <button class="btn btn-outline-light btn-lg btn-modern" onclick="window.location.href='bao-cao.html'">
                                 <i class="bi bi-graph-up me-2"></i>Xem Báo Cáo
+                            </button>
+                            <button class="btn btn-outline-light btn-lg btn-modern" onclick="window.location.href='them-ghi-chu-hang-loat.html'">
+                                <i class="bi bi-clipboard-plus me-2"></i>Ghi Chú Hàng Loạt
                             </button>
                         </div>
                     </div>
@@ -639,8 +646,8 @@
                     <label class="form-label fw-semibold">Loại điều hòa</label>
                     <select class="form-select" id="filterType">
                         <option value="">Tất cả loại</option>
-                        <option value="split">Điều hòa Split</option>
-                        <option value="multi">Điều hòa Multi</option>
+                        <option value="split">Điều hòa treo tường</option>
+                        <option value="multi">Điều hòa cây</option>
                         <option value="central">Điều hòa trung tâm</option>
                         <option value="cassette">Điều hòa âm trần</option>
                     </select>
@@ -655,8 +662,11 @@
                     <button class="btn btn-detail btn-modern me-2" onclick="applyFilter()">
                         <i class="bi bi-search me-1"></i>Tìm kiếm
                     </button>
-                    <button class="btn btn-outline-secondary btn-modern" onclick="resetFilter()">
+                    <button class="btn btn-outline-secondary btn-modern me-2" onclick="resetFilter()">
                         <i class="bi bi-arrow-clockwise me-1"></i>Đặt lại
+                    </button>
+                    <button class="btn btn-outline-info btn-modern" onclick="forceRefresh()">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Làm mới
                     </button>
                 </div>
             </div>
@@ -679,28 +689,47 @@
                 <div class="modal-body p-4">
                     <form id="acForm">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">Mã điều hòa *</label>
                                     <input type="text" class="form-control" id="acCode" required>
                                     <input type="hidden" id="acId">
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">Loại điều hòa *</label>
                                     <select class="form-select" id="acType" required>
                                         <option value="">Chọn loại</option>
-                                        <option value="split">Điều hòa Split</option>
-                                        <option value="multi">Điều hòa Multi</option>
+                                        <option value="split">Điều hòa treo tường</option>
+                                        <option value="multi">Điều hòa cây</option>
                                         <option value="central">Điều hòa trung tâm</option>
                                         <option value="cassette">Điều hòa âm trần</option>
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Serial</label>
+                                    <input type="text" class="form-control" id="acSerial" placeholder="Nhập số serial">
                         </div>
-                        <div class="row">
-                            <div class="col-md-6">
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Công suất (BTU)</label>
+                                    <select class="form-select" id="acCapacity">
+                                        <option value="">Chọn công suất</option>
+                                        <option value="9000">9,000 BTU</option>
+                                        <option value="12000">12,000 BTU</option>
+                                        <option value="18000">18,000 BTU</option>
+                                        <option value="24000">24,000 BTU</option>
+                                        <option value="48000">48,000 BTU</option>
+                                        <option value="120000">120,000 BTU</option>
+                                        <option value="240000">240,000 BTU</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">Khu vực *</label>
                                     <select class="form-select" id="acArea" required>
@@ -712,27 +741,23 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">Vị trí cụ thể *</label>
-                                    <input type="text" class="form-control" id="acLocation" required>
+                                    <select class="form-select" id="acLocation" required>
+                                        <option value="">Chọn vị trí</option>
+                                    </select>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold">Công suất (BTU)</label>
-                                    <input type="number" class="form-control" id="acCapacity">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">Hãng sản xuất</label>
-                                    <input type="text" class="form-control" id="acBrand">
+                                    <select class="form-select" id="acBrand">
+                                        <option value="">Chọn hãng</option>
+                                    </select>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">Trạng thái hiện tại</label>
                                     <select class="form-select" id="acStatus">
@@ -744,8 +769,6 @@
                                     </select>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">Ngày lắp đặt</label>
@@ -758,10 +781,30 @@
                                     <input type="date" class="form-control" id="acWarrantyDate">
                                 </div>
                             </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Ảnh đại diện</label>
+                                    <input type="file" class="form-control" id="acAvatar" accept="image/*">
                         </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Ảnh điều hòa</label>
+                                    <input type="file" class="form-control" id="acImages" accept="image/*" multiple>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Ảnh giấy tờ</label>
+                                    <input type="file" class="form-control" id="acDocuments" accept="image/*" multiple>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Ghi chú</label>
                             <textarea class="form-control" id="acNotes" rows="3"></textarea>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -795,6 +838,8 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Settings Manager -->
+    <script src="settings-manager.js"></script>
     <!-- Smart AC API Manager -->
     <script src="smart-ac-api.js"></script>
     
@@ -808,9 +853,48 @@
         let filteredAirConditioners = [];
         let statistics = {};
 
+        // Hàm chuyển đổi URL Google Drive sang URL hiển thị trực tiếp
+        function convertGoogleDriveUrl(url) {
+            if (!url) return '';
+            
+            try {
+                // Kiểm tra xem URL có phải là Google Drive không
+                if (url.includes('drive.google.com/file/d/')) {
+                    // Trích xuất ID file từ URL
+                    const fileIdMatch = url.match(/\/d\/([^\/]+)/);
+                    if (fileIdMatch && fileIdMatch[1]) {
+                        const fileId = fileIdMatch[1];
+                        // Phương pháp 1: URL trực tiếp với tham số đầy đủ
+                        // return `https://drive.google.com/uc?id=${fileId}&export=view&authuser=0`;
+                        
+                        // Phương pháp 2 (nếu phương pháp 1 không hoạt động):
+                        return `https://lh3.googleusercontent.com/d/${fileId}`;
+                        
+                        // Phương pháp 3 (nếu các phương pháp trên không hoạt động):
+                        // return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+                    }
+                }
+                
+                // Thử kiểm tra dạng URL chia sẻ khác
+                if (url.includes('drive.google.com/open?id=')) {
+                    const fileIdMatch = url.match(/id=([^&]+)/);
+                    if (fileIdMatch && fileIdMatch[1]) {
+                        const fileId = fileIdMatch[1];
+                        return `https://drive.google.com/uc?id=${fileId}&export=view&authuser=0`;
+                    }
+                }
+            } catch (e) {
+                console.error('Lỗi khi chuyển đổi URL Google Drive:', e);
+            }
+            
+            // Nếu không phải URL Google Drive hoặc có lỗi, trả về URL gốc
+            return url;
+        }
+
         // API Functions
         async function fetchAirConditioners() {
             try {
+                // Lấy danh sách điều hòa từ API mới với tiền tố air_
                 const response = await fetch(`${API_BASE_URL}/air_conditioners`);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
@@ -835,6 +919,10 @@
                     repairCount: ac.so_lan_sua_chua || 0,
                     totalCost: ac.tong_chi_phi || 0,
                     lastContractorName: ac.nha_thau_gan_nhat || '',
+                    serial: ac.serial || ac.so_serial || '',
+                    avatar_url: ac.avatar_url || '',
+                    images_urls: ac.images_urls || [],
+                    documents_urls: ac.documents_urls || [],
                     workHistory: []
                 })) : [];
                 
@@ -843,8 +931,7 @@
             } catch (error) {
                 console.error('Error fetching air conditioners:', error);
                 showNotification('Lỗi khi tải dữ liệu điều hòa: ' + error.message, 'error');
-                // Return sample data for fallback
-                return getSampleAirConditioners();
+                return [];
             }
         }
 
@@ -938,105 +1025,34 @@
             }
         }
 
-        // Sample data for fallback
-        function getSampleAirConditioners() {
-            return [
-                {
-                    id: 1,
-                    code: "AC-001",
-                    type: "split",
-                    area: "Tầng 1",
-                    location: "Phòng giám đốc",
-                    capacity: 12000,
-                    brand: "Daikin",
-                    installDate: "2023-01-15",
-                    warrantyDate: "2026-01-15",
-                    status: "excellent",
-                    lastMaintenance: "2024-12-01",
-                    nextMaintenance: "2025-03-01",
-                    notes: "Hoạt động xuất sắc, vừa được bảo dưỡng",
-                    totalWorks: 2,
-                    maintenanceCount: 1,
-                    repairCount: 0,
-                    totalCost: 850000,
-                    workHistory: []
-                },
-                {
-                    id: 2,
-                    code: "AC-002",
-                    type: "multi",
-                    area: "Tầng 2",
-                    location: "Phòng họp lớn",
-                    capacity: 24000,
-                    brand: "Mitsubishi",
-                    installDate: "2022-08-20",
-                    warrantyDate: "2025-08-20",
-                    status: "maintenance",
-                    lastMaintenance: "2024-10-15",
-                    nextMaintenance: "2025-01-15",
-                    notes: "Cần vệ sinh filter và kiểm tra gas",
-                    totalWorks: 1,
-                    maintenanceCount: 0,
-                    repairCount: 0,
-                    totalCost: 0,
-                    workHistory: []
-                },
-                {
-                    id: 3,
-                    code: "AC-003",
-                    type: "split",
-                    area: "Xưởng sản xuất",
-                    location: "Khu vực máy cắt",
-                    capacity: 18000,
-                    brand: "LG",
-                    installDate: "2023-05-10",
-                    warrantyDate: "2026-05-10",
-                    status: "repair",
-                    lastMaintenance: "2024-11-20",
-                    nextMaintenance: "2025-02-20",
-                    notes: "Tiếng ồn bất thường, cần kiểm tra motor quạt",
-                    totalWorks: 1,
-                    maintenanceCount: 0,
-                    repairCount: 1,
-                    totalCost: 2500000,
-                    workHistory: []
-                }
-            ];
-        }
-
         // Initialize
         document.addEventListener('DOMContentLoaded', async function() {
+            console.log('Starting initialization...');
             showNotification('Đang tải dữ liệu...', 'info');
             
+            // Initialize settings manager and update dropdowns
+            settingsManager.updateFormDropdowns();
+            
             try {
-                // Load data from API
-                await Promise.all([
-                    fetchAirConditioners(),
-                    fetchStatistics()
-                ]);
+                console.log('Fetching data from API...');
+                // Try to load data from API
+                const apiData = await fetchAirConditioners();
                 
-                // Update UI
-                updateStats();
-                updateUpcomingSchedule();
-                displayAirConditioners();
-                
-                // Add refresh button
-                setTimeout(addRefreshButton, 100);
-                
-                showNotification('Tải dữ liệu thành công!', 'success');
+                if (apiData && apiData.length > 0) {
+                    console.log('API data loaded:', airConditioners.length);
+                    await fetchStatistics();
+                    updateStats();
+                    updateUpcomingSchedule();
+                    displayAirConditioners();
+                    showNotification('Tải dữ liệu từ API thành công!', 'success');
+                } else {
+                    showNotification('Không có dữ liệu điều hòa nào', 'info');
+                    displayAirConditioners(); // Hiển thị bảng trống
+                }
             } catch (error) {
-                console.error('Error initializing:', error);
-                showNotification('Lỗi khi khởi tạo: ' + error.message, 'error');
-                
-                // Load sample data as fallback
-                airConditioners = getSampleAirConditioners();
-                filteredAirConditioners = [...airConditioners];
-                await fetchStatistics();
-                updateStats();
-                updateUpcomingSchedule();
-                displayAirConditioners();
-                
-                showNotification('Đã tải dữ liệu mẫu do lỗi kết nối API', 'warning');
+                console.error('Error fetching from API:', error);
+                showNotification('Lỗi kết nối API: ' + error.message, 'error');
+                displayAirConditioners(); // Hiển thị bảng trống
             }
         });
 
@@ -1122,6 +1138,8 @@
         function displayAirConditioners() {
             const container = document.getElementById('airConditionerList');
             
+            console.log('Displaying air conditioners:', filteredAirConditioners.length, 'items');
+            
             if (filteredAirConditioners.length === 0) {
                 container.innerHTML = `
                     <div class="ac-table">
@@ -1144,8 +1162,8 @@
                             <thead>
                                 <tr>
                                     <th style="width: 8%;">Mã</th>
-                                    <th style="width: 20%;">Vị Trí</th>
-                                    <th style="width: 10%;">Loại</th>
+                                    <th style="width: 15%;">Vị Trí</th>
+                                    <th style="width: 15%;">Loại</th>
                                     <th style="width: 8%;">Hãng</th>
                                     <th style="width: 8%;">BTU</th>
                                     <th style="width: 12%;">Trạng Thái</th>
@@ -1165,7 +1183,7 @@
                                             <div class="location-area">${ac.area}</div>
                                         </td>
                                         <td class="text-center">
-                                            <span class="brand-badge">${getTypeText(ac.type).replace('Điều hòa ', '')}</span>
+                                            <span class="brand-badge">${getTypeText(ac.type)}</span>
                                         </td>
                                         <td class="text-center">
                                             <span class="brand-badge">${ac.brand || '-'}</span>
@@ -1180,12 +1198,12 @@
                                         </td>
                                         <td class="text-center">
                                             <div class="date-text">
-                                                ${new Date(ac.lastMaintenance).toLocaleDateString('vi-VN', {day: '2-digit', month: '2-digit'})}
+                                                ${ac.lastMaintenance ? formatVietnameseDate(ac.lastMaintenance) : '-'}
                                             </div>
                                         </td>
                                         <td class="text-center">
                                             <div class="date-text">
-                                                ${new Date(ac.nextMaintenance).toLocaleDateString('vi-VN', {day: '2-digit', month: '2-digit'})}
+                                                ${ac.nextMaintenance ? formatVietnameseDate(ac.nextMaintenance) : '-'}
                                             </div>
                                         </td>
                                         <td class="text-center">
@@ -1259,12 +1277,14 @@
 
         function getTypeText(type) {
             const typeMap = {
-                'split': 'Điều hòa Split',
-                'multi': 'Điều hòa Multi',
+                'split': 'Điều hòa treo tường',
+                'multi': 'Điều hòa cây',
                 'central': 'Điều hòa trung tâm',
-                'cassette': 'Điều hòa âm trần'
+                'cassette': 'Điều hòa Âm trần'
             };
-            return typeMap[type] || type;
+            // Chuyển về chữ thường để so sánh không phân biệt hoa thường
+            const lowerType = type ? type.toLowerCase() : '';
+            return typeMap[lowerType] || type;
         }
 
         function getWorkTypeText(type) {
@@ -1306,82 +1326,435 @@
             displayAirConditioners();
         }
 
+        // Force refresh function for testing
+        function forceRefresh() {
+            console.log('Force refreshing data...');
+            showNotification('Đang làm mới dữ liệu...', 'info');
+            
+            // Reload data from API
+            fetchAirConditioners().then(() => {
+            fetchStatistics().then(() => {
+                updateStats();
+                updateUpcomingSchedule();
+                displayAirConditioners();
+                showNotification('Dữ liệu đã được làm mới!', 'success');
+                });
+            });
+        }
+
         // Modal functions
         function showAddModal() {
             document.getElementById('modalTitle').textContent = 'Thêm Điều Hòa Mới';
             document.getElementById('acForm').reset();
             document.getElementById('acId').value = '';
+            
+            // Cài đặt giá trị mặc định
+            const today = new Date().toISOString().split('T')[0]; // Định dạng YYYY-MM-DD
+            // Tính ngày bảo hành (ngày hiện tại + 24 tháng)
+            const warrantyDate = new Date();
+            warrantyDate.setMonth(warrantyDate.getMonth() + 24);
+            const warrantyDateStr = warrantyDate.toISOString().split('T')[0];
+            
+            // Loại điều hòa mặc định: split
+            setTimeout(() => {
+                // Tìm kiếm option có value='split'
+                const typeSelect = document.getElementById('acType');
+                const splitOption = Array.from(typeSelect.options).find(option => option.value === 'split');
+                if (splitOption) {
+                    typeSelect.value = 'split';
+                } else {
+                    // Nếu không có option 'split', chọn option đầu tiên nếu có
+                    if (typeSelect.options.length > 1) {
+                        typeSelect.selectedIndex = 1;
+                    }
+                }
+            }, 100);
+            
+            // Công suất mặc định: 12000 BTU
+            document.getElementById('acCapacity').value = '12000';
+            
+            // Ngày lắp đặt mặc định: Hôm nay
+            document.getElementById('acInstallDate').value = today;
+            
+            // Ngày bảo hành mặc định: Hôm nay + 24 tháng
+            document.getElementById('acWarrantyDate').value = warrantyDateStr;
+            
+            // Trạng thái mặc định: good
+            document.getElementById('acStatus').value = 'good';
+            
+            // Cập nhật dropdown loại/khu vực/hãng/vị trí
+            settingsManager.updateFormDropdowns();
+            
+            // Khu vực mặc định: Tầng 1
+            document.getElementById('acArea').value = 'Tầng 1';
+            
+            updateLocationDropdown();
+            updateBrandDropdown();
+            
+            // Hãng sản xuất mặc định: Daikin (nếu có)
+            const brands = settingsManager.getBrandOptions();
+            if (brands.some(brand => brand.value === 'Daikin')) {
+                document.getElementById('acBrand').value = 'Daikin';
+            }
+            
+            // Chọn vị trí đầu tiên (nếu có)
+            setTimeout(() => {
+                const locationSelect = document.getElementById('acLocation');
+                if (locationSelect.options.length > 1) {
+                    locationSelect.selectedIndex = 1; // Chọn option đầu tiên sau placeholder
+                }
+            }, 100);
+            
             const modal = new bootstrap.Modal(document.getElementById('acModal'));
             modal.show();
         }
 
+        // Cập nhật danh sách vị trí (không còn lọc theo khu vực)
+        function updateLocationDropdown() {
+            const locationSelect = document.getElementById('acLocation');
+            // Lấy toàn bộ danh sách vị trí
+            const locations = settingsManager.getLocationOptions();
+            if (locations.length === 0) {
+                locationSelect.innerHTML = '<option value="">Chọn vị trí</option>' +
+                    '<option value="" disabled>Không có vị trí nào, hãy thêm ở trang Cài Đặt</option>';
+            } else {
+                locationSelect.innerHTML = '<option value="">Chọn vị trí</option>' +
+                    locations.map(loc => `<option value="${loc.value}">${loc.text}</option>`).join('');
+            }
+        }
+
+        // Cập nhật danh sách hãng
+        function updateBrandDropdown() {
+            const brandSelect = document.getElementById('acBrand');
+            const brands = settingsManager.getBrandOptions();
+            brandSelect.innerHTML = '<option value="">Chọn hãng</option>' +
+                brands.map(brand => `<option value="${brand.value}">${brand.text}</option>`).join('');
+        }
+
+        // Khi thay đổi khu vực thì cập nhật lại vị trí
+        document.addEventListener('change', function(e) {
+            if (e.target.id === 'acArea') {
+                updateLocationDropdown();
+            }
+        });
+
         function editAirConditioner(id) {
             const ac = airConditioners.find(a => a.id === id);
             if (!ac) return;
+            
+            console.log('Editing AC:', ac); // Debug để kiểm tra dữ liệu
 
             document.getElementById('modalTitle').textContent = 'Chỉnh Sửa Điều Hòa';
+            document.getElementById('acForm').reset();
+            
+            // Thiết lập ID trước
             document.getElementById('acId').value = ac.id;
-            document.getElementById('acCode').value = ac.code;
-            document.getElementById('acType').value = ac.type;
+            
+            // Cập nhật các dropdown 
+            settingsManager.updateFormDropdowns();
+            updateLocationDropdown();
+            updateBrandDropdown();
+            
+            // Tăng thời gian timeout để đảm bảo dropdown đã được cập nhật hoàn toàn
+            setTimeout(() => {
+                console.log('Setting values after timeout');
+                console.log('AC data:', ac, 'Serial field:', ac.serial);
+                
+                // Thiết lập giá trị cơ bản trước
+                document.getElementById('acCode').value = ac.code || '';
+                // Kiểm tra serial hoặc các tên trường thay thế
+                if (ac.serial !== undefined) {
+                    document.getElementById('acSerial').value = ac.serial;
+                    console.log('Set serial from ac.serial:', ac.serial);
+                } else if (ac.so_serial !== undefined) {
+                    document.getElementById('acSerial').value = ac.so_serial;
+                    console.log('Set serial from ac.so_serial:', ac.so_serial);
+                } else {
+                    document.getElementById('acSerial').value = '';
+                    console.log('Serial field not found in data');
+                }
+                document.getElementById('acNotes').value = ac.notes || '';
+                
+                // Đặt giá trị cho các dropdown, xử lý đặc biệt nếu cần
+                if (ac.type) {
+                    const typeSelect = document.getElementById('acType');
+                    // Kiểm tra xem giá trị có trong dropdown không
+                    const typeExists = Array.from(typeSelect.options).some(option => option.value === ac.type);
+                    if (typeExists) {
+                        typeSelect.value = ac.type;
+                    } else {
+                        console.warn("Loại điều hòa không tìm thấy trong danh sách:", ac.type);
+                        // Thêm tạm thời option cho loại điều hòa
+                        let typeName = ac.type;
+                        // Map lại tên hiển thị cho type
+                        const typeMap = {
+                            'split': 'Điều hòa treo tường',
+                            'multi': 'Điều hòa cây',
+                            'central': 'Điều hòa trung tâm',
+                            'cassette': 'Điều hòa âm trần'
+                        };
+                        if (typeMap[ac.type]) {
+                            typeName = typeMap[ac.type];
+                        }
+                        const option = new Option(typeName, ac.type);
+                        typeSelect.add(option);
+                        typeSelect.value = ac.type;
+                    }
+                }
+                
+                // Khu vực và vị trí
+                if (ac.area) {
             document.getElementById('acArea').value = ac.area;
+                    // Cập nhật lại dropdown vị trí sau khi đã chọn khu vực
+                    updateLocationDropdown();
+                    
+                    // Đợi thêm một chút để vị trí được cập nhật
+                    setTimeout(() => {
+                        if (ac.location) {
             document.getElementById('acLocation').value = ac.location;
-            document.getElementById('acCapacity').value = ac.capacity || '';
-            document.getElementById('acBrand').value = ac.brand || '';
-            document.getElementById('acInstallDate').value = ac.installDate || '';
-            document.getElementById('acWarrantyDate').value = ac.warrantyDate || '';
+                            if (!document.getElementById('acLocation').value) {
+                                console.warn("Không tìm thấy vị trí phù hợp:", ac.location);
+                            }
+                        }
+                    }, 100);
+                }
+                
+                // Công suất
+                if (ac.capacity) {
+                    const capacitySelect = document.getElementById('acCapacity');
+                    const capacityExists = Array.from(capacitySelect.options).some(option => option.value == ac.capacity);
+                    if (capacityExists) {
+                        capacitySelect.value = ac.capacity;
+                    } else {
+                        // Thêm tạm thời option cho capacity
+                        console.warn("Thêm tạm option công suất:", ac.capacity);
+                        const option = new Option(ac.capacity + ' BTU', ac.capacity);
+                        capacitySelect.add(option);
+                        capacitySelect.value = ac.capacity;
+                    }
+                }
+                
+                // Hãng sản xuất
+                if (ac.brand) {
+                    document.getElementById('acBrand').value = ac.brand;
+                }
+                
+                // Trạng thái
+                if (ac.status) {
             document.getElementById('acStatus').value = ac.status;
-            document.getElementById('acNotes').value = ac.notes || '';
+                }
+                
+                // Ngày tháng
+                if (ac.installDate) {
+                    try {
+                        const installDate = typeof ac.installDate === 'string' ? ac.installDate.split('T')[0] : '';
+                        document.getElementById('acInstallDate').value = installDate;
+                    } catch (e) {
+                        console.error("Lỗi khi xử lý ngày lắp đặt:", e);
+                    }
+                }
+                
+                if (ac.warrantyDate) {
+                    try {
+                        const warrantyDate = typeof ac.warrantyDate === 'string' ? ac.warrantyDate.split('T')[0] : '';
+                        document.getElementById('acWarrantyDate').value = warrantyDate;
+                    } catch (e) {
+                        console.error("Lỗi khi xử lý ngày bảo hành:", e);
+                    }
+                }
+                
+                // Hiển thị ảnh đại diện nếu có
+                if (ac.avatar_url) {
+                    try {
+                        // Xử lý URL nếu là chuỗi JSON
+                        const avatarUrl = typeof ac.avatar_url === 'string' && ac.avatar_url.startsWith('[') ? 
+                            JSON.parse(ac.avatar_url)[0] : ac.avatar_url;
+                        
+                        // Chuyển đổi URL Google Drive nếu cần
+                        const displayUrl = convertGoogleDriveUrl(avatarUrl);
+                        
+                        const previewContainer = document.createElement('div');
+                        previewContainer.className = 'mt-2';
+                        previewContainer.innerHTML = `
+                            <img src="${displayUrl}" alt="Ảnh đại diện" style="max-height: 80px; max-width: 100%;" class="rounded border">
+                            <p class="small text-muted mt-1">Ảnh hiện tại</p>
+                        `;
+                        document.getElementById('acAvatar').parentNode.appendChild(previewContainer);
+                    } catch (e) {
+                        console.error("Lỗi khi xử lý ảnh đại diện:", e);
+                    }
+                }
+                
+                // Hiển thị ảnh điều hòa nếu có
+                if (ac.images_urls) {
+                    try {
+                        // Parse chuỗi JSON nếu cần
+                        let imageUrls = ac.images_urls;
+                        if (typeof ac.images_urls === 'string') {
+                            try {
+                                imageUrls = JSON.parse(ac.images_urls);
+                                console.log("Parsed images_urls:", imageUrls);
+                            } catch (jsonErr) {
+                                console.error("Error parsing images_urls JSON:", jsonErr);
+                                imageUrls = ac.images_urls.split(','); // Fallback: thử tách theo dấu phẩy
+                            }
+                        }
+                        
+                        // Đảm bảo imageUrls là mảng
+                        if (!Array.isArray(imageUrls)) {
+                            imageUrls = [imageUrls];
+                        }
+                        
+                        if (imageUrls && imageUrls.length > 0) {
+                            const previewContainer = document.createElement('div');
+                            previewContainer.className = 'mt-2 d-flex gap-2 flex-wrap';
+                            
+                            imageUrls.forEach(url => {
+                                if (!url) return; // Bỏ qua URL rỗng
+                                
+                                // Chuyển đổi URL Google Drive nếu cần
+                                const displayUrl = convertGoogleDriveUrl(url);
+                                
+                                const imgDiv = document.createElement('div');
+                                imgDiv.innerHTML = `<img src="${displayUrl}" alt="Ảnh điều hòa" style="height: 60px; width: auto;" class="rounded border">`;
+                                previewContainer.appendChild(imgDiv);
+                            });
+                            
+                            previewContainer.innerHTML += `<p class="small text-muted w-100 mt-1">Đã có ${imageUrls.length} ảnh</p>`;
+                            document.getElementById('acImages').parentNode.appendChild(previewContainer);
+                        }
+                    } catch (e) {
+                        console.error("Lỗi khi xử lý ảnh điều hòa:", e);
+                    }
+                }
+                
+                // Hiển thị ảnh giấy tờ nếu có
+                if (ac.documents_urls) {
+                    try {
+                        // Parse chuỗi JSON nếu cần
+                        let docUrls = ac.documents_urls;
+                        if (typeof ac.documents_urls === 'string') {
+                            try {
+                                docUrls = JSON.parse(ac.documents_urls);
+                                console.log("Parsed documents_urls:", docUrls);
+                            } catch (jsonErr) {
+                                console.error("Error parsing documents_urls JSON:", jsonErr);
+                                docUrls = ac.documents_urls.split(','); // Fallback: thử tách theo dấu phẩy
+                            }
+                        }
+                        
+                        // Đảm bảo docUrls là mảng
+                        if (!Array.isArray(docUrls)) {
+                            docUrls = [docUrls];
+                        }
+                        
+                        if (docUrls && docUrls.length > 0) {
+                            const previewContainer = document.createElement('div');
+                            previewContainer.className = 'mt-2 d-flex gap-2 flex-wrap';
+                            
+                            docUrls.forEach(url => {
+                                if (!url) return; // Bỏ qua URL rỗng
+                                
+                                // Chuyển đổi URL Google Drive nếu cần
+                                const displayUrl = convertGoogleDriveUrl(url);
+                                
+                                const imgDiv = document.createElement('div');
+                                imgDiv.innerHTML = `<img src="${displayUrl}" alt="Ảnh giấy tờ" style="height: 60px; width: auto;" class="rounded border">`;
+                                previewContainer.appendChild(imgDiv);
+                            });
+                            
+                            previewContainer.innerHTML += `<p class="small text-muted w-100 mt-1">Đã có ${docUrls.length} ảnh</p>`;
+                            document.getElementById('acDocuments').parentNode.appendChild(previewContainer);
+                        }
+                    } catch (e) {
+                        console.error("Lỗi khi xử lý ảnh giấy tờ:", e);
+                    }
+                }
+                
+            }, 300);  // Tăng thời gian chờ lên 300ms
 
             const modal = new bootstrap.Modal(document.getElementById('acModal'));
             modal.show();
         }
 
         async function saveAirConditioner() {
-            const formData = {
-                code: document.getElementById('acCode').value,
-                type: document.getElementById('acType').value,
-                area: document.getElementById('acArea').value,
-                location: document.getElementById('acLocation').value,
-                capacity: parseInt(document.getElementById('acCapacity').value) || null,
-                brand: document.getElementById('acBrand').value,
-                install_date: document.getElementById('acInstallDate').value,
-                warranty_date: document.getElementById('acWarrantyDate').value,
-                status: document.getElementById('acStatus').value,
-                notes: document.getElementById('acNotes').value
-            };
-
+            // Lấy dữ liệu form và file
+            const code = document.getElementById('acCode').value;
+            const type = document.getElementById('acType').value;
+            const area = document.getElementById('acArea').value;
+            const location = document.getElementById('acLocation').value;
+            const capacity = document.getElementById('acCapacity').value;
+            const brand = document.getElementById('acBrand').value;
+            const install_date = document.getElementById('acInstallDate').value;
+            const warranty_date = document.getElementById('acWarrantyDate').value;
+            const status = document.getElementById('acStatus').value;
+            const notes = document.getElementById('acNotes').value;
+            const serial = document.getElementById('acSerial').value;
             const acId = document.getElementById('acId').value;
             const isEdit = !!acId;
+            const avatar = document.getElementById('acAvatar').files[0];
+            const images = document.getElementById('acImages').files;
+            const documents = document.getElementById('acDocuments').files;
 
-            if (!formData.code || !formData.type || !formData.area || !formData.location) {
+            if (!code || !type || !area || !location) {
                 alert('Vui lòng điền đầy đủ các trường bắt buộc!');
                 return;
             }
 
-            try {
-                // Calculate next maintenance date if not editing
-                if (!isEdit) {
+            const formData = new FormData();
+            formData.append('ma_dieu_hoa', code);
+            formData.append('loai', type);
+            formData.append('khu_vuc', area);
+            formData.append('vi_tri', location);
+            formData.append('cong_suat', capacity);
+            formData.append('hang', brand);
+            formData.append('ngay_lap_dat', install_date);
+            formData.append('ngay_bao_hanh', warranty_date);
+            formData.append('trang_thai', status);
+            formData.append('ghi_chu', notes);
+            formData.append('serial', serial);
+            
+            // Thêm id và action cho chỉnh sửa
+            if (isEdit) {
+                formData.append('id', acId);
+                formData.append('action', 'update');
+            } else {
+                formData.append('action', 'create');
+                // Tính ngày bảo dưỡng tiếp theo (6 tháng) chỉ khi thêm mới
                     const nextMaintenanceDate = new Date();
-                    nextMaintenanceDate.setDate(nextMaintenanceDate.getDate() + 180); // 6 months
-                    formData.next_maintenance = nextMaintenanceDate.toISOString().split('T')[0];
-                }
+                nextMaintenanceDate.setDate(nextMaintenanceDate.getDate() + 180);
+                formData.append('bao_duong_tiep_theo', nextMaintenanceDate.toISOString().split('T')[0]);
+            }
+            
+            // Ảnh đại diện
+            if (avatar) formData.append('avatar', avatar);
+            // Ảnh điều hòa
+            for (let i = 0; i < images.length; i++) {
+                formData.append('images', images[i]);
+            }
+            // Ảnh giấy tờ bàn giao
+            for (let i = 0; i < documents.length; i++) {
+                formData.append('documents', documents[i]);
+            }
 
-                // Save to API
-                const result = await saveAirConditionerData(formData, isEdit, acId);
-                
-                // Refresh data from API
+            try {
+                const response = await fetch('https://autoslp.duckdns.org:5678/webhook/themdieuhoa', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!response.ok) throw new Error('Lỗi khi gửi dữ liệu lên webhook!');
+                // Có thể lấy kết quả trả về nếu cần
+                // const result = await response.json();
+
+                // Làm mới dữ liệu
                 await fetchAirConditioners();
-                
-                // Update UI
                 updateStats();
                 updateUpcomingSchedule();
                 displayAirConditioners();
 
                 const modal = bootstrap.Modal.getInstance(document.getElementById('acModal'));
                 modal.hide();
-
                 showNotification(isEdit ? 'Cập nhật thành công!' : 'Thêm mới thành công!', 'success');
-                
             } catch (error) {
                 console.error('Error saving air conditioner:', error);
                 showNotification('Lỗi khi lưu dữ liệu: ' + error.message, 'error');
@@ -1524,45 +1897,10 @@
         }
 
         // Data refresh function
-        async function refreshData() {
-            try {
-                showNotification('Đang làm mới dữ liệu...', 'info');
-                
-                await Promise.all([
-                    fetchAirConditioners(),
-                    fetchStatistics()
-                ]);
-                
-                updateStats();
-                updateUpcomingSchedule();
-                displayAirConditioners();
-                
-                showNotification('Đã cập nhật dữ liệu mới nhất!', 'success');
-            } catch (error) {
-                console.error('Error refreshing data:', error);
-                showNotification('Lỗi khi làm mới dữ liệu: ' + error.message, 'error');
-            }
-        }
-
-        // Auto refresh every 5 minutes
-        setInterval(refreshData, 5 * 60 * 1000);
+        // Removed refresh functionality
 
         // Add refresh button to interface
-        function addRefreshButton() {
-            const refreshBtn = document.createElement('button');
-            refreshBtn.className = 'btn btn-outline-primary btn-sm me-2';
-            refreshBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Làm mới';
-            refreshBtn.onclick = refreshData;
-            
-            // Find a suitable place to add the button (you can adjust this)
-            const filterCard = document.querySelector('.filter-card .row:last-child');
-            if (filterCard) {
-                const col = document.createElement('div');
-                col.className = 'col-md-2';
-                col.appendChild(refreshBtn);
-                filterCard.appendChild(col);
-            }
-        }
+        // Removed refresh button functionality
 
         // Utility function to format Vietnamese date
         function formatVietnameseDate(dateString) {
@@ -1731,6 +2069,13 @@
         document.getElementById('searchInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 applyFilter();
+            }
+        });
+
+        // Area change handler for location suggestions
+        document.addEventListener('change', function(e) {
+            if (e.target.id === 'acArea') {
+                settingsManager.onAreaChange(e.target.value);
             }
         });
     </script>

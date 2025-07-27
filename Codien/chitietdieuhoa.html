@@ -2455,8 +2455,32 @@
         // Display basic information
         function displayBasicInfo(ac) {
             const basicInfo = document.getElementById('basicInfo');
-            const acImage = getACImage(ac.type);
-            const acImageLarge = getACImageLarge(ac.type);
+            const acImageDefault = getACImage(ac.type);
+            
+            // Xử lý URL avatar (ưu tiên sử dụng avatar_url nếu có)
+            let acImageLarge = getACImageLarge(ac.type);
+            let acImage = acImageDefault;
+            
+            // Xử lý avatar_url nếu có
+            if (ac.avatar_url) {
+                try {
+                    // Xử lý URL nếu là chuỗi JSON
+                    const avatarUrl = typeof ac.avatar_url === 'string' && ac.avatar_url.startsWith('[') ? 
+                        JSON.parse(ac.avatar_url)[0] : ac.avatar_url;
+                    
+                    // Chuyển đổi URL Google Drive nếu cần
+                    acImage = convertGoogleDriveUrl(avatarUrl);
+                    acImageLarge = acImage;
+                    
+                    // Cập nhật ảnh trong header
+                    updateHeaderImage(acImage);
+                } catch (e) {
+                    console.error("Lỗi khi xử lý avatar_url:", e, ac.avatar_url);
+                }
+            } else {
+                // Nếu không có avatar_url, sử dụng ảnh mặc định
+                updateHeaderImage(acImageDefault);
+            }
             
             // Handle different field names from API
             const code = ac.code || ac.ma_dieu_hoa;
@@ -2471,6 +2495,143 @@
             const lastMaintenance = ac.lastMaintenance || ac.last_maintenance || ac.bao_duong_gan_nhat;
             const nextMaintenance = ac.nextMaintenance || ac.next_maintenance || ac.bao_duong_tiep_theo;
             const notes = ac.notes || ac.ghi_chu;
+            
+            // Xử lý ảnh điều hòa
+            let imagesHtml = '';
+            if (ac.images_urls) {
+                try {
+                    // Parse chuỗi JSON nếu cần
+                    let imageUrls = ac.images_urls;
+                    if (typeof ac.images_urls === 'string') {
+                        try {
+                            imageUrls = JSON.parse(ac.images_urls);
+                        } catch (jsonErr) {
+                            console.error("Error parsing images_urls JSON:", jsonErr);
+                            imageUrls = ac.images_urls.split(','); // Fallback: thử tách theo dấu phẩy
+                        }
+                    }
+                    
+                    // Đảm bảo imageUrls là mảng
+                    if (!Array.isArray(imageUrls)) {
+                        imageUrls = [imageUrls];
+                    }
+                    
+                    if (imageUrls && imageUrls.length > 0) {
+                        imagesHtml = `
+                            <div class="info-item">
+                                <div class="info-label">Ảnh điều hòa</div>
+                                <div class="info-value">
+                                    <div class="d-flex gap-2 flex-wrap mt-2">
+                                        ${imageUrls.map(url => {
+                                            const displayUrl = convertGoogleDriveUrl(url);
+                                            return `<img src="${displayUrl}" alt="Ảnh điều hòa" style="height: 60px; width: auto;" class="rounded border" onclick="previewImage('${displayUrl}')" title="Click để xem ảnh lớn">`;
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } catch (e) {
+                    console.error("Lỗi khi xử lý images_urls:", e);
+                }
+            }
+            
+            // Xử lý ảnh giấy tờ
+            let documentsHtml = '';
+            if (ac.documents_urls) {
+                console.log("documents_urls found:", ac.documents_urls);
+                try {
+                    // Parse chuỗi JSON nếu cần
+                    let docUrls = ac.documents_urls;
+                    if (typeof ac.documents_urls === 'string') {
+                        console.log("documents_urls is string:", ac.documents_urls);
+                        try {
+                            docUrls = JSON.parse(ac.documents_urls);
+                            console.log("Successfully parsed documents_urls:", docUrls);
+                        } catch (jsonErr) {
+                            console.error("Error parsing documents_urls JSON:", jsonErr);
+                            // Thử nhiều cách xử lý khác nhau
+                            if (ac.documents_urls.includes(',')) {
+                                docUrls = ac.documents_urls.split(','); // Fallback: thử tách theo dấu phẩy
+                                console.log("Split by comma:", docUrls);
+                            } else if (ac.documents_urls.startsWith('[') && !ac.documents_urls.includes('{')) {
+                                // Trường hợp JSON dạng mảng chuỗi đơn giản
+                                try {
+                                    // Xử lý trường hợp chuỗi JSON bị lỗi định dạng
+                                    const cleanJson = ac.documents_urls
+                                        .replace(/\\/g, '\\\\')
+                                        .replace(/\\"/g, '\\"')
+                                        .replace(/\\'/g, "\\'");
+                                    docUrls = JSON.parse(cleanJson);
+                                    console.log("Parsed after cleaning:", docUrls);
+                                } catch (e) {
+                                    console.error("Still failed after cleaning:", e);
+                                    // Trường hợp cuối cùng: thử xử lý thủ công
+                                    docUrls = [ac.documents_urls.replace(/["\[\]]/g, '')];
+                                    console.log("Manual cleanup result:", docUrls);
+                                }
+                            }
+                        }
+                    } else {
+                        console.log("documents_urls is not string:", typeof ac.documents_urls, ac.documents_urls);
+                    }
+                    
+                    // Đảm bảo docUrls là mảng
+                    if (!Array.isArray(docUrls)) {
+                        docUrls = [docUrls];
+                        console.log("Converted docUrls to array:", docUrls);
+                    }
+                    
+                    console.log("Final docUrls before processing:", docUrls);
+                    
+                    // Xử lý trường hợp docUrls là mảng các đối tượng có thuộc tính file_path
+                    // hoặc là mảng các chuỗi URL đơn giản
+                    let processedUrls = docUrls.map(item => {
+                        if (item && typeof item === 'object' && item.file_path) {
+                            return {
+                                url: item.file_path,
+                                name: item.name || 'Ảnh giấy tờ'
+                            };
+                        } else if (typeof item === 'string') {
+                            return {
+                                url: item,
+                                name: 'Ảnh giấy tờ'
+                            };
+                        }
+                        return null;
+                    }).filter(item => item !== null);
+                    
+                    console.log("Processed URLs:", processedUrls);
+                    
+                    if (processedUrls && processedUrls.length > 0) {
+                        documentsHtml = `
+                            <div class="info-item">
+                                <div class="info-label">Ảnh giấy tờ</div>
+                                <div class="info-value">
+                                    <div class="d-flex gap-2 flex-wrap mt-2">
+                                        ${processedUrls.map((item, index) => {
+                                            console.log(`Processing document URL ${index}:`, item.url);
+                                            if (!item.url) {
+                                                console.log("Empty URL, skipping");
+                                                return '';
+                                            }
+                                            const displayUrl = convertGoogleDriveUrl(item.url);
+                                            console.log("Converted to:", displayUrl);
+                                            return `<img src="${displayUrl}" alt="${item.name}" style="height: 60px; width: auto;" class="rounded border" onclick="previewImage('${displayUrl}')" title="${item.name} - Click để xem ảnh lớn">`;
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        console.log("No document URLs found or docUrls is empty");
+                    }
+                } catch (e) {
+                    console.error("Lỗi khi xử lý documents_urls:", e);
+                }
+            } else {
+                console.log("No documents_urls found in ac object");
+            }
             
             basicInfo.innerHTML = `
                 <!-- AC Image -->
@@ -2509,6 +2670,11 @@
                 </div>
                 
                 <div class="info-item">
+                    <div class="info-label">Serial</div>
+                    <div class="info-value">${ac.serial || 'Chưa có'}</div>
+                </div>
+                
+                <div class="info-item">
                     <div class="info-label">Trạng thái</div>
                     <div class="info-value">
                         <span class="status-badge status-${status}">${getStatusText(status)}</span>
@@ -2541,7 +2707,69 @@
                     <div class="info-value">${notes}</div>
                 </div>
                 ` : ''}
+                
+                ${imagesHtml}
+                ${documentsHtml}
             `;
+        }
+
+        // Hàm cập nhật ảnh trên header
+        function updateHeaderImage(imageUrl) {
+            const headerImg = document.querySelector('.header-ac-image');
+            if (headerImg) {
+                headerImg.src = imageUrl;
+            }
+        }
+
+        // Hàm chuyển đổi URL Google Drive sang URL hiển thị trực tiếp
+        function convertGoogleDriveUrl(url) {
+            if (!url) return '';
+            
+            try {
+                // Kiểm tra xem URL có phải là Google Drive không
+                if (url.includes('drive.google.com/file/d/')) {
+                    // Trích xuất ID file từ URL
+                    const fileIdMatch = url.match(/\/d\/([^\/]+)/);
+                    if (fileIdMatch && fileIdMatch[1]) {
+                        const fileId = fileIdMatch[1];
+                        // URL trực tiếp với tham số đầy đủ - dùng lh3.googleusercontent.com để hiển thị trực tiếp
+                        return `https://lh3.googleusercontent.com/d/${fileId}`;
+                    }
+                }
+                
+                // Thử kiểm tra dạng URL chia sẻ khác
+                if (url.includes('drive.google.com/open?id=')) {
+                    const fileIdMatch = url.match(/id=([^&]+)/);
+                    if (fileIdMatch && fileIdMatch[1]) {
+                        const fileId = fileIdMatch[1];
+                        return `https://lh3.googleusercontent.com/d/${fileId}`;
+                    }
+                }
+                
+                // Xử lý link view
+                if (url.includes('drive.google.com/file/d/') && url.includes('/view')) {
+                    // Trích xuất ID từ URL view
+                    const fileIdMatch = url.match(/\/d\/([^\/]+)\/view/);
+                    if (fileIdMatch && fileIdMatch[1]) {
+                        const fileId = fileIdMatch[1];
+                        return `https://lh3.googleusercontent.com/d/${fileId}`;
+                    }
+                }
+                
+                // Xử lý URL dạng view?usp=drivesdk và view?usp=sharing
+                if (url.includes('drive.google.com/file/d/') && url.includes('view?usp=')) {
+                    const fileIdMatch = url.match(/\/d\/([^\/]+)\/view\?usp=/);
+                    if (fileIdMatch && fileIdMatch[1]) {
+                        const fileId = fileIdMatch[1];
+                        return `https://lh3.googleusercontent.com/d/${fileId}`;
+                    }
+                }
+            } catch (e) {
+                console.error('Lỗi khi chuyển đổi URL Google Drive:', e);
+            }
+            
+            // Nếu không phải URL Google Drive hoặc có lỗi, trả về URL gốc
+            return url;
         }
 
         // Display work history with enhanced tabs
@@ -2721,21 +2949,31 @@
 
                 // Handle document images
                 let documentImagesHtml = '';
+                
                 try {
                     if (entry.documents) {
                         const parsedDocs = typeof entry.documents === 'string' ? JSON.parse(entry.documents) : entry.documents;
                         if (Array.isArray(parsedDocs)) {
-                            const imagesOnly = parsedDocs.filter(doc => typeof doc === 'object' && doc.file_path && doc.file_path.match(/\.(jpg|jpeg|png|gif)$/i));
-                            if (imagesOnly.length > 0) {
+                            // Lấy tất cả tài liệu có file_path
+                            const imagesOnly = parsedDocs.filter(doc => doc && doc.file_path && doc.file_path.trim() !== '');
+                            
+                            if (imagesOnly && imagesOnly.length > 0) {
                                 documentImagesHtml = '<div class="table-images">' +
-                                    imagesOnly.slice(0, 2).map(img => `<img src="${img.file_path}" alt="${img.name}" class="table-image-thumb" onclick="previewImage('${img.file_path}')">`).join('') +
-                                    (imagesOnly.length > 2 ? `<span class="text-muted small">+${imagesOnly.length - 2}</span>` : '') +
-                                    '</div>';
+                                imagesOnly.slice(0, 2).map(img => {
+                                    // Chuyển đổi URL Google Drive
+                                    const displayUrl = convertGoogleDriveUrl(img.file_path);
+                                    console.log(`Converting table document URL: ${img.file_path} -> ${displayUrl}`);
+                                    return `<img src="${displayUrl}" alt="${img.name}" class="table-image-thumb" onclick="previewImage('${displayUrl}')">`;
+                                }).join('') +
+                                 
+                                // Add a "more" indicator if there are more than 2 images
+                                (imagesOnly.length > 2 ? `<span class="text-muted small">+${imagesOnly.length - 2}</span>` : '') +
+                                '</div>';
                             }
                         }
                     }
                 } catch (e) {
-                    console.warn('Error parsing document images:', e);
+                    console.warn('Error formatting document images:', e);
                 }
 
                 // Handle work images
@@ -2762,7 +3000,9 @@
                     workImagesHtml = '<div class="table-images">' +
                         allImages.slice(0, 3).map(img => { // Limit to 3 images in table
                             const imgUrl = typeof img === 'object' ? (img.path || img.url) : img;
-                            return `<img src="${imgUrl}" alt="Work image" class="table-image-thumb" onclick="previewImage('${imgUrl}')">`;
+                            // Chuyển đổi URL Google Drive
+                            const displayUrl = convertGoogleDriveUrl(imgUrl);
+                            return `<img src="${displayUrl}" alt="Work image" class="table-image-thumb" onclick="previewImage('${displayUrl}')">`;
                         }).join('') +
                         (allImages.length > 3 ? `<span class="text-muted small">+${allImages.length - 3}</span>` : '') +
                         '</div>';
@@ -2804,10 +3044,10 @@
                             <tr>
                                 <th style="width: 100px;">Ngày</th>
                                 <th style="width: 120px;">Loại/Trạng thái</th>
-                                <th style="width: 300px;">Mô tả</th>
-                                <th style="width: 150px;">Giấy tờ</th>
-                                <th style="width: 150px;">Hình ảnh</th>
-                                <th style="width: 80px;">Chi tiết</th>
+                                <th >Mô tả</th>
+                                <th style="width: 88px;">Giấy tờ</th>
+                                <th style="width: 88px;">Hình ảnh</th>
+                                <th style="width: 55px;">Chi tiết</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2928,7 +3168,9 @@
                         <div class="work-images">
                             ${allImages.map(img => {
                                 const imgUrl = typeof img === 'object' ? (img.path || img.url) : img;
-                                return `<img src="${imgUrl}" alt="Work image" class="work-image" onclick="previewImage('${imgUrl}')">`;
+                                // Chuyển đổi URL Google Drive sang URL hiển thị trực tiếp
+                                const displayUrl = convertGoogleDriveUrl(imgUrl);
+                                return `<img src="${displayUrl}" alt="Work image" class="work-image" onclick="previewImage('${displayUrl}')">`;
                             }).join('')}
                         </div>
                     </div>
@@ -2960,15 +3202,9 @@
                         const parsedDocs = typeof entry.documents === 'string' ? JSON.parse(entry.documents) : entry.documents;
                         
                         if (Array.isArray(parsedDocs)) {
-                            // Extract file_path from documents that have images/files (only image files)
+                            // Lấy tất cả tài liệu có file_path, không giới hạn định dạng file
                             const docImagesArray = parsedDocs
-                                .filter(doc => {
-                                    if (!doc.file_path || doc.file_path.trim() === '') return false;
-                                    // Check if file is an image (jpg, jpeg, png, gif, webp)
-                                    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
-                                    const lowercasePath = doc.file_path.toLowerCase();
-                                    return imageExtensions.some(ext => lowercasePath.endsWith(ext));
-                                })
+                                .filter(doc => doc && doc.file_path && doc.file_path.trim() !== '')
                                 .map(doc => ({
                                     path: doc.file_path,
                                     name: doc.name || 'Document',
@@ -2985,7 +3221,10 @@
                                         </small>
                                         <div class="work-images">
                                             ${docImagesArray.map(img => {
-                                                return `<img src="${img.path}" alt="${img.name}" class="work-image" onclick="previewImage('${img.path}')" title="${img.name}">`;
+                                                // Chuyển đổi URL Google Drive sang URL hiển thị trực tiếp
+                                                const displayUrl = convertGoogleDriveUrl(img.path);
+                                                console.log(`Converting document image URL: ${img.path} -> ${displayUrl}`);
+                                                return `<img src="${displayUrl}" alt="${img.name}" class="work-image" onclick="previewImage('${displayUrl}')" title="${img.name}">`;
                                             }).join('')}
                                         </div>
                                     </div>
@@ -3859,55 +4098,62 @@
                 const documentImages = {};
                 selectedDocuments.forEach(docId => {
                     const fileInput = document.getElementById(`file-${docId}`);
-                    if (fileInput.files.length > 0) {
+                    if (fileInput && fileInput.files.length > 0) {
                         documentImages[docId] = Array.from(fileInput.files);
                     }
                 });
 
-                // Prepare work data for API
-                const workData = {
-                    ac_id: currentAC.id,
-                    contractor_id: selectedContractor.id,
-                    work_date: date,
-                    type: type,
-                    description: description,
-                    worker_name: worker,
-                    cost: cost ? parseFloat(cost) : 0,
-                    warranty: warranty || null,
-                    status: status,
-                    notes: notes || null,
-                    
-                    // Handle documents
-                    documents: JSON.stringify(selectedDocuments.map(docId => {
-                        const docType = documentTypes.find(d => d.id === docId);
-                        return {
-                            type: docId,
-                            name: docType ? docType.name : docId,
-                            file_path: '', // Will be updated after file upload
-                            file_size: 0,
-                            uploaded_at: new Date().toISOString()
-                        };
-                    })),
-                    
-                    // Handle image placeholders (actual upload would be separate)
-                    images_before: JSON.stringify([]),
-                    images_during: JSON.stringify([]),
-                    images_after: JSON.stringify([])
-                };
-
-                // TODO: Handle file uploads to server
-                // For now, we'll create placeholder URLs
-                const allFiles = Array.from(imageFiles);
-                Object.keys(documentImages).forEach(docId => {
-                    documentImages[docId].forEach(file => {
-                        allFiles.push({...file, documentType: docId});
+                // Sử dụng FormData thay vì JSON để có thể gửi file
+                const formData = new FormData();
+                
+                // Thông tin cơ bản
+                formData.append('ma_dieu_hoa', currentAC.code || currentAC.ma_dieu_hoa || '');
+                formData.append('ac_id', currentAC.id);
+                formData.append('contractor_id', selectedContractor.id);
+                formData.append('work_date', date);
+                formData.append('type', type);
+                formData.append('description', description);
+                formData.append('worker_name', worker);
+                formData.append('cost', cost ? parseFloat(cost) : 0);
+                if (warranty) formData.append('warranty', warranty);
+                formData.append('status', status);
+                if (notes) formData.append('notes', notes);
+                
+                // Thêm selectedDocuments
+                formData.append('document_types', JSON.stringify(selectedDocuments));
+                
+                // Thêm các ảnh công việc
+                if (imageFiles.length > 0) {
+                    for (let i = 0; i < imageFiles.length; i++) {
+                        formData.append('work_images', imageFiles[i]);
+                    }
+                }
+                
+                // Thêm các ảnh tài liệu
+                Object.keys(documentImages).forEach(docType => {
+                    const files = documentImages[docType];
+                    files.forEach(file => {
+                        formData.append(`doc_images_${docType}`, file);
                     });
                 });
 
-                // Save work history to database via API
-                const result = await window.SmartACAPI.saveWorkHistory(workData);
+                // Gửi dữ liệu tới webhook
+                const response = await fetch('https://autoslp.duckdns.org:5678/webhook/work_history', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Lỗi khi gửi dữ liệu: ${response.status}`);
+                }
+
+                const result = await response.json();
                 
-                if (result.success) {
+                // Debug: Log kết quả từ webhook
+                console.log('Webhook response:', result);
+                
+                // Kiểm tra nếu workflow đã được khởi động thành công
+                if (result.success || result.message === 'Workflow was started' || result.status === 'started') {
                     // Reload work history using AC code
                     const workHistoryACCode = currentAC.code || currentAC.ma_dieu_hoa;
                     workHistory = await window.SmartACAPI.getWorkHistory(currentAC.id, workHistoryACCode);
@@ -3932,7 +4178,8 @@
                     
                     showNotification('Thêm ghi chú thành công!', 'success');
                 } else {
-                    throw new Error('Không thể lưu công việc');
+                    console.error('Webhook returned error, message:', result.message);
+                    throw new Error(result.message || 'Không thể lưu công việc');
                 }
                 
             } catch (error) {
@@ -4083,7 +4330,10 @@
                 'central': 'Điều hòa trung tâm',
                 'cassette': 'Điều hòa âm trần'
             };
-            return typeMap[type] || type;
+            
+            // Chuyển đổi type sang chữ thường để không phân biệt hoa/thường
+            const typeLower = type ? type.toLowerCase() : '';
+            return typeMap[typeLower] || type;
         }
 
         function getWorkTypeText(type) {
@@ -4187,3 +4437,4 @@
     </div>
 </body>
 </html>
+
