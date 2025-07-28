@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Lệnh Sản xuất - Hệ thống Quản lý Sản xuất</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo">CARTON MANAGER</div>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html">Tổng quan</a></li>
+                    <li><a href="lenh-san-xuat.html" class="active">Lệnh sản xuất</a></li>
+                    <li><a href="theo-doi.html">Theo dõi tiến độ</a></li>
+                    <li><a href="bao-cao.html">Báo cáo</a></li>
+                    <li><a href="#" id="logoutBtn">Đăng xuất</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1>Quản lý Lệnh Sản xuất</h1>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Tạo lệnh sản xuất mới</h3>
+                <button class="btn btn-primary" id="showFormBtn">Tạo lệnh mới</button>
+            </div>
+            
+            <div id="orderForm" style="display: none;">
+                <form id="newOrderForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Tên sản phẩm</label>
+                            <input type="text" class="form-control" id="tenSanPham" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Số lượng</label>
+                            <input type="number" class="form-control" id="soLuong" min="1" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Ngày bắt đầu</label>
+                            <input type="date" class="form-control" id="ngayBatDau" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Ngày dự kiến hoàn thành</label>
+                            <input type="date" class="form-control" id="ngayHoanThanh" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">Lưu lệnh sản xuất</button>
+                        <button type="button" class="btn btn-danger" id="cancelFormBtn">Hủy</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Danh sách lệnh sản xuất</h3>
+                <div class="filter-container">
+                    <label>Lọc theo trạng thái:</label>
+                    <select id="statusFilter" class="form-control">
+                        <option value="">Tất cả</option>
+                        <option value="chưa-bắt-đầu">Chưa bắt đầu</option>
+                        <option value="đang-san-xuat">Đang sản xuất</option>
+                        <option value="hoàn-thành">Hoàn thành</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã lệnh</th>
+                            <th>Sản phẩm</th>
+                            <th>Số lượng</th>
+                            <th>Ngày bắt đầu</th>
+                            <th>Ngày hoàn thành</th>
+                            <th>Trạng thái</th>
+                            <th>Tiến độ</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTable">
+                        <!-- Dữ liệu sẽ được thêm bằng JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <style>
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .form-actions {
+            margin-top: 20px;
+        }
+        
+        .filter-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .filter-container .form-control {
+            width: 150px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            margin: 5px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--success);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        .badge-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .status-progress {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .status-completed {
+            background-color: var(--success);
+            color: white;
+        }
+    </style>
+
+    <script src="app.js"></script>
+    <script>
+        // Kiểm tra đăng nhập
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Xử lý đăng xuất
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            });
+            
+            // Hiển thị form tạo lệnh
+            document.getElementById('showFormBtn').addEventListener('click', function() {
+                document.getElementById('orderForm').style.display = 'block';
+                this.style.display = 'none';
+                
+                // Set ngày mặc định
+                const today = new Date();
+                const todayStr = today.toISOString().split('T')[0];
+                
+                // Mặc định ngày bắt đầu là hôm nay
+                document.getElementById('ngayBatDau').value = todayStr;
+                
+                // Mặc định ngày hoàn thành là 7 ngày sau
+                const nextWeek = new Date();
+                nextWeek.setDate(today.getDate() + 7);
+                const nextWeekStr = nextWeek.toISOString().split('T')[0];
+                document.getElementById('ngayHoanThanh').value = nextWeekStr;
+            });
+            
+            // Ẩn form khi nhấn nút hủy
+            document.getElementById('cancelFormBtn').addEventListener('click', function() {
+                document.getElementById('orderForm').style.display = 'none';
+                document.getElementById('showFormBtn').style.display = 'block';
+            });
+            
+            // Xử lý form tạo lệnh sản xuất
+            document.getElementById('newOrderForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const tenSanPham = document.getElementById('tenSanPham').value;
+                const soLuong = parseInt(document.getElementById('soLuong').value);
+                const ngayBatDau = document.getElementById('ngayBatDau').value;
+                const ngayHoanThanh = document.getElementById('ngayHoanThanh').value;
+                
+                const lenhMoi = {
+                    tenSanPham,
+                    soLuong,
+                    ngayBatDau,
+                    ngayHoanThanh
+                };
+                
+                // Thêm lệnh mới
+                taoLenhSanXuat(lenhMoi);
+                
+                // Reset form và ẩn
+                this.reset();
+                document.getElementById('orderForm').style.display = 'none';
+                document.getElementById('showFormBtn').style.display = 'block';
+                
+                // Cập nhật bảng
+                renderOrdersTable();
+            });
+            
+            // Xử lý filter
+            document.getElementById('statusFilter').addEventListener('change', function() {
+                renderOrdersTable();
+            });
+            
+            // Render bảng lệnh sản xuất
+            renderOrdersTable();
+        });
+        
+        // Render bảng lệnh sản xuất
+        function renderOrdersTable() {
+            const tableBody = document.getElementById('ordersTable');
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            // Lọc lệnh theo trạng thái
+            const filteredOrders = statusFilter 
+                ? LENH_SAN_XUAT.filter(order => order.trangThai === statusFilter)
+                : LENH_SAN_XUAT;
+                
+            tableBody.innerHTML = '';
+            
+            if (filteredOrders.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="8" style="text-align: center;">Không có lệnh sản xuất</td>`;
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            filteredOrders.forEach(order => {
+                const progress = tinhTienDoHoanThanh(order.maLenh);
+                
+                let statusBadgeClass = '';
+                let statusText = '';
+                
+                switch (order.trangThai) {
+                    case 'chưa-bắt-đầu':
+                        statusBadgeClass = 'status-pending';
+                        statusText = 'Chưa bắt đầu';
+                        break;
+                    case 'đang-san-xuat':
+                        statusBadgeClass = 'status-progress';
+                        statusText = 'Đang sản xuất';
+                        break;
+                    case 'hoàn-thành':
+                        statusBadgeClass = 'status-completed';
+                        statusText = 'Hoàn thành';
+                        break;
+                }
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${order.maLenh}</td>
+                    <td>${order.tenSanPham}</td>
+                    <td>${order.soLuong}</td>
+                    <td>${order.ngayBatDau}</td>
+                    <td>${order.ngayHoanThanh}</td>
+                    <td><span class="badge-status ${statusBadgeClass}">${statusText}</span></td>
+                    <td>
+                        <div class="progress-bar">
+                            <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                        </div>
+                        <span>${progress}%</span>
+                    </td>
+                    <td>
+                        <a href="theo-doi.html?id=${order.maLenh}" class="btn btn-primary">Theo dõi</a>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html> 

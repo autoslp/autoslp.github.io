@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhập Xuất Tồn Vật Tư - Hệ thống Quản lý Sản xuất</title>
+    <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <img src="images/logo.svg" alt="Logo">
+                CARTON MANAGER
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html">Tổng quan</a></li>
+                    <li><a href="lenh-san-xuat.html">Lệnh sản xuất</a></li>
+                    <li><a href="theo-doi.html">Theo dõi tiến độ</a></li>
+                    <li><a href="bao-cao.html">Báo cáo</a></li>
+                    <li><a href="nhap-xuat-ton.html" class="active">Nhập Xuất Tồn</a></li>
+                    <li><a href="#" id="logoutBtn">Đăng xuất</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main class="container fade-in">
+        <h1>Nhập Xuất Tồn Vật Tư theo Lệnh Sản Xuất</h1>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Chọn lệnh sản xuất</h3>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Lệnh sản xuất</label>
+                <select id="orderSelect" class="form-control"></select>
+            </div>
+        </div>
+        <div id="nxtDetails" style="display:none;">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Tổng hợp nhập xuất tồn</h3>
+                </div>
+                <div class="nxt-summary">
+                    <div><strong>Tổng giá trị nhập:</strong> <span id="tongNhap">0</span> đ</div>
+                    <div><strong>Tổng giá trị xuất:</strong> <span id="tongXuat">0</span> đ</div>
+                    <div><strong>Tồn vật tư:</strong> <span id="tongTon">0</span> đ</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Phiếu nhập vật tư</h3>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mã phiếu</th><th>Ngày nhập</th><th>Người nhập</th><th>Ghi chú</th><th>Chi tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody id="phieuNhapTable"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Phiếu xuất vật tư</h3>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mã phiếu</th><th>Ngày xuất</th><th>Công đoạn</th><th>Người xuất</th><th>Ghi chú</th><th>Chi tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody id="phieuXuatTable"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Tổng hợp vật tư sử dụng theo công đoạn</h3>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Công đoạn</th><th>Vật tư</th><th>Số lượng</th><th>Đơn vị</th><th>Đơn giá</th><th>Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vatTuCongDoanTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+    <style>
+        .nxt-summary {
+            display: flex;
+            gap: 40px;
+            font-size: 16px;
+            margin: 15px 0 10px 0;
+        }
+        .nxt-summary div {
+            min-width: 180px;
+        }
+    </style>
+    <script src="app.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Kiểm tra đăng nhập
+        const currentUser = localStorage.getItem('currentUser');
+        if (!currentUser) {
+            window.location.href = 'index.html';
+            return;
+        }
+        document.getElementById('logoutBtn').onclick = function(e) {
+            e.preventDefault();
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        };
+        // Điền danh sách lệnh sản xuất
+        const orderSelect = document.getElementById('orderSelect');
+        orderSelect.innerHTML = '<option value="">-- Chọn lệnh sản xuất --</option>';
+        LENH_SAN_XUAT.forEach(lenh => {
+            const option = document.createElement('option');
+            option.value = lenh.maLenh;
+            option.textContent = `${lenh.maLenh} - ${lenh.tenSanPham}`;
+            orderSelect.appendChild(option);
+        });
+        orderSelect.addEventListener('change', function() {
+            if (this.value) {
+                showNXT(this.value);
+            } else {
+                document.getElementById('nxtDetails').style.display = 'none';
+            }
+        });
+    });
+    function showNXT(maLenh) {
+        document.getElementById('nxtDetails').style.display = 'block';
+        // Tổng hợp nhập xuất tồn
+        const tong = tinhGiaTriNhapXuat(maLenh);
+        document.getElementById('tongNhap').textContent = tong.tongNhap.toLocaleString();
+        document.getElementById('tongXuat').textContent = tong.tongXuat.toLocaleString();
+        document.getElementById('tongTon').textContent = tong.tongTon.toLocaleString();
+        // Phiếu nhập
+        const nxt = getNhapXuatTon(maLenh);
+        const phieuNhapTable = document.getElementById('phieuNhapTable');
+        phieuNhapTable.innerHTML = '';
+        if (nxt && nxt.phieuNhap.length) {
+            nxt.phieuNhap.forEach(pn => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${pn.maPhieu}</td>
+                    <td>${pn.ngayNhap}</td>
+                    <td>${getTenNhanVien(pn.nguoiNhap)}</td>
+                    <td>${pn.ghiChu || ''}</td>
+                    <td>
+                        <ul style="padding-left:18px;">
+                        ${pn.chiTiet.map(ct => `<li>${getVatTu(ct.maVatTu)?.ten || ct.maVatTu}: <b>${ct.soLuong}</b> ${getVatTu(ct.maVatTu)?.donVi || ''} x ${ct.donGia.toLocaleString()} đ</li>`).join('')}
+                        </ul>
+                    </td>
+                `;
+                phieuNhapTable.appendChild(row);
+            });
+        } else {
+            phieuNhapTable.innerHTML = '<tr><td colspan="5" style="text-align:center;">Không có phiếu nhập</td></tr>';
+        }
+        // Phiếu xuất
+        const phieuXuatTable = document.getElementById('phieuXuatTable');
+        phieuXuatTable.innerHTML = '';
+        if (nxt && nxt.phieuXuat.length) {
+            nxt.phieuXuat.forEach(px => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${px.maPhieu}</td>
+                    <td>${px.ngayXuat}</td>
+                    <td>${getTenCongDoan(px.congDoan)}</td>
+                    <td>${getTenNhanVien(px.nguoiXuat)}</td>
+                    <td>${px.ghiChu || ''}</td>
+                    <td>
+                        <ul style="padding-left:18px;">
+                        ${px.chiTiet.map(ct => `<li>${getVatTu(ct.maVatTu)?.ten || ct.maVatTu}: <b>${ct.soLuong}</b> ${getVatTu(ct.maVatTu)?.donVi || ''} x ${ct.donGia.toLocaleString()} đ</li>`).join('')}
+                        </ul>
+                    </td>
+                `;
+                phieuXuatTable.appendChild(row);
+            });
+        } else {
+            phieuXuatTable.innerHTML = '<tr><td colspan="6" style="text-align:center;">Không có phiếu xuất</td></tr>';
+        }
+        // Tổng hợp vật tư theo công đoạn
+        const vatTuCongDoanTable = document.getElementById('vatTuCongDoanTable');
+        vatTuCongDoanTable.innerHTML = '';
+        const vttcd = tinhVatTuTheoCongDoan(maLenh);
+        let hasData = false;
+        Object.keys(vttcd).forEach(cdId => {
+            vttcd[cdId].forEach(vt => {
+                hasData = true;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${getTenCongDoan(Number(cdId))}</td>
+                    <td>${vt.ten}</td>
+                    <td>${vt.soLuong}</td>
+                    <td>${vt.donVi}</td>
+                    <td>${vt.donGia.toLocaleString()} đ</td>
+                    <td>${vt.thanhTien.toLocaleString()} đ</td>
+                `;
+                vatTuCongDoanTable.appendChild(row);
+            });
+        });
+        if (!hasData) {
+            vatTuCongDoanTable.innerHTML = '<tr><td colspan="6" style="text-align:center;">Không có dữ liệu vật tư</td></tr>';
+        }
+    }
+    </script>
+</body>
+</html> 

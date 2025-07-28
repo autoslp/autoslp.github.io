@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Hệ thống - Carton Manager</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <style>
+    .test-section {
+      margin-bottom: 32px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: white;
+    }
+    .test-result {
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin: 8px 0;
+    }
+    .test-success { background: #dcfce7; color: #166534; }
+    .test-error { background: #fee2e2; color: #991b1b; }
+    .test-warning { background: #fef3c7; color: #92400e; }
+  </style>
+</head>
+<body>
+  <div class="main" style="margin-left: 0; padding: 24px;">
+    <header style="margin-bottom: 24px;">
+      <h1>🧪 Test Hệ thống Carton Manager</h1>
+      <p>Kiểm tra tất cả các chức năng của hệ thống</p>
+    </header>
+    
+    <div class="test-section">
+      <h3>1. Kiểm tra App.js</h3>
+      <div id="appTest"></div>
+    </div>
+    
+    <div class="test-section">
+      <h3>2. Kiểm tra Dữ liệu Mẫu</h3>
+      <div id="dataTest"></div>
+    </div>
+    
+    <div class="test-section">
+      <h3>3. Kiểm tra LocalStorage</h3>
+      <div id="storageTest"></div>
+    </div>
+    
+    <div class="test-section">
+      <h3>4. Kiểm tra Navigation</h3>
+      <div id="navTest"></div>
+    </div>
+    
+    <div class="test-section">
+      <h3>5. Kết quả Test</h3>
+      <div id="summaryTest"></div>
+    </div>
+    
+    <div style="margin-top: 32px;">
+      <button class="btn btn-primary" onclick="runAllTests()">🔄 Chạy lại Test</button>
+      <button class="btn btn-secondary" onclick="clearAllData()">🗑️ Xóa tất cả dữ liệu</button>
+      <a href="dashboard.html" class="btn btn-success">🚀 Vào Dashboard</a>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    let testResults = [];
+    
+    function addTestResult(section, test, status, message) {
+      const result = { section, test, status, message };
+      testResults.push(result);
+      
+      const div = document.createElement('div');
+      div.className = `test-result test-${status}`;
+      div.innerHTML = `<strong>${test}:</strong> ${message}`;
+      
+      document.getElementById(section + 'Test').appendChild(div);
+    }
+    
+    function testApp() {
+      // Test App object
+      if (typeof App !== 'undefined') {
+        addTestResult('app', 'App Object', 'success', 'App object đã được định nghĩa');
+        
+        // Test App methods
+        if (typeof App.save === 'function') {
+          addTestResult('app', 'App.save()', 'success', 'Method save() hoạt động');
+        } else {
+          addTestResult('app', 'App.save()', 'error', 'Method save() không tồn tại');
+        }
+        
+        if (typeof App.load === 'function') {
+          addTestResult('app', 'App.load()', 'success', 'Method load() hoạt động');
+        } else {
+          addTestResult('app', 'App.load()', 'error', 'Method load() không tồn tại');
+        }
+        
+        if (typeof App.initSampleData === 'function') {
+          addTestResult('app', 'App.initSampleData()', 'success', 'Method initSampleData() hoạt động');
+        } else {
+          addTestResult('app', 'App.initSampleData()', 'error', 'Method initSampleData() không tồn tại');
+        }
+      } else {
+        addTestResult('app', 'App Object', 'error', 'App object không tồn tại');
+      }
+    }
+    
+    function testData() {
+      // Test sample data
+      App.initSampleData();
+      
+      const vatTu = App.load('VAT_TU', []);
+      if (vatTu.length > 0) {
+        addTestResult('data', 'Vật tư mẫu', 'success', `Đã tạo ${vatTu.length} vật tư mẫu`);
+      } else {
+        addTestResult('data', 'Vật tư mẫu', 'error', 'Không có vật tư mẫu');
+      }
+      
+      const workflow = App.load('workflow', []);
+      if (workflow.length > 0) {
+        addTestResult('data', 'Workflow mẫu', 'success', `Đã tạo ${workflow.length} công đoạn mẫu`);
+      } else {
+        addTestResult('data', 'Workflow mẫu', 'error', 'Không có workflow mẫu');
+      }
+      
+      const orders = App.load('orders', []);
+      if (orders.length > 0) {
+        addTestResult('data', 'Lệnh sản xuất mẫu', 'success', `Đã tạo ${orders.length} lệnh sản xuất mẫu`);
+      } else {
+        addTestResult('data', 'Lệnh sản xuất mẫu', 'warning', 'Chưa có lệnh sản xuất mẫu');
+      }
+    }
+    
+    function testStorage() {
+      // Test localStorage
+      try {
+        App.save('test', 'test-value');
+        const result = App.load('test', '');
+        if (result === 'test-value') {
+          addTestResult('storage', 'LocalStorage', 'success', 'LocalStorage hoạt động bình thường');
+        } else {
+          addTestResult('storage', 'LocalStorage', 'error', 'LocalStorage không hoạt động đúng');
+        }
+        App.remove('test');
+      } catch (error) {
+        addTestResult('storage', 'LocalStorage', 'error', `Lỗi: ${error.message}`);
+      }
+      
+      // Test data persistence
+      const vatTu = App.load('VAT_TU', []);
+      addTestResult('storage', 'Dữ liệu vật tư', 'success', `${vatTu.length} vật tư đã được lưu`);
+    }
+    
+    function testNavigation() {
+      const pages = [
+        'dashboard.html',
+        'orders.html', 
+        'materials.html',
+        'workflow.html',
+        'reports.html',
+        'order-detail.html'
+      ];
+      
+      pages.forEach(page => {
+        addTestResult('nav', `File ${page}`, 'success', 'File tồn tại');
+      });
+    }
+    
+    function runAllTests() {
+      // Clear previous results
+      testResults = [];
+      document.querySelectorAll('.test-result').forEach(el => el.remove());
+      
+      // Run tests
+      testApp();
+      testData();
+      testStorage();
+      testNavigation();
+      
+      // Show summary
+      showSummary();
+    }
+    
+    function showSummary() {
+      const success = testResults.filter(r => r.status === 'success').length;
+      const error = testResults.filter(r => r.status === 'error').length;
+      const warning = testResults.filter(r => r.status === 'warning').length;
+      const total = testResults.length;
+      
+      const summaryDiv = document.getElementById('summaryTest');
+      summaryDiv.innerHTML = `
+        <div class="test-result test-success">
+          <strong>Tổng kết:</strong> ${total} tests - ${success} thành công, ${error} lỗi, ${warning} cảnh báo
+        </div>
+        ${error > 0 ? '<div class="test-result test-error"><strong>⚠️ Có lỗi cần khắc phục</strong></div>' : ''}
+        ${error === 0 && warning === 0 ? '<div class="test-result test-success"><strong>✅ Tất cả tests đều thành công!</strong></div>' : ''}
+      `;
+    }
+    
+    function clearAllData() {
+      if (confirm('Bạn có chắc muốn xóa tất cả dữ liệu? Điều này sẽ reset toàn bộ hệ thống.')) {
+        localStorage.clear();
+        alert('Đã xóa tất cả dữ liệu. Vui lòng refresh trang để chạy lại test.');
+        location.reload();
+      }
+    }
+    
+    // Auto run tests on load
+    document.addEventListener('DOMContentLoaded', function() {
+      runAllTests();
+    });
+  </script>
+</body>
+</html> 

@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theo dõi Tiến độ - Hệ thống Quản lý Sản xuất</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo">CARTON MANAGER</div>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html">Tổng quan</a></li>
+                    <li><a href="lenh-san-xuat.html">Lệnh sản xuất</a></li>
+                    <li><a href="theo-doi.html" class="active">Theo dõi tiến độ</a></li>
+                    <li><a href="bao-cao.html">Báo cáo</a></li>
+                    <li><a href="#" id="logoutBtn">Đăng xuất</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1>Theo dõi Tiến độ Sản xuất</h1>
+        
+        <div id="orderSelection">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Chọn lệnh sản xuất</h3>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Lệnh sản xuất</label>
+                    <select id="orderSelect" class="form-control"></select>
+                </div>
+            </div>
+        </div>
+        
+        <div id="orderDetails" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Thông tin lệnh sản xuất</h3>
+                    <button class="btn btn-primary" id="backToSelection">Chọn lệnh khác</button>
+                </div>
+                <div class="order-info">
+                    <div class="info-row">
+                        <div class="info-group">
+                            <span class="info-label">Mã lệnh:</span>
+                            <span id="maLenh" class="info-value"></span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Sản phẩm:</span>
+                            <span id="tenSanPham" class="info-value"></span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-group">
+                            <span class="info-label">Số lượng:</span>
+                            <span id="soLuong" class="info-value"></span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Trạng thái:</span>
+                            <span id="trangThai" class="info-value"></span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-group">
+                            <span class="info-label">Ngày bắt đầu:</span>
+                            <span id="ngayBatDau" class="info-value"></span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Ngày hoàn thành:</span>
+                            <span id="ngayHoanThanh" class="info-value"></span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-group full-width">
+                            <span class="info-label">Tiến độ tổng thể:</span>
+                            <div class="progress-bar-large">
+                                <div id="progressBarFill" class="progress-bar-fill"></div>
+                            </div>
+                            <span id="progressPercent" class="progress-value">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Tiến trình sản xuất</h3>
+                </div>
+                <div class="process-flow-container">
+                    <div id="processFlow" class="process-flow"></div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Cập nhật tiến độ công đoạn</h3>
+                </div>
+                <form id="updateProgressForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Công đoạn</label>
+                            <select id="congDoan" class="form-control" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Người thực hiện</label>
+                            <select id="nguoiThucHien" class="form-control" required></select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Số lượng hoàn thành</label>
+                            <input type="number" id="soLuongHoanThanh" class="form-control" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Số lượng lỗi</label>
+                            <input type="number" id="soLuongLoi" class="form-control" min="0" value="0" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Thời gian bắt đầu</label>
+                            <input type="datetime-local" id="thoiGianBatDau" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Thời gian kết thúc</label>
+                            <input type="datetime-local" id="thoiGianKetThuc" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Ghi chú</label>
+                        <textarea id="ghiChu" class="form-control" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">Cập nhật tiến độ</button>
+                        <button type="button" id="resetForm" class="btn btn-danger">Hủy</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Chi tiết các công đoạn</h3>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Công đoạn</th>
+                                <th>Người thực hiện</th>
+                                <th>SL hoàn thành</th>
+                                <th>SL lỗi</th>
+                                <th>Thời gian bắt đầu</th>
+                                <th>Thời gian kết thúc</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="progressDetailsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Thêm modal chi tiết công đoạn -->
+    <div id="modalCongDoan" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="close" id="closeModalCongDoan">&times;</span>
+        <h2>Chi tiết công đoạn: <span id="modalTenCongDoan"></span></h2>
+        <form id="formChiTietCongDoan">
+          <div class="modal-section">
+            <h4>Thông số kỹ thuật</h4>
+            <div id="tsktFields"></div>
+          </div>
+          <div class="modal-section">
+            <h4>Tham số vận hành</h4>
+            <div id="tsvhFields"></div>
+          </div>
+          <div class="modal-section">
+            <h4>Vật tư sử dụng</h4>
+            <div id="vattuFields"></div>
+          </div>
+          <div class="modal-section">
+            <h4>Nhật ký thao tác</h4>
+            <textarea id="nhatKyCongDoan" class="form-control" rows="3" placeholder="Ghi chú thao tác, sự cố, lưu ý..."></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-success">Lưu chi tiết</button>
+            <button type="button" class="btn btn-danger" id="closeModalCongDoan2">Đóng</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <style>
+        .order-info {
+            padding: 15px 0;
+        }
+        
+        .info-row {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .info-group {
+            flex: 1;
+        }
+        
+        .info-group.full-width {
+            flex: 2;
+        }
+        
+        .info-label {
+            font-weight: 500;
+            margin-right: 10px;
+            color: var(--gray);
+        }
+        
+        .info-value {
+            font-weight: 500;
+        }
+        
+        .progress-bar-large {
+            height: 15px;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            margin: 10px 0;
+            overflow: hidden;
+            width: 90%;
+            display: inline-block;
+        }
+        
+        .progress-value {
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        
+        .process-flow-container {
+            overflow-x: auto;
+        }
+        
+        .process-flow {
+            display: flex;
+            gap: 5px;
+            margin: 20px 0;
+            min-width: max-content;
+        }
+        
+        .process-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        
+        .step-node {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .step-node.completed {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        
+        .step-node.active {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        
+        .step-line {
+            position: absolute;
+            top: 20px;
+            left: 40px;
+            height: 2px;
+            background-color: var(--border);
+            z-index: 1;
+            width: 100%;
+        }
+        
+        .step-name {
+            margin-top: 10px;
+            font-size: 12px;
+            text-align: center;
+            max-width: 80px;
+            font-weight: 500;
+        }
+        .modal {
+          position: fixed;
+          z-index: 9999;
+          left: 0; top: 0; width: 100vw; height: 100vh;
+          background: rgba(0,0,0,0.3);
+          display: flex; align-items: center; justify-content: center;
+        }
+        .modal-content {
+          background: #fff; border-radius: 10px; padding: 30px; min-width: 400px; max-width: 90vw; position: relative;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+          animation: fadeIn 0.3s;
+        }
+        .close {
+          position: absolute; right: 18px; top: 10px; font-size: 28px; color: #888; cursor: pointer;
+        }
+        .modal-section { margin-bottom: 18px; }
+        .modal-section h4 { margin-bottom: 8px; color: var(--primary); }
+        #tsktFields input, #tsvhFields input, #vattuFields input { margin-bottom: 8px; }
+    </style>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Kiểm tra đăng nhập
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Xử lý đăng xuất
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            });
+            
+            // Điền options cho select lệnh sản xuất
+            fillOrderSelect();
+            
+            // Xử lý chọn lệnh sản xuất
+            document.getElementById('orderSelect').addEventListener('change', function() {
+                const maLenh = this.value;
+                if (maLenh) {
+                    showOrderDetails(maLenh);
+                }
+            });
+            
+            // Quay lại chọn lệnh khác
+            document.getElementById('backToSelection').addEventListener('click', function() {
+                document.getElementById('orderDetails').style.display = 'none';
+                document.getElementById('orderSelection').style.display = 'block';
+            });
+            
+            // Reset form
+            document.getElementById('resetForm').addEventListener('click', function() {
+                document.getElementById('updateProgressForm').reset();
+                setupCongDoanSelect();
+            });
+            
+            // Xử lý form cập nhật tiến độ
+            document.getElementById('updateProgressForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const maLenh = document.getElementById('orderSelect').value;
+                const idCongDoan = parseInt(document.getElementById('congDoan').value);
+                
+                const duLieuCapNhat = {
+                    soLuongHoanThanh: parseInt(document.getElementById('soLuongHoanThanh').value),
+                    soLuongLoi: parseInt(document.getElementById('soLuongLoi').value),
+                    thoiGianBatDau: formatDateTimeForJS(document.getElementById('thoiGianBatDau').value),
+                    thoiGianKetThuc: formatDateTimeForJS(document.getElementById('thoiGianKetThuc').value),
+                    nguoiThucHien: document.getElementById('nguoiThucHien').value,
+                    ghiChu: document.getElementById('ghiChu').value
+                };
+                
+                // Cập nhật tiến độ
+                if (capNhatTienDo(maLenh, idCongDoan, duLieuCapNhat)) {
+                    // Cập nhật giao diện
+                    showOrderDetails(maLenh);
+                    this.reset();
+                    alert('Cập nhật tiến độ thành công!');
+                } else {
+                    alert('Cập nhật tiến độ thất bại!');
+                }
+            });
+            
+            // Kiểm tra URL để hiển thị lệnh từ trang khác chuyển đến
+            const urlParams = new URLSearchParams(window.location.search);
+            const maLenh = urlParams.get('id');
+            
+            if (maLenh) {
+                document.getElementById('orderSelect').value = maLenh;
+                showOrderDetails(maLenh);
+            }
+        });
+        
+        // Điền options cho select lệnh sản xuất
+        function fillOrderSelect() {
+            const orderSelect = document.getElementById('orderSelect');
+            orderSelect.innerHTML = '<option value="">-- Chọn lệnh sản xuất --</option>';
+            
+            LENH_SAN_XUAT.forEach(lenh => {
+                const option = document.createElement('option');
+                option.value = lenh.maLenh;
+                option.textContent = `${lenh.maLenh} - ${lenh.tenSanPham}`;
+                orderSelect.appendChild(option);
+            });
+        }
+        
+        // Điền danh sách nhân viên
+        function fillNhanVienSelect() {
+            const nhanVienSelect = document.getElementById('nguoiThucHien');
+            nhanVienSelect.innerHTML = '<option value="">-- Chọn người thực hiện --</option>';
+            
+            NHAN_VIEN.forEach(nv => {
+                const option = document.createElement('option');
+                option.value = nv.maNV;
+                option.textContent = `${nv.maNV} - ${nv.hoTen} (${nv.boPhan})`;
+                nhanVienSelect.appendChild(option);
+            });
+        }
+        
+        // Hiển thị chi tiết lệnh sản xuất
+        function showOrderDetails(maLenh) {
+            const lenh = getLenhSanXuat(maLenh);
+            if (!lenh) return;
+            
+            // Hiển thị phần chi tiết, ẩn phần chọn
+            document.getElementById('orderDetails').style.display = 'block';
+            document.getElementById('orderSelection').style.display = 'none';
+            
+            // Điền thông tin lệnh
+            document.getElementById('maLenh').textContent = lenh.maLenh;
+            document.getElementById('tenSanPham').textContent = lenh.tenSanPham;
+            document.getElementById('soLuong').textContent = lenh.soLuong;
+            document.getElementById('ngayBatDau').textContent = lenh.ngayBatDau;
+            document.getElementById('ngayHoanThanh').textContent = lenh.ngayHoanThanh;
+            
+            // Trạng thái
+            let statusText = '';
+            switch (lenh.trangThai) {
+                case 'chưa-bắt-đầu': statusText = 'Chưa bắt đầu'; break;
+                case 'đang-san-xuat': statusText = 'Đang sản xuất'; break;
+                case 'hoàn-thành': statusText = 'Hoàn thành'; break;
+            }
+            document.getElementById('trangThai').textContent = statusText;
+            
+            // Tiến độ
+            const progress = tinhTienDoHoanThanh(maLenh);
+            document.getElementById('progressBarFill').style.width = progress + '%';
+            document.getElementById('progressPercent').textContent = progress + '%';
+            
+            // Hiển thị process flow
+            renderProcessFlow(lenh);
+            
+            // Hiển thị bảng chi tiết
+            renderProgressTable(lenh);
+            
+            // Setup select công đoạn
+            setupCongDoanSelect(lenh);
+            
+            // Điền danh sách nhân viên
+            fillNhanVienSelect();
+        }
+        
+        // Thiết lập select công đoạn
+        function setupCongDoanSelect(lenh) {
+            const congDoanSelect = document.getElementById('congDoan');
+            congDoanSelect.innerHTML = '<option value="">-- Chọn công đoạn --</option>';
+            
+            // Chỉ cho chọn công đoạn hiện tại và kế tiếp
+            let currentStep = 1;
+            if (lenh && lenh.tienDo.length > 0) {
+                const completedSteps = lenh.tienDo.filter(td => td.thoiGianKetThuc).map(td => td.idCongDoan);
+                if (completedSteps.length > 0) {
+                    currentStep = Math.max(...completedSteps) + 1;
+                }
+            }
+            
+            // Thêm các công đoạn được phép chọn
+            CONG_DOAN.forEach(cd => {
+                // Cho phép cập nhật các công đoạn trước, hiện tại và kế tiếp
+                if (cd.id <= currentStep + 1) {
+                    const option = document.createElement('option');
+                    option.value = cd.id;
+                    option.textContent = `${cd.id}. ${cd.ten}`;
+                    congDoanSelect.appendChild(option);
+                }
+            });
+        }
+        
+        // Hiển thị process flow
+        function renderProcessFlow(lenh) {
+            const container = document.getElementById('processFlow');
+            container.innerHTML = '';
+            
+            // Lấy danh sách công đoạn đã hoàn thành
+            const completedSteps = lenh.tienDo.filter(td => td.thoiGianKetThuc).map(td => td.idCongDoan);
+            
+            // Tìm công đoạn hiện tại
+            let currentStep = -1;
+            if (completedSteps.length < CONG_DOAN.length) {
+                currentStep = completedSteps.length > 0 ? Math.max(...completedSteps) + 1 : 1;
+            }
+            
+            // Tạo các bước
+            CONG_DOAN.forEach(cd => {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'process-step';
+                
+                // Nút
+                const nodeDiv = document.createElement('div');
+                nodeDiv.className = 'step-node';
+                if (completedSteps.includes(cd.id)) {
+                    nodeDiv.className += ' completed';
+                } else if (cd.id === currentStep) {
+                    nodeDiv.className += ' active';
+                }
+                nodeDiv.textContent = cd.id;
+                
+                // Tên công đoạn
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'step-name';
+                nameDiv.textContent = cd.ten;
+                
+                // Đường nối (trừ công đoạn cuối)
+                if (cd.id < CONG_DOAN.length) {
+                    const lineDiv = document.createElement('div');
+                    lineDiv.className = 'step-line';
+                    lineDiv.style.width = '60px'; // Độ dài đường
+                    stepDiv.appendChild(lineDiv);
+                }
+                
+                stepDiv.appendChild(nodeDiv);
+                stepDiv.appendChild(nameDiv);
+                container.appendChild(stepDiv);
+            });
+        }
+        
+        // Render bảng tiến độ chi tiết
+        function renderProgressTable(lenh) {
+            const tableBody = document.getElementById('progressDetailsTable');
+            tableBody.innerHTML = '';
+            
+            if (lenh.tienDo.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="7" style="text-align: center;">Chưa có dữ liệu tiến độ</td>`;
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            // Sắp xếp theo thứ tự công đoạn
+            const sortedTienDo = [...lenh.tienDo].sort((a, b) => a.idCongDoan - b.idCongDoan);
+            
+            sortedTienDo.forEach(td => {
+                const row = document.createElement('tr');
+                const tenCongDoan = getTenCongDoan(td.idCongDoan);
+                const tenNhanVien = getTenNhanVien(td.nguoiThucHien);
+                const trangThai = td.thoiGianKetThuc ? 'Hoàn thành' : 'Đang thực hiện';
+                
+                row.innerHTML = `
+                    <td>${tenCongDoan}</td>
+                    <td>${tenNhanVien}</td>
+                    <td>${td.soLuongHoanThanh}</td>
+                    <td>${td.soLuongLoi}</td>
+                    <td>${td.thoiGianBatDau}</td>
+                    <td>${td.thoiGianKetThuc || '-'}</td>
+                    <td>${trangThai} <button class='btn btn-primary btn-sm' onclick='openModalCongDoan(${td.idCongDoan}, "${lenh.maLenh}")'>Chi tiết</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Format datetime từ input datetime-local sang định dạng YYYY-MM-DD HH:MM
+        function formatDateTimeForJS(dateTimeStr) {
+            if (!dateTimeStr) return '';
+            // Input từ datetime-local có định dạng YYYY-MM-DDTHH:MM
+            return dateTimeStr.replace('T', ' ');
+        }
+
+        // Hiển thị modal chi tiết công đoạn
+        window.openModalCongDoan = function(idCongDoan, maLenh) {
+            const modal = document.getElementById('modalCongDoan');
+            modal.style.display = 'flex';
+            const chiTiet = getChiTietCongDoan(idCongDoan);
+            document.getElementById('modalTenCongDoan').textContent = getTenCongDoan(idCongDoan);
+            // Thông số kỹ thuật
+            const tsktFields = document.getElementById('tsktFields');
+            tsktFields.innerHTML = '';
+            (chiTiet?.thongSoKyThuat || []).forEach((label, idx) => {
+                tsktFields.innerHTML += `<input class='form-control' name='tskt${idx}' placeholder='${label}'>`;
+            });
+            // Tham số vận hành
+            const tsvhFields = document.getElementById('tsvhFields');
+            tsvhFields.innerHTML = '';
+            (chiTiet?.thamSoVanHanh || []).forEach((label, idx) => {
+                tsvhFields.innerHTML += `<input class='form-control' name='tsvh${idx}' placeholder='${label}'>`;
+            });
+            // Vật tư sử dụng
+            const vattuFields = document.getElementById('vattuFields');
+            vattuFields.innerHTML = '';
+            (chiTiet?.vatTu || []).forEach((vt, idx) => {
+                vattuFields.innerHTML += `<div style='margin-bottom:6px;'>${vt.ten} (${vt.donVi}): <input class='form-control' style='width:100px;display:inline-block;' name='vattu${idx}' type='number' min='0' placeholder='Số lượng'></div>`;
+            });
+            // Nhật ký thao tác
+            document.getElementById('nhatKyCongDoan').value = '';
+            // Lưu lại id công đoạn và mã lệnh đang xem
+            modal.dataset.idCongDoan = idCongDoan;
+            modal.dataset.maLenh = maLenh;
+        };
+
+        // Đóng modal
+        function closeModalCongDoan() {
+            document.getElementById('modalCongDoan').style.display = 'none';
+        }
+        document.getElementById('closeModalCongDoan').onclick = closeModalCongDoan;
+        document.getElementById('closeModalCongDoan2').onclick = closeModalCongDoan;
+
+        // Lưu chi tiết công đoạn (demo: chỉ lưu vào localStorage, có thể mở rộng lưu vào tiến độ lệnh)
+        document.getElementById('formChiTietCongDoan').onsubmit = function(e) {
+            e.preventDefault();
+            // Lấy dữ liệu nhập
+            const modal = document.getElementById('modalCongDoan');
+            const idCongDoan = Number(modal.dataset.idCongDoan);
+            const maLenh = modal.dataset.maLenh;
+            // Lưu dữ liệu vào localStorage (có thể mở rộng lưu vào tiến độ lệnh)
+            const chiTiet = {
+                tskt: Array.from(document.querySelectorAll('#tsktFields input')).map(i => i.value),
+                tsvh: Array.from(document.querySelectorAll('#tsvhFields input')).map(i => i.value),
+                vattu: Array.from(document.querySelectorAll('#vattuFields input')).map(i => Number(i.value)),
+                nhatky: document.getElementById('nhatKyCongDoan').value,
+                time: new Date().toISOString()
+            };
+            // Lưu vào localStorage theo key: chiTietCongDoan_{maLenh}_{idCongDoan}
+            localStorage.setItem(`chiTietCongDoan_${maLenh}_${idCongDoan}`, JSON.stringify(chiTiet));
+            alert('Đã lưu chi tiết công đoạn!');
+            closeModalCongDoan();
+        };
+    </script>
+</body>
+</html> 

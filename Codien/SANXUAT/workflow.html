@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quy trình sản xuất - Carton Manager</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo">
+      <img src="images/logo.svg" alt="Logo" style="height:32px;margin-right:10px;"> Carton Manager
+    </div>
+    <nav>
+      <ul>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="orders.html">Lệnh sản xuất</a></li>
+        <li><a href="progress.html">Tiến độ</a></li>
+        <li><a href="materials.html">Vật tư</a></li>
+        <li><a href="workflow.html" class="active">Công đoạn</a></li>
+        <li><a href="reports.html">Báo cáo</a></li>
+      </ul>
+    </nav>
+    <div style="padding:16px 24px 0 24px; font-size:13px; color:#cbd5e1;">© 2025 Carton Manager</div>
+  </div>
+  <div class="main">
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <h1>Quy trình sản xuất</h1>
+      <button class="btn btn-danger" id="logoutBtn">Đăng xuất</button>
+    </header>
+    <div class="card">
+      <h2>Danh sách công đoạn</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>STT</th>
+            <th>Tên công đoạn</th>
+            <th>Mô tả</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody id="workflowTable"></tbody>
+      </table>
+    </div>
+    <div class="card" id="addStepCard" style="display:none;max-width:400px;">
+      <h2>Thêm công đoạn</h2>
+      <form id="addStepForm">
+        <input type="text" id="stepName" placeholder="Tên công đoạn" required>
+        <input type="text" id="stepDesc" placeholder="Mô tả" required>
+        <button class="btn btn-success" type="submit">Lưu</button>
+        <button class="btn btn-danger" type="button" id="cancelAddStep">Hủy</button>
+      </form>
+    </div>
+    <button class="btn btn-success" id="btnAddStep">+ Thêm công đoạn</button>
+  </div>
+  <script src="js/app.js"></script>
+  <script>
+    let steps = App.load('workflow', [
+      {name:'XẢ', desc:'Xả giấy cuộn'},
+      {name:'XÉN', desc:'Xén giấy'},
+      {name:'IN OFFSET', desc:'In offset'},
+      {name:'BỒI', desc:'Bồi giấy'},
+      {name:'BẾ', desc:'Bế hộp'},
+      {name:'DÁN MÁY', desc:'Dán hộp'},
+      {name:'KHO THÀNH PHẨM', desc:'Lưu kho'}
+    ]);
+    function renderSteps() {
+      const tb = document.getElementById('workflowTable');
+      tb.innerHTML = steps.map((s,i) => `
+        <tr>
+          <td>${i+1}</td>
+          <td>${s.name}</td>
+          <td>${s.desc}</td>
+          <td><button class="btn btn-danger btn-sm" onclick="deleteStep(${i})">Xóa</button></td>
+        </tr>
+      `).join('') || '<tr><td colspan="4" style="text-align:center;">Không có công đoạn</td></tr>';
+    }
+    document.getElementById('btnAddStep').onclick = function() {
+      document.getElementById('addStepCard').style.display = 'block';
+      this.style.display = 'none';
+    };
+    document.getElementById('cancelAddStep').onclick = function() {
+      document.getElementById('addStepCard').style.display = 'none';
+      document.getElementById('btnAddStep').style.display = 'inline-block';
+    };
+    document.getElementById('addStepForm').onsubmit = function(e) {
+      e.preventDefault();
+      const name = document.getElementById('stepName').value.trim();
+      const desc = document.getElementById('stepDesc').value.trim();
+      steps.push({name,desc});
+      App.save('workflow',steps);
+      renderSteps();
+      document.getElementById('addStepCard').style.display = 'none';
+      document.getElementById('btnAddStep').style.display = 'inline-block';
+      this.reset();
+    };
+    window.deleteStep = function(idx) {
+      if(confirm('Xóa công đoạn này?')) {
+        steps.splice(idx,1);
+        App.save('workflow',steps);
+        renderSteps();
+      }
+    };
+    document.getElementById('logoutBtn').onclick = function() {
+      App.remove('currentUser');
+      window.location.href = 'index.html';
+    };
+    renderSteps();
+  </script>
+</body>
+</html> 

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo cáo - Carton Manager</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo">
+      <img src="images/logo.svg" alt="Logo" style="height:32px;margin-right:10px;"> Carton Manager
+    </div>
+    <nav>
+      <ul>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="orders.html">Lệnh sản xuất</a></li>
+        <li><a href="progress.html">Tiến độ</a></li>
+        <li><a href="materials.html">Vật tư</a></li>
+        <li><a href="workflow.html">Công đoạn</a></li>
+        <li><a href="reports.html" class="active">Báo cáo</a></li>
+      </ul>
+    </nav>
+    <div style="padding:16px 24px 0 24px; font-size:13px; color:#cbd5e1;">© 2025 Carton Manager</div>
+  </div>
+  <div class="main">
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <h1>Báo cáo</h1>
+      <button class="btn btn-danger" id="logoutBtn">Đăng xuất</button>
+    </header>
+    <div class="card">
+      <h2>Báo cáo tổng hợp sản xuất</h2>
+      <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+        <input id="fromDate" type="date">
+        <input id="toDate" type="date">
+        <select id="reportType">
+          <option value="progress">Tiến độ</option>
+          <option value="materials">Vật tư</option>
+          <option value="error">Lỗi/Sự cố</option>
+        </select>
+        <button class="btn btn-primary" id="btnExport">Xuất file</button>
+      </div>
+      <canvas id="reportChart" height="120"></canvas>
+    </div>
+  </div>
+  <script src="js/app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Demo dữ liệu
+    const orders = App.load('orders', []);
+    function renderChart() {
+      const type = document.getElementById('reportType').value;
+      let labels = orders.map(o=>o.id);
+      let data = [];
+      let label = '';
+      if(type==='progress') {
+        data = [100,60,40,10];
+        label = 'Tiến độ (%)';
+      } else if(type==='materials') {
+        data = [12,8,15,5];
+        label = 'Vật tư sử dụng (tấn)';
+      } else {
+        data = [0,1,0,2];
+        label = 'Số lỗi/sự cố';
+      }
+      new Chart(document.getElementById('reportChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{label,data,backgroundColor:'#2563eb'}]
+        },
+        options: {responsive:true,scales:{y:{beginAtZero:true}}}
+      });
+    }
+    document.getElementById('reportType').onchange = renderChart;
+    document.getElementById('btnExport').onclick = function() {
+      alert('Chức năng xuất file sẽ được phát triển!');
+    };
+    document.getElementById('logoutBtn').onclick = function() {
+      App.remove('currentUser');
+      window.location.href = 'index.html';
+    };
+    renderChart();
+  </script>
+</body>
+</html> 

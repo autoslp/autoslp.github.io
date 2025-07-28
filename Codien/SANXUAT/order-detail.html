@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi tiết lệnh sản xuất - Carton Manager</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <style>
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      margin: 0 -8px;
+    }
+    
+    .col-md-6 {
+      flex: 0 0 50%;
+      padding: 0 8px;
+    }
+    
+    @media (max-width: 768px) {
+      .col-md-6 {
+        flex: 0 0 100%;
+      }
+    }
+    
+    .workflow-details .card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .workflow-details .card-header {
+      background: var(--light);
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .workflow-details .card-header h4 {
+      margin: 0 0 8px 0;
+      color: var(--primary);
+    }
+    
+    .workflow-details .card-header p {
+      margin: 0;
+      color: var(--gray);
+      font-size: 14px;
+    }
+    
+    .workflow-details .card-body {
+      padding: 16px;
+    }
+    
+    .workflow-details .card-body h5 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      color: var(--dark);
+      font-weight: 500;
+    }
+    
+    .workflow-details .card-body p {
+      margin: 0 0 16px 0;
+      color: var(--gray);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    .logs-container {
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    
+    .log-item {
+      transition: all 0.2s ease;
+    }
+    
+    .log-item:hover {
+      transform: translateX(4px);
+    }
+    
+    #tabsCard .btn {
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--gray);
+    }
+    
+    #tabsCard .btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    
+    #tabsCard .btn:hover:not(.active) {
+      background: var(--light);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo">
+      <img src="images/logo.svg" alt="Logo" style="height:32px;margin-right:10px;"> Carton Manager
+    </div>
+    <nav>
+      <ul>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="orders.html" class="active">Lệnh sản xuất</a></li>
+        <li><a href="progress.html">Tiến độ</a></li>
+        <li><a href="materials.html">Vật tư</a></li>
+        <li><a href="workflow.html">Công đoạn</a></li>
+        <li><a href="reports.html">Báo cáo</a></li>
+      </ul>
+    </nav>
+    <div style="padding:16px 24px 0 24px; font-size:13px; color:#cbd5e1;">© 2025 Carton Manager</div>
+  </div>
+  <div class="main" id="mainContent">
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <h1>Chi tiết lệnh sản xuất</h1>
+      <a href="orders.html" class="btn btn-primary">← Quay lại danh sách</a>
+    </header>
+    <div class="card" id="orderInfoCard" style="display:none;">
+      <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;">
+        <div><b>Mã lệnh:</b> <span id="orderId"></span></div>
+        <div><b>Sản phẩm:</b> <span id="orderName"></span></div>
+        <div><b>Số lượng:</b> <span id="orderQty"></span></div>
+        <div><b>Ngày bắt đầu:</b> <span id="orderStart"></span></div>
+        <div><b>Ngày kết thúc:</b> <span id="orderEnd"></span></div>
+        <div><b>Trạng thái:</b> <span id="orderStatus"></span></div>
+      </div>
+    </div>
+    <div class="card" id="tabsCard" style="display:none;">
+      <div style="display:flex;gap:12px;margin-bottom:16px;">
+        <button class="btn" id="tabProgress">Tiến độ</button>
+        <button class="btn" id="tabMaterials">Vật tư</button>
+        <button class="btn" id="tabWorkflow">Công đoạn</button>
+        <button class="btn" id="tabLog">Nhật ký</button>
+      </div>
+      <div id="tabContent"></div>
+    </div>
+    <div class="card" id="notFoundCard" style="display:none;">
+      <div style="padding:40px;text-align:center;color:var(--danger);font-size:18px;">
+        Không tìm thấy lệnh sản xuất!<br>
+        <a href="orders.html" class="btn btn-primary" style="margin-top:20px;">Quay lại danh sách</a>
+      </div>
+    </div>
+  </div>
+  <script src="js/app.js"></script>
+  <script>
+    // Lấy id lệnh từ URL
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get('id');
+    
+    // Khai báo tất cả biến trước
+    let orders = App.load('orders');
+    let workflow, progress, materials, logs;
+    
+    // Nếu chưa có dữ liệu, tự động khởi tạo mẫu
+    if (!orders || !Array.isArray(orders) || orders.length === 0) {
+      orders = [
+        {id:'LSX001', name:'Hộp carton A4', qty:1000, start:'2025-07-25', end:'2025-07-30', status:'done'},
+        {id:'LSX002', name:'Hộp carton B5', qty:500, start:'2025-07-24', end:'2025-07-29', status:'inprogress'},
+        {id:'LSX003', name:'Hộp carton C3', qty:2000, start:'2025-07-26', end:'2025-08-02', status:'inprogress'},
+        {id:'LSX004', name:'Hộp carton D2', qty:800, start:'2025-07-27', end:'2025-08-05', status:'error'}
+      ];
+      App.save('orders', orders);
+    }
+    
+    const order = orders.find(o=>o.id===orderId);
+    
+    // Khởi tạo dữ liệu nếu có order
+    if(order) {
+      // Lấy workflow (công đoạn)
+      workflow = App.load('workflow', [
+        {name:'XẢ', desc:'Xả giấy cuộn'},
+        {name:'XÉN', desc:'Xén giấy'},
+        {name:'IN OFFSET', desc:'In offset'},
+        {name:'BỒI', desc:'Bồi giấy'},
+        {name:'BẾ', desc:'Bế hộp'},
+        {name:'DÁN MÁY', desc:'Dán hộp'},
+        {name:'KHO THÀNH PHẨM', desc:'Lưu kho'}
+      ]);
+      
+      // Lấy tiến độ từng công đoạn của lệnh
+      progress = App.load('progress_' + orderId, workflow.map((w,i)=>({
+        step: i+1,
+        name: w.name,
+        status: 'pending', // pending, doing, done, error
+        start: '',
+        end: '',
+        user: '',
+        note: ''
+      })));
+      
+      // Lấy vật tư đã xuất cho lệnh này
+      materials = App.load('materials_' + orderId, []);
+      
+      // Lấy nhật ký thao tác
+      logs = App.load('logs_' + orderId, []);
+    }
+    
+    if(!order) {
+      document.getElementById('orderInfoCard').style.display = 'none';
+      document.getElementById('tabsCard').style.display = 'none';
+      document.getElementById('notFoundCard').style.display = 'block';
+    } else {
+      document.getElementById('orderInfoCard').style.display = 'block';
+      document.getElementById('tabsCard').style.display = 'block';
+      document.getElementById('notFoundCard').style.display = 'none';
+      document.getElementById('orderId').textContent = order.id;
+      document.getElementById('orderName').textContent = order.name;
+      document.getElementById('orderQty').textContent = order.qty;
+      document.getElementById('orderStart').textContent = order.start;
+      document.getElementById('orderEnd').textContent = order.end;
+      document.getElementById('orderStatus').innerHTML = statusLabel(order.status);
+      // Tabs
+      const tabContent = document.getElementById('tabContent');
+      const tabButtons = ['tabProgress', 'tabMaterials', 'tabWorkflow', 'tabLog'];
+      
+      function setActiveTab(activeId) {
+        tabButtons.forEach(id => {
+          const btn = document.getElementById(id);
+          btn.classList.remove('active');
+        });
+        document.getElementById(activeId).classList.add('active');
+      }
+      
+      document.getElementById('tabProgress').onclick = () => { setActiveTab('tabProgress'); showProgress(); };
+      document.getElementById('tabMaterials').onclick = () => { setActiveTab('tabMaterials'); showMaterials(); };
+      document.getElementById('tabWorkflow').onclick = () => { setActiveTab('tabWorkflow'); showWorkflow(); };
+      document.getElementById('tabLog').onclick = () => { setActiveTab('tabLog'); showLog(); };
+      
+      setActiveTab('tabProgress');
+      showProgress();
+    }
+    
+    function statusLabel(st) {
+      if(st==='done') return '<span style="color:var(--success);font-weight:500;">Hoàn thành</span>';
+      if(st==='inprogress') return '<span style="color:var(--warning);font-weight:500;">Đang sản xuất</span>';
+      if(st==='error') return '<span style="color:var(--danger);font-weight:500;">Lỗi/Sự cố</span>';
+      return st;
+    }
+
+    function showProgress() {
+      let html = `<h3>Tiến độ sản xuất</h3><table><thead><tr><th>STT</th><th>Công đoạn</th><th>Trạng thái</th><th>Bắt đầu</th><th>Kết thúc</th><th>Người thực hiện</th><th>Ghi chú</th><th>Cập nhật</th></tr></thead><tbody>`;
+      progress.forEach((p,i) => {
+        html += `<tr>
+          <td>${p.step}</td>
+          <td>${p.name}</td>
+          <td>${statusLabel2(p.status)}</td>
+          <td>${p.start||''}</td>
+          <td>${p.end||''}</td>
+          <td>${p.user||''}</td>
+          <td>${p.note||''}</td>
+          <td><button class='btn btn-primary btn-sm' onclick='editProgress(${i})'>Sửa</button></td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      document.getElementById('tabContent').innerHTML = html;
+    }
+    function statusLabel2(st) {
+      if(st==='done') return '<span style="color:var(--success);font-weight:500;">Hoàn thành</span>';
+      if(st==='doing') return '<span style="color:var(--warning);font-weight:500;">Đang làm</span>';
+      if(st==='error') return '<span style="color:var(--danger);font-weight:500;">Lỗi</span>';
+      return '<span style="color:var(--gray);">Chưa làm</span>';
+    }
+    window.editProgress = function(idx) {
+      const p = progress[idx];
+      const form = document.createElement('form');
+      form.innerHTML = `
+        <div style='display:flex;gap:8px;flex-wrap:wrap;'>
+          <select name='status' required>
+            <option value='pending' ${p.status==='pending'?'selected':''}>Chưa làm</option>
+            <option value='doing' ${p.status==='doing'?'selected':''}>Đang làm</option>
+            <option value='done' ${p.status==='done'?'selected':''}>Hoàn thành</option>
+            <option value='error' ${p.status==='error'?'selected':''}>Lỗi</option>
+          </select>
+          <input name='start' type='datetime-local' value='${p.start?toInputDateTime(p.start):''}' placeholder='Bắt đầu'>
+          <input name='end' type='datetime-local' value='${p.end?toInputDateTime(p.end):''}' placeholder='Kết thúc'>
+          <input name='user' type='text' value='${p.user||''}' placeholder='Người thực hiện'>
+          <input name='note' type='text' value='${p.note||''}' placeholder='Ghi chú'>
+          <button class='btn btn-success btn-sm' type='submit'>Lưu</button>
+          <button class='btn btn-danger btn-sm' type='button' onclick='this.closest("form").remove();showProgress();'>Hủy</button>
+        </div>
+      `;
+      form.onsubmit = function(e) {
+        e.preventDefault();
+        const f = new FormData(form);
+        const oldStatus = progress[idx].status;
+        const newStatus = f.get('status');
+        
+        progress[idx] = {
+          ...progress[idx],
+          status: newStatus,
+          start: f.get('start'),
+          end: f.get('end'),
+          user: f.get('user'),
+          note: f.get('note')
+        };
+        App.save('progress_' + orderId, progress);
+        
+        // Ghi nhật ký
+        const stageName = progress[idx].name;
+        let logAction = 'Cập nhật tiến độ';
+        let logDetails = `Cập nhật công đoạn ${stageName}`;
+        
+        if(oldStatus !== newStatus) {
+          if(newStatus === 'done') {
+            logAction = 'Hoàn thành công đoạn';
+            logDetails = `Hoàn thành công đoạn ${stageName}`;
+          } else if(newStatus === 'doing') {
+            logAction = 'Bắt đầu công đoạn';
+            logDetails = `Bắt đầu thực hiện công đoạn ${stageName}`;
+          } else if(newStatus === 'error') {
+            logAction = 'Sự cố công đoạn';
+            logDetails = `Báo cáo sự cố ở công đoạn ${stageName}`;
+          }
+        }
+        
+        if(f.get('note')) {
+          logDetails += ` - Ghi chú: ${f.get('note')}`;
+        }
+        
+        addLog(logAction, logDetails, f.get('user'));
+        showProgress();
+      };
+      // Thay thế dòng hiện tại bằng form
+      const tb = document.querySelector('#tabContent tbody');
+      tb.children[idx].innerHTML = `<td colspan='8'></td>`;
+      tb.children[idx].children[0].appendChild(form);
+    };
+    function toInputDateTime(str) {
+      if(!str) return '';
+      // Chuyển ISO sang yyyy-MM-ddTHH:mm
+      const d = new Date(str);
+      return d.toISOString().slice(0,16);
+    }
+
+    
+    function showMaterials() {
+      let html = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3>Vật tư sử dụng</h3>
+          <button class="btn btn-primary" onclick="showIssueForm()">Xuất vật tư</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Vật tư</th>
+              <th>Số lượng</th>
+              <th>Đơn vị</th>
+              <th>Công đoạn</th>
+              <th>Ngày xuất</th>
+              <th>Người xuất</th>
+              <th>Ghi chú</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      
+      if(materials.length === 0) {
+        html += '<tr><td colspan="9" style="text-align:center;color:var(--gray);">Chưa có vật tư nào được xuất</td></tr>';
+      } else {
+        materials.forEach((m, i) => {
+          html += `
+            <tr>
+              <td>${i+1}</td>
+              <td>${m.materialName}</td>
+              <td>${m.quantity}</td>
+              <td>${m.unit}</td>
+              <td>${m.stage}</td>
+              <td>${formatDate(m.date)}</td>
+              <td>${m.user}</td>
+              <td>${m.note || ''}</td>
+              <td>
+                <button class="btn btn-danger btn-sm" onclick="deleteMaterial(${i})">Xóa</button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+      
+      html += '</tbody></table>';
+      tabContent.innerHTML = html;
+    }
+    
+    function showIssueForm() {
+      const vatTu = App.load('VAT_TU', []);
+      const stages = workflow.map(w => w.name);
+      
+      let html = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3>Xuất vật tư</h3>
+          <button class="btn btn-secondary" onclick="showMaterials()">Quay lại</button>
+        </div>
+        <form id="issueForm" style="max-width:600px;">
+          <div class="form-group">
+            <label>Chọn vật tư *</label>
+            <select name="materialId" required>
+              <option value="">-- Chọn vật tư --</option>
+              ${vatTu.map(v => `<option value="${v.id}">${v.name} (Tồn: ${v.stock} ${v.unit})</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Số lượng *</label>
+            <input type="number" name="quantity" min="0.01" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label>Công đoạn *</label>
+            <select name="stage" required>
+              <option value="">-- Chọn công đoạn --</option>
+              ${stages.map(s => `<option value="${s}">${s}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Ngày xuất</label>
+            <input type="datetime-local" name="date" value="${new Date().toISOString().slice(0,16)}">
+          </div>
+          <div class="form-group">
+            <label>Người xuất</label>
+            <input type="text" name="user" placeholder="Tên người xuất">
+          </div>
+          <div class="form-group">
+            <label>Ghi chú</label>
+            <textarea name="note" rows="3" placeholder="Ghi chú về việc xuất vật tư"></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Xuất vật tư</button>
+            <button type="button" class="btn btn-secondary" onclick="showMaterials()">Hủy</button>
+          </div>
+        </form>
+      `;
+      
+      tabContent.innerHTML = html;
+      
+      document.getElementById('issueForm').onsubmit = function(e) {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        const materialId = f.get('materialId');
+        const quantity = parseFloat(f.get('quantity'));
+        
+        // Tìm thông tin vật tư
+        const material = vatTu.find(v => v.id === materialId);
+        if(!material) {
+          alert('Không tìm thấy vật tư!');
+          return;
+        }
+        
+        // Kiểm tra tồn kho
+        if(material.stock < quantity) {
+          alert(`Không đủ tồn kho! Hiện tại chỉ có ${material.stock} ${material.unit}`);
+          return;
+        }
+        
+        // Thêm vào danh sách vật tư đã xuất
+        materials.push({
+          materialId: materialId,
+          materialName: material.name,
+          quantity: quantity,
+          unit: material.unit,
+          stage: f.get('stage'),
+          date: f.get('date') || new Date().toISOString(),
+          user: f.get('user') || '',
+          note: f.get('note') || ''
+        });
+        
+        // Cập nhật tồn kho
+        material.stock -= quantity;
+        App.save('VAT_TU', vatTu);
+        
+        // Lưu danh sách vật tư đã xuất
+        App.save('materials_' + orderId, materials);
+        
+        // Ghi nhật ký
+        addLog('Xuất vật tư', `Xuất ${quantity} ${material.unit} ${material.name} cho công đoạn ${f.get('stage')}`);
+        
+        showMaterials();
+      };
+    }
+    
+    window.deleteMaterial = function(idx) {
+      if(!confirm('Bạn có chắc muốn xóa vật tư này?')) return;
+      
+      const material = materials[idx];
+      
+      // Hoàn trả tồn kho
+      const vatTu = App.load('VAT_TU', []);
+      const materialIndex = vatTu.findIndex(v => v.id === material.materialId);
+      if(materialIndex >= 0) {
+        vatTu[materialIndex].stock += material.quantity;
+        App.save('VAT_TU', vatTu);
+      }
+      
+      // Xóa khỏi danh sách
+      materials.splice(idx, 1);
+      App.save('materials_' + orderId, materials);
+      
+      // Ghi nhật ký
+      addLog('Xóa vật tư', `Xóa ${material.quantity} ${material.unit} ${material.materialName}`);
+      
+      showMaterials();
+    }
+    
+    function showWorkflow() {
+      let html = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3>Chi tiết công đoạn</h3>
+          <button class="btn btn-primary" onclick="editWorkflowDetails()">Chỉnh sửa</button>
+        </div>
+        <div class="workflow-details">
+      `;
+      
+      workflow.forEach((stage, i) => {
+        const details = App.load('workflow_details_' + orderId + '_' + i, {
+          technical: '',
+          operational: '',
+          qc: '',
+          estimatedMaterials: ''
+        });
+        
+        html += `
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-header">
+              <h4>${i+1}. ${stage.name}</h4>
+              <p>${stage.desc}</p>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <h5>Thông số kỹ thuật</h5>
+                  <p>${details.technical || 'Chưa có thông tin'}</p>
+                </div>
+                <div class="col-md-6">
+                  <h5>Tham số vận hành</h5>
+                  <p>${details.operational || 'Chưa có thông tin'}</p>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <h5>QC - Kiểm soát chất lượng</h5>
+                  <p>${details.qc || 'Chưa có thông tin'}</p>
+                </div>
+                <div class="col-md-6">
+                  <h5>Vật tư dự kiến</h5>
+                  <p>${details.estimatedMaterials || 'Chưa có thông tin'}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      
+      html += '</div>';
+      tabContent.innerHTML = html;
+    }
+    
+    window.editWorkflowDetails = function() {
+      let html = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3>Chỉnh sửa chi tiết công đoạn</h3>
+          <button class="btn btn-secondary" onclick="showWorkflow()">Quay lại</button>
+        </div>
+        <form id="workflowForm">
+      `;
+      
+      workflow.forEach((stage, i) => {
+        const details = App.load('workflow_details_' + orderId + '_' + i, {
+          technical: '',
+          operational: '',
+          qc: '',
+          estimatedMaterials: ''
+        });
+        
+        html += `
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-header">
+              <h4>${i+1}. ${stage.name}</h4>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Thông số kỹ thuật</label>
+                    <textarea name="technical_${i}" rows="3" placeholder="Nhập thông số kỹ thuật cho công đoạn này">${details.technical}</textarea>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Tham số vận hành</label>
+                    <textarea name="operational_${i}" rows="3" placeholder="Nhập tham số vận hành">${details.operational}</textarea>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>QC - Kiểm soát chất lượng</label>
+                    <textarea name="qc_${i}" rows="3" placeholder="Nhập yêu cầu QC">${details.qc}</textarea>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Vật tư dự kiến</label>
+                    <textarea name="estimatedMaterials_${i}" rows="3" placeholder="Nhập vật tư dự kiến sử dụng">${details.estimatedMaterials}</textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      
+      html += `
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+            <button type="button" class="btn btn-secondary" onclick="showWorkflow()">Hủy</button>
+          </div>
+        </form>
+      `;
+      
+      tabContent.innerHTML = html;
+      
+      document.getElementById('workflowForm').onsubmit = function(e) {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        
+        workflow.forEach((stage, i) => {
+          const details = {
+            technical: f.get('technical_' + i) || '',
+            operational: f.get('operational_' + i) || '',
+            qc: f.get('qc_' + i) || '',
+            estimatedMaterials: f.get('estimatedMaterials_' + i) || ''
+          };
+          
+          App.save('workflow_details_' + orderId + '_' + i, details);
+        });
+        
+        addLog('Cập nhật công đoạn', 'Chỉnh sửa chi tiết các công đoạn sản xuất');
+        showWorkflow();
+      };
+    }
+    
+
+    
+    function showLog() {
+      let html = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3>Nhật ký thao tác</h3>
+          <button class="btn btn-primary" onclick="addManualLog()">Thêm ghi chú</button>
+        </div>
+        <div class="logs-container">
+      `;
+      
+      if(logs.length === 0) {
+        html += '<div style="text-align:center;color:var(--gray);padding:32px;">Chưa có nhật ký nào</div>';
+      } else {
+        logs.forEach((log, i) => {
+          html += `
+            <div class="log-item" style="border-left:3px solid var(--primary);padding:12px;margin-bottom:12px;background:white;">
+              <div style="display:flex;justify-content:space-between;align-items:start;">
+                <div>
+                  <strong>${log.action}</strong>
+                  <p style="margin:4px 0;color:var(--gray);">${log.details}</p>
+                </div>
+                <div style="text-align:right;font-size:12px;color:var(--gray);">
+                  ${formatDate(log.timestamp)}
+                  <br>${log.user || 'Hệ thống'}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      }
+      
+      html += '</div>';
+      tabContent.innerHTML = html;
+    }
+    
+    window.addManualLog = function() {
+      let html = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3>Thêm ghi chú</h3>
+          <button class="btn btn-secondary" onclick="showLog()">Quay lại</button>
+        </div>
+        <form id="manualLogForm" style="max-width:600px;">
+          <div class="form-group">
+            <label>Hành động</label>
+            <input type="text" name="action" required placeholder="Ví dụ: Sự cố máy, Ghi chú, Hoàn thành...">
+          </div>
+          <div class="form-group">
+            <label>Chi tiết</label>
+            <textarea name="details" rows="4" required placeholder="Mô tả chi tiết..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Người thực hiện</label>
+            <input type="text" name="user" placeholder="Tên người thực hiện">
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Thêm ghi chú</button>
+            <button type="button" class="btn btn-secondary" onclick="showLog()">Hủy</button>
+          </div>
+        </form>
+      `;
+      
+      tabContent.innerHTML = html;
+      
+      document.getElementById('manualLogForm').onsubmit = function(e) {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        
+        addLog(f.get('action'), f.get('details'), f.get('user'));
+        showLog();
+      };
+    }
+    
+    function addLog(action, details, user = '') {
+      logs.unshift({
+        action: action,
+        details: details,
+        user: user,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Giữ tối đa 100 log gần nhất
+      if(logs.length > 100) {
+        logs = logs.slice(0, 100);
+      }
+      
+      App.save('logs_' + orderId, logs);
+    }
+    
+    function formatDate(dateStr) {
+      return App.formatDate(dateStr);
+    }
+  </script>
+</body>
+</html> 

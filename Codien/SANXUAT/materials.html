@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vật tư - Carton Manager</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo">
+      <img src="images/logo.svg" alt="Logo" style="height:32px;margin-right:10px;"> Carton Manager
+    </div>
+    <nav>
+      <ul>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="orders.html">Lệnh sản xuất</a></li>
+        <li><a href="progress.html">Tiến độ</a></li>
+        <li><a href="materials.html" class="active">Vật tư</a></li>
+        <li><a href="workflow.html">Công đoạn</a></li>
+        <li><a href="reports.html">Báo cáo</a></li>
+      </ul>
+    </nav>
+    <div style="padding:16px 24px 0 24px; font-size:13px; color:#cbd5e1;">© 2025 Carton Manager</div>
+  </div>
+  <div class="main">
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <h1>Vật tư</h1>
+      <button class="btn btn-danger" id="logoutBtn">Đăng xuất</button>
+    </header>
+    <div class="card">
+      <h2>Tồn kho vật tư</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tên vật tư</th>
+            <th>Đơn vị</th>
+            <th>Tồn kho</th>
+            <th>Cảnh báo</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody id="materialsTable"></tbody>
+      </table>
+    </div>
+    <div class="card" id="addMaterialCard" style="display:none;max-width:400px;">
+      <h2>Nhập vật tư mới</h2>
+      <form id="addMaterialForm">
+
+        <input type="text" id="matName" placeholder="Tên vật tư" required>
+        <input type="text" id="matUnit" placeholder="Đơn vị" required>
+        <input type="number" id="matStock" placeholder="Tồn kho ban đầu" min="0" required>
+        <button class="btn btn-success" type="submit">Lưu vật tư</button>
+        <button class="btn btn-danger" type="button" id="cancelAddMaterial">Hủy</button>
+      </form>
+    </div>
+    <button class="btn btn-success" id="btnAddMaterial">+ Nhập vật tư mới</button>
+  </div>
+  <script src="js/app.js"></script>
+  <script>
+    let materials = App.load('VAT_TU', []);
+    function renderMaterials() {
+      const tb = document.getElementById('materialsTable');
+      tb.innerHTML = materials.map(m => `
+        <tr>
+          <td>${m.id}</td>
+          <td>${m.name}</td>
+          <td>${m.unit}</td>
+          <td>${m.stock}</td>
+          <td>${m.stock < 10 ? '<span style=\'color:var(--danger);font-weight:500;\'>Thấp</span>' : ''}</td>
+          <td><button class="btn btn-danger btn-sm" onclick="deleteMaterial('${m.id}')">Xóa</button></td>
+        </tr>
+      `).join('') || '<tr><td colspan="6" style="text-align:center;">Không có vật tư</td></tr>';
+    }
+    document.getElementById('btnAddMaterial').onclick = function() {
+      document.getElementById('addMaterialCard').style.display = 'block';
+      this.style.display = 'none';
+    };
+    document.getElementById('cancelAddMaterial').onclick = function() {
+      document.getElementById('addMaterialCard').style.display = 'none';
+      document.getElementById('btnAddMaterial').style.display = 'inline-block';
+    };
+    document.getElementById('addMaterialForm').onsubmit = function(e) {
+      e.preventDefault();
+      const name = document.getElementById('matName').value.trim();
+      const unit = document.getElementById('matUnit').value.trim();
+      const stock = Number(document.getElementById('matStock').value);
+      materials.push({id: App.generateId('VT'), name, unit, stock, value: 0});
+      App.save('VAT_TU', materials);
+      renderMaterials();
+      document.getElementById('addMaterialCard').style.display = 'none';
+      document.getElementById('btnAddMaterial').style.display = 'inline-block';
+      this.reset();
+    };
+    window.deleteMaterial = function(id) {
+      if(confirm('Xóa vật tư này?')) {
+        materials = materials.filter(m=>m.id!==id);
+        App.save('VAT_TU', materials);
+        renderMaterials();
+      }
+    };
+    document.getElementById('logoutBtn').onclick = function() {
+      App.remove('currentUser');
+      window.location.href = 'index.html';
+    };
+    renderMaterials();
+  </script>
+</body>
+</html> 

@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Công đoạn XẢ - Quản lý sản xuất</title>
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --secondary: #6b7280;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --dark: #1f2937;
+      --light: #f8fafc;
+      --gray: #6b7280;
+      --border: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f1f5f9;
+      color: var(--dark);
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: white;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sidebar-header h3 {
+      color: var(--primary);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .sidebar nav ul {
+      list-style: none;
+      padding: 16px 0;
+    }
+
+    .sidebar nav li {
+      margin: 4px 16px;
+    }
+
+    .sidebar nav a {
+      display: block;
+      padding: 12px 16px;
+      text-decoration: none;
+      color: var(--secondary);
+      border-radius: 8px;
+      transition: all 0.2s;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .sidebar nav a:hover {
+      background: var(--light);
+      color: var(--primary);
+    }
+
+    .sidebar nav .active a {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Main content */
+    .main {
+      margin-left: 280px;
+      flex: 1;
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    /* Cards */
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .card h2 {
+      margin-bottom: 16px;
+      color: var(--dark);
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-warning {
+      background: var(--warning);
+      color: white;
+    }
+
+    .btn-danger {
+      background: var(--error);
+      color: white;
+    }
+
+    .btn-info {
+      background: #06b6d4;
+      color: white;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: var(--dark);
+      font-size: 14px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+      background: white;
+      margin: 5% auto;
+      padding: 0;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .modal-actions {
+      padding: 20px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .modal form {
+      padding: 20px 24px;
+    }
+
+    .close {
+      color: var(--secondary);
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .close:hover {
+      color: var(--dark);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        position: relative;
+        height: auto;
+      }
+      
+      .main {
+        margin-left: 0;
+        padding: 16px;
+      }
+      
+      .modal-content {
+        margin: 10% auto;
+        width: 95%;
+      }
+    }
+    .stage-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    
+    .stage-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    
+    .stat-label {
+      color: var(--gray);
+      font-size: 14px;
+    }
+    
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    
+    .filter-label {
+      font-weight: 500;
+      color: var(--dark);
+      font-size: 14px;
+    }
+    
+    .filter-input {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .table-container {
+      overflow-x: auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1200px;
+    }
+    
+    .orders-table th,
+    .orders-table td {
+      padding: 12px 8px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    
+    .orders-table th {
+      background: var(--light);
+      font-weight: 600;
+      color: var(--dark);
+      position: sticky;
+      top: 0;
+    }
+    
+    .orders-table tr:hover {
+      background: #f8fafc;
+    }
+    
+    .quantity-input {
+      width: 70px;
+      padding: 4px 6px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      text-align: center;
+      font-size: 12px;
+    }
+    
+    .quantity-display {
+      font-weight: 600;
+      color: var(--primary);
+      text-align: right;
+    }
+    
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-doing { background: #dbeafe; color: #1e40af; }
+    .status-done { background: #d1fae5; color: #065f46; }
+    .status-error { background: #fee2e2; color: #991b1b; }
+    
+    .action-buttons {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    
+    .btn-sm {
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+    
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .toolbar h2 {
+      margin: 0;
+    }
+    
+    .toolbar-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    @media (max-width: 768px) {
+      .stage-stats {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .filters {
+        grid-template-columns: 1fr;
+      }
+      
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .toolbar-actions {
+        justify-content: center;
+      }
+    }
+  </style>
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    
+    .filter-label {
+      font-weight: 500;
+      color: var(--dark);
+      font-size: 14px;
+    }
+    
+    .filter-input {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .table-container {
+      overflow-x: auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1200px;
+    }
+    
+    .orders-table th,
+    .orders-table td {
+      padding: 12px 8px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    
+    .orders-table th {
+      background: var(--light);
+      font-weight: 600;
+      color: var(--dark);
+      position: sticky;
+      top: 0;
+    }
+    
+    .orders-table tr:hover {
+      background: #f8fafc;
+    }
+    
+    .quantity-input {
+      width: 70px;
+      padding: 4px 6px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      text-align: center;
+      font-size: 12px;
+    }
+    
+    .quantity-display {
+      font-weight: 600;
+      color: var(--primary);
+      text-align: right;
+    }
+    
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-doing { background: #dbeafe; color: #1e40af; }
+    .status-done { background: #d1fae5; color: #065f46; }
+    .status-error { background: #fee2e2; color: #991b1b; }
+    
+    .action-buttons {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    
+    .btn-sm {
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+    
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .toolbar h2 {
+      margin: 0;
+    }
+    
+    .toolbar-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    @media (max-width: 768px) {
+      .stage-stats {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .filters {
+        grid-template-columns: 1fr;
+      }
+      
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .toolbar-actions {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div style="width:32px;height:32px;background:#3b82f6;border-radius:6px;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;">📦</div>
+      <h3>Carton Manager</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="dashboard.html">📊 Dashboard</a></li>
+        <li><a href="orders.html">📋 Lệnh sản xuất</a></li>
+        <li><a href="progress.html">⚡ Quản lý tiến độ</a></li>
+        <li><a href="materials.html">📦 Vật tư</a></li>
+        <li><a href="workflow.html">🔄 Công đoạn</a></li>
+        <li><a href="reports.html">📈 Báo cáo</a></li>
+        <li class="active"><a href="stage-xa.html">🎯 Công đoạn XẢ</a></li>
+        <li><a href="stage-xen.html">✂️ Công đoạn XÉN</a></li>
+        <li><a href="stage-in.html">🖨️ Công đoạn IN</a></li>
+        <li><a href="stage-boi.html">📄 Công đoạn BỒI</a></li>
+        <li><a href="stage-be.html">🔪 Công đoạn BẾ</a></li>
+        <li><a href="stage-dan.html">🔗 Công đoạn DÁN</a></li>
+        <li><a href="stage-kho.html">🏭 KHO THÀNH PHẨM</a></li>
+      </ul>
+    </nav>
+  </div>
+  
+  <div class="main">
+    <div class="stage-header">
+      <h1>🎯 Công đoạn XẢ GIẤY</h1>
+      <p>Quản lý chi tiết quá trình xả giấy cuộn</p>
+    </div>
+    
+    <div class="stage-stats" id="stageStats">
+      <!-- Thống kê sẽ được tạo động -->
+    </div>
+    
+    <div class="card">
+      <div class="toolbar">
+        <h2>Danh sách lệnh sản xuất</h2>
+        <div class="toolbar-actions">
+          <button class="btn btn-secondary" onclick="refreshData()">🔄 Làm mới</button>
+          <button class="btn btn-success" onclick="showNewOrderForm()">➕ Thêm lệnh</button>
+          <button class="btn btn-info" onclick="exportData()">📤 Xuất Excel</button>
+        </div>
+      </div>
+      
+      <div class="filters">
+        <div class="filter-group">
+          <label class="filter-label">Ngày sản xuất:</label>
+          <input type="date" class="filter-input" id="dateFilter">
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">Ca làm việc:</label>
+          <select class="filter-input" id="shiftFilter">
+            <option value="">Tất cả ca</option>
+            <option value="Ca 1">Ca 1 (6h-14h)</option>
+            <option value="Ca 2">Ca 2 (14h-22h)</option>
+            <option value="Ca 3">Ca 3 (22h-6h)</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">Trạng thái:</label>
+          <select class="filter-input" id="statusFilter">
+            <option value="">Tất cả</option>
+            <option value="pending">Chờ xử lý</option>
+            <option value="doing">Đang thực hiện</option>
+            <option value="done">Hoàn thành</option>
+            <option value="error">Có lỗi</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">Tìm kiếm:</label>
+          <input type="text" class="filter-input" id="searchInput" placeholder="Mã LSX, tên SP...">
+        </div>
+      </div>
+      
+      <div class="table-container">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Ngày SX</th>
+              <th>Ca</th>
+              <th>Mã LSX</th>
+              <th>Loại lệnh</th>
+              <th>Mã SP</th>
+              <th>Tên sản phẩm</th>
+              <th>SL kế hoạch</th>
+              <th>Loại giấy</th>
+              <th>Định lượng</th>
+              <th>Kích thước (D×R)</th>
+              <th>Số phôi</th>
+              <th>Kích thước phôi</th>
+              <th>SL cần xả</th>
+              <th>SL đạt</th>
+              <th>SL NG</th>
+              <th>SL tồn</th>
+              <th>Bắt đầu</th>
+              <th>Kết thúc</th>
+              <th>Thợ</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTable">
+            <!-- Dữ liệu sẽ được tạo động -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal thêm/sửa lệnh -->
+  <div id="orderModal" class="modal">
+    <div class="modal-content" style="max-width:600px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Thêm lệnh sản xuất mới</h3>
+        <span class="close" onclick="closeModal('orderModal')">&times;</span>
+      </div>
+      <form id="orderForm">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:16px;">
+          <div class="form-group">
+            <label class="form-label">Ngày sản xuất:</label>
+            <input type="date" class="form-input" id="productionDate" required>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Ca làm việc:</label>
+            <select class="form-input" id="shift" required>
+              <option value="">Chọn ca</option>
+              <option value="Ca 1">Ca 1 (6h-14h)</option>
+              <option value="Ca 2">Ca 2 (14h-22h)</option>
+              <option value="Ca 3">Ca 3 (22h-6h)</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Mã LSX:</label>
+            <input type="text" class="form-input" id="orderCode" required placeholder="VD: LSX001">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Loại lệnh:</label>
+            <select class="form-input" id="orderType">
+              <option value="Thường">Thường</option>
+              <option value="Mẫu">Mẫu</option>
+              <option value="Bù">Bù</option>
+              <option value="Gấp">Gấp</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Mã sản phẩm:</label>
+            <input type="text" class="form-input" id="productCode" required placeholder="VD: SP001">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Tên sản phẩm:</label>
+            <input type="text" class="form-input" id="productName" required>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">SL kế hoạch:</label>
+            <input type="number" class="form-input" id="planQty" required min="1">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Loại giấy:</label>
+            <select class="form-input" id="paperType" required>
+              <option value="">Chọn loại giấy</option>
+              <option value="BC">BC - Bìa cứng</option>
+              <option value="CO">CO - Carton</option>
+              <option value="DP">DP - Duplex</option>
+              <option value="KR">KR - Kraft</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Định lượng (g/m²):</label>
+            <input type="number" class="form-input" id="paperWeight" required min="50" max="1000">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Dài (mm):</label>
+            <input type="number" class="form-input" id="length" required min="1">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Rộng (mm):</label>
+            <input type="number" class="form-input" id="width" required min="1">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Số phôi/tờ:</label>
+            <input type="number" class="form-input" id="pcsPerSheet" required min="1">
+          </div>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('orderModal')">Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal nhập số lượng -->
+  <div id="quantityModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Cập nhật số lượng sản xuất</h3>
+        <span class="close" onclick="closeModal('quantityModal')">&times;</span>
+      </div>
+      <form id="quantityForm">
+        <input type="hidden" id="editOrderId">
+        
+        <div class="form-group">
+          <label class="form-label">Số lượng đạt:</label>
+          <input type="number" class="form-input" id="goodQty" min="0">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Số lượng NG:</label>
+          <input type="number" class="form-input" id="ngQty" min="0">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Số lượng tồn:</label>
+          <input type="number" class="form-input" id="remainQty" min="0">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Thời gian bắt đầu:</label>
+          <input type="datetime-local" class="form-input" id="startTime">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Thời gian kết thúc:</label>
+          <input type="datetime-local" class="form-input" id="endTime">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Thợ phụ trách:</label>
+          <input type="text" class="form-input" id="worker" placeholder="Tên thợ">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Ghi chú:</label>
+          <textarea class="form-input" id="note" rows="3" placeholder="Ghi chú thêm..."></textarea>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('quantityModal')">Hủy</button>
+          <button type="submit" class="btn btn-primary">Cập nhật</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // App utility functions
+    const App = {
+      // Lưu dữ liệu vào localStorage
+      save: function(key, data) {
+        try {
+          localStorage.setItem(key, JSON.stringify(data));
+          return true;
+        } catch (e) {
+          console.error('Lỗi lưu dữ liệu:', e);
+          return false;
+        }
+      },
+      
+      // Tải dữ liệu từ localStorage
+      load: function(key, defaultValue = null) {
+        try {
+          const data = localStorage.getItem(key);
+          return data ? JSON.parse(data) : defaultValue;
+        } catch (e) {
+          console.error('Lỗi tải dữ liệu:', e);
+          return defaultValue;
+        }
+      },
+      
+      // Format số
+      formatNumber: function(num) {
+        if (!num && num !== 0) return '';
+        return new Intl.NumberFormat('vi-VN').format(num);
+      },
+      
+      // Tạo ID duy nhất
+      generateId: function() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+      },
+      
+      // Hiển thị thông báo
+      notify: function(message, type = 'info') {
+        alert(message); // Đơn giản hóa để tránh lỗi
+      },
+      
+      // Xác nhận hành động
+      confirm: function(message, callback) {
+        if (confirm(message)) {
+          callback();
+        }
+      },
+      
+      // Validate form
+      validateForm: function(formElement) {
+        const inputs = formElement.querySelectorAll('input[required], select[required], textarea[required]');
+        let isValid = true;
+        
+        inputs.forEach(input => {
+          if (!input.value.trim()) {
+            input.style.borderColor = '#ef4444';
+            isValid = false;
+          } else {
+            input.style.borderColor = '#e5e7eb';
+          }
+        });
+        
+        return isValid;
+      }
+    };
+
+    // Date utilities
+    const DateUtils = {
+      today: function() {
+        return new Date().toISOString().split('T')[0];
+      },
+      
+      format: function(date, format = 'dd/mm/yyyy') {
+        if (!date) return '';
+        const d = new Date(date);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        
+        return format
+          .replace('dd', day)
+          .replace('mm', month)
+          .replace('yyyy', year);
+      }
+    };
+
+    // Dữ liệu mẫu
+    let orders = [];
+    let editingOrderId = null;
+    
+    // Khởi tạo dữ liệu
+    function initData() {
+      orders = App.load('xa_orders', []);
+      
+      // Tạo dữ liệu mẫu nếu chưa có
+      if (orders.length === 0) {
+        const sampleData = [
+          {
+            id: App.generateId(),
+            date: DateUtils.today(),
+            shift: 'Ca 1',
+            orderCode: 'LSX001',
+            orderType: 'Thường',
+            productCode: 'SP001',
+            productName: 'Hộp giày Nike Air Max',
+            planQty: 1000,
+            paperType: 'BC',
+            paperWeight: 350,
+            length: 320,
+            width: 180,
+            pcsPerSheet: 2,
+            requiredQty: 500,
+            goodQty: 450,
+            ngQty: 30,
+            remainQty: 20,
+            startTime: '2025-01-28T06:00',
+            endTime: '2025-01-28T10:30',
+            worker: 'Nguyễn Văn A',
+            status: 'done',
+            note: 'Hoàn thành tốt'
+          },
+          {
+            id: App.generateId(),
+            date: DateUtils.today(),
+            shift: 'Ca 2',
+            orderCode: 'LSX002',
+            orderType: 'Gấp',
+            productCode: 'SP002',
+            productName: 'Hộp bánh kẹo Tết',
+            planQty: 2000,
+            paperType: 'DP',
+            paperWeight: 300,
+            length: 250,
+            width: 150,
+            pcsPerSheet: 4,
+            requiredQty: 500,
+            goodQty: 0,
+            ngQty: 0,
+            remainQty: 0,
+            startTime: '',
+            endTime: '',
+            worker: '',
+            status: 'pending',
+            note: ''
+          }
+        ];
+        
+        orders = sampleData;
+        App.save('xa_orders', orders);
+      }
+      
+      // Set ngày hiện tại cho filter
+      document.getElementById('dateFilter').value = DateUtils.today();
+      
+      renderData();
+    }
+    
+    // Hiển thị dữ liệu
+    function renderData() {
+      const date = document.getElementById('dateFilter').value;
+      const shift = document.getElementById('shiftFilter').value;
+      const status = document.getElementById('statusFilter').value;
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      
+      // Lọc dữ liệu
+      let filteredOrders = orders.filter(order => {
+        if (date && order.date !== date) return false;
+        if (shift && order.shift !== shift) return false;
+        if (status && order.status !== status) return false;
+        if (search && !(
+          order.orderCode.toLowerCase().includes(search) ||
+          order.productCode.toLowerCase().includes(search) ||
+          order.productName.toLowerCase().includes(search)
+        )) return false;
+        return true;
+      });
+      
+      // Tính thống kê
+      const stats = {
+        totalOrders: filteredOrders.length,
+        totalPlan: filteredOrders.reduce((sum, o) => sum + (o.planQty || 0), 0),
+        totalGood: filteredOrders.reduce((sum, o) => sum + (o.goodQty || 0), 0),
+        totalNg: filteredOrders.reduce((sum, o) => sum + (o.ngQty || 0), 0)
+      };
+      
+      // Hiển thị thống kê
+      document.getElementById('stageStats').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-value">${stats.totalOrders}</div>
+          <div class="stat-label">Tổng lệnh</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${App.formatNumber(stats.totalPlan)}</div>
+          <div class="stat-label">SL kế hoạch</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${App.formatNumber(stats.totalGood)}</div>
+          <div class="stat-label">SL đạt</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${App.formatNumber(stats.totalNg)}</div>
+          <div class="stat-label">SL NG</div>
+        </div>
+      `;
+      
+      // Hiển thị bảng
+      const tableBody = document.getElementById('ordersTable');
+      tableBody.innerHTML = '';
+      
+      filteredOrders.forEach(order => {
+        const statusClass = `status-${order.status || 'pending'}`;
+        const statusText = {
+          pending: 'Chờ xử lý',
+          doing: 'Đang làm',
+          done: 'Hoàn thành',
+          error: 'Có lỗi'
+        }[order.status] || 'Chờ xử lý';
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${DateUtils.format(order.date)}</td>
+          <td>${order.shift || ''}</td>
+          <td><strong>${order.orderCode}</strong></td>
+          <td>${order.orderType || ''}</td>
+          <td>${order.productCode || ''}</td>
+          <td>${order.productName || ''}</td>
+          <td class="quantity-display">${App.formatNumber(order.planQty)}</td>
+          <td>${order.paperType || ''}</td>
+          <td>${order.paperWeight || ''}g</td>
+          <td>${order.length}×${order.width}</td>
+          <td>${order.pcsPerSheet || ''}</td>
+          <td>${order.sheetLength || ''}×${order.sheetWidth || ''}</td>
+          <td class="quantity-display">${App.formatNumber(order.requiredQty)}</td>
+          <td class="quantity-display">${App.formatNumber(order.goodQty)}</td>
+          <td class="quantity-display">${App.formatNumber(order.ngQty)}</td>
+          <td class="quantity-display">${App.formatNumber(order.remainQty)}</td>
+          <td>${order.startTime ? new Date(order.startTime).toLocaleString('vi-VN') : ''}</td>
+          <td>${order.endTime ? new Date(order.endTime).toLocaleString('vi-VN') : ''}</td>
+          <td>${order.worker || ''}</td>
+          <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn btn-primary btn-sm" onclick="editQuantity('${order.id}')">
+                📝 Nhập SL
+              </button>
+              <button class="btn btn-info btn-sm" onclick="editOrder('${order.id}')">
+                ✏️ Sửa
+              </button>
+              <button class="btn btn-danger btn-sm" onclick="deleteOrder('${order.id}')">
+                🗑️ Xóa
+              </button>
+            </div>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+    
+    // Hiển thị form thêm mới
+    function showNewOrderForm() {
+      editingOrderId = null;
+      document.getElementById('orderForm').reset();
+      document.getElementById('productionDate').value = DateUtils.today();
+      document.querySelector('#orderModal .modal-title').textContent = 'Thêm lệnh sản xuất mới';
+      document.getElementById('orderModal').style.display = 'block';
+    }
+    
+    // Hiển thị form sửa
+    function editOrder(orderId) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+      
+      editingOrderId = orderId;
+      document.querySelector('#orderModal .modal-title').textContent = 'Sửa lệnh sản xuất';
+      
+      // Điền dữ liệu vào form
+      Object.keys(order).forEach(key => {
+        const element = document.getElementById(key);
+        if (element && order[key] !== undefined) {
+          element.value = order[key];
+        }
+      });
+      
+      document.getElementById('orderModal').style.display = 'block';
+    }
+    
+    // Hiển thị form nhập số lượng
+    function editQuantity(orderId) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+      
+      document.getElementById('editOrderId').value = orderId;
+      document.getElementById('goodQty').value = order.goodQty || '';
+      document.getElementById('ngQty').value = order.ngQty || '';
+      document.getElementById('remainQty').value = order.remainQty || '';
+      document.getElementById('startTime').value = order.startTime || '';
+      document.getElementById('endTime').value = order.endTime || '';
+      document.getElementById('worker').value = order.worker || '';
+      document.getElementById('note').value = order.note || '';
+      
+      document.getElementById('quantityModal').style.display = 'block';
+    }
+    
+    // Lưu lệnh sản xuất
+    function saveOrder(event) {
+      event.preventDefault();
+      
+      if (!App.validateForm(document.getElementById('orderForm'))) {
+        App.notify('Vui lòng điền đầy đủ thông tin bắt buộc', 'error');
+        return;
+      }
+      
+      const formData = new FormData(document.getElementById('orderForm'));
+      const orderData = {
+        id: editingOrderId || App.generateId(),
+        date: document.getElementById('productionDate').value,
+        shift: document.getElementById('shift').value,
+        orderCode: document.getElementById('orderCode').value,
+        orderType: document.getElementById('orderType').value,
+        productCode: document.getElementById('productCode').value,
+        productName: document.getElementById('productName').value,
+        planQty: parseInt(document.getElementById('planQty').value) || 0,
+        paperType: document.getElementById('paperType').value,
+        paperWeight: parseInt(document.getElementById('paperWeight').value) || 0,
+        length: parseInt(document.getElementById('length').value) || 0,
+        width: parseInt(document.getElementById('width').value) || 0,
+        pcsPerSheet: parseInt(document.getElementById('pcsPerSheet').value) || 0,
+        requiredQty: Math.ceil((parseInt(document.getElementById('planQty').value) || 0) / (parseInt(document.getElementById('pcsPerSheet').value) || 1)),
+        status: 'pending'
+      };
+      
+      if (editingOrderId) {
+        // Cập nhật
+        const index = orders.findIndex(o => o.id === editingOrderId);
+        if (index >= 0) {
+          orders[index] = { ...orders[index], ...orderData };
+        }
+        App.notify('Cập nhật lệnh thành công', 'success');
+      } else {
+        // Thêm mới
+        orders.push(orderData);
+        App.notify('Thêm lệnh thành công', 'success');
+      }
+      
+      App.save('xa_orders', orders);
+      closeModal('orderModal');
+      renderData();
+    }
+    
+    // Lưu số lượng
+    function saveQuantity(event) {
+      event.preventDefault();
+      
+      const orderId = document.getElementById('editOrderId').value;
+      const orderIndex = orders.findIndex(o => o.id === orderId);
+      if (orderIndex < 0) return;
+      
+      const goodQty = parseInt(document.getElementById('goodQty').value) || 0;
+      const ngQty = parseInt(document.getElementById('ngQty').value) || 0;
+      const remainQty = parseInt(document.getElementById('remainQty').value) || 0;
+      
+      orders[orderIndex] = {
+        ...orders[orderIndex],
+        goodQty,
+        ngQty,
+        remainQty,
+        startTime: document.getElementById('startTime').value,
+        endTime: document.getElementById('endTime').value,
+        worker: document.getElementById('worker').value,
+        note: document.getElementById('note').value,
+        status: goodQty > 0 ? 'done' : 'doing'
+      };
+      
+      App.save('xa_orders', orders);
+      closeModal('quantityModal');
+      renderData();
+      App.notify('Cập nhật số lượng thành công', 'success');
+    }
+    
+    // Xóa lệnh
+    function deleteOrder(orderId) {
+      App.confirm('Bạn có chắc muốn xóa lệnh này?', () => {
+        orders = orders.filter(o => o.id !== orderId);
+        App.save('xa_orders', orders);
+        renderData();
+        App.notify('Đã xóa lệnh', 'success');
+      });
+    }
+    
+    // Xuất Excel
+    function exportData() {
+      // Tạo CSV từ dữ liệu
+      const headers = [
+        'Ngày SX', 'Ca', 'Mã LSX', 'Loại lệnh', 'Mã SP', 'Tên sản phẩm',
+        'SL kế hoạch', 'Loại giấy', 'Định lượng', 'Dài', 'Rộng', 'Số phôi',
+        'SL cần xả', 'SL đạt', 'SL NG', 'SL tồn', 'Bắt đầu', 'Kết thúc', 'Thợ', 'Ghi chú'
+      ];
+      
+      const csvContent = [
+        headers.join(','),
+        ...orders.map(order => [
+          order.date, order.shift, order.orderCode, order.orderType,
+          order.productCode, order.productName, order.planQty, order.paperType,
+          order.paperWeight, order.length, order.width, order.pcsPerSheet,
+          order.requiredQty, order.goodQty, order.ngQty, order.remainQty,
+          order.startTime, order.endTime, order.worker, order.note
+        ].join(','))
+      ].join('\n');
+      
+      // Tải file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `cong_doan_xa_${DateUtils.today()}.csv`;
+      link.click();
+      
+      App.notify('Đã xuất dữ liệu', 'success');
+    }
+    
+    // Đóng modal
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+    
+    // Làm mới dữ liệu
+    function refreshData() {
+      App.refreshData();
+    }
+    
+    // Xử lý sự kiện
+    document.addEventListener('DOMContentLoaded', initData);
+    
+    // Sự kiện form
+    document.getElementById('orderForm').addEventListener('submit', saveOrder);
+    document.getElementById('quantityForm').addEventListener('submit', saveQuantity);
+    
+    // Sự kiện filter
+    ['dateFilter', 'shiftFilter', 'statusFilter'].forEach(id => {
+      document.getElementById(id).addEventListener('change', renderData);
+    });
+    document.getElementById('searchInput').addEventListener('input', renderData);
+    
+    // Đóng modal khi click bên ngoài
+    window.addEventListener('click', function(event) {
+      if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>

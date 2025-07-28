@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý sản xuất hộp carton</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Quản lý sản xuất hộp carton</h1>
+    <div id="order-form">
+        <h2>Tạo lệnh sản xuất mới</h2>
+        <input type="text" id="productName" placeholder="Tên sản phẩm">
+        <input type="number" id="quantity" placeholder="Số lượng">
+        <button onclick="addOrder()">Tạo lệnh</button>
+    </div>
+    <div id="orders">
+        <h2>Danh sách lệnh sản xuất</h2>
+        <div id="orders-list"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

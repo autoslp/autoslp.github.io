@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - Hệ thống Quản lý Sản xuất Hộp Carton</title>
+    <meta name="description" content="Hệ thống quản lý sản xuất hộp carton theo các công đoạn từ xả đến kho thành phẩm">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="images/icon-192x192.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f4f8;
+            background-image: linear-gradient(135deg, #f0f4f8 0%, #d5e3f7 100%);
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 35px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+        
+        .login-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .login-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-logo img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+            animation: pulseLight 2s infinite;
+        }
+        
+        .login-logo h1 {
+            color: var(--primary);
+            margin-bottom: 5px;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .login-logo p {
+            color: var(--gray);
+            font-size: 16px;
+        }
+        
+        .login-form .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .login-form .form-control {
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        
+        .login-form .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .login-form .btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .login-form .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        
+        .login-form .btn:active {
+            transform: translateY(0);
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .form-floating {
+            position: relative;
+        }
+        
+        .form-floating label {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            color: var(--gray);
+            pointer-events: none;
+            transform-origin: left top;
+            transition: all 0.2s ease;
+        }
+        
+        .form-floating .form-control:focus ~ label,
+        .form-floating .form-control:not(:placeholder-shown) ~ label {
+            transform: translateY(-12px) scale(0.8);
+            color: var(--primary);
+        }
+        
+        .form-floating .form-control {
+            padding-top: 24px;
+            padding-bottom: 4px;
+        }
+        
+        .info-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(37, 99, 235, 0.05);
+            border-left: 3px solid var(--primary);
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--dark);
+        }
+        
+        @keyframes pulseLight {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container fade-in">
+        <div class="login-logo">
+            <img src="images/logo.svg" alt="Logo">
+            <h1>CARTON MANAGER</h1>
+            <p>Hệ thống quản lý sản xuất hộp carton</p>
+        </div>
+        
+        <div class="login-form">
+            <form id="loginForm">
+                <div class="form-group form-floating">
+                    <input type="text" class="form-control" id="maNhanVien" placeholder=" " required>
+                    <label for="maNhanVien">Mã nhân viên</label>
+                </div>
+                
+                <div class="form-group form-floating">
+                    <input type="password" class="form-control" id="password" placeholder=" " required>
+                    <label for="password">Mật khẩu</label>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Đăng nhập</button>
+                </div>
+            </form>
+            
+            <div class="info-box">
+                <strong>Demo:</strong> Sử dụng mã nhân viên (NV001, QD001 hoặc QL001) với bất kỳ mật khẩu nào để đăng nhập.
+            </div>
+        </div>
+        
+        <div class="login-footer">
+            <p>© 2025 Công ty TNHH Sản xuất Bao bì Carton</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const maNhanVien = document.getElementById('maNhanVien').value;
+            const password = document.getElementById('password').value;
+            
+            // Hiệu ứng nút loading khi đăng nhập
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<span class="spinner"></span> Đang đăng nhập...';
+            submitBtn.disabled = true;
+            
+            // Demo đơn giản, không có xác thực thực tế
+            // Giả lập thời gian xử lý
+            setTimeout(function() {
+                // Lưu thông tin đăng nhập vào localStorage để demo
+                localStorage.setItem('currentUser', maNhanVien);
+                localStorage.setItem('loginTime', new Date().toISOString());
+                
+                // Chuyển hướng đến trang dashboard
+                window.location.href = 'dashboard.html';
+            }, 1000);
+        });
+    </script>
+    <script>
+        // Đăng ký Service Worker nếu trình duyệt hỗ trợ
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html> 

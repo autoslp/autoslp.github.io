@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lệnh sản xuất - Carton Manager</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo">
+      <img src="images/logo.svg" alt="Logo" style="height:32px;margin-right:10px;"> Carton Manager
+    </div>
+    <nav>
+      <ul>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="orders.html" class="active">Lệnh sản xuất</a></li>
+        <li><a href="progress.html">Tiến độ</a></li>
+        <li><a href="materials.html">Vật tư</a></li>
+        <li><a href="workflow.html">Công đoạn</a></li>
+        <li><a href="reports.html">Báo cáo</a></li>
+      </ul>
+    </nav>
+    <div style="padding:16px 24px 0 24px; font-size:13px; color:#cbd5e1;">© 2025 Carton Manager</div>
+  </div>
+  <div class="main">
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <h1>Lệnh sản xuất</h1>
+      <div>
+        <button class="btn btn-success" id="btnAddOrder">+ Tạo lệnh mới</button>
+        <button class="btn btn-danger" id="logoutBtn">Đăng xuất</button>
+      </div>
+    </header>
+    <div class="card">
+      <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+        <input id="searchBox" type="text" placeholder="Tìm kiếm mã/tên sản phẩm..." style="max-width:220px;">
+        <select id="statusFilter" style="max-width:160px;">
+          <option value="">Tất cả trạng thái</option>
+          <option value="inprogress">Đang sản xuất</option>
+          <option value="done">Hoàn thành</option>
+          <option value="error">Lỗi/Sự cố</option>
+        </select>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Mã lệnh</th>
+            <th>Sản phẩm</th>
+            <th>Số lượng</th>
+            <th>Ngày bắt đầu</th>
+            <th>Ngày kết thúc</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody id="ordersTable"></tbody>
+      </table>
+    </div>
+    <div class="card" id="addOrderCard" style="display:none;max-width:500px;">
+      <h2>Tạo lệnh sản xuất mới</h2>
+      <form id="addOrderForm">
+        <input type="text" id="orderName" placeholder="Tên sản phẩm" required>
+        <input type="number" id="orderQty" placeholder="Số lượng" min="1" required>
+        <input type="date" id="orderStart" required>
+        <input type="date" id="orderEnd" required>
+        <button class="btn btn-success" type="submit">Lưu lệnh</button>
+        <button class="btn btn-danger" type="button" id="cancelAddOrder">Hủy</button>
+      </form>
+    </div>
+  </div>
+  <script src="js/app.js"></script>
+  <script>
+    // Khởi tạo dữ liệu demo nếu chưa có
+    let orders = App.load('orders', [
+      {id:'LSX001', name:'Hộp carton A4', qty:1000, start:'2025-07-25', end:'2025-07-30', status:'done'},
+      {id:'LSX002', name:'Hộp carton B5', qty:500, start:'2025-07-24', end:'2025-07-29', status:'inprogress'},
+      {id:'LSX003', name:'Hộp carton C3', qty:2000, start:'2025-07-26', end:'2025-08-02', status:'inprogress'},
+      {id:'LSX004', name:'Hộp carton D2', qty:800, start:'2025-07-27', end:'2025-08-05', status:'error'}
+    ]);
+    function renderOrders() {
+      const q = document.getElementById('searchBox').value.toLowerCase();
+      const st = document.getElementById('statusFilter').value;
+      let filtered = orders.filter(o =>
+        (!q || o.id.toLowerCase().includes(q) || o.name.toLowerCase().includes(q)) &&
+        (!st || o.status === st)
+      );
+      const tb = document.getElementById('ordersTable');
+      tb.innerHTML = filtered.map(o => `
+        <tr>
+          <td>${o.id}</td>
+          <td>${o.name}</td>
+          <td>${o.qty}</td>
+          <td>${o.start}</td>
+          <td>${o.end}</td>
+          <td>${statusLabel(o.status)}</td>
+          <td>
+            <a href="order-detail.html?id=${o.id}" class="btn btn-primary btn-sm">Chi tiết</a>
+            <button class="btn btn-danger btn-sm" onclick="deleteOrder('${o.id}')">Xóa</button>
+          </td>
+        </tr>
+      `).join('') || '<tr><td colspan="7" style="text-align:center;">Không có lệnh nào</td></tr>';
+    }
+    function statusLabel(st) {
+      if(st==='done') return '<span style="color:var(--success);font-weight:500;">Hoàn thành</span>';
+      if(st==='inprogress') return '<span style="color:var(--warning);font-weight:500;">Đang sản xuất</span>';
+      if(st==='error') return '<span style="color:var(--danger);font-weight:500;">Lỗi/Sự cố</span>';
+      return st;
+    }
+    document.getElementById('searchBox').oninput = renderOrders;
+    document.getElementById('statusFilter').onchange = renderOrders;
+    // Thêm lệnh mới
+    document.getElementById('btnAddOrder').onclick = function() {
+      document.getElementById('addOrderCard').style.display = 'block';
+      this.style.display = 'none';
+    };
+    document.getElementById('cancelAddOrder').onclick = function() {
+      document.getElementById('addOrderCard').style.display = 'none';
+      document.getElementById('btnAddOrder').style.display = 'inline-block';
+    };
+    document.getElementById('addOrderForm').onsubmit = function(e) {
+      e.preventDefault();
+      const name = document.getElementById('orderName').value.trim();
+      const qty = Number(document.getElementById('orderQty').value);
+      const start = document.getElementById('orderStart').value;
+      const end = document.getElementById('orderEnd').value;
+      const id = 'LSX' + String(orders.length+1).padStart(3,'0');
+      orders.push({id,name,qty,start,end,status:'inprogress'});
+      App.save('orders',orders);
+      renderOrders();
+      document.getElementById('addOrderCard').style.display = 'none';
+      document.getElementById('btnAddOrder').style.display = 'inline-block';
+      this.reset();
+    };
+    window.deleteOrder = function(id) {
+      if(confirm('Xóa lệnh này?')) {
+        orders = orders.filter(o=>o.id!==id);
+        App.save('orders',orders);
+        renderOrders();
+      }
+    };
+    document.getElementById('logoutBtn').onclick = function() {
+      App.remove('currentUser');
+      window.location.href = 'index.html';
+    };
+    renderOrders();
+  </script>
+</body>
+</html> 

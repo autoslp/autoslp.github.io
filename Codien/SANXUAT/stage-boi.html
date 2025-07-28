@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Công đoạn BỒI - Quản lý sản xuất</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <style>
+    .stage-header {
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      color: white;
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+    }
+    
+    .stage-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    
+    .stat-label {
+      color: var(--gray);
+      font-size: 14px;
+    }
+    
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .orders-table th,
+    .orders-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .orders-table th {
+      background: var(--light);
+      font-weight: 600;
+      color: var(--dark);
+    }
+    
+    .orders-table tr:hover {
+      background: #f8fafc;
+    }
+    
+    .quantity-input {
+      width: 80px;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      text-align: center;
+      font-size: 14px;
+    }
+    
+    .quantity-display {
+      font-weight: 600;
+      color: var(--primary);
+    }
+    
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-doing { background: #dbeafe; color: #1e40af; }
+    .status-done { background: #d1fae5; color: #065f46; }
+    .status-error { background: #fee2e2; color: #991b1b; }
+    
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .btn-sm {
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--gray);
+    }
+    
+    .empty-state h3 {
+      margin-bottom: 8px;
+      color: var(--dark);
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <img src="images/logo.svg" alt="Logo" style="height:32px;">
+      <h3>Carton Manager</h3>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="dashboard.html">📊 Dashboard</a></li>
+        <li><a href="orders.html">📋 Lệnh sản xuất</a></li>
+        <li><a href="progress.html">⚡ Quản lý tiến độ</a></li>
+        <li><a href="materials.html">📦 Vật tư</a></li>
+        <li><a href="workflow.html">🔄 Công đoạn</a></li>
+        <li><a href="reports.html">📈 Báo cáo</a></li>
+        <li><a href="stage-xa.html">🎯 Công đoạn XẢ</a></li>
+        <li><a href="stage-xen.html">✂️ Công đoạn XÉN</a></li>
+        <li><a href="stage-in.html">🖨️ Công đoạn IN</a></li>
+        <li class="active"><a href="stage-boi.html">📄 Công đoạn BỒI</a></li>
+        <li><a href="stage-be.html">🔪 Công đoạn BẾ</a></li>
+        <li><a href="stage-dan.html">🔗 Công đoạn DÁN</a></li>
+        <li><a href="stage-kho.html">🏭 KHO THÀNH PHẨM</a></li>
+      </ul>
+    </nav>
+    <div style="padding:16px 24px 0 24px; font-size:13px; color:#cbd5e1;">© 2025 Carton Manager</div>
+  </div>
+  
+  <div class="main">
+    <div class="stage-header">
+      <h1>📄 Công đoạn BỒI</h1>
+      <p>Bồi giấy - Quản lý xuất nhập tồn chi tiết</p>
+    </div>
+    
+    <div class="stage-stats" id="stageStats">
+      <!-- Thống kê sẽ được tạo động -->
+    </div>
+    
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h2>Danh sách lệnh sản xuất</h2>
+        <div>
+          <button class="btn btn-primary" onclick="refreshData()">🔄 Làm mới</button>
+          <a href="progress.html" class="btn btn-secondary">← Quay lại</a>
+        </div>
+      </div>
+      
+      <div id="ordersTable">
+        <!-- Bảng sẽ được tạo động -->
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    let workflow = [];
+    let orders = [];
+    let progressData = {};
+    let inventoryData = {};
+    const STAGE_INDEX = 3; // BỒI là công đoạn thứ 4
+    const STAGE_NAME = 'BỒI';
+    
+    // Khởi tạo dữ liệu
+    function initData() {
+      workflow = App.load('workflow', [
+        {name:'XẢ', desc:'Xả giấy cuộn'},
+        {name:'XÉN', desc:'Xén giấy'},
+        {name:'IN OFFSET', desc:'In offset'},
+        {name:'BỒI', desc:'Bồi giấy'},
+        {name:'BẾ', desc:'Bế hộp'},
+        {name:'DÁN MÁY', desc:'Dán hộp'},
+        {name:'KHO THÀNH PHẨM', desc:'Lưu kho'}
+      ]);
+      
+      orders = App.load('orders', []);
+      if (!orders || orders.length === 0) {
+        orders = [
+          {id:'LSX001', name:'Hộp carton A4', qty:1000, start:'2025-07-25', end:'2025-07-30', status:'done'},
+          {id:'LSX002', name:'Hộp carton B5', qty:500, start:'2025-07-24', end:'2025-07-29', status:'inprogress'},
+          {id:'LSX003', name:'Hộp carton C3', qty:2000, start:'2025-07-26', end:'2025-08-02', status:'inprogress'},
+          {id:'LSX004', name:'Hộp carton D2', qty:800, start:'2025-07-27', end:'2025-08-05', status:'error'}
+        ];
+        App.save('orders', orders);
+      }
+      
+      // Lấy tiến độ của tất cả lệnh
+      orders.forEach(order => {
+        progressData[order.id] = App.load('progress_' + order.id, workflow.map((w,i)=>({
+          step: i+1,
+          name: w.name,
+          status: 'pending',
+          start: '',
+          end: '',
+          user: '',
+          note: ''
+        })));
+      });
+      
+      // Lấy dữ liệu xuất nhập tồn
+      inventoryData = App.load('inventory_data', {});
+    }
+    
+    // Lấy dữ liệu xuất nhập tồn cho một lệnh ở công đoạn này
+    function getStageInventory(orderId) {
+      const key = `${orderId}_${STAGE_INDEX}`;
+      return inventoryData[key] || { in: 0, out: 0 };
+    }
+    
+    // Xác định lệnh đang ở công đoạn nào
+    function getCurrentStage(orderId) {
+      const progress = progressData[orderId];
+      if (!progress) return -1;
+      
+      // Tìm công đoạn cuối cùng có trạng thái 'done'
+      for (let i = progress.length - 1; i >= 0; i--) {
+        if (progress[i].status === 'done') {
+          return i;
+        }
+      }
+      
+      // Nếu chưa có công đoạn nào hoàn thành, trả về công đoạn đầu tiên
+      return 0;
+    }
+    
+    // Lấy danh sách lệnh ở công đoạn BỒI
+    function getOrdersInStage() {
+      return orders.filter(order => {
+        const currentStage = getCurrentStage(order.id);
+        return currentStage === STAGE_INDEX;
+      });
+    }
+    
+    // Cập nhật dữ liệu xuất nhập tồn
+    window.updateInventory = function(orderId, type, value) {
+      const key = `${orderId}_${STAGE_INDEX}`;
+      if (!inventoryData[key]) {
+        inventoryData[key] = { in: 0, out: 0 };
+      }
+      
+      inventoryData[key][type] = parseInt(value) || 0;
+      App.save('inventory_data', inventoryData);
+      
+      // Ghi nhật ký
+      const action = type === 'in' ? 'Nhập' : 'Xuất';
+      addLog(orderId, `${action} hàng`, `${action} ${value} sản phẩm ở công đoạn ${STAGE_NAME}`);
+      
+      // Làm mới dữ liệu
+      renderData();
+    };
+    
+    // Cập nhật tiến độ
+    window.updateProgress = function(orderId) {
+      const progress = progressData[orderId];
+      const currentProgress = progress[STAGE_INDEX];
+      
+      const status = prompt('Trạng thái (pending/doing/done/error):', currentProgress.status);
+      if (!status) return;
+      
+      const user = prompt('Người thực hiện:', currentProgress.user);
+      const note = prompt('Ghi chú:', currentProgress.note);
+      
+      progress[STAGE_INDEX] = {
+        ...currentProgress,
+        status: status,
+        user: user || '',
+        note: note || '',
+        start: status === 'doing' && !currentProgress.start ? new Date().toISOString().slice(0, 16) : currentProgress.start,
+        end: status === 'done' ? new Date().toISOString().slice(0, 16) : currentProgress.end
+      };
+      
+      App.save('progress_' + orderId, progress);
+      progressData[orderId] = progress;
+      
+      // Ghi nhật ký
+      addLog(orderId, 'Cập nhật tiến độ', `Cập nhật trạng thái ${STAGE_NAME} thành ${status}`, user);
+      
+      renderData();
+    };
+    
+    // Chuyển sang công đoạn tiếp theo
+    window.moveToNextStage = function(orderId) {
+      if (STAGE_INDEX >= workflow.length - 1) {
+        alert('Đã ở công đoạn cuối cùng!');
+        return;
+      }
+      
+      const progress = progressData[orderId];
+      const currentProgress = progress[STAGE_INDEX];
+      
+      if (currentProgress.status !== 'done') {
+        alert('Phải hoàn thành công đoạn hiện tại trước khi chuyển sang công đoạn tiếp theo!');
+        return;
+      }
+      
+      // Lấy số lượng tồn kho hiện tại
+      const currentInventory = getStageInventory(orderId);
+      const stockQuantity = (currentInventory.in || 0) - (currentInventory.out || 0);
+      
+      if (stockQuantity <= 0) {
+        alert('Không có hàng tồn kho để chuyển sang công đoạn tiếp theo!');
+        return;
+      }
+      
+      // Tự động xuất hàng từ công đoạn hiện tại
+      const newOutValue = (currentInventory.out || 0) + stockQuantity;
+      updateInventory(orderId, 'out', newOutValue);
+      
+      // Tự động nhập hàng vào công đoạn tiếp theo
+      const nextStageIndex = STAGE_INDEX + 1;
+      const nextKey = `${orderId}_${nextStageIndex}`;
+      if (!inventoryData[nextKey]) {
+        inventoryData[nextKey] = { in: 0, out: 0 };
+      }
+      const newInValue = (inventoryData[nextKey].in || 0) + stockQuantity;
+      inventoryData[nextKey].in = newInValue;
+      App.save('inventory_data', inventoryData);
+      
+      // Tự động bắt đầu công đoạn tiếp theo
+      progress[nextStageIndex] = {
+        ...progress[nextStageIndex],
+        status: 'doing',
+        start: new Date().toISOString().slice(0, 16),
+        user: currentProgress.user || '',
+        note: `Tự động chuyển ${stockQuantity} sản phẩm từ công đoạn trước`
+      };
+      
+      App.save('progress_' + orderId, progress);
+      progressData[orderId] = progress;
+      
+      // Ghi nhật ký
+      addLog(orderId, 'Chuyển công đoạn', `Chuyển ${stockQuantity} sản phẩm từ ${STAGE_NAME} sang ${workflow[nextStageIndex].name}`, currentProgress.user);
+      
+      renderData();
+    };
+    
+    // Ghi nhật ký
+    function addLog(orderId, action, details, user = 'Hệ thống') {
+      const logs = App.load('logs_' + orderId, []);
+      logs.unshift({
+        time: new Date().toISOString(),
+        action: action,
+        details: details,
+        user: user
+      });
+      
+      // Giữ tối đa 100 nhật ký
+      if (logs.length > 100) {
+        logs.splice(100);
+      }
+      
+      App.save('logs_' + orderId, logs);
+    }
+    
+    // Hiển thị dữ liệu
+    function renderData() {
+      const ordersInStage = getOrdersInStage();
+      
+      // Tính thống kê
+      let totalOriginal = 0;
+      let totalIn = 0;
+      let totalOut = 0;
+      let totalStock = 0;
+      let totalOrders = ordersInStage.length;
+      
+      ordersInStage.forEach(order => {
+        const stageInventory = getStageInventory(order.id);
+        totalOriginal += order.qty;
+        totalIn += stageInventory.in || 0;
+        totalOut += stageInventory.out || 0;
+        totalStock += (stageInventory.in || 0) - (stageInventory.out || 0);
+      });
+      
+      // Hiển thị thống kê
+      document.getElementById('stageStats').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-value">${totalOrders}</div>
+          <div class="stat-label">Tổng lệnh</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${totalOriginal}</div>
+          <div class="stat-label">Tổng gốc</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${totalIn}</div>
+          <div class="stat-label">Tổng nhập</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${totalOut}</div>
+          <div class="stat-label">Tổng xuất</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${totalStock}</div>
+          <div class="stat-label">Tổng tồn</div>
+        </div>
+      `;
+      
+      // Hiển thị bảng
+      if (ordersInStage.length === 0) {
+        document.getElementById('ordersTable').innerHTML = `
+          <div class="empty-state">
+            <h3>Chưa có lệnh nào ở công đoạn ${STAGE_NAME}</h3>
+            <p>Lệnh sẽ xuất hiện ở đây khi được chuyển đến công đoạn này</p>
+          </div>
+        `;
+      } else {
+        let tableHTML = `
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>Mã lệnh</th>
+                <th>Sản phẩm</th>
+                <th>Số lượng gốc</th>
+                <th>Đã nhập</th>
+                <th>Đã xuất</th>
+                <th>Tồn kho</th>
+                <th>Trạng thái</th>
+                <th>Người thực hiện</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+        
+        ordersInStage.forEach(order => {
+          const progress = progressData[order.id];
+          const currentProgress = progress[STAGE_INDEX];
+          const stageInventory = getStageInventory(order.id);
+          
+          tableHTML += `
+            <tr>
+              <td><strong>${order.id}</strong></td>
+              <td>${order.name}</td>
+              <td class="quantity-display">${order.qty}</td>
+              <td>
+                <input type="number" class="quantity-input" value="${stageInventory.in || 0}" 
+                       onchange="updateInventory('${order.id}', 'in', this.value)">
+              </td>
+              <td>
+                <input type="number" class="quantity-input" value="${stageInventory.out || 0}" 
+                       onchange="updateInventory('${order.id}', 'out', this.value)">
+              </td>
+              <td class="quantity-display">${(stageInventory.in || 0) - (stageInventory.out || 0)}</td>
+              <td>
+                <span class="status-badge status-${currentProgress.status}">
+                  ${getStatusLabel(currentProgress.status)}
+                </span>
+              </td>
+              <td>${currentProgress.user || '-'}</td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn btn-primary btn-sm" onclick="updateProgress('${order.id}')">
+                    Cập nhật
+                  </button>
+                  <button class="btn btn-secondary btn-sm" onclick="openOrderDetail('${order.id}')">
+                    Chi tiết
+                  </button>
+                  <button class="btn btn-success btn-sm" onclick="moveToNextStage('${order.id}')">
+                    Xuất
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        });
+        
+        tableHTML += `
+            </tbody>
+          </table>
+        `;
+        
+        document.getElementById('ordersTable').innerHTML = tableHTML;
+      }
+    }
+    
+    // Mở chi tiết lệnh
+    window.openOrderDetail = function(orderId) {
+      window.open(`order-detail.html?id=${orderId}`, '_blank');
+    };
+    
+    // Làm mới dữ liệu
+    window.refreshData = function() {
+      initData();
+      renderData();
+    };
+    
+    // Lấy nhãn trạng thái
+    function getStatusLabel(status) {
+      const labels = {
+        'pending': 'Chưa làm',
+        'doing': 'Đang làm',
+        'done': 'Hoàn thành',
+        'error': 'Lỗi'
+      };
+      return labels[status] || status;
+    }
+    
+    // Khởi tạo
+    document.addEventListener('DOMContentLoaded', function() {
+      initData();
+      renderData();
+    });
+  </script>
+</body>
+</html> 
