@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo JSON Dynamic Configuration - Phương án 2</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    :root {
+      --sidebar-width: 280px;
+      --sidebar-collapsed-width: 70px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f8f9fa;
+    }
+
+    /* Sidebar styles */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: var(--sidebar-width);
+      background: white;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+      transition: width 0.3s ease;
+      z-index: 1000;
+      overflow: hidden;
+    }
+    
+    .sidebar.collapsed {
+      width: var(--sidebar-collapsed-width);
+    }
+    
+    .sidebar-content {
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid #dee2e6;
+      position: relative;
+    }
+    
+    .sidebar-toggle {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: none;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: opacity 0.3s ease;
+    }
+    
+    .sidebar.collapsed .sidebar-brand h5 {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .sidebar-nav {
+      padding: 1rem 0;
+    }
+    
+    .sidebar-nav .nav-link {
+      padding: 0.75rem 1rem;
+      margin: 0.25rem 1rem;
+      border-radius: 0.5rem;
+      color: #6c757d;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+    }
+    
+    .sidebar.collapsed .sidebar-nav .nav-link {
+      padding: 0.75rem;
+      margin: 0.25rem 0.5rem;
+      justify-content: center;
+    }
+    
+    .sidebar.collapsed .sidebar-nav .nav-link .nav-text {
+      display: none;
+    }
+    
+    .sidebar-nav .nav-link:hover {
+      background-color: #f8f9fa;
+      color: #0d6efd;
+    }
+    
+    .sidebar-nav .nav-link.active {
+      background-color: #0d6efd;
+      color: white;
+    }
+
+    .sidebar-footer {
+      padding: 1rem 1.5rem;
+      font-size: 0.8rem;
+      color: #6c757d;
+      transition: opacity 0.3s ease;
+    }
+    
+    .sidebar.collapsed .sidebar-footer {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    /* Main content */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      transition: margin-left 0.3s ease;
+      min-height: 100vh;
+    }
+    
+    .main-content.sidebar-collapsed {
+      margin-left: var(--sidebar-collapsed-width);
+    }
+
+    /* Stage styles */
+    .stage-header {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .demo-info {
+      background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      text-align: center;
+      padding: 1.5rem;
+    }
+    
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #28a745;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+
+    .table-responsive {
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      overflow-x: auto;
+    }
+    
+    .table th {
+      background-color: #f8f9fa;
+      border-bottom: 2px solid #dee2e6;
+      font-weight: 600;
+      white-space: nowrap;
+      font-size: 0.85rem;
+      padding: 0.75rem 0.5rem;
+    }
+    
+    .table td {
+      white-space: nowrap;
+      font-size: 0.85rem;
+      vertical-align: middle;
+      padding: 0.75rem 0.5rem;
+    }
+
+    .action-buttons .btn {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.8rem;
+      margin-right: 0.25rem;
+    }
+
+    .config-display {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      font-size: 0.85rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        position: relative;
+        height: auto;
+      }
+      
+      .sidebar.collapsed {
+        width: 100%;
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+      
+      .main-content.sidebar-collapsed {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-content">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <div class="bg-primary text-white rounded d-flex align-items-center justify-content-center" style="width:32px;height:32px;">
+            <i class="bi bi-gear"></i>
+          </div>
+          <h5 class="mb-0 text-primary">Demo Phương án 2</h5>
+        </div>
+        <button class="btn btn-primary sidebar-toggle" onclick="toggleSidebar()" title="Thu nhỏ/Mở rộng">
+          <span id="toggleIcon"><i class="bi bi-chevron-left"></i></span>
+        </button>
+      </div>
+      
+      <nav class="sidebar-nav" id="dynamicNav">
+        <!-- Navigation sẽ được tạo từ JSON config -->
+      </nav>
+      
+      <div class="sidebar-footer">
+        © 2025 JSON Dynamic Config Demo
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+    
+    <!-- Home Page -->
+    <div id="page-home" class="page-content">
+      <div class="container-fluid p-4">
+        <div class="demo-info">
+          <h1><i class="bi bi-code-square me-2"></i>Phương án 2: JSON Dynamic Configuration</h1>
+          <p class="mb-0">Hệ thống cấu hình động dựa trên JSON - Dễ dàng thêm/sửa công đoạn mà không cần code HTML</p>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-list-check me-2"></i>Ưu điểm</h5>
+              </div>
+              <div class="card-body">
+                <ul class="list-unstyled">
+                  <li><i class="bi bi-check-circle text-success me-2"></i>Dễ dàng thêm công đoạn mới</li>
+                  <li><i class="bi bi-check-circle text-success me-2"></i>Cấu hình bảng linh hoạt</li>
+                  <li><i class="bi bi-check-circle text-success me-2"></i>Không cần sửa HTML</li>
+                  <li><i class="bi bi-check-circle text-success me-2"></i>Sidebar tự động đồng bộ</li>
+                  <li><i class="bi bi-check-circle text-success me-2"></i>Dữ liệu mẫu tích hợp</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Cách hoạt động</h5>
+              </div>
+              <div class="card-body">
+                <ol>
+                  <li>Đọc config từ JSON</li>
+                  <li>Tạo navigation tự động</li>
+                  <li>Render bảng theo config</li>
+                  <li>Load dữ liệu từ API/localStorage</li>
+                  <li>Áp dụng filter và tìm kiếm</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="alert alert-info mt-4">
+          <h6><i class="bi bi-info-circle me-2"></i>Hướng dẫn sử dụng:</h6>
+          <p class="mb-0">Chọn các công đoạn từ menu bên trái để xem demo. Mỗi công đoạn sẽ có bảng khác nhau được tạo từ JSON config.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamic Stage Container -->
+    <div id="dynamicStageContainer">
+      <!-- Các trang stage sẽ được tạo động từ JSON config -->
+    </div>
+
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- JSON Configuration -->
+  <script>
+    // JSON Dynamic Configuration
+    const DYNAMIC_CONFIG = {
+      layout: {
+        title: "Quản lý Sản xuất - JSON Dynamic",
+        navigation: [
+          { id: "home", icon: "bi-house", label: "Trang chủ", type: "static" },
+          { id: "xa", icon: "bi-bullseye", label: "Công đoạn XẢ", type: "stage" },
+          { id: "xen", icon: "bi-scissors", label: "Công đoạn XÉN", type: "stage" },
+          { id: "in", icon: "bi-printer", label: "Công đoạn IN", type: "stage" },
+          { id: "boi", icon: "bi-file-text", label: "Công đoạn BỒI", type: "stage" }
+        ]
+      },
+      stages: {
+        xa: {
+          name: "XẢ",
+          description: "Công đoạn xả giấy carton",
+          icon: "bi-bullseye",
+          color: "#28a745",
+          machines: ["Máy xả 1", "Máy xả 2", "Máy xả 3"],
+          table: {
+            columns: [
+              { field: "orderCode", label: "Mã lệnh", width: "120px" },
+              { field: "productCode", label: "Mã SP", width: "100px" },
+              { field: "productName", label: "Tên sản phẩm", width: "200px" },
+              { field: "size", label: "Kích thước", width: "120px" },
+              { field: "planQty", label: "SL triển khai", width: "100px", format: (v) => v?.toLocaleString() },
+              { field: "goodQty", label: "SL đạt", width: "80px", format: (v) => v?.toLocaleString() },
+              { field: "ngQty", label: "SL NG", width: "80px", format: (v) => v?.toLocaleString() },
+              { field: "machine", label: "Máy", width: "100px" },
+              { field: "shift", label: "Ca", width: "60px" },
+              { field: "date", label: "Ngày", width: "100px" }
+            ]
+          },
+          sampleData: [
+            {
+              orderCode: "LSX001",
+              productCode: "SP001",
+              productName: "Thùng carton 30x20x15",
+              size: "30x20x15cm",
+              planQty: 1000,
+              goodQty: 950,
+              ngQty: 50,
+              machine: "Máy xả 1",
+              shift: "Ca 1",
+              date: "2025-07-29"
+            },
+            {
+              orderCode: "LSX002", 
+              productCode: "SP002",
+              productName: "Hộp carton 25x15x10",
+              size: "25x15x10cm",
+              planQty: 1500,
+              goodQty: 1450,
+              ngQty: 50,
+              machine: "Máy xả 2",
+              shift: "Ca 2", 
+              date: "2025-07-29"
+            }
+          ]
+        },
+        xen: {
+          name: "XÉN",
+          description: "Công đoạn xén viền, tạo hình",
+          icon: "bi-scissors",
+          color: "#dc3545",
+          machines: ["Máy xén 1", "Máy xén 2"],
+          table: {
+            columns: [
+              { field: "orderCode", label: "Mã lệnh", width: "120px" },
+              { field: "productCode", label: "Mã SP", width: "100px" },
+              { field: "productName", label: "Tên sản phẩm", width: "200px" },
+              { field: "planQty", label: "SL triển khai", width: "100px", format: (v) => v?.toLocaleString() },
+              { field: "completedQty", label: "SL hoàn thành", width: "100px", format: (v) => v?.toLocaleString() },
+              { field: "defectQty", label: "SL lỗi", width: "80px", format: (v) => v?.toLocaleString() },
+              { field: "efficiency", label: "Hiệu suất (%)", width: "100px", format: (v) => v ? `${v}%` : "" },
+              { field: "machine", label: "Máy", width: "100px" },
+              { field: "operator", label: "Thao tác viên", width: "120px" },
+              { field: "date", label: "Ngày", width: "100px" }
+            ]
+          },
+          sampleData: [
+            {
+              orderCode: "LSX001",
+              productCode: "SP001", 
+              productName: "Thùng carton 30x20x15",
+              planQty: 950,
+              completedQty: 920,
+              defectQty: 30,
+              efficiency: 96.8,
+              machine: "Máy xén 1",
+              operator: "Nguyễn Văn A",
+              date: "2025-07-29"
+            },
+            {
+              orderCode: "LSX002",
+              productCode: "SP002",
+              productName: "Hộp carton 25x15x10", 
+              planQty: 1450,
+              completedQty: 1400,
+              defectQty: 50,
+              efficiency: 96.6,
+              machine: "Máy xén 2",
+              operator: "Trần Thị B",
+              date: "2025-07-29"
+            }
+          ]
+        },
+        in: {
+          name: "IN",
+          description: "Công đoạn in ấn logo, thông tin",
+          icon: "bi-printer",
+          color: "#6f42c1",
+          machines: ["Máy in offset 1", "Máy in offset 2", "Máy in kỹ thuật số"],
+          table: {
+            columns: [
+              { field: "orderCode", label: "Mã lệnh", width: "120px" },
+              { field: "productCode", label: "Mã SP", width: "100px" },
+              { field: "productName", label: "Tên sản phẩm", width: "180px" },
+              { field: "printType", label: "Loại in", width: "100px" },
+              { field: "colors", label: "Số màu", width: "80px" },
+              { field: "planQty", label: "SL triển khai", width: "100px", format: (v) => v?.toLocaleString() },
+              { field: "printedQty", label: "SL đã in", width: "90px", format: (v) => v?.toLocaleString() },
+              { field: "rejectQty", label: "SL loại", width: "80px", format: (v) => v?.toLocaleString() },
+              { field: "machine", label: "Máy in", width: "120px" },
+              { field: "shift", label: "Ca", width: "60px" }
+            ]
+          },
+          sampleData: [
+            {
+              orderCode: "LSX001",
+              productCode: "SP001",
+              productName: "Thùng carton 30x20x15",
+              printType: "Offset",
+              colors: 4,
+              planQty: 920,
+              printedQty: 900,
+              rejectQty: 20,
+              machine: "Máy in offset 1",
+              shift: "Ca 1"
+            },
+            {
+              orderCode: "LSX003",
+              productCode: "SP003",
+              productName: "Hộp quà tặng 20x20x5",
+              printType: "Kỹ thuật số",
+              colors: 6,
+              planQty: 500,
+              printedQty: 480,
+              rejectQty: 20,
+              machine: "Máy in kỹ thuật số",
+              shift: "Ca 2"
+            }
+          ]
+        },
+        boi: {
+          name: "BỒI",
+          description: "Công đoạn bồi carton, tăng độ dày",
+          icon: "bi-file-text",
+          color: "#fd7e14",
+          machines: ["Máy bồi 1", "Máy bồi 2"],
+          table: {
+            columns: [
+              { field: "orderCode", label: "Mã lệnh", width: "120px" },
+              { field: "productCode", label: "Mã SP", width: "100px" },
+              { field: "productName", label: "Tên sản phẩm", width: "180px" },
+              { field: "thickness", label: "Độ dày (mm)", width: "100px" },
+              { field: "layers", label: "Số lớp", width: "80px" },
+              { field: "planQty", label: "SL triển khai", width: "100px", format: (v) => v?.toLocaleString() },
+              { field: "processedQty", label: "SL đã bồi", width: "90px", format: (v) => v?.toLocaleString() },
+              { field: "qualityQty", label: "SL đạt chất lượng", width: "120px", format: (v) => v?.toLocaleString() },
+              { field: "machine", label: "Máy bồi", width: "100px" },
+              { field: "temperature", label: "Nhiệt độ (°C)", width: "100px" }
+            ]
+          },
+          sampleData: [
+            {
+              orderCode: "LSX001",
+              productCode: "SP001",
+              productName: "Thùng carton 30x20x15",
+              thickness: 5.2,
+              layers: 3,
+              planQty: 900,
+              processedQty: 880,
+              qualityQty: 870,
+              machine: "Máy bồi 1",
+              temperature: 180
+            },
+            {
+              orderCode: "LSX004",
+              productCode: "SP004",
+              productName: "Hộp cứng cao cấp",
+              thickness: 8.5,
+              layers: 5,
+              planQty: 300,
+              processedQty: 290,
+              qualityQty: 285,
+              machine: "Máy bồi 2",
+              temperature: 185
+            }
+          ]
+        }
+      }
+    };
+  </script>
+
+  <!-- Dynamic Stage Manager -->
+  <script>
+    class DynamicStageManager {
+      constructor() {
+        this.currentPage = 'home';
+        this.stageData = {};
+        this.init();
+      }
+
+      init() {
+        this.generateNavigation();
+        this.generateStagePages();
+        this.bindEvents();
+        this.showPage('home');
+      }
+
+      generateNavigation() {
+        const nav = document.getElementById('dynamicNav');
+        let navHtml = '';
+
+        DYNAMIC_CONFIG.layout.navigation.forEach(item => {
+          navHtml += `
+            <a class="nav-link" data-page="${item.id}" onclick="stageManager.showPage('${item.id}')">
+              <i class="bi ${item.icon}"></i>
+              <span class="nav-text">${item.label}</span>
+            </a>
+          `;
+        });
+
+        nav.innerHTML = navHtml;
+      }
+
+      generateStagePages() {
+        const container = document.getElementById('dynamicStageContainer');
+        
+        Object.keys(DYNAMIC_CONFIG.stages).forEach(stageId => {
+          const config = DYNAMIC_CONFIG.stages[stageId];
+          const pageHtml = this.createStagePage(stageId, config);
+          container.innerHTML += pageHtml;
+        });
+      }
+
+      createStagePage(stageId, config) {
+        const columnHeaders = config.table.columns.map(col => 
+          `<th style="width: ${col.width || 'auto'}">${col.label}</th>`
+        ).join('');
+
+        const machineOptions = config.machines.map(machine => 
+          `<option value="${machine}">${machine}</option>`
+        ).join('');
+
+        return `
+          <div id="page-${stageId}" class="page-content" style="display: none;">
+            <div class="container-fluid p-4">
+              <!-- Stage Header -->
+              <div class="stage-header">
+                <h1><i class="bi ${config.icon} me-2"></i>Công đoạn ${config.name}</h1>
+                <p class="mb-0">${config.description}</p>
+              </div>
+              
+              <!-- Statistics -->
+              <div class="row mb-4" id="stats-${stageId}">
+                <!-- Thống kê sẽ được tạo động -->
+              </div>
+              
+              <!-- Config Display -->
+              <div class="card mb-4">
+                <div class="card-header">
+                  <h6 class="mb-0"><i class="bi bi-code-square me-2"></i>JSON Configuration Preview</h6>
+                </div>
+                <div class="card-body">
+                  <div class="config-display">
+                    <strong>Bảng có ${config.table.columns.length} cột:</strong><br>
+                    ${config.table.columns.map(col => `• ${col.label} (${col.field})`).join('<br>')}
+                    <br><br>
+                    <strong>Máy móc:</strong> ${config.machines.join(', ')}
+                    <br>
+                    <strong>Dữ liệu mẫu:</strong> ${config.sampleData.length} bản ghi
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Main Card -->
+              <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0">Danh sách lệnh sản xuất - ${config.name}</h5>
+                  <div>
+                    <button class="btn btn-primary me-2" onclick="stageManager.refreshData('${stageId}')">
+                      <i class="bi bi-arrow-clockwise me-1"></i>Làm mới
+                    </button>
+                    <button class="btn btn-success" onclick="alert('Thêm mới ${config.name}')">
+                      <i class="bi bi-plus-lg me-1"></i>Thêm mới
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="card-body">
+                  <!-- Filters -->
+                  <div class="row mb-3">
+                    <div class="col-md-3">
+                      <label class="form-label">Ngày sản xuất:</label>
+                      <input type="date" class="form-control filter-input" data-stage="${stageId}" data-field="date">
+                    </div>
+                    <div class="col-md-2">
+                      <label class="form-label">Ca:</label>
+                      <select class="form-select filter-input" data-stage="${stageId}" data-field="shift">
+                        <option value="">Tất cả</option>
+                        <option value="Ca 1">Ca 1</option>
+                        <option value="Ca 2">Ca 2</option>
+                        <option value="Ca 3">Ca 3</option>
+                      </select>
+                    </div>
+                    <div class="col-md-2">
+                      <label class="form-label">Máy:</label>
+                      <select class="form-select filter-input" data-stage="${stageId}" data-field="machine">
+                        <option value="">Tất cả</option>
+                        ${machineOptions}
+                      </select>
+                    </div>
+                    <div class="col-md-5">
+                      <label class="form-label">Tìm kiếm:</label>
+                      <input type="text" class="form-control filter-input" data-stage="${stageId}" data-field="search" 
+                             placeholder="Nhập mã lệnh, mã SP, tên sản phẩm...">
+                    </div>
+                  </div>
+                  
+                  <!-- Table -->
+                  <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                      <thead>
+                        <tr>
+                          ${columnHeaders}
+                          <th style="width: 150px">Thao tác</th>
+                        </tr>
+                      </thead>
+                      <tbody id="table-${stageId}">
+                        <!-- Dữ liệu sẽ được tạo động -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      bindEvents() {
+        // Bind filter events
+        document.addEventListener('change', (e) => {
+          if (e.target.classList.contains('filter-input')) {
+            const stageId = e.target.getAttribute('data-stage');
+            this.renderStageData(stageId);
+          }
+        });
+
+        document.addEventListener('input', (e) => {
+          if (e.target.classList.contains('filter-input')) {
+            const stageId = e.target.getAttribute('data-stage');
+            this.renderStageData(stageId);
+          }
+        });
+      }
+
+      showPage(pageId) {
+        // Remove active from all nav links
+        document.querySelectorAll('.nav-link').forEach(link => {
+          link.classList.remove('active');
+        });
+
+        // Add active to current nav
+        const currentNav = document.querySelector(`[data-page="${pageId}"]`);
+        if (currentNav) {
+          currentNav.classList.add('active');
+        }
+
+        // Hide all pages
+        document.querySelectorAll('.page-content').forEach(page => {
+          page.style.display = 'none';
+        });
+
+        // Show target page
+        const targetPage = document.getElementById(`page-${pageId}`);
+        if (targetPage) {
+          targetPage.style.display = 'block';
+        }
+
+        this.currentPage = pageId;
+
+        // Load stage data if it's a stage page
+        if (DYNAMIC_CONFIG.stages[pageId]) {
+          this.loadStageData(pageId);
+        }
+      }
+
+      loadStageData(stageId) {
+        // Simulate loading from API/localStorage
+        if (!this.stageData[stageId]) {
+          const config = DYNAMIC_CONFIG.stages[stageId];
+          this.stageData[stageId] = [...config.sampleData];
+        }
+        
+        this.renderStageData(stageId);
+      }
+
+      renderStageData(stageId) {
+        const config = DYNAMIC_CONFIG.stages[stageId];
+        const data = this.getFilteredData(stageId);
+
+        // Render statistics
+        this.renderStats(stageId, data);
+
+        // Render table
+        this.renderTable(stageId, config, data);
+      }
+
+      getFilteredData(stageId) {
+        const rawData = this.stageData[stageId] || [];
+        const filters = {};
+        
+        // Collect filter values
+        document.querySelectorAll(`[data-stage="${stageId}"]`).forEach(input => {
+          const field = input.getAttribute('data-field');
+          const value = input.value;
+          if (value) {
+            filters[field] = value;
+          }
+        });
+
+        let filtered = rawData;
+
+        // Apply filters
+        Object.keys(filters).forEach(field => {
+          const value = filters[field];
+          
+          if (field === 'search') {
+            filtered = filtered.filter(item => 
+              (item.orderCode || '').toLowerCase().includes(value.toLowerCase()) ||
+              (item.productCode || '').toLowerCase().includes(value.toLowerCase()) ||
+              (item.productName || '').toLowerCase().includes(value.toLowerCase())
+            );
+          } else {
+            filtered = filtered.filter(item => item[field] === value);
+          }
+        });
+
+        return filtered;
+      }
+
+      renderStats(stageId, data) {
+        const statsContainer = document.getElementById(`stats-${stageId}`);
+        
+        // Calculate basic stats
+        const totalOrders = data.length;
+        const totalPlan = data.reduce((sum, item) => sum + (item.planQty || 0), 0);
+        const totalGood = data.reduce((sum, item) => sum + (item.goodQty || item.completedQty || item.printedQty || item.processedQty || 0), 0);
+        const totalBad = data.reduce((sum, item) => sum + (item.ngQty || item.defectQty || item.rejectQty || 0), 0);
+
+        statsContainer.innerHTML = `
+          <div class="col-md-3">
+            <div class="card stat-card">
+              <div class="card-body">
+                <div class="stat-value">${totalOrders}</div>
+                <div class="stat-label">Tổng lệnh</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card stat-card">
+              <div class="card-body">
+                <div class="stat-value">${totalPlan.toLocaleString()}</div>
+                <div class="stat-label">SL kế hoạch</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card stat-card">
+              <div class="card-body">
+                <div class="stat-value">${totalGood.toLocaleString()}</div>
+                <div class="stat-label">SL đạt</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card stat-card">
+              <div class="card-body">
+                <div class="stat-value">${totalBad.toLocaleString()}</div>
+                <div class="stat-label">SL lỗi</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      renderTable(stageId, config, data) {
+        const tbody = document.getElementById(`table-${stageId}`);
+        let tableHtml = '';
+
+        data.forEach(item => {
+          let rowHtml = '<tr>';
+          
+          config.table.columns.forEach(column => {
+            const value = item[column.field] || '';
+            const displayValue = column.format ? column.format(value) : value;
+            rowHtml += `<td>${displayValue}</td>`;
+          });
+
+          // Action buttons
+          rowHtml += `
+            <td>
+              <div class="action-buttons">
+                <button class="btn btn-primary btn-sm" onclick="alert('Nhập SL: ${item.orderCode}')">
+                  <i class="bi bi-pencil me-1"></i>Nhập SL
+                </button>
+                <button class="btn btn-info btn-sm" onclick="alert('Sửa: ${item.orderCode}')">
+                  <i class="bi bi-pencil-square me-1"></i>Sửa
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="alert('Xóa: ${item.orderCode}')">
+                  <i class="bi bi-trash me-1"></i>Xóa
+                </button>
+              </div>
+            </td>
+          `;
+          
+          rowHtml += '</tr>';
+          tableHtml += rowHtml;
+        });
+
+        tbody.innerHTML = tableHtml || '<tr><td colspan="100%" class="text-center text-muted">Không có dữ liệu</td></tr>';
+      }
+
+      refreshData(stageId) {
+        // Simulate refresh
+        alert(`Làm mới dữ liệu ${DYNAMIC_CONFIG.stages[stageId].name}`);
+        this.loadStageData(stageId);
+      }
+    }
+
+    // Utility functions
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const toggleIcon = document.getElementById('toggleIcon');
+      
+      sidebar.classList.toggle('collapsed');
+      mainContent.classList.toggle('sidebar-collapsed');
+      
+      if (sidebar.classList.contains('collapsed')) {
+        toggleIcon.innerHTML = '<i class="bi bi-chevron-right"></i>';
+      } else {
+        toggleIcon.innerHTML = '<i class="bi bi-chevron-left"></i>';
+      }
+    }
+
+    // Initialize
+    const stageManager = new DynamicStageManager();
+  </script>
+</body>
+</html>

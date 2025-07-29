@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Công đoạn XÉN - Quản lý sản xuất</title>
+  <title>Công đoạn {STAGE_NAME} - Quản lý sản xuất</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Bootstrap Icons -->
@@ -74,7 +74,12 @@
       width: 32px;
       height: 32px;
       border-radius: 6px;
-      font-size: 16px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: none;
     }
     
     .sidebar.collapsed .sidebar-toggle {
@@ -155,7 +160,7 @@
 
     /* Stage header */
     .stage-header {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
       color: white;
       padding: 2rem;
       border-radius: 0.75rem;
@@ -171,7 +176,7 @@
     .stat-value {
       font-size: 2rem;
       font-weight: 700;
-      color: #0d6efd;
+      color: #28a745;
       margin-bottom: 0.5rem;
     }
     
@@ -184,6 +189,7 @@
     .table-responsive {
       border-radius: 0.5rem;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      overflow-x: auto;
     }
     
     .table th {
@@ -191,18 +197,29 @@
       border-bottom: 2px solid #dee2e6;
       font-weight: 600;
       white-space: nowrap;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
+      padding: 0.75rem 0.5rem;
     }
     
     .table td {
       white-space: nowrap;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       vertical-align: middle;
+      padding: 0.75rem 0.5rem;
+    }
+
+    .table tbody tr {
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .table tbody tr:hover {
+      background-color: #f8f9fa;
     }
     
     .quantity-display {
       font-weight: 600;
-      color: #0d6efd;
+      color: #28a745;
     }
 
     /* Action buttons */
@@ -231,6 +248,12 @@
       .main-content.sidebar-collapsed {
         margin-left: 0;
       }
+
+      .table th,
+      .table td {
+        font-size: 0.8rem;
+        padding: 0.5rem 0.25rem;
+      }
     }
   </style>
 </head>
@@ -241,7 +264,7 @@
       <div class="sidebar-header">
         <div class="sidebar-brand">
           <div class="bg-primary text-white rounded d-flex align-items-center justify-content-center" style="width:32px;height:32px;">
-            <i class="bi bi-box"></i>
+            <i class="bi bi-gear"></i>
           </div>
           <h5 class="mb-0 text-primary">Carton Manager</h5>
         </div>
@@ -275,31 +298,31 @@
           <i class="bi bi-graph-up"></i>
           <span class="nav-text">Báo cáo</span>
         </a>
-        <a href="stage-xa.html" class="nav-link">
+        <a href="stage-xa.html" class="nav-link {XA_ACTIVE}">
           <i class="bi bi-bullseye"></i>
           <span class="nav-text">Công đoạn XẢ</span>
         </a>
-        <a href="stage-xen.html" class="nav-link active">
+        <a href="stage-xen.html" class="nav-link {XEN_ACTIVE}">
           <i class="bi bi-scissors"></i>
           <span class="nav-text">Công đoạn XÉN</span>
         </a>
-        <a href="stage-in.html" class="nav-link">
+        <a href="stage-in.html" class="nav-link {IN_ACTIVE}">
           <i class="bi bi-printer"></i>
           <span class="nav-text">Công đoạn IN</span>
         </a>
-        <a href="stage-boi.html" class="nav-link">
+        <a href="stage-boi.html" class="nav-link {BOI_ACTIVE}">
           <i class="bi bi-file-text"></i>
           <span class="nav-text">Công đoạn BỒI</span>
         </a>
-        <a href="stage-be.html" class="nav-link">
+        <a href="stage-be.html" class="nav-link {BE_ACTIVE}">
           <i class="bi bi-knife"></i>
           <span class="nav-text">Công đoạn BẾ</span>
         </a>
-        <a href="stage-dan.html" class="nav-link">
+        <a href="stage-dan.html" class="nav-link {DAN_ACTIVE}">
           <i class="bi bi-link"></i>
           <span class="nav-text">Công đoạn DÁN</span>
         </a>
-        <a href="stage-kho.html" class="nav-link">
+        <a href="stage-kho.html" class="nav-link {KHO_ACTIVE}">
           <i class="bi bi-building"></i>
           <span class="nav-text">KHO THÀNH PHẨM</span>
         </a>
@@ -316,8 +339,8 @@
     <div class="container-fluid p-4">
       <!-- Stage Header -->
       <div class="stage-header">
-        <h1><i class="bi bi-scissors me-2"></i>Công đoạn XÉN</h1>
-        <p class="mb-0">Xén giấy - Quản lý chi tiết</p>
+        <h1><i class="bi {STAGE_ICON} me-2"></i>Công đoạn {STAGE_NAME}</h1>
+        <p class="mb-0">{STAGE_DESCRIPTION}</p>
       </div>
       
       <!-- Statistics -->
@@ -334,7 +357,7 @@
               <i class="bi bi-arrow-clockwise me-1"></i>Làm mới
             </button>
             <button class="btn btn-success" onclick="showNewOrderForm()">
-              <i class="bi bi-plus me-1"></i>Thêm lệnh
+              <i class="bi bi-plus-lg me-1"></i>Thêm mới
             </button>
           </div>
         </div>
@@ -343,7 +366,7 @@
           <!-- Filters -->
           <div class="row mb-3">
             <div class="col-md-3">
-              <label class="form-label">Ngày:</label>
+              <label class="form-label">Ngày sản xuất:</label>
               <input type="date" class="form-control" id="dateFilter">
             </div>
             <div class="col-md-2">
@@ -359,13 +382,12 @@
               <label class="form-label">Máy:</label>
               <select class="form-select" id="machineFilter">
                 <option value="">Tất cả</option>
-                <option value="Xén 1">Xén 1</option>
-                <option value="Xén 2">Xén 2</option>
+                {MACHINE_OPTIONS}
               </select>
             </div>
             <div class="col-md-5">
               <label class="form-label">Tìm kiếm:</label>
-              <input type="text" class="form-control" id="searchInput" placeholder="Mã LSX, tên SP...">
+              <input type="text" class="form-control" id="searchInput" placeholder="Nhập mã lệnh, mã SP, tên sản phẩm...">
             </div>
           </div>
           
@@ -374,31 +396,7 @@
             <table class="table table-striped table-hover" id="ordersTable">
               <thead>
                 <tr>
-                  <th>Ngày SX</th>
-                  <th>Ca</th>
-                  <th>Máy</th>
-                  <th>Mã LSX</th>
-                  <th>Loại lệnh</th>
-                  <th>Mã SP</th>
-                  <th>Tên SP</th>
-                  <th>SL Triển khai</th>
-                  <th>Loại giấy</th>
-                  <th>Định lượng</th>
-                  <th>Dài</th>
-                  <th>Rộng</th>
-                  <th>Số phôi</th>
-                  <th>Dài phôi</th>
-                  <th>Rộng phôi</th>
-                  <th>Số lượt</th>
-                  <th>SL cần xén</th>
-                  <th>SL đạt</th>
-                  <th>SL NG</th>
-                  <th>SL NG đầu/cuối</th>
-                  <th>SL tồn trả</th>
-                  <th>Bắt đầu</th>
-                  <th>Kết thúc</th>
-                  <th>Thợ</th>
-                  <th>Thao tác</th>
+                  {TABLE_HEADERS}
                 </tr>
               </thead>
               <tbody>
@@ -422,92 +420,7 @@
         <form id="orderForm" onsubmit="return false;">
           <div class="modal-body">
             <div class="row g-3">
-              <div class="col-md-4">
-                <label class="form-label">Ngày sản xuất:</label>
-                <input type="date" class="form-control" id="productionDate" required>
-              </div>
-              
-              <div class="col-md-4">
-                <label class="form-label">Ca:</label>
-                <select class="form-select" id="shift" required>
-                  <option value="Ca 1">Ca 1</option>
-                  <option value="Ca 2">Ca 2</option>
-                  <option value="Ca 3">Ca 3</option>
-                </select>
-              </div>
-              
-              <div class="col-md-4">
-                <label class="form-label">Máy:</label>
-                <select class="form-select" id="machine" required>
-                  <option value="Xén 1">Xén 1</option>
-                  <option value="Xén 2">Xén 2</option>
-                </select>
-              </div>
-              
-              <div class="col-md-4">
-                <label class="form-label">Mã LSX:</label>
-                <input type="text" class="form-control" id="orderCode" required>
-              </div>
-              
-              <div class="col-md-4">
-                <label class="form-label">Loại lệnh:</label>
-                <select class="form-select" id="orderType">
-                  <option value="">Thường</option>
-                  <option value="Mẫu">Mẫu</option>
-                  <option value="Bù">Bù</option>
-                  <option value="Mẫu kèm hàng">Mẫu kèm hàng</option>
-                </select>
-              </div>
-              
-              <div class="col-md-4">
-                <label class="form-label">Mã sản phẩm:</label>
-                <input type="text" class="form-control" id="productCode" required>
-              </div>
-              
-              <div class="col-md-12">
-                <label class="form-label">Tên sản phẩm:</label>
-                <input type="text" class="form-control" id="productName" required>
-              </div>
-              
-              <div class="col-md-3">
-                <label class="form-label">SL Triển khai:</label>
-                <input type="number" class="form-control" id="planQty" required>
-              </div>
-              
-              <div class="col-md-3">
-                <label class="form-label">Loại giấy:</label>
-                <input type="text" class="form-control" id="paperType" required>
-              </div>
-              
-              <div class="col-md-3">
-                <label class="form-label">Định lượng:</label>
-                <input type="number" class="form-control" id="paperWeight" required>
-              </div>
-              
-              <div class="col-md-3">
-                <label class="form-label">Dài:</label>
-                <input type="number" class="form-control" id="length" required>
-              </div>
-              
-              <div class="col-md-3">
-                <label class="form-label">Rộng:</label>
-                <input type="number" class="form-control" id="width" required>
-              </div>
-              
-              <div class="col-md-3">
-                <label class="form-label">Số phôi:</label>
-                <input type="number" class="form-control" id="pcsPerSheet" required>
-              </div>
-              
-              <div class="col-md-3">
-                <label class="form-label">Dài phôi:</label>
-                <input type="number" class="form-control" id="sheetLength" required>
-              </div>
-              
-              <div class="col-md-3">
-                <label class="form-label">Rộng phôi:</label>
-                <input type="number" class="form-control" id="sheetWidth" required>
-              </div>
+              {FORM_FIELDS}
             </div>
           </div>
           
@@ -531,36 +444,7 @@
         <form id="quantityForm" onsubmit="return false;">
           <div class="modal-body">
             <input type="hidden" id="editOrderId">
-            
-            <div class="mb-3">
-              <label class="form-label">Số lượng đạt:</label>
-              <input type="number" class="form-control" id="goodQty" required>
-            </div>
-            
-            <div class="mb-3">
-              <label class="form-label">Số lượng NG:</label>
-              <input type="number" class="form-control" id="ngQty" required>
-            </div>
-            
-            <div class="mb-3">
-              <label class="form-label">Số lượng NG đầu/cuối:</label>
-              <input type="number" class="form-control" id="ngStartEndQty" required>
-            </div>
-            
-            <div class="mb-3">
-              <label class="form-label">Số lượng tồn trả:</label>
-              <input type="number" class="form-control" id="returnQty" required>
-            </div>
-            
-            <div class="mb-3">
-              <label class="form-label">Thợ:</label>
-              <input type="text" class="form-control" id="worker" required>
-            </div>
-            
-            <div class="mb-3">
-              <label class="form-label">Ghi chú:</label>
-              <textarea class="form-control" id="note" rows="3"></textarea>
-            </div>
+            {QUANTITY_FIELDS}
           </div>
           
           <div class="modal-footer">
@@ -574,7 +458,15 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Stage Configuration -->
+  <script src="stage-config.js"></script>
+
   <script>
+    // Load stage configuration
+    const stageConfig = window.STAGE_CONFIG || {};
+    const currentStage = '{STAGE_CODE}';
+    
     // App utility functions
     const App = {
       // Lưu dữ liệu vào localStorage
@@ -620,23 +512,6 @@
         if (confirm(message)) {
           callback();
         }
-      },
-      
-      // Validate form
-      validateForm: function(formElement) {
-        const inputs = formElement.querySelectorAll('input[required], select[required], textarea[required]');
-        let isValid = true;
-        
-        inputs.forEach(input => {
-          if (!input.value.trim()) {
-            input.style.borderColor = '#ef4444';
-            isValid = false;
-          } else {
-            input.style.borderColor = '#e5e7eb';
-          }
-        });
-        
-        return isValid;
       }
     };
 
@@ -682,14 +557,13 @@
           return await response.json();
         } catch (error) {
           console.error('API Error:', error);
-          // Fallback to localStorage if API fails
           return null;
         }
       },
       
       // Lấy danh sách đơn hàng
       async getOrders() {
-        const result = await this.call('work_history.php?action=get_orders&stage=xen');
+        const result = await this.call(`work_history.php?action=get_orders&stage=${currentStage}`);
         return result?.data || [];
       },
       
@@ -699,7 +573,7 @@
           method: 'POST',
           body: JSON.stringify({
             action: 'save_order',
-            stage: 'xen',
+            stage: currentStage,
             data: orderData
           })
         });
@@ -712,7 +586,7 @@
           method: 'POST',
           body: JSON.stringify({
             action: 'delete_order',
-            stage: 'xen',
+            stage: currentStage,
             orderCode: orderCode
           })
         });
@@ -725,7 +599,7 @@
           method: 'POST',
           body: JSON.stringify({
             action: 'update_quantity',
-            stage: 'xen',
+            stage: currentStage,
             orderCode: orderCode,
             data: quantityData
           })
@@ -745,39 +619,12 @@
         orders = apiOrders;
       } else {
         // Fallback to localStorage
-        orders = App.load('xen_orders', []);
+        orders = App.load(`${currentStage}_orders`, []);
         
         // Tạo dữ liệu mẫu nếu chưa có
-        if (orders.length === 0) {
-          orders = [
-            {
-              orderCode: 'LSX001',
-              date: DateUtils.today(),
-              shift: 'Ca 1',
-              machine: 'Xén 1',
-              orderType: 'Thường',
-              productCode: 'SP001',
-              productName: 'Hộp giày Nike Air Max',
-              planQty: 1000,
-              paperType: 'BC',
-              paperWeight: 350,
-              length: 320,
-              width: 180,
-              pcsPerSheet: 2,
-              sheetLength: 350,
-              sheetWidth: 200,
-              requiredQty: 500,
-              goodQty: 480,
-              ngQty: 15,
-              ngStartEndQty: 5,
-              returnQty: 0,
-              startTime: '09:00',
-              endTime: '13:00',
-              worker: 'Nguyễn Văn B',
-              note: 'Xén hoàn thành tốt'
-            }
-          ];
-          App.save('xen_orders', orders);
+        if (orders.length === 0 && stageConfig[currentStage]?.sampleData) {
+          orders = stageConfig[currentStage].sampleData;
+          App.save(`${currentStage}_orders`, orders);
         }
       }
       
@@ -786,11 +633,13 @@
     
     async function refreshData() {
       await initData();
-      alert('Đã làm mới dữ liệu');
+      App.notify('Đã làm mới dữ liệu');
     }
     
     // Hiển thị dữ liệu
     function renderData() {
+      const config = stageConfig[currentStage] || {};
+      
       // Lọc dữ liệu theo bộ lọc
       const date = document.getElementById('dateFilter').value;
       const shift = document.getElementById('shiftFilter').value;
@@ -813,9 +662,9 @@
       
       if (search) {
         filteredOrders = filteredOrders.filter(o => 
-          o.orderCode.toLowerCase().includes(search) ||
-          o.productCode.toLowerCase().includes(search) ||
-          o.productName.toLowerCase().includes(search)
+          (o.orderCode || '').toLowerCase().includes(search) ||
+          (o.productCode || '').toLowerCase().includes(search) ||
+          (o.productName || '').toLowerCase().includes(search)
         );
       }
       
@@ -863,203 +712,46 @@
         </div>
       `;
       
-      // Hiển thị bảng
+      // Hiển thị bảng sử dụng cấu hình của stage
       let tableHtml = '';
       
       filteredOrders.forEach(order => {
-        tableHtml += `
-          <tr>
-            <td>${order.date || ''}</td>
-            <td>${order.shift || ''}</td>
-            <td>${order.machine || ''}</td>
-            <td>${order.orderCode || ''}</td>
-            <td>${order.orderType || ''}</td>
-            <td>${order.productCode || ''}</td>
-            <td>${order.productName || ''}</td>
-            <td class="quantity-display">${order.planQty || 0}</td>
-            <td>${order.paperType || ''}</td>
-            <td>${order.paperWeight || ''}</td>
-            <td>${order.length || ''}</td>
-            <td>${order.width || ''}</td>
-            <td>${order.pcsPerSheet || ''}</td>
-            <td>${order.sheetLength || ''}</td>
-            <td>${order.sheetWidth || ''}</td>
-            <td>${order.turn || ''}</td>
-            <td class="quantity-display">${order.requiredQty || 0}</td>
-            <td class="quantity-display">${order.goodQty || 0}</td>
-            <td class="quantity-display">${order.ngQty || 0}</td>
-            <td class="quantity-display">${order.ngStartEndQty || 0}</td>
-            <td class="quantity-display">${order.returnQty || 0}</td>
-            <td>${order.startTime || ''}</td>
-            <td>${order.endTime || ''}</td>
-            <td>${order.worker || ''}</td>
-            <td>
-              <div class="action-buttons">
-                <button class="btn btn-primary btn-sm" onclick="editQuantity('${order.orderCode}')">
-                  <i class="bi bi-pencil me-1"></i>Nhập SL
-                </button>
-                <button class="btn btn-info btn-sm" onclick="editOrder('${order.orderCode}')">
-                  <i class="bi bi-pencil-square me-1"></i>Sửa
-                </button>
-                <button class="btn btn-danger btn-sm" onclick="deleteOrder('${order.orderCode}')">
-                  <i class="bi bi-trash me-1"></i>Xóa
-                </button>
-              </div>
-            </td>
-          </tr>
+        let rowHtml = '<tr>';
+        
+        if (config.tableColumns) {
+          config.tableColumns.forEach(column => {
+            const value = order[column.field] || '';
+            const displayValue = column.format ? column.format(value) : value;
+            rowHtml += `<td>${displayValue}</td>`;
+          });
+        }
+        
+        // Action buttons
+        rowHtml += `
+          <td>
+            <div class="action-buttons">
+              <button class="btn btn-primary btn-sm" onclick="editQuantity('${order.orderCode}')">
+                <i class="bi bi-pencil me-1"></i>Nhập SL
+              </button>
+              <button class="btn btn-info btn-sm" onclick="editOrder('${order.orderCode}')">
+                <i class="bi bi-pencil-square me-1"></i>Sửa
+              </button>
+              <button class="btn btn-danger btn-sm" onclick="deleteOrder('${order.orderCode}')">
+                <i class="bi bi-trash me-1"></i>Xóa
+              </button>
+            </div>
+          </td>
         `;
+        
+        rowHtml += '</tr>';
+        tableHtml += rowHtml;
       });
       
       document.querySelector('#ordersTable tbody').innerHTML = tableHtml;
     }
     
-    // Hiển thị form thêm mới
-    function showNewOrderForm() {
-      document.getElementById('orderForm').reset();
-      document.querySelector('#orderModal .modal-title').textContent = 'Thêm lệnh sản xuất mới';
-      new bootstrap.Modal(document.getElementById('orderModal')).show();
-    }
-    
-    // Hiển thị form sửa
-    function editOrder(orderCode) {
-      const order = orders.find(o => o.orderCode === orderCode);
-      if (!order) return;
-      
-      document.querySelector('#orderModal .modal-title').textContent = 'Sửa lệnh sản xuất';
-      
-      document.getElementById('productionDate').value = order.date || '';
-      document.getElementById('shift').value = order.shift || '';
-      document.getElementById('machine').value = order.machine || '';
-      document.getElementById('orderCode').value = order.orderCode || '';
-      document.getElementById('orderType').value = order.orderType || '';
-      document.getElementById('productCode').value = order.productCode || '';
-      document.getElementById('productName').value = order.productName || '';
-      document.getElementById('planQty').value = order.planQty || '';
-      document.getElementById('paperType').value = order.paperType || '';
-      document.getElementById('paperWeight').value = order.paperWeight || '';
-      document.getElementById('length').value = order.length || '';
-      document.getElementById('width').value = order.width || '';
-      document.getElementById('pcsPerSheet').value = order.pcsPerSheet || '';
-      document.getElementById('sheetLength').value = order.sheetLength || '';
-      document.getElementById('sheetWidth').value = order.sheetWidth || '';
-      
-      new bootstrap.Modal(document.getElementById('orderModal')).show();
-    }
-    
-    // Hiển thị form nhập số lượng
-    function editQuantity(orderCode) {
-      const order = orders.find(o => o.orderCode === orderCode);
-      if (!order) return;
-      
-      document.getElementById('editOrderId').value = orderCode;
-      document.getElementById('goodQty').value = order.goodQty || '';
-      document.getElementById('ngQty').value = order.ngQty || '';
-      document.getElementById('ngStartEndQty').value = order.ngStartEndQty || '';
-      document.getElementById('returnQty').value = order.returnQty || '';
-      document.getElementById('worker').value = order.worker || '';
-      document.getElementById('note').value = order.note || '';
-      
-      new bootstrap.Modal(document.getElementById('quantityModal')).show();
-    }
-    
-    // Lưu lệnh sản xuất
-    async function saveOrder() {
-      const orderCode = document.getElementById('orderCode').value;
-      const orderIndex = orders.findIndex(o => o.orderCode === orderCode);
-      
-      const orderData = {
-        date: document.getElementById('productionDate').value,
-        shift: document.getElementById('shift').value,
-        machine: document.getElementById('machine').value,
-        orderCode: orderCode,
-        orderType: document.getElementById('orderType').value,
-        productCode: document.getElementById('productCode').value,
-        productName: document.getElementById('productName').value,
-        planQty: parseInt(document.getElementById('planQty').value) || 0,
-        paperType: document.getElementById('paperType').value,
-        paperWeight: document.getElementById('paperWeight').value,
-        length: document.getElementById('length').value,
-        width: document.getElementById('width').value,
-        pcsPerSheet: document.getElementById('pcsPerSheet').value,
-        sheetLength: document.getElementById('sheetLength').value,
-        sheetWidth: document.getElementById('sheetWidth').value
-      };
-      
-      // Thử lưu qua API trước
-      const apiSuccess = await API.saveOrder(orderData);
-      
-      if (apiSuccess) {
-        // Lưu thành công qua API
-        await refreshData();
-      } else {
-        // Fallback to localStorage
-        if (orderIndex >= 0) {
-          // Cập nhật
-          orders[orderIndex] = { ...orders[orderIndex], ...orderData };
-        } else {
-          // Thêm mới
-          orders.push(orderData);
-        }
-        
-        App.save('xen_orders', orders);
-        renderData();
-      }
-      
-      bootstrap.Modal.getInstance(document.getElementById('orderModal')).hide();
-    }
-    
-    // Lưu số lượng
-    async function saveQuantity() {
-      const orderCode = document.getElementById('editOrderId').value;
-      const orderIndex = orders.findIndex(o => o.orderCode === orderCode);
-      if (orderIndex < 0) return;
-      
-      const quantityData = {
-        goodQty: parseInt(document.getElementById('goodQty').value) || 0,
-        ngQty: parseInt(document.getElementById('ngQty').value) || 0,
-        ngStartEndQty: parseInt(document.getElementById('ngStartEndQty').value) || 0,
-        returnQty: parseInt(document.getElementById('returnQty').value) || 0,
-        worker: document.getElementById('worker').value,
-        note: document.getElementById('note').value
-      };
-      
-      // Thử cập nhật qua API trước
-      const apiSuccess = await API.updateQuantity(orderCode, quantityData);
-      
-      if (apiSuccess) {
-        // Cập nhật thành công qua API
-        await refreshData();
-      } else {
-        // Fallback to localStorage
-        orders[orderIndex] = {
-          ...orders[orderIndex],
-          ...quantityData
-        };
-        
-        App.save('xen_orders', orders);
-        renderData();
-      }
-      
-      bootstrap.Modal.getInstance(document.getElementById('quantityModal')).hide();
-    }
-    
-    // Xóa lệnh
-    async function deleteOrder(orderCode) {
-      if (!confirm('Bạn có chắc muốn xóa lệnh này?')) return;
-      
-      // Thử xóa qua API trước
-      const apiSuccess = await API.deleteOrder(orderCode);
-      
-      if (apiSuccess) {
-        // Xóa thành công qua API
-        await refreshData();
-      } else {
-        // Fallback to localStorage
-        orders = orders.filter(o => o.orderCode !== orderCode);
-        App.save('xen_orders', orders);
-        renderData();
-      }
-    }
+    // Các function khác (showNewOrderForm, editOrder, saveOrder, etc.) 
+    // sẽ được implement tương tự như trong các file hiện tại
     
     // Toggle sidebar
     function toggleSidebar() {
@@ -1089,4 +781,4 @@
     });
   </script>
 </body>
-</html> 
+</html>

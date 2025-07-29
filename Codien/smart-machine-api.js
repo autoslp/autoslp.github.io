@@ -62,15 +62,15 @@ class SmartMachineAPI {
     // === WORK HISTORY API ===
     async getWorkHistory(machineId = null, machineCode = null) {
         try {
-            // Since you're not using PHP backend, we need to filter work history by Machine ID
+            // Since you're not using PHP backend, we need to filter work history by machine ID
             // Get all work history first, then filter by machine_id
             const allWorkHistory = await this.getAllWorkHistory();
             
             if (!machineId && machineCode) {
-                // If only machineCode provided, find Machine first to get ID
+                // If only machineCode provided, find machine first to get ID
                 const machineList = await this.getMachines();
                 const machine = machineList.find(machine => {
-                    const code = machine.code || machine.ma_may;
+                    const code = machine.code || machine.ma_may_moc;
                     return code === machineCode;
                 });
                 if (machine) {
@@ -79,14 +79,16 @@ class SmartMachineAPI {
             }
             
             if (!machineId) {
+                console.log('No machine ID found for work history lookup');
                 return [];
             }
             
             // Filter work history by machine_id
             const filteredHistory = allWorkHistory.filter(work => {
-                return work.machine_id == machineId || work.may_id == machineId;
+                return work.machine_id == machineId;
             });
             
+            console.log(`Found ${filteredHistory.length} work history records for machine ID: ${machineId}`);
             return filteredHistory;
             
         } catch (error) {
@@ -152,7 +154,7 @@ class SmartMachineAPI {
                 timestamp: new Date().toISOString()
             };
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine_maintenance`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/maintenance`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -187,7 +189,7 @@ class SmartMachineAPI {
                 timestamp: new Date().toISOString()
             };
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine_repair`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/repair`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -209,7 +211,7 @@ class SmartMachineAPI {
     // === CONTRACTORS API ===
     async getContractors(activeOnly = true) {
         try {
-            let url = `${this.API_BASE_URL}/contractors`;
+            let url = `${this.API_BASE_URL}/machine_contractors`;
             if (activeOnly) url += '?active=true';
             
             const response = await fetch(url);
@@ -244,35 +246,40 @@ class SmartMachineAPI {
     // === UTILITY FUNCTIONS ===
     transformToAPIFormat(data) {
         return {
-            ma_may: data.code,
+            ma_may_moc: data.code,
             loai: data.type,
             khu_vuc: data.area,
             vi_tri: data.location,
-            cong_suat: data.capacity,
+            cong_suat: data.power,
             hang: data.brand,
+            model: data.model,
+            serial: data.serial,
             ngay_lap_dat: data.install_date,
             ngay_bao_hanh: data.warranty_date,
             trang_thai: data.status,
             bao_duong_tiep_theo: data.next_maintenance,
-            ghi_chu: data.notes,
-            serial: data.serial
+            chu_ky_bao_duong: data.maintenance_interval,
+            ghi_chu: data.notes
         };
     }
 
     transformFromAPIFormat(data) {
         return {
             id: data.id,
-            code: data.code || data.ma_may,
+            code: data.code || data.ma_may_moc,  // Prioritize 'code' field from database
             type: data.type || data.loai,
             area: data.area || data.khu_vuc,
             location: data.location || data.vi_tri,
-            capacity: data.capacity || data.cong_suat,
+            power: data.power || data.cong_suat,
             brand: data.brand || data.hang,
+            model: data.model || data.model,
+            serial: data.serial || data.serial,
             installDate: data.install_date || data.ngay_lap_dat,
             warrantyDate: data.warranty_date || data.ngay_bao_hanh,
             status: data.status || data.trang_thai,
             lastMaintenance: data.last_maintenance || data.bao_duong_gan_nhat,
             nextMaintenance: data.next_maintenance || data.bao_duong_tiep_theo,
+            maintenanceInterval: data.maintenance_interval || data.chu_ky_bao_duong || 90,
             notes: data.notes || data.ghi_chu || ''
         };
     }
@@ -287,7 +294,7 @@ class SmartMachineAPI {
                 timestamp: new Date().toISOString()
             };
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine_batch_update`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/batch_update`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -315,7 +322,7 @@ class SmartMachineAPI {
             formData.append('type', imageType);
             formData.append('timestamp', new Date().toISOString());
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine_upload_image`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/upload_image`, {
                 method: 'POST',
                 body: formData
             });
@@ -344,6 +351,7 @@ window.SmartMachineAPI = {
             const response = await fetch(`${this.API_BASE_URL}/machines`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
+            console.log("API response:", data);
             return Array.isArray(data) ? data : [];
         } catch (error) {
             console.error('Error fetching machines:', error);
@@ -393,30 +401,36 @@ window.SmartMachineAPI = {
     // === WORK HISTORY API ===
     getWorkHistory: async function(machineId = null, machineCode = null) {
         try {
+            // Since you're not using PHP backend, we need to filter work history by machine ID
             // Get all work history first, then filter by machine_id
             const allWorkHistory = await this.getAllWorkHistory();
             
+            console.log("Looking for work history for machine ID:", machineId, "or code:", machineCode);
+            
             if (!machineId && machineCode) {
-                // If only machineCode provided, find Machine first to get ID
+                // If only machineCode provided, find machine first to get ID
                 const machineList = await this.getMachines();
                 const machine = machineList.find(machine => {
-                    const code = machine.code || machine.ma_may;
+                    const code = machine.code || machine.ma_may_moc;
                     return code === machineCode;
                 });
                 if (machine) {
                     machineId = machine.id;
+                    console.log("Found machine ID:", machineId, "for code:", machineCode);
                 }
             }
             
             if (!machineId) {
+                console.log('No machine ID found for work history lookup');
                 return [];
             }
             
             // Filter work history by machine_id
             const filteredHistory = allWorkHistory.filter(work => {
-                return work.machine_id == machineId || work.may_id == machineId;
+                return work.machine_id == machineId;
             });
             
+            console.log(`Found ${filteredHistory.length} work history records for machine ID: ${machineId}`);
             return filteredHistory;
             
         } catch (error) {
@@ -482,7 +496,7 @@ window.SmartMachineAPI = {
                 timestamp: new Date().toISOString()
             };
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine_maintenance`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/maintenance`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -517,7 +531,7 @@ window.SmartMachineAPI = {
                 timestamp: new Date().toISOString()
             };
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine_repair`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/repair`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -539,7 +553,7 @@ window.SmartMachineAPI = {
     // === CONTRACTORS API ===
     getContractors: async function(activeOnly = true) {
         try {
-            let url = `${this.API_BASE_URL}/contractors`;
+            let url = `${this.API_BASE_URL}/machine_contractors`;
             if (activeOnly) url += '?active=true';
             
             const response = await fetch(url);
@@ -574,44 +588,50 @@ window.SmartMachineAPI = {
     // === UTILITY FUNCTIONS ===
     transformToAPIFormat: function(data) {
         return {
-            ma_may: data.code,
+            ma_may_moc: data.code,
             loai: data.type,
             khu_vuc: data.area,
             vi_tri: data.location,
-            cong_suat: data.capacity,
+            cong_suat: data.power,
             hang: data.brand,
+            model: data.model,
+            serial: data.serial,
             ngay_lap_dat: data.install_date,
             ngay_bao_hanh: data.warranty_date,
             trang_thai: data.status,
             bao_duong_tiep_theo: data.next_maintenance,
-            ghi_chu: data.notes,
-            serial: data.serial
+            chu_ky_bao_duong: data.maintenance_interval,
+            ghi_chu: data.notes
         };
     },
 
     // Transform API data to frontend format
     transformFromAPIFormat: function(apiData) {
+        console.log("Transforming API data:", apiData);
+        
         // Return immediately if data is null or undefined
         if (!apiData) return null;
         
         // Transform data to match frontend format
         return {
             id: apiData.id,
-            code: apiData.ma_may || apiData.code,
+            code: apiData.ma_may_moc || apiData.code,
             type: apiData.loai || apiData.type,
             area: apiData.khu_vuc || apiData.area,
             location: apiData.vi_tri || apiData.location,
-            capacity: apiData.cong_suat || apiData.capacity,
+            power: apiData.cong_suat || apiData.power,
             brand: apiData.hang || apiData.brand,
+            model: apiData.model || apiData.model,
+            serial: apiData.serial || apiData.serial,
             installDate: apiData.ngay_lap_dat || apiData.install_date,
             warrantyDate: apiData.ngay_bao_hanh || apiData.warranty_date,
             status: apiData.trang_thai || apiData.status,
             lastMaintenance: apiData.bao_duong_gan_nhat || apiData.last_maintenance,
             nextMaintenance: apiData.bao_duong_tiep_theo || apiData.next_maintenance,
+            maintenanceInterval: apiData.chu_ky_bao_duong || apiData.maintenance_interval || 90,
             notes: apiData.ghi_chu || apiData.notes || '',
             
             // Ensure these fields are properly transformed
-            serial: apiData.serial || apiData.so_serial || '',
             avatar_url: apiData.avatar_url || '',
             images_urls: apiData.images_urls || [],
             documents_urls: apiData.documents_urls || [],
@@ -636,7 +656,7 @@ window.SmartMachineAPI = {
                 timestamp: new Date().toISOString()
             };
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine_batch_update`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/batch_update`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -664,7 +684,7 @@ window.SmartMachineAPI = {
             formData.append('type', imageType);
             formData.append('timestamp', new Date().toISOString());
 
-            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine_upload_image`, {
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/upload_image`, {
                 method: 'POST',
                 body: formData
             });
@@ -678,10 +698,118 @@ window.SmartMachineAPI = {
             console.error('Error uploading image:', error);
             throw error;
         }
+    },
+
+    // === MACHINE TYPES API ===
+    getMachineTypes: async function() {
+        try {
+            const response = await fetch(`${this.API_BASE_URL}/machine_types`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            console.error('Error fetching machine types:', error);
+            return [];
+        }
+    },
+
+    // === MACHINE AREAS API ===
+    getMachineAreas: async function() {
+        try {
+            const response = await fetch(`${this.API_BASE_URL}/machine_areas`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            console.error('Error fetching machine areas:', error);
+            return [];
+        }
+    },
+
+    // === MACHINE BRANDS API ===
+    getMachineBrands: async function() {
+        try {
+            const response = await fetch(`${this.API_BASE_URL}/machine_brands`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            console.error('Error fetching machine brands:', error);
+            return [];
+        }
+    },
+
+    // === MACHINE PARTS API ===
+    getMachineParts: async function() {
+        try {
+            const response = await fetch(`${this.API_BASE_URL}/machine_parts`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            console.error('Error fetching machine parts:', error);
+            return [];
+        }
+    },
+
+    // === MACHINE INVENTORY API ===
+    getMachineInventory: async function() {
+        try {
+            const response = await fetch(`${this.API_BASE_URL}/machine_inventory`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            console.error('Error fetching machine inventory:', error);
+            return [];
+        }
+    },
+
+    // === MAINTENANCE SCHEDULES API ===
+    getMaintenanceSchedules: async function(machineId = null) {
+        try {
+            let url = `${this.API_BASE_URL}/machine_maintenance_schedules`;
+            if (machineId) url += `?machine_id=${machineId}`;
+            
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            console.error('Error fetching maintenance schedules:', error);
+            return [];
+        }
+    },
+
+    saveMaintenanceSchedule: async function(scheduleData) {
+        try {
+            const webhookData = {
+                action: 'create_schedule',
+                data: scheduleData,
+                timestamp: new Date().toISOString()
+            };
+
+            const response = await fetch(`${this.WEBHOOK_BASE_URL}/machine_maintenance_schedules`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(webhookData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Webhook error! status: ${response.status}`);
+            }
+
+            return { success: true, data: await response.json() };
+        } catch (error) {
+            console.error('Error saving maintenance schedule:', error);
+            throw error;
+        }
     }
 };
 
 // Export for module usage
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = SmartMachineAPI;
-} 
+}

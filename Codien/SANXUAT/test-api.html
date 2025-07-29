@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Production Orders API</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container py-4">
+        <h1 class="mb-4">Test Production Orders API</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>API Test Functions</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-primary me-2" onclick="testGetOrders()">Get Orders</button>
+                        <button class="btn btn-success me-2" onclick="testGetStats()">Get Stats</button>
+                        <button class="btn btn-info me-2" onclick="testGetCustomers()">Get Customers</button>
+                        <button class="btn btn-warning" onclick="testCreateOrder()">Create Test Order</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>API Status</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="apiStatus">Ready to test...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>API Response</h5>
+                    </div>
+                    <div class="card-body">
+                        <pre id="apiResponse" style="max-height: 400px; overflow-y: auto;"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="production-orders-api.js"></script>
+    
+    <script>
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('apiStatus');
+            statusDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        }
+        
+        function showResponse(data) {
+            const responseDiv = document.getElementById('apiResponse');
+            responseDiv.textContent = JSON.stringify(data, null, 2);
+        }
+        
+        async function testGetOrders() {
+            try {
+                updateStatus('Testing Get Orders...', 'info');
+                const orders = await ProductionAPI.getOrders();
+                updateStatus(`✅ Success: Retrieved ${orders.length} orders`, 'success');
+                showResponse(orders);
+            } catch (error) {
+                updateStatus(`❌ Error: ${error.message}`, 'danger');
+                showResponse({ error: error.message });
+            }
+        }
+        
+        async function testGetStats() {
+            try {
+                updateStatus('Testing Get Stats...', 'info');
+                const stats = await ProductionAPI.getStats();
+                updateStatus('✅ Success: Retrieved statistics', 'success');
+                showResponse(stats);
+            } catch (error) {
+                updateStatus(`❌ Error: ${error.message}`, 'danger');
+                showResponse({ error: error.message });
+            }
+        }
+        
+        async function testGetCustomers() {
+            try {
+                updateStatus('Testing Get Customers...', 'info');
+                const customers = await ProductionAPI.getCustomers();
+                updateStatus(`✅ Success: Retrieved ${customers.length} customers`, 'success');
+                showResponse(customers);
+            } catch (error) {
+                updateStatus(`❌ Error: ${error.message}`, 'danger');
+                showResponse({ error: error.message });
+            }
+        }
+        
+        async function testCreateOrder() {
+            try {
+                updateStatus('Testing Create Order...', 'info');
+                
+                const testOrder = {
+                    deployment_date: ProductionAPI.getToday(),
+                    production_order: 'TEST-' + Date.now(),
+                    po_number: 'PO-TEST-' + Date.now(),
+                    sales_order_code: 'SO-TEST',
+                    order_date: ProductionAPI.getToday(),
+                    delivery_date: ProductionAPI.getToday(),
+                    internal_product_code: 'PROD-TEST',
+                    order_type: 'Thường',
+                    customer_code: 'CUST-TEST',
+                    customer_name: 'Khách hàng Test',
+                    product_name: 'Sản phẩm Test',
+                    version: '1.0',
+                    order_quantity: 100,
+                    inventory: 0,
+                    required_quantity: 100,
+                    deployed_quantity: 0,
+                    status: 'Chờ triển khai'
+                };
+                
+                const result = await ProductionAPI.saveOrder(testOrder, false);
+                updateStatus('✅ Success: Created test order', 'success');
+                showResponse(result);
+            } catch (error) {
+                updateStatus(`❌ Error: ${error.message}`, 'danger');
+                showResponse({ error: error.message });
+            }
+        }
+        
+        // Test API on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('API initialized. Ready for testing.', 'success');
+            
+            // Test basic connectivity
+            if (window.ProductionAPI) {
+                updateStatus('✅ Production API loaded successfully', 'success');
+            } else {
+                updateStatus('❌ Production API failed to load', 'danger');
+            }
+        });
+    </script>
+</body>
+</html>

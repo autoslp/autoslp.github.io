@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lệnh sản xuất - Quản lý sản xuất</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    :root {
+      --sidebar-width: 280px;
+      --sidebar-collapsed-width: 70px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f8f9fa;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: var(--sidebar-width);
+      background: white;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+      transition: width 0.3s ease;
+      z-index: 1000;
+      overflow: hidden;
+    }
+    
+    .sidebar.collapsed {
+      width: var(--sidebar-collapsed-width);
+    }
+    
+    .sidebar-content {
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    
+    .sidebar-content::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .sidebar-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .sidebar-content::-webkit-scrollbar-thumb {
+      background: #dee2e6;
+      border-radius: 3px;
+    }
+    
+    .sidebar-content::-webkit-scrollbar-thumb:hover {
+      background: #adb5bd;
+    }
+
+    .sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid #dee2e6;
+      position: relative;
+    }
+    
+    .sidebar-toggle {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: none;
+    }
+    
+    .sidebar.collapsed .sidebar-toggle {
+      right: 50%;
+      transform: translate(50%, -50%);
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: opacity 0.3s ease;
+    }
+    
+    .sidebar.collapsed .sidebar-brand h5 {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .sidebar-nav {
+      padding: 1rem 0;
+    }
+    
+    .sidebar-nav .nav-link {
+      padding: 0.75rem 1rem;
+      margin: 0.25rem 1rem;
+      border-radius: 0.5rem;
+      color: #6c757d;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .sidebar.collapsed .sidebar-nav .nav-link {
+      padding: 0.75rem;
+      margin: 0.25rem 0.5rem;
+      justify-content: center;
+    }
+    
+    .sidebar.collapsed .sidebar-nav .nav-link .nav-text {
+      display: none;
+    }
+    
+    .sidebar-nav .nav-link:hover {
+      background-color: #f8f9fa;
+      color: #0d6efd;
+    }
+    
+    .sidebar-nav .nav-link.active {
+      background-color: #0d6efd;
+      color: white;
+    }
+
+    .sidebar-footer {
+      padding: 1rem 1.5rem;
+      font-size: 0.8rem;
+      color: #6c757d;
+      transition: opacity 0.3s ease;
+    }
+    
+    .sidebar.collapsed .sidebar-footer {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    /* Main content */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      transition: margin-left 0.3s ease;
+      min-height: 100vh;
+      display: flex;
+    }
+    
+    .main-content.sidebar-collapsed {
+      margin-left: var(--sidebar-collapsed-width);
+    }
+
+    /* Content area and details panel */
+    .content-area {
+      flex: 1;
+      padding: 2rem;
+      transition: all 0.3s ease;
+      overflow: hidden; /* Prevent content overflow */
+    }
+
+    .content-area.details-open {
+      flex: 0 0 calc(100% - 400px);
+    }
+
+    .details-panel {
+      width: 400px;
+      background: white;
+      border-left: 1px solid #dee2e6;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+      max-height: 100vh;
+      position: fixed;
+      right: 0;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .details-panel.show {
+      transform: translateX(0);
+    }
+
+    .details-open {
+      flex: 0 0 calc(100% - 400px) !important;
+    }
+    
+    #ordersTable tbody tr {
+      cursor: pointer;
+    }
+    
+    #ordersTable tbody tr:hover {
+      background-color: #f8f9fa;
+    }
+    
+    #ordersTable tbody tr.selected {
+      background-color: #e3f2fd !important;
+      border-left: 4px solid #2196f3;
+    }
+    
+    .table-responsive {
+      overflow-x: auto;
+      max-width: 100%;
+      -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
+    }
+    
+    .table-responsive table {
+      min-width: 1100px; /* Tăng từ 800px để chứa thêm cột */
+      white-space: nowrap;
+    }
+    
+    /* Make table columns more compact */
+    .table th, .table td {
+      padding: 0.5rem;
+      font-size: 0.875rem;
+      vertical-align: middle;
+      border-top: 1px solid #dee2e6;
+    }
+    
+    /* Compact specific columns */
+    .table th:nth-child(1), .table td:nth-child(1) { width: 50px; } /* STT */
+    .table th:nth-child(2), .table td:nth-child(2) { width: 110px; } /* Ngày triển khai */
+    .table th:nth-child(3), .table td:nth-child(3) { width: 130px; } /* Lệnh sản xuất */
+    .table th:nth-child(4), .table td:nth-child(4) { width: 100px; } /* Số PO */
+    .table th:nth-child(5), .table td:nth-child(5) { width: 180px; } /* Tên sản phẩm */
+    .table th:nth-child(6), .table td:nth-child(6) { width: 130px; } /* Khách hàng */
+    .table th:nth-child(7), .table td:nth-child(7) { width: 90px; } /* Số lượng */
+    .table th:nth-child(8), .table td:nth-child(8) { width: 100px; } /* Ngày giao */
+    .table th:nth-child(9), .table td:nth-child(9) { width: 80px; } /* Công đoạn */
+    .table th:nth-child(10), .table td:nth-child(10) { width: 100px; } /* Trạng thái */
+
+    .details-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid #dee2e6;
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      position: relative;
+    }
+
+    .details-content {
+      padding: 1.5rem;
+    }
+
+    .detail-section {
+      margin-bottom: 2rem;
+    }
+
+    .detail-section h6 {
+      color: #495057;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    .detail-item {
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: flex-start;
+      padding: 0.25rem 0;
+      min-height: 1.5rem;
+    }
+
+    .detail-label {
+      font-size: 0.85rem;
+      color: #6c757d;
+      margin-right: 0.5rem;
+      width: 100px;
+      flex-shrink: 0;
+      white-space: normal;
+      word-wrap: break-word;
+      line-height: 1.3;
+    }
+
+    .detail-label::after {
+      content: ":";
+    }
+
+    .detail-value {
+      font-size: 0.9rem;
+      color: #212529;
+      font-weight: 500;
+      flex: 1;
+    }
+
+    .detail-value.empty {
+      color: #adb5bd;
+      font-style: italic;
+    }
+
+    .detail-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .detail-close:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    /* Page header */
+    .page-header {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Stats cards */
+    .stat-card {
+      text-align: center;
+      padding: 1.5rem;
+    }
+    
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #28a745;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+
+    /* Table styles */
+    .table-responsive {
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .table th {
+      background-color: #f8f9fa;
+      border-bottom: 2px solid #dee2e6;
+      font-weight: 600;
+      white-space: nowrap;
+      font-size: 0.85rem;
+      min-width: 120px;
+    }
+    
+    .table td {
+      white-space: nowrap;
+      font-size: 0.85rem;
+      vertical-align: middle;
+      min-width: 120px;
+    }
+
+    .table tbody tr {
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .table tbody tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .table tbody tr.selected {
+      background-color: #e3f2fd;
+      border-left: 4px solid #2196f3;
+    }
+    
+    .quantity-display {
+      font-weight: 600;
+      color: #28a745;
+    }
+
+    .status-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+    }
+
+    .status-pending {
+      background-color: #ffc107;
+      color: #000;
+    }
+
+    .status-processing {
+      background-color: #0d6efd;
+      color: #fff;
+    }
+
+    .status-completed {
+      background-color: #28a745;
+      color: #fff;
+    }
+
+    .status-cancelled {
+      background-color: #dc3545;
+      color: #fff;
+    }
+    
+    /* Work stage badge styles */
+    .badge.bg-secondary {
+      background-color: #6c757d !important;
+      font-size: 0.75rem;
+    }
+
+    /* Action buttons */
+    .action-buttons .btn {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.8rem;
+      margin-right: 0.25rem;
+    }
+
+    /* Form styles */
+    .form-group-row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group-row .form-group {
+      flex: 1;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        position: relative;
+        height: auto;
+      }
+      
+      .sidebar.collapsed {
+        width: 100%;
+      }
+      
+      .main-content {
+        margin-left: 0;
+        flex-direction: column;
+      }
+      
+      .main-content.sidebar-collapsed {
+        margin-left: 0;
+      }
+
+      .details-panel {
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 1050;
+      }
+
+      .table th,
+      .table td {
+        min-width: 100px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar collapsed" id="sidebar">
+    <div class="sidebar-content">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <i class="bi bi-gear-fill text-primary"></i>
+          <h5 class="mb-0">Carton Manager</h5>
+        </div>
+        <button class="btn btn-primary sidebar-toggle" onclick="toggleSidebar()" id="toggleBtn" title="Thu nhỏ/Mở rộng">
+          <i class="bi bi-chevron-right" id="toggleIcon"></i>
+        </button>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-link">
+          <i class="bi bi-house"></i>
+          <span class="nav-text">Trang chủ</span>
+        </a>
+        <a href="production-orders.html" class="nav-link active">
+          <i class="bi bi-clipboard-data"></i>
+          <span class="nav-text">Lệnh sản xuất</span>
+        </a>
+        <a href="progress.html" class="nav-link">
+          <i class="bi bi-lightning"></i>
+          <span class="nav-text">Quản lý tiến độ</span>
+        </a>
+        <a href="materials.html" class="nav-link">
+          <i class="bi bi-box-seam"></i>
+          <span class="nav-text">Vật tư</span>
+        </a>
+        <a href="workflow.html" class="nav-link">
+          <i class="bi bi-arrow-repeat"></i>
+          <span class="nav-text">Công đoạn</span>
+        </a>
+        <a href="reports.html" class="nav-link">
+          <i class="bi bi-graph-up"></i>
+          <span class="nav-text">Báo cáo</span>
+        </a>
+        <a href="stage-xa.html" class="nav-link">
+          <i class="bi bi-bullseye"></i>
+          <span class="nav-text">Công đoạn XẢ</span>
+        </a>
+        <a href="stage-xen.html" class="nav-link">
+          <i class="bi bi-scissors"></i>
+          <span class="nav-text">Công đoạn XÉN</span>
+        </a>
+        <a href="stage-in.html" class="nav-link">
+          <i class="bi bi-printer"></i>
+          <span class="nav-text">Công đoạn IN</span>
+        </a>
+        <a href="stage-boi.html" class="nav-link">
+          <i class="bi bi-file-text"></i>
+          <span class="nav-text">Công đoạn BỒI</span>
+        </a>
+        <a href="stage-be.html" class="nav-link">
+          <i class="bi bi-knife"></i>
+          <span class="nav-text">Công đoạn BẾ</span>
+        </a>
+        <a href="stage-dan.html" class="nav-link">
+          <i class="bi bi-link"></i>
+          <span class="nav-text">Công đoạn DÁN</span>
+        </a>
+        <a href="stage-kho.html" class="nav-link">
+          <i class="bi bi-building"></i>
+          <span class="nav-text">KHO THÀNH PHẨM</span>
+        </a>
+      </nav>
+      
+      <div class="sidebar-footer">
+        © 2025 Carton Manager
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content sidebar-collapsed" id="mainContent">
+    <div class="content-area">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1><i class="bi bi-clipboard-data me-2"></i>Quản lý Lệnh sản xuất</h1>
+        <p class="mb-0">Tạo và quản lý các lệnh sản xuất</p>
+      </div>
+      
+      <!-- Statistics -->
+      <div class="row mb-4" id="orderStats">
+        <!-- Thống kê sẽ được tạo động -->
+      </div>
+      
+      <!-- Main Card -->
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Danh sách lệnh sản xuất</h5>
+          <div>
+            <button class="btn btn-success" onclick="showNewOrderForm()">
+              <i class="bi bi-plus-circle me-1"></i>Thêm lệnh mới
+            </button>
+            <button class="btn btn-outline-primary" onclick="refreshData()">
+              <i class="bi bi-arrow-clockwise me-1"></i>Làm mới
+            </button>
+          </div>
+        </div>
+        
+        <div class="card-body">
+          <!-- Filters -->
+          <div class="row mb-3">
+            <div class="col-md-2">
+              <label class="form-label">Ngày triển khai:</label>
+              <input type="date" class="form-control" id="dateFilter">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Trạng thái:</label>
+              <select class="form-control" id="statusFilter">
+                <option value="">Tất cả</option>
+                <option value="Chờ triển khai">Chờ triển khai</option>
+                <option value="Đang sản xuất">Đang sản xuất</option>
+                <option value="Hoàn thành">Hoàn thành</option>
+                <option value="Đã hủy">Đã hủy</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Khách hàng:</label>
+              <select class="form-control" id="customerFilter">
+                <option value="">Tất cả</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Tìm kiếm:</label>
+              <input type="text" class="form-control" id="searchInput" placeholder="Tìm theo mã LSX, PO, sản phẩm...">
+            </div>
+          </div>
+          
+          <!-- Table -->
+          <div class="table-responsive">
+            <table class="table table-striped table-hover" id="ordersTable">
+              <thead>
+                <tr>
+                  <th>STT</th>
+                  <th>Ngày triển khai</th>
+                  <th>Lệnh Sản xuất</th>
+                  <th>Số PO</th>
+                  <th>Tên sản phẩm</th>
+                  <th>Khách hàng</th>
+                  <th>Số lượng</th>
+                  <th>Ngày giao</th>
+                  <th>Công đoạn</th>
+                  <th>Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody">
+                <!-- Dynamic content -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details Panel -->
+    <div class="details-panel" id="detailsPanel">
+      <div class="details-header">
+        <h5 class="mb-0">Chi tiết lệnh sản xuất</h5>
+        <button class="detail-close" onclick="closeDetailsPanel()">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+      
+      <div class="details-content" id="detailsContent">
+        <div class="text-center text-muted">
+          <i class="bi bi-info-circle fs-1 mb-3"></i>
+          <p>Click vào một dòng trong bảng để xem chi tiết</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal thêm/sửa lệnh sản xuất -->
+  <div class="modal fade" id="orderModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Thêm lệnh sản xuất mới</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="orderForm" onsubmit="return false;">
+          <div class="modal-body">
+            <div class="row g-3">
+              <!-- Thông tin cơ bản -->
+              <div class="col-12">
+                <h6 class="text-primary border-bottom pb-2">Thông tin cơ bản</h6>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Ngày triển khai LSX *</label>
+                <input type="date" class="form-control" id="deploymentDate" required>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Lệnh Sản xuất *</label>
+                <input type="text" class="form-control" id="productionOrder" required>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Số PO *</label>
+                <input type="text" class="form-control" id="poNumber" required>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Mã code KD đặt hàng</label>
+                <input type="text" class="form-control" id="salesOrderCode">
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Ngày đặt hàng</label>
+                <input type="date" class="form-control" id="orderDate">
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Ngày giao hàng</label>
+                <input type="date" class="form-control" id="deliveryDate">
+              </div>
+              
+              <!-- Thông tin sản phẩm -->
+              <div class="col-12">
+                <h6 class="text-primary border-bottom pb-2 mt-3">Thông tin sản phẩm</h6>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Mã code SP Nội bộ SX *</label>
+                <input type="text" class="form-control" id="internalProductCode" required>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Phân Loại Lệnh sản xuất</label>
+                <select class="form-control" id="orderType">
+                  <option value="">Chọn loại</option>
+                  <option value="Thường">Thường</option>
+                  <option value="Khẩn">Khẩn</option>
+                  <option value="Mẫu">Mẫu</option>
+                  <option value="Gia công">Gia công</option>
+                </select>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Tên sản phẩm *</label>
+                <input type="text" class="form-control" id="productName" required>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Version</label>
+                <input type="text" class="form-control" id="version">
+              </div>
+              
+              <!-- Thông tin khách hàng -->
+              <div class="col-12">
+                <h6 class="text-primary border-bottom pb-2 mt-3">Thông tin khách hàng</h6>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Mã code khách hàng *</label>
+                <input type="text" class="form-control" id="customerCode" required>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Tên khách hàng *</label>
+                <input type="text" class="form-control" id="customerName" required>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Nhóm khách hàng</label>
+                <select class="form-control" id="customerGroup">
+                  <option value="">Chọn nhóm</option>
+                  <option value="VIP">VIP</option>
+                  <option value="Thường">Thường</option>
+                  <option value="Mới">Mới</option>
+                  <option value="Chiến lược">Chiến lược</option>
+                </select>
+              </div>
+              
+              <!-- Thông tin số lượng -->
+              <div class="col-12">
+                <h6 class="text-primary border-bottom pb-2 mt-3">Thông tin số lượng</h6>
+              </div>
+              
+              <div class="col-md-3">
+                <label class="form-label">Số lượng đơn hàng</label>
+                <input type="number" class="form-control" id="orderQuantity">
+              </div>
+              
+              <div class="col-md-3">
+                <label class="form-label">Tồn kho</label>
+                <input type="number" class="form-control" id="inventory">
+              </div>
+              
+              <div class="col-md-3">
+                <label class="form-label">Số lượng Cần sản xuất</label>
+                <input type="number" class="form-control" id="requiredQuantity">
+              </div>
+              
+              <div class="col-md-3">
+                <label class="form-label">Số lượng Triển khai</label>
+                <input type="number" class="form-control" id="deployedQuantity">
+              </div>
+              
+              <div class="col-md-3">
+                <label class="form-label">Hao phí in offset</label>
+                <input type="number" class="form-control" id="offsetWaste">
+              </div>
+              
+              <div class="col-md-3">
+                <label class="form-label">Hao phí</label>
+                <input type="number" class="form-control" id="waste">
+              </div>
+              
+              <div class="col-md-3">
+                <label class="form-label">Số tờ triển khai</label>
+                <input type="number" class="form-control" id="sheetCount">
+              </div>
+              
+              <!-- Thông tin kích thước -->
+              <div class="col-12">
+                <h6 class="text-primary border-bottom pb-2 mt-3">Thông tin kích thước</h6>
+              </div>
+              
+              <div class="col-md-3">
+                <label class="form-label">Sản phẩm (Dài)</label>
+                <input type="number" class="form-control" id="productLength">
+              </div>
+              
+              <div class="col-md-3">
+                <label class="form-label">Sản phẩm (Rộng)</label>
+                <input type="number" class="form-control" id="productWidth">
+              </div>
+              
+              <div class="col-md-3">
+                <label class="form-label">Sản phẩm (Cao)</label>
+                <input type="number" class="form-control" id="productHeight">
+              </div>
+              
+              <div class="col-md-3">
+                <label class="form-label">Số part</label>
+                <input type="number" class="form-control" id="partCount">
+              </div>
+              
+              <div class="col-md-3">
+                <label class="form-label">Giấy (Dài)</label>
+                <input type="number" class="form-control" id="paperLength">
+              </div>
+              
+              <div class="col-md-3">
+                <label class="form-label">Giấy (Rộng)</label>
+                <input type="number" class="form-control" id="paperWidth">
+              </div>
+              
+              <div class="col-md-3">
+                <label class="form-label">Số màu</label>
+                <input type="number" class="form-control" id="colorCount">
+              </div>
+              
+              <!-- Thông tin vật liệu -->
+              <div class="col-12">
+                <h6 class="text-primary border-bottom pb-2 mt-3">Thông tin vật liệu</h6>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Loại giấy</label>
+                <select class="form-control" id="paperType">
+                  <option value="">Chọn loại giấy</option>
+                  <option value="BC">BC</option>
+                  <option value="BE">BE</option>
+                  <option value="Kraft">Kraft</option>
+                  <option value="Duplex">Duplex</option>
+                  <option value="Couche">Couche</option>
+                </select>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Định Lượng giấy</label>
+                <input type="number" class="form-control" id="paperWeight">
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Công đoạn</label>
+                <select class="form-control" id="workStage">
+                  <option value="">Chọn công đoạn</option>
+                  <option value="XẢ">XẢ</option>
+                  <option value="XÉN">XÉN</option>
+                  <option value="IN">IN</option>
+                  <option value="BỒI">BỒI</option>
+                  <option value="BẾ">BẾ</option>
+                  <option value="DÁN">DÁN</option>
+                  <option value="KHO">KHO</option>
+                </select>
+              </div>
+              
+              <!-- Ghi chú -->
+              <div class="col-12">
+                <h6 class="text-primary border-bottom pb-2 mt-3">Ghi chú</h6>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Ghi chú lý do chưa Triển khai LSX</label>
+                <textarea class="form-control" id="notDeployedReason" rows="2"></textarea>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Ghi chú đơn hàng KD</label>
+                <textarea class="form-control" id="salesNote" rows="2"></textarea>
+              </div>
+              
+              <div class="col-md-4">
+                <label class="form-label">Ghi chú Lệnh sản xuất KH</label>
+                <textarea class="form-control" id="customerProductionNote" rows="2"></textarea>
+              </div>
+            </div>
+          </div>
+          
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button type="submit" class="btn btn-success" onclick="saveOrder()">Lưu lệnh sản xuất</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div class="text-center text-white">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <div class="mt-2">Đang tải dữ liệu...</div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Production Config -->
+  <script src="production-config.js"></script>
+  
+  <!-- Production Orders API -->
+  <script src="production-orders-api.js"></script>
+
+  <script>
+    // Sử dụng Production Orders API
+    const API = window.ProductionAPI;
+    
+    // App utility functions - sử dụng từ API
+    const App = {
+      // API request helper
+      apiRequest: API.getOrders,
+      
+      // Format số
+      formatNumber: API.formatNumber,
+      
+      // Hiển thị thông báo
+      notify: API.showNotification,
+      
+      // Xác nhận hành động
+      confirm: function(message, callback) {
+        if (confirm(message)) {
+          callback();
+        }
+      },
+      
+      // Hiển thị loading
+      showLoading: API.showLoading,
+      
+      // Ẩn loading
+      hideLoading: API.hideLoading
+    };
+
+    // Date utilities - sử dụng từ API
+    const DateUtils = {
+      today: API.getToday,
+      format: API.formatDate
+    };
+
+    // Khởi tạo dữ liệu
+    let orders = [];
+    let editingOrderId = null;
+    let allCustomers = [];
+    
+    // Tạo dữ liệu mẫu cho testing
+    function createSampleData() {
+      console.log('Creating sample data...');
+      return [
+        {
+          id: '1',
+          deployment_date: '2025-01-15',
+          production_order: 'LSX-2025-001',
+          po_number: 'PO-001-2025',
+          sales_order_code: 'SO-001',
+          order_date: '2025-01-10',
+          delivery_date: '2025-01-20',
+          internal_product_code: 'SP-001',
+          order_type: 'Thường',
+          customer_code: 'KH-001',
+          customer_name: 'Công ty ABC',
+          product_name: 'Hộp carton A4',
+          version: 'V1.0',
+          not_deployed_reason: '',
+          sales_note: 'Ghi chú từ bộ phận kinh doanh',
+          customer_production_note: 'Yêu cầu đặc biệt từ khách hàng',
+          order_quantity: 1000,
+          inventory: 100,
+          required_quantity: 900,
+          deployed_quantity: 900,
+          offset_waste: 50,
+          waste: 20,
+          sheet_count: 100,
+          product_length: 210,
+          product_width: 297,
+          product_height: 50,
+          paper_length: 420,
+          paper_width: 594,
+          part_count: 2,
+          color_count: 4,
+          customer_group: 'VIP',
+          paper_type: 'BC',
+          paper_weight: 250,
+          work_stage: 'IN',
+          status: 'Đang sản xuất'
+        },
+        {
+          id: '2',
+          deployment_date: '2025-01-16',
+          production_order: 'LSX-2025-002',
+          po_number: 'PO-002-2025',
+          sales_order_code: 'SO-002',
+          order_date: '2025-01-11',
+          delivery_date: '2025-01-21',
+          internal_product_code: 'SP-002',
+          order_type: 'Khẩn',
+          customer_code: 'KH-002',
+          customer_name: 'Công ty XYZ',
+          product_name: 'Thùng carton B5',
+          version: 'V2.0',
+          not_deployed_reason: '',
+          sales_note: 'Đơn hàng ưu tiên',
+          customer_production_note: 'In 2 mặt',
+          order_quantity: 2000,
+          inventory: 200,
+          required_quantity: 1800,
+          deployed_quantity: 1800,
+          offset_waste: 100,
+          waste: 50,
+          sheet_count: 200,
+          product_length: 250,
+          product_width: 176,
+          product_height: 70,
+          paper_length: 500,
+          paper_width: 352,
+          part_count: 1,
+          color_count: 2,
+          customer_group: 'Thường',
+          paper_type: 'BC',
+          paper_weight: 300,
+          work_stage: 'BE',
+          status: 'Hoàn thành'
+        }
+      ];
+    }
+
+    // Tải dữ liệu từ API
+    async function initData() {
+      console.log('=== INIT DATA START ===');
+      try {
+        App.showLoading();
+        
+        console.log('Calling API.getOrders()...');
+        // Tải dữ liệu lệnh sản xuất từ API
+        orders = await API.getOrders();
+        console.log('API.getOrders() result:', orders);
+        console.log('Orders type:', typeof orders);
+        console.log('Orders length:', orders ? orders.length : 'null/undefined');
+        
+        // Tải danh sách khách hàng từ API
+        console.log('Calling API.getCustomers()...');
+        allCustomers = await API.getCustomers();
+        console.log('API.getCustomers() result:', allCustomers);
+        console.log('Customers type:', typeof allCustomers);
+        console.log('Customers length:', allCustomers ? allCustomers.length : 'null/undefined');
+        
+        populateFilters();
+        renderData();
+        
+        App.notify('Đã tải dữ liệu thành công từ API', 'success');
+        console.log('=== INIT DATA SUCCESS ===');
+      } catch (error) {
+        console.error('=== INIT DATA ERROR ===');
+        console.error('Error details:', error);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        
+        App.notify('Lỗi tải dữ liệu từ API: ' + error.message, 'error');
+        
+        // Set empty arrays if API fails
+        orders = [];
+        allCustomers = [];
+        populateFilters();
+        renderData();
+        
+        console.log('Fallback: Set empty arrays');
+      } finally {
+        App.hideLoading();
+        console.log('=== INIT DATA END ===');
+        console.log('Final orders array:', orders);
+        console.log('Final customers array:', allCustomers);
+      }
+    }
+    
+    function populateFilters() {
+      // Populate customer filter từ danh sách khách hàng
+      const customerFilter = document.getElementById('customerFilter');
+      customerFilter.innerHTML = '<option value="">Tất cả</option>';
+      
+      allCustomers.forEach(customer => {
+        customerFilter.innerHTML += `<option value="${customer.customer_name}">${customer.customer_name}</option>`;
+      });
+    }
+    
+    async function refreshData() {
+      await initData();
+    }
+    
+    // Hiển thị dữ liệu
+    function renderData() {
+      console.log('=== RENDER DATA START ===');
+      console.log('Orders to render:', orders);
+      console.log('Orders length:', orders ? orders.length : 'null/undefined');
+      
+      // Lọc dữ liệu theo bộ lọc
+      const date = document.getElementById('dateFilter').value;
+      const status = document.getElementById('statusFilter').value;
+      const customer = document.getElementById('customerFilter').value;
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      
+      let filteredOrders = orders || [];
+      console.log('Initial filtered orders:', filteredOrders.length);
+      
+      if (date) {
+        filteredOrders = filteredOrders.filter(o => o.deployment_date === date);
+        console.log('After date filter:', filteredOrders.length);
+      }
+      
+      if (status) {
+        filteredOrders = filteredOrders.filter(o => o.status === status);
+        console.log('After status filter:', filteredOrders.length);
+      }
+      
+      if (customer) {
+        filteredOrders = filteredOrders.filter(o => o.customer_name === customer);
+        console.log('After customer filter:', filteredOrders.length);
+      }
+      
+      if (search) {
+        filteredOrders = filteredOrders.filter(o => 
+          o.production_order.toLowerCase().includes(search) ||
+          o.po_number.toLowerCase().includes(search) ||
+          o.product_name.toLowerCase().includes(search) ||
+          o.customer_name.toLowerCase().includes(search)
+        );
+        console.log('After search filter:', filteredOrders.length);
+      }
+      
+      console.log('Final filtered orders:', filteredOrders);
+      
+      // Tính thống kê
+      const stats = {
+        totalOrders: filteredOrders.length,
+        totalQuantity: filteredOrders.reduce((sum, o) => sum + (o.order_quantity || 0), 0),
+        completedOrders: filteredOrders.filter(o => o.status === 'Hoàn thành').length,
+        inProgressOrders: filteredOrders.filter(o => o.status === 'Đang sản xuất').length
+      };
+      
+      console.log('Statistics:', stats);
+      
+      // Hiển thị thống kê
+      document.getElementById('orderStats').innerHTML = `
+        <div class="col-md-3">
+          <div class="card stat-card">
+            <div class="card-body">
+              <div class="stat-value">${stats.totalOrders}</div>
+              <div class="stat-label">Tổng số lệnh</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card stat-card">
+            <div class="card-body">
+              <div class="stat-value">${App.formatNumber(stats.totalQuantity)}</div>
+              <div class="stat-label">Tổng số lượng</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card stat-card">
+            <div class="card-body">
+              <div class="stat-value">${stats.inProgressOrders}</div>
+              <div class="stat-label">Đang sản xuất</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card stat-card">
+            <div class="card-body">
+              <div class="stat-value">${stats.completedOrders}</div>
+              <div class="stat-label">Đã hoàn thành</div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Hiển thị bảng
+      let tableHtml = '';
+      
+      filteredOrders.forEach((order, index) => {
+        console.log(`Rendering order ${index}:`, {
+          id: order.id,
+          production_order: order.production_order,
+          product_name: order.product_name
+        });
+        
+        const statusClass = getStatusClass(order.status);
+        tableHtml += `
+          <tr onclick="showOrderDetails('${order.id}')" data-order-id="${order.id}">
+            <td>${index + 1}</td>
+            <td>${DateUtils.format(order.deployment_date)}</td>
+            <td><strong>${order.production_order}</strong></td>
+            <td>${order.po_number}</td>
+            <td title="${order.product_name}">${order.product_name.length > 25 ? order.product_name.substring(0, 25) + '...' : order.product_name}</td>
+            <td title="${order.customer_name}">${order.customer_name.length > 15 ? order.customer_name.substring(0, 15) + '...' : order.customer_name}</td>
+            <td class="quantity-display">${App.formatNumber(order.order_quantity)}</td>
+            <td>${DateUtils.format(order.delivery_date)}</td>
+            <td><span class="badge bg-secondary">${order.work_stage || 'N/A'}</span></td>
+            <td><span class="badge ${statusClass}">${order.status}</span></td>
+          </tr>
+        `;
+      });
+      
+      console.log('Generated table HTML length:', tableHtml.length);
+      console.log('Table HTML preview:', tableHtml.substring(0, 200) + '...');
+      
+      document.querySelector('#ordersTable tbody').innerHTML = tableHtml;
+      console.log('=== RENDER DATA END ===');
+    }
+    
+    function getStatusClass(status) {
+      switch(status) {
+        case 'Chờ triển khai': return 'status-pending';
+        case 'Đang sản xuất': return 'status-processing';
+        case 'Hoàn thành': return 'status-completed';
+        case 'Đã hủy': return 'status-cancelled';
+        default: return 'status-pending';
+      }
+    }
+    
+    // Hiển thị form thêm mới
+    function showNewOrderForm() {
+      editingOrderId = null;
+      document.getElementById('orderForm').reset();
+      document.querySelector('#orderModal .modal-title').textContent = 'Thêm lệnh sản xuất mới';
+      document.getElementById('deploymentDate').value = DateUtils.today();
+      new bootstrap.Modal(document.getElementById('orderModal')).show();
+    }
+    
+    // Hiển thị form sửa
+    function editOrder(orderId) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+      
+      editingOrderId = orderId;
+      document.querySelector('#orderModal .modal-title').textContent = 'Sửa lệnh sản xuất';
+      
+      // Fill form với dữ liệu hiện tại
+      document.getElementById('deploymentDate').value = order.deployment_date || '';
+      document.getElementById('productionOrder').value = order.production_order || '';
+      document.getElementById('poNumber').value = order.po_number || '';
+      document.getElementById('salesOrderCode').value = order.sales_order_code || '';
+      document.getElementById('orderDate').value = order.order_date || '';
+      document.getElementById('deliveryDate').value = order.delivery_date || '';
+      document.getElementById('internalProductCode').value = order.internal_product_code || '';
+      document.getElementById('orderType').value = order.order_type || '';
+      document.getElementById('customerCode').value = order.customer_code || '';
+      document.getElementById('customerName').value = order.customer_name || '';
+      document.getElementById('productName').value = order.product_name || '';
+      document.getElementById('version').value = order.version || '';
+      document.getElementById('notDeployedReason').value = order.not_deployed_reason || '';
+      document.getElementById('salesNote').value = order.sales_note || '';
+      document.getElementById('customerProductionNote').value = order.customer_production_note || '';
+      document.getElementById('orderQuantity').value = order.order_quantity || '';
+      document.getElementById('inventory').value = order.inventory || '';
+      document.getElementById('requiredQuantity').value = order.required_quantity || '';
+      document.getElementById('deployedQuantity').value = order.deployed_quantity || '';
+      document.getElementById('offsetWaste').value = order.offset_waste || '';
+      document.getElementById('waste').value = order.waste || '';
+      document.getElementById('sheetCount').value = order.sheet_count || '';
+      document.getElementById('productLength').value = order.product_length || '';
+      document.getElementById('productWidth').value = order.product_width || '';
+      document.getElementById('productHeight').value = order.product_height || '';
+      document.getElementById('paperLength').value = order.paper_length || '';
+      document.getElementById('paperWidth').value = order.paper_width || '';
+      document.getElementById('partCount').value = order.part_count || '';
+      document.getElementById('colorCount').value = order.color_count || '';
+      document.getElementById('customerGroup').value = order.customer_group || '';
+      document.getElementById('paperType').value = order.paper_type || '';
+      document.getElementById('paperWeight').value = order.paper_weight || '';
+      document.getElementById('workStage').value = order.work_stage || '';
+      
+      new bootstrap.Modal(document.getElementById('orderModal')).show();
+    }
+    
+    // Lưu lệnh sản xuất
+    async function saveOrder() {
+      try {
+        // Lấy dữ liệu từ form
+        const orderData = {
+          deployment_date: document.getElementById('deploymentDate').value,
+          production_order: document.getElementById('productionOrder').value,
+          po_number: document.getElementById('poNumber').value,
+          sales_order_code: document.getElementById('salesOrderCode').value,
+          order_date: document.getElementById('orderDate').value,
+          delivery_date: document.getElementById('deliveryDate').value,
+          internal_product_code: document.getElementById('internalProductCode').value,
+          order_type: document.getElementById('orderType').value,
+          customer_code: document.getElementById('customerCode').value,
+          customer_name: document.getElementById('customerName').value,
+          product_name: document.getElementById('productName').value,
+          version: document.getElementById('version').value,
+          not_deployed_reason: document.getElementById('notDeployedReason').value,
+          sales_note: document.getElementById('salesNote').value,
+          customer_production_note: document.getElementById('customerProductionNote').value,
+          order_quantity: parseInt(document.getElementById('orderQuantity').value) || 0,
+          inventory: parseInt(document.getElementById('inventory').value) || 0,
+          required_quantity: parseInt(document.getElementById('requiredQuantity').value) || 0,
+          deployed_quantity: parseInt(document.getElementById('deployedQuantity').value) || 0,
+          offset_waste: parseInt(document.getElementById('offsetWaste').value) || 0,
+          waste: parseInt(document.getElementById('waste').value) || 0,
+          sheet_count: parseInt(document.getElementById('sheetCount').value) || 0,
+          product_length: parseFloat(document.getElementById('productLength').value) || null,
+          product_width: parseFloat(document.getElementById('productWidth').value) || null,
+          product_height: parseFloat(document.getElementById('productHeight').value) || null,
+          paper_length: parseFloat(document.getElementById('paperLength').value) || null,
+          paper_width: parseFloat(document.getElementById('paperWidth').value) || null,
+          part_count: parseInt(document.getElementById('partCount').value) || 0,
+          color_count: parseInt(document.getElementById('colorCount').value) || 0,
+          customer_group: document.getElementById('customerGroup').value,
+          paper_type: document.getElementById('paperType').value,
+          paper_weight: parseInt(document.getElementById('paperWeight').value) || null,
+          work_stage: document.getElementById('workStage').value,
+          status: editingOrderId ? undefined : 'Chờ triển khai' // Chỉ set status mặc định khi tạo mới
+        };
+        
+        // Validate dữ liệu
+        const validation = API.validateOrder(orderData);
+        if (!validation.isValid) {
+          App.notify('Lỗi dữ liệu: ' + validation.errors.join(', '), 'error');
+          return;
+        }
+        
+        App.showLoading();
+        
+        // Gọi API để lưu
+        const result = await API.saveOrder(orderData, !!editingOrderId, editingOrderId);
+        
+        if (result.success !== false) {
+          App.notify(
+            editingOrderId ? 'Cập nhật lệnh sản xuất thành công!' : 'Tạo lệnh sản xuất thành công!', 
+            'success'
+          );
+          
+          // Đóng modal
+          bootstrap.Modal.getInstance(document.getElementById('orderModal')).hide();
+          
+          // Refresh dữ liệu
+          await refreshData();
+        }
+        
+      } catch (error) {
+        console.error('Lỗi lưu lệnh sản xuất:', error);
+        App.notify('Lỗi lưu lệnh sản xuất: ' + error.message, 'error');
+      } finally {
+        App.hideLoading();
+      }
+    }
+    
+    // Xóa lệnh
+    async function deleteOrder(orderId) {
+      if (!confirm('Bạn có chắc muốn xóa lệnh sản xuất này?')) return;
+      
+      try {
+        App.showLoading();
+        
+        await API.deleteOrder(orderId);
+        
+        App.notify('Xóa lệnh sản xuất thành công!', 'success');
+        await refreshData();
+        
+      } catch (error) {
+        console.error('Lỗi xóa lệnh sản xuất:', error);
+        App.notify('Lỗi xóa lệnh sản xuất: ' + error.message, 'error');
+      } finally {
+        App.hideLoading();
+      }
+    }
+    
+    // Toggle sidebar
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const toggleIcon = document.getElementById('toggleIcon');
+      
+      sidebar.classList.toggle('collapsed');
+      mainContent.classList.toggle('sidebar-collapsed');
+      
+      if (sidebar.classList.contains('collapsed')) {
+        toggleIcon.innerHTML = '<i class="bi bi-chevron-right"></i>';
+      } else {
+        toggleIcon.innerHTML = '<i class="bi bi-chevron-left"></i>';
+      }
+    }
+
+    // Show order details in sidebar
+    function showOrderDetails(orderId) {
+      console.log('=== SHOW ORDER DETAILS START ===');
+      console.log('Requested orderId:', orderId);
+      console.log('Type of orderId:', typeof orderId);
+      console.log('Available orders:', orders);
+      console.log('Orders count:', orders ? orders.length : 'orders is null/undefined');
+      
+      if (orders && orders.length > 0) {
+        orders.forEach((order, index) => {
+          console.log(`Order ${index}:`, {
+            id: order.id,
+            idType: typeof order.id,
+            production_order: order.production_order
+          });
+        });
+      }
+      
+      // Tìm order theo ID
+      let order = orders.find(o => o.id === orderId);
+      console.log('Found order with exact match:', order);
+      
+      // Thử so sánh string với string
+      if (!order) {
+        order = orders.find(o => String(o.id) === String(orderId));
+        console.log('Found order with string conversion:', order);
+      }
+      
+      // Thử so sánh với == thay vì ===
+      if (!order) {
+        order = orders.find(o => o.id == orderId);
+        console.log('Found order with loose equality:', order);
+      }
+      
+      if (!order) {
+        console.log('=== ORDER NOT FOUND ===');
+        console.log('No order found with any comparison method');
+        App.notify('Không tìm thấy thông tin lệnh sản xuất', 'error');
+        return;
+      }
+      
+      console.log('=== ORDER FOUND ===');
+      console.log('Selected order:', order);
+
+      // Add class to content area to make it smaller
+      document.querySelector('.content-area').classList.add('details-open');
+
+      // Highlight selected row
+      document.querySelectorAll('#ordersTable tbody tr').forEach(row => {
+        row.classList.remove('selected');
+      });
+      const selectedRow = document.querySelector(`[data-order-id="${orderId}"]`);
+      if (selectedRow) {
+        selectedRow.classList.add('selected');
+        console.log('Row highlighted successfully');
+      } else {
+        console.log('Could not find row to highlight');
+      }
+
+      // Build details HTML
+      const detailsHtml = `
+        <div class="detail-section">
+          <h6><i class="bi bi-info-circle me-2"></i>Thông tin cơ bản</h6>
+          <div class="detail-item">
+            <div class="detail-label">Ngày triển khai LSX</div>
+            <div class="detail-value">${DateUtils.format(order.deployment_date)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Lệnh sản xuất</div>
+            <div class="detail-value"><strong>${order.production_order}</strong></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Số PO</div>
+            <div class="detail-value">${order.po_number}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Mã code KD đặt hàng</div>
+            <div class="detail-value ${!order.sales_order_code ? 'empty' : ''}">${order.sales_order_code || 'Chưa có thông tin'}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Ngày đặt hàng</div>
+            <div class="detail-value">${DateUtils.format(order.order_date)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Ngày giao hàng</div>
+            <div class="detail-value">${DateUtils.format(order.delivery_date)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Trạng thái</div>
+            <div class="detail-value">
+              <span class="badge ${getStatusClass(order.status)}">${order.status}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h6><i class="bi bi-box me-2"></i>Thông tin sản phẩm</h6>
+          <div class="detail-item">
+            <div class="detail-label">Mã code SP Nội bộ SX</div>
+            <div class="detail-value">${order.internal_product_code}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Tên sản phẩm</div>
+            <div class="detail-value">${order.product_name}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Version</div>
+            <div class="detail-value ${!order.version ? 'empty' : ''}">${order.version || 'Chưa có thông tin'}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Phân loại lệnh sản xuất</div>
+            <div class="detail-value ${!order.order_type ? 'empty' : ''}">${order.order_type || 'Chưa phân loại'}</div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h6><i class="bi bi-people me-2"></i>Thông tin khách hàng</h6>
+          <div class="detail-item">
+            <div class="detail-label">Mã code khách hàng</div>
+            <div class="detail-value">${order.customer_code}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Tên khách hàng</div>
+            <div class="detail-value">${order.customer_name}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Nhóm khách hàng</div>
+            <div class="detail-value ${!order.customer_group ? 'empty' : ''}">${order.customer_group || 'Chưa phân nhóm'}</div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h6><i class="bi bi-123 me-2"></i>Thông tin số lượng</h6>
+          <div class="detail-item">
+            <div class="detail-label">Số lượng đơn hàng</div>
+            <div class="detail-value quantity-display">${App.formatNumber(order.order_quantity)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Tồn kho</div>
+            <div class="detail-value quantity-display">${App.formatNumber(order.inventory)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Số lượng cần sản xuất</div>
+            <div class="detail-value quantity-display">${App.formatNumber(order.required_quantity)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Số lượng triển khai</div>
+            <div class="detail-value quantity-display">${App.formatNumber(order.deployed_quantity)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Hao phí in offset</div>
+            <div class="detail-value ${!order.offset_waste ? 'empty' : ''}">${order.offset_waste || 'Chưa có thông tin'}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Hao phí</div>
+            <div class="detail-value ${!order.waste ? 'empty' : ''}">${order.waste || 'Chưa có thông tin'}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Số tờ triển khai</div>
+            <div class="detail-value ${!order.sheet_count ? 'empty' : ''}">${order.sheet_count || 'Chưa có thông tin'}</div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h6><i class="bi bi-rulers me-2"></i>Thông tin kích thước</h6>
+          <div class="detail-item">
+            <div class="detail-label">Kích thước sản phẩm (D x R x C)</div>
+            <div class="detail-value">
+              ${order.product_length || 'N/A'} x ${order.product_width || 'N/A'} x ${order.product_height || 'N/A'}
+            </div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Kích thước giấy (D x R)</div>
+            <div class="detail-value">
+              ${order.paper_length || 'N/A'} x ${order.paper_width || 'N/A'}
+            </div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Số part</div>
+            <div class="detail-value ${!order.part_count ? 'empty' : ''}">${order.part_count || 'Chưa có thông tin'}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Số màu</div>
+            <div class="detail-value ${!order.color_count ? 'empty' : ''}">${order.color_count || 'Chưa có thông tin'}</div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h6><i class="bi bi-file-text me-2"></i>Thông tin vật liệu</h6>
+          <div class="detail-item">
+            <div class="detail-label">Loại giấy</div>
+            <div class="detail-value ${!order.paper_type ? 'empty' : ''}">${order.paper_type || 'Chưa có thông tin'}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Định lượng giấy</div>
+            <div class="detail-value ${!order.paper_weight ? 'empty' : ''}">${order.paper_weight ? order.paper_weight + ' gsm' : 'Chưa có thông tin'}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Công đoạn</div>
+            <div class="detail-value ${!order.work_stage ? 'empty' : ''}">${order.work_stage || 'Chưa xác định'}</div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h6><i class="bi bi-sticky me-2"></i>Ghi chú</h6>
+          <div class="detail-item">
+            <div class="detail-label">Ghi chú lý do chưa triển khai LSX</div>
+            <div class="detail-value ${!order.not_deployed_reason ? 'empty' : ''}">${order.not_deployed_reason || 'Không có ghi chú'}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Ghi chú đơn hàng KD</div>
+            <div class="detail-value ${!order.sales_note ? 'empty' : ''}">${order.sales_note || 'Không có ghi chú'}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Ghi chú lệnh sản xuất KH</div>
+            <div class="detail-value ${!order.customer_production_note ? 'empty' : ''}">${order.customer_production_note || 'Không có ghi chú'}</div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <div class="d-grid gap-2">
+            <button class="btn btn-primary" onclick="editOrder('${order.id}'); closeDetailsPanel();">
+              <i class="bi bi-pencil me-2"></i>Chỉnh sửa lệnh sản xuất
+            </button>
+            <button class="btn btn-outline-danger" onclick="deleteOrder('${order.id}'); closeDetailsPanel();">
+              <i class="bi bi-trash me-2"></i>Xóa lệnh sản xuất
+            </button>
+          </div>
+        </div>
+      `;
+
+      // Show details panel
+      document.getElementById('detailsContent').innerHTML = detailsHtml;
+      document.getElementById('detailsPanel').classList.add('show');
+      
+      console.log('=== DETAILS PANEL SHOWN ===');
+    }
+
+    // Close details panel
+    function closeDetailsPanel() {
+      document.getElementById('detailsPanel').classList.remove('show');
+      document.querySelector('.content-area').classList.remove('details-open');
+      
+      // Remove selected row highlight
+      document.querySelectorAll('#ordersTable tbody tr').forEach(row => {
+        row.classList.remove('selected');
+      });
+    }
+    
+    // Khởi tạo
+    document.addEventListener('DOMContentLoaded', function() {
+      // Khởi tạo dữ liệu
+      initData();
+      
+      // Xử lý sự kiện thay đổi bộ lọc
+      document.getElementById('dateFilter').addEventListener('change', renderData);
+      document.getElementById('statusFilter').addEventListener('change', renderData);
+      document.getElementById('customerFilter').addEventListener('change', renderData);
+      document.getElementById('searchInput').addEventListener('input', renderData);
+
+      // Xử lý sự kiện ESC để đóng details panel
+      document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+          closeDetailsPanel();
+        }
+      });
+      
+      // Xử lý click ra ngoài table để đóng details panel
+      document.addEventListener('click', function(event) {
+        const detailsPanel = document.getElementById('detailsPanel');
+        const tableRows = document.querySelectorAll('#ordersTable tbody tr');
+        const clickedInsideTable = Array.from(tableRows).some(row => row.contains(event.target));
+        const clickedInsidePanel = detailsPanel.contains(event.target);
+        
+        // Nếu click ra ngoài table và không phải trong details panel thì đóng panel
+        if (!clickedInsideTable && !clickedInsidePanel && detailsPanel.classList.contains('show')) {
+          closeDetailsPanel();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

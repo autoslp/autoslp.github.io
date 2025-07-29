@@ -1,0 +1,201 @@
+-- Dữ liệu mẫu cho bảng production_orders
+-- Tạo thêm nhiều dữ liệu mẫu tương tự file SQL
+
+INSERT INTO production_orders (
+    deployment_date, production_order, po_number, sales_order_code, order_date, delivery_date,
+    internal_product_code, order_type, customer_code, customer_name, product_name, version,
+    not_deployed_reason, sales_note, customer_production_note, order_quantity, inventory,
+    required_quantity, deployed_quantity, offset_waste, waste, sheet_count, product_length,
+    product_width, product_height, paper_length, paper_width, part_count, color_count,
+    customer_group, paper_type, paper_weight, work_stage, status
+) VALUES 
+-- Dữ liệu 1
+(
+    '2025-03-10', '01-2503-00070', '25.03.011.03', 'SLM-00568MEV-01', '2025-03-08', '2025-03-25',
+    'SLM-00568MEV-01-12b', 'Thường', '3245782', 'Công ty TNHH Dược phẩm Mekophar', 
+    'Hộp thuốc Mekophar PainRelief 500mg', '2', '', 'Cần giao gấp trong tuần',
+    'Điều chỉnh màu theo mẫu mới - Sản xuất theo tiêu chuẩn GMP - Đóng gói riêng biệt',
+    25000, 0, 25000, 26500, 320, 60, 2650, 152.00, 95.00, 25.00, 620.00, 440.00, 12, 4,
+    'VIP', 'Duplex Nhật', 300, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Chờ triển khai'
+),
+-- Dữ liệu 2
+(
+    '2025-03-11', '01-2503-00071', '25.03.012.01', 'SLM-00734TRP-03', '2025-03-09', '2025-03-20',
+    'SLM-00734TRP-03-5b', 'Khẩn', '2781456', 'Công ty CP Dược Traphaco', 
+    'Vỉ thuốc Boganic 250mg', '3', '', 'Khách đề nghị giao sớm hơn dự kiến',
+    'Thêm thông tin về hoạt chất - Quy cách đóng gói mới theo mẫu đã duyệt',
+    50000, 1200, 48800, 52000, 400, 65, 5200, 90.00, 60.00, 10.00, 650.00, 480.00, 10, 3,
+    'Chiến lược', 'Couches Hàn Quốc', 250, 'Xả-Xén-In-Bế-Đóng thùng', 'Đang sản xuất'
+),
+-- Dữ liệu 3
+(
+    '2025-03-12', '01-2503-00072', '25.03.013.05', 'SLM-00389UNI-04', '2025-03-10', '2025-04-01',
+    'SLM-00389UNI-04-8b', 'Đại trà', '1956234', 'Công ty TNHH Unilever Việt Nam', 
+    'Hộp kem đánh răng Close-up 200g', '4', '', 'Như lô gần nhất - Kiểm tra độ bóng',
+    'In theo màu Pantone chuẩn - Bổ sung mã QR mới theo ECN 7825 - Kiểm tra định lượng giấy',
+    100000, 0, 100000, 106000, 600, 80, 10600, 160.00, 65.00, 32.00, 720.00, 540.00, 6, 5,
+    'VIP', 'Ivory NingBo', 350, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Đang sản xuất'
+),
+-- Dữ liệu 4
+(
+    '2025-03-12', '01-2503-00073', 'YCM.8245.1', 'SLM-00125PVN-02', '2025-03-11', '2025-03-15',
+    'SLM-00125PVN-02-3b', 'Mẫu', '2854367', 'Công ty CP Dược phẩm Pharmavina',
+    'Hộp thuốc Paracetamol 500mg', '2', '',
+    'Khách yêu cầu mẫu trước khi sản xuất đại trà', 'Mẫu cần đạt chuẩn màu - In 10 bộ mẫu để duyệt',
+    0, 0, 50, 500, 0, 1000, 100, 120.00, 75.00, 20.00, 640.00, 480.00, 8, 4,
+    'Thường', 'Couches TQ', 280, 'Xả-Xén-In-Bế-Dán', 'Chờ triển khai'
+),
+-- Dữ liệu 5
+(
+    '2025-03-15', '01-2503-00074', '25.03.014.02', 'SLM-00472VNM-01', '2025-03-12', '2025-03-30',
+    'SLM-00472VNM-01-7b', 'Đại trà', '3642189', 'Công ty CP Sữa Việt Nam', 
+    'Hộp sữa tiệt trùng Vinamilk 180ml', '1', '', 'Màu sắc theo bộ nhận diện mới',
+    'Logo mới theo hướng dẫn ECN 9253 - Chú ý màu đỏ chuẩn theo Pantone 485C - Kiểm tra tách màu',
+    80000, 2000, 78000, 85000, 520, 75, 8500, 85.00, 65.00, 180.00, 680.00, 500.00, 8, 5,
+    'VIP', 'Duplex Hanson', 400, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Chờ triển khai'
+),
+-- Dữ liệu 6
+(
+    '2025-03-16', '01-2503-00075', '25.03.015.01', 'SLM-00856DHG-03', '2025-03-13', '2025-03-28',
+    'SLM-00856DHG-03-4b', 'Bù', '1547823', 'Công ty CP Dược Hậu Giang', 
+    'Hộp thuốc kháng sinh Hapacol 650mg', '3', '', 'Bù lại số lượng hàng lỗi từ lô trước',
+    'In bù cho LSX 01-2503-00062 = 2.450 cái - Hàng không được thiếu số lượng',
+    52000, -450, 2450, 2600, 180, 50, 650, 125.00, 62.00, 18.00, 630.00, 460.00, 4, 3,
+    'Chiến lược', 'Couches Hàn Quốc', 320, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Đang sản xuất'
+),
+-- Dữ liệu 7
+(
+    '2025-03-18', '01-2503-00076', '25.03.016.04', 'SLM-00759NCB-01', '2025-03-15', '2025-04-05',
+    'SLM-00759NCB-01-2b', 'Thường', '1852367', 'Công ty CP NCB Việt Nam', 
+    'Hộp bánh trung thu NCB Premium', '1', '', 'Sản phẩm mới',
+    'Chú ý in theo bản thiết kế mới - Kiểm tra hình ảnh chi tiết - Giấy đủ độ bóng',
+    30000, 0, 30000, 32000, 280, 70, 3200, 280.00, 280.00, 60.00, 800.00, 620.00, 8, 6,
+    'Thường', 'Ivory NingBo', 350, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Chờ triển khai'
+),
+-- Dữ liệu 8
+(
+    '2025-03-20', '01-2503-00077', '25.03.017.01', 'SLM-00847ABT-05', '2025-03-18', '2025-04-10',
+    'SLM-00847ABT-05-9b', 'Đại trà', '2456789', 'Công ty TNHH Abbott Việt Nam', 
+    'Hộp sữa bột Ensure Gold 400g', '5', '', 'Hàng xuất khẩu',
+    'In theo tiêu chuẩn FDA - Cẩn thận trong khâu ép kim - Bao bì đặc biệt chống ẩm',
+    60000, 0, 60000, 63500, 450, 85, 6350, 220.00, 150.00, 80.00, 720.00, 540.00, 12, 5,
+    'VIP', 'Duplex Nhật', 400, 'Xả-Xén-In-Bế-Dán-Ép kim-Đóng thùng', 'Đang sản xuất'
+),
+-- Dữ liệu 9
+(
+    '2025-03-21', '01-2503-00078', '25.03.018.02', 'SLM-00925NES-02', '2025-03-19', '2025-04-15',
+    'SLM-00925NES-02-6b', 'Đại trà', '3215478', 'Công ty TNHH Nestlé Việt Nam', 
+    'Hộp bánh ngũ cốc Milo 250g', '2', '', 'Thay đổi bao bì theo ECN mới',
+    'In theo màu Pantone chuẩn - Chú ý độ bóng và độ bám mực - Kiểm tra QR code quét được',
+    75000, 0, 75000, 78000, 500, 80, 7800, 180.00, 120.00, 30.00, 700.00, 520.00, 6, 5,
+    'VIP', 'Ivory NingBo', 350, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Chờ triển khai'
+),
+-- Dữ liệu 10
+(
+    '2025-03-22', '01-2503-00079', 'YCM.8365.3', 'SLM-00371DKL-04', '2025-03-20', '2025-03-25',
+    'SLM-00371DKL-04-1b', 'Mẫu', '2658741', 'Công ty CP Dầu khí Long Sơn', 
+    'Hộp đựng sản phẩm hóa dầu 500ml', '4', '', 'Khách cần mẫu gấp',
+    'In màu logo chuẩn theo pantone 287C - Cần 5 bộ mẫu hoàn chỉnh - Kiểm tra độ bền của hộp',
+    0, 0, 40, 300, 0, 750, 50, 160.00, 90.00, 70.00, 660.00, 480.00, 5, 3,
+    'Chiến lược', 'Duplex Hanson', 450, 'Xả-Xén-In-Bế-Dán', 'Chờ triển khai'
+),
+-- Dữ liệu 11
+(
+    '2025-03-23', '01-2503-00080', '25.03.019.03', 'SLM-00639PIZ-02', '2025-03-21', '2025-04-05',
+    'SLM-00639PIZ-02-5b', 'Thường', '1958742', 'Công ty CP Pizza Express', 
+    'Hộp đựng bánh pizza size L', '2', '', 'Giữ nguyên thiết kế cũ',
+    'Chất lượng giấy phải đạt tiêu chuẩn an toàn thực phẩm - Kiểm tra độ cứng của hộp sau bế',
+    40000, 5000, 35000, 38000, 400, 85, 3800, 400.00, 400.00, 40.00, 850.00, 850.00, 4, 4,
+    'Nhóm 2', 'Duplex Hanson', 400, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Chờ triển khai'
+),
+-- Dữ liệu 12
+(
+    '2025-03-24', '01-2503-00081', '25.03.020.01', 'SLM-00742SMP-03', '2025-03-22', '2025-04-10',
+    'SLM-00742SMP-03-8b', 'Đại trà', '2314587', 'Công ty CP Simpharma', 
+    'Vỉ thuốc Dưỡng Gan 300mg', '3', '', 'Cập nhật thông tin thành phần',
+    'Bổ sung thông tin về tác dụng phụ theo yêu cầu Bộ Y tế - Chú ý font chữ rõ ràng',
+    90000, 0, 90000, 95000, 550, 90, 9500, 110.00, 80.00, 15.00, 660.00, 500.00, 6, 4,
+    'Nhóm 2', 'Couches Hàn Quốc', 280, 'Xả-Xén-In-Bế-Đóng thùng', 'Đang sản xuất'
+),
+-- Dữ liệu 13
+(
+    '2025-03-25', '01-2503-00082', '25.03.021.02', 'SLM-00561SAT-01', '2025-03-23', '2025-04-20',
+    'SLM-00561SAT-01-3b', 'Đại trà', '3654789', 'Công ty TNHH Satori', 
+    'Hộp trà thảo mộc Satori 20 gói', '1', '', 'Sản phẩm mới ra mắt',
+    'In theo bản thiết kế final - Chú ý màu xanh lá đúng pantone 355C - Kiểm tra độ sắc nét hình ảnh',
+    45000, 0, 45000, 48000, 350, 70, 4800, 140.00, 85.00, 60.00, 650.00, 480.00, 8, 5,
+    'Mới', 'Ivory NingBo', 300, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Chờ triển khai'
+),
+-- Dữ liệu 14
+(
+    '2025-03-26', '01-2503-00083', '25.03.022.03', 'SLM-00378AEO-02', '2025-03-24', '2025-04-15',
+    'SLM-00378AEO-02-4b', 'Thường', '1857423', 'Công ty CP Aeon Việt Nam', 
+    'Túi giấy đựng thực phẩm size M', '2', '', 'Thay đổi logo theo CI mới',
+    'Logo mới theo brand guideline 2025 - Kiểm tra độ bền quai xách - In offset 4 màu chuẩn',
+    120000, 10000, 110000, 115000, 600, 100, 11500, 320.00, 220.00, 100.00, 700.00, 600.00, 2, 4,
+    'VIP', 'Kraft', 200, 'Xả-Xén-In-Bế-Dán quai-Đóng thùng', 'Đang sản xuất'
+),
+-- Dữ liệu 15
+(
+    '2025-03-27', '01-2503-00084', '25.03.023.05', 'SLM-00489ACE-06', '2025-03-25', '2025-04-25',
+    'SLM-00489ACE-06-7b', 'Bù', '2541698', 'Công ty TNHH ACE Manufacturing', 
+    'Hộp đựng thiết bị điện tử Model A25', '6', '', 'Bù cho đơn hàng bị lỗi',
+    'In bù cho LSX 01-2503-00055 = 1.850 cái - Đã khắc phục lỗi in mờ ở lô trước',
+    65000, -350, 1850, 2000, 200, 60, 500, 250.00, 180.00, 50.00, 720.00, 520.00, 4, 5,
+    'Thường', 'Duplex Nhật', 350, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Chờ triển khai'
+);
+
+-- Thêm các loại LSX khác nhau để đảm bảo đủ dữ liệu đa dạng
+INSERT INTO production_orders (
+    deployment_date, production_order, po_number, sales_order_code, order_date, delivery_date,
+    internal_product_code, order_type, customer_code, customer_name, product_name, version,
+    not_deployed_reason, sales_note, customer_production_note, order_quantity, inventory,
+    required_quantity, deployed_quantity, offset_waste, waste, sheet_count, product_length,
+    product_width, product_height, paper_length, paper_width, part_count, color_count,
+    customer_group, paper_type, paper_weight, work_stage, status
+) VALUES
+-- Dữ liệu 16 - LSX Khẩn
+(
+    '2025-03-28', '01-2503-00085', '25.03.024.01', 'SLM-00652KDH-03', '2025-03-26', '2025-04-02',
+    'SLM-00652KDH-03-2b', 'Khẩn', '3214569', 'Công ty TNHH Kim Đồng Hải', 
+    'Hộp thuốc bổ Khoáng đa vi chất', '3', '', 'Khách cần gấp cho chương trình khuyến mãi',
+    'In theo file mới nhất - Ưu tiên hoàn thành sớm nhất có thể - Kiểm tra kỹ màu sắc',
+    15000, 0, 15000, 16500, 200, 70, 1650, 130.00, 90.00, 40.00, 660.00, 450.00, 6, 4,
+    'Chiến lược', 'Couches TQ', 300, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Đang sản xuất'
+),
+-- Dữ liệu 17 - LSX Gia công
+(
+    '2025-03-29', '01-2503-00086', '25.03.025.02', 'SLM-00747PMP-01', '2025-03-27', '2025-04-20',
+    'SLM-00747PMP-01-5b', 'Gia công', '2698745', 'Công ty CP In Phương Mai Phát', 
+    'Vỏ hộp điện thoại Stype T20', '1', '', 'Khách cung cấp file in',
+    'Chỉ gia công bế dán - Mực in và giấy do khách cung cấp - Kiểm tra độ chính xác bế',
+    25000, 0, 25000, 25500, 0, 50, 5100, 160.00, 80.00, 20.00, 600.00, 400.00, 2, 0,
+    'Thường', 'Giấy khách cung cấp', 350, 'Bế-Dán-Đóng thùng', 'Chờ triển khai'
+),
+-- Dữ liệu 18 - LSX Đại trà với số lượng lớn
+(
+    '2025-03-30', '01-2503-00087', '25.03.026.01', 'SLM-00895AMT-04', '2025-03-28', '2025-04-30',
+    'SLM-00895AMT-04-8b', 'Đại trà', '3654127', 'Công ty CP Amtec Electronics', 
+    'Vỏ hộp TV LED 55 inch', '4', '', 'Đơn hàng lớn, cần lập kế hoạch SX kỹ',
+    'In 2 màu Pantone - Chú ý khổ in lớn - Sử dụng giấy Duplex cao cấp - Kiểm tra độ cứng',
+    150000, 0, 150000, 158000, 700, 120, 15800, 1100.00, 700.00, 150.00, 1200.00, 900.00, 4, 2,
+    'VIP', 'Duplex Hanson', 500, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Chờ triển khai'
+),
+-- Dữ liệu 19 - LSX Bù số lượng nhỏ
+(
+    '2025-03-31', '01-2503-00088', '25.03.027.03', 'SLM-00426THV-02', '2025-03-29', '2025-04-05',
+    'SLM-00426THV-02-3b', 'Bù', '1952368', 'Công ty TNHH Thành Hưng Việt', 
+    'Hộp đựng thực phẩm bảo quản 500g', '2', '', 'Bù số lượng thiếu từ lô trước',
+    'In bù cho LSX 01-2503-00042 = 850 cái - In giống hệt mẫu đã duyệt',
+    35000, -850, 850, 900, 100, 50, 225, 200.00, 150.00, 60.00, 640.00, 480.00, 4, 4,
+    'Nhóm 3', 'Duplex Nhật', 300, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Chờ triển khai'
+),
+-- Dữ liệu 20 - LSX Mẫu với yêu cầu đặc biệt
+(
+    '2025-04-01', '01-2504-00089', 'YCM.8520.2', 'SLM-00569CPP-01', '2025-03-30', '2025-04-05',
+    'SLM-00569CPP-01-1b', 'Mẫu', '2841596', 'Công ty TNHH Cosmetic Plus',
+    'Hộp mỹ phẩm kem dưỡng da Premium', '1', '',
+    'Mẫu cho sản phẩm mới sắp ra mắt', 'In trên giấy bóng cao cấp - Ép kim vàng - Cần 15 bộ mẫu',
+    0, 0, 100, 300, 0, 200, 75, 90.00, 90.00, 30.00, 640.00, 450.00, 6, 6,
+    'VIP', 'Ivory Cao cấp', 400, 'Xả-Xén-In-Bế-Dán-Ép kim', 'Đang sản xuất'
+); 

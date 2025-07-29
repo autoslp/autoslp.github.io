@@ -1,0 +1,59 @@
+-- Dữ liệu mẫu cho bảng production_orders
+-- Tạo thêm dữ liệu mẫu tương tự 4 dữ liệu mẫu trong file SQL
+
+INSERT INTO production_orders (
+    deployment_date, production_order, po_number, sales_order_code, order_date, delivery_date,
+    internal_product_code, order_type, customer_code, customer_name, product_name, version,
+    not_deployed_reason, sales_note, customer_production_note, order_quantity, inventory,
+    required_quantity, deployed_quantity, offset_waste, waste, sheet_count, product_length,
+    product_width, product_height, paper_length, paper_width, part_count, color_count,
+    customer_group, paper_type, paper_weight, work_stage, status
+) VALUES 
+(
+    '2025-03-10', '01-2503-00070', '25.03.011.03', 'SLM-00568MEV-01', '2025-03-08', '2025-03-25',
+    'SLM-00568MEV-01-12b', 'Thường', '3245782', 'Công ty TNHH Dược phẩm Mekophar', 
+    'Hộp thuốc Mekophar PainRelief 500mg', '2', '', 'Cần giao gấp trong tuần',
+    'Điều chỉnh màu theo mẫu mới - Sản xuất theo tiêu chuẩn GMP - Đóng gói riêng biệt',
+    25000, 0, 25000, 26500, 320, 60, 2650, 152.00, 95.00, 25.00, 620.00, 440.00, 12, 4,
+    'VIP', 'Duplex Nhật', 300, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Chờ triển khai'
+),
+(
+    '2025-03-11', '01-2503-00071', '25.03.012.01', 'SLM-00734TRP-03', '2025-03-09', '2025-03-20',
+    'SLM-00734TRP-03-5b', 'Khẩn', '2781456', 'Công ty CP Dược Traphaco', 
+    'Vỉ thuốc Boganic 250mg', '3', '', 'Khách đề nghị giao sớm hơn dự kiến',
+    'Thêm thông tin về hoạt chất - Quy cách đóng gói mới theo mẫu đã duyệt',
+    50000, 1200, 48800, 52000, 400, 65, 5200, 90.00, 60.00, 10.00, 650.00, 480.00, 10, 3,
+    'Chiến lược', 'Couches Hàn Quốc', 250, 'Xả-Xén-In-Bế-Đóng thùng', 'Đang sản xuất'
+),
+(
+    '2025-03-12', '01-2503-00072', '25.03.013.05', 'SLM-00389UNI-04', '2025-03-10', '2025-04-01',
+    'SLM-00389UNI-04-8b', 'Đại trà', '1956234', 'Công ty TNHH Unilever Việt Nam', 
+    'Hộp kem đánh răng Close-up 200g', '4', '', 'Như lô gần nhất - Kiểm tra độ bóng',
+    'In theo màu Pantone chuẩn - Bổ sung mã QR mới theo ECN 7825 - Kiểm tra định lượng giấy',
+    100000, 0, 100000, 106000, 600, 80, 10600, 160.00, 65.00, 32.00, 720.00, 540.00, 6, 5,
+    'VIP', 'Ivory NingBo', 350, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Đang sản xuất'
+),
+(
+    '2025-03-12', '01-2503-00073', 'YCM.8245.1', 'SLM-00125PVN-02', '2025-03-11', '2025-03-15',
+    'SLM-00125PVN-02-3b', 'Mẫu', '2854367', 'Công ty CP Dược phẩm Pharmavina',
+    'Hộp thuốc Paracetamol 500mg', '2', '',
+    'Khách yêu cầu mẫu trước khi sản xuất đại trà', 'Mẫu cần đạt chuẩn màu - In 10 bộ mẫu để duyệt',
+    0, 0, 50, 500, 0, 1000, 100, 120.00, 75.00, 20.00, 640.00, 480.00, 8, 4,
+    'Thường', 'Couches TQ', 280, 'Xả-Xén-In-Bế-Dán', 'Chờ triển khai'
+),
+(
+    '2025-03-15', '01-2503-00074', '25.03.014.02', 'SLM-00472VNM-01', '2025-03-12', '2025-03-30',
+    'SLM-00472VNM-01-7b', 'Đại trà', '3642189', 'Công ty CP Sữa Việt Nam', 
+    'Hộp sữa tiệt trùng Vinamilk 180ml', '1', '', 'Màu sắc theo bộ nhận diện mới',
+    'Logo mới theo hướng dẫn ECN 9253 - Chú ý màu đỏ chuẩn theo Pantone 485C - Kiểm tra tách màu',
+    80000, 2000, 78000, 85000, 520, 75, 8500, 85.00, 65.00, 180.00, 680.00, 500.00, 8, 5,
+    'VIP', 'Duplex Hanson', 400, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Chờ triển khai'
+),
+(
+    '2025-03-16', '01-2503-00075', '25.03.015.01', 'SLM-00856DHG-03', '2025-03-13', '2025-03-28',
+    'SLM-00856DHG-03-4b', 'Bù', '1547823', 'Công ty CP Dược Hậu Giang', 
+    'Hộp thuốc kháng sinh Hapacol 650mg', '3', '', 'Bù lại số lượng hàng lỗi từ lô trước',
+    'In bù cho LSX 01-2503-00062 = 2.450 cái - Hàng không được thiếu số lượng',
+    52000, -450, 2450, 2600, 180, 50, 650, 125.00, 62.00, 18.00, 630.00, 460.00, 4, 3,
+    'Chiến lược', 'Couches Hàn Quốc', 320, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Đang sản xuất'
+); 

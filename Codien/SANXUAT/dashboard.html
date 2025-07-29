@@ -3,122 +3,821 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Carton Manager</title>
-  <link rel="stylesheet" href="styles/main.css">
+  <title>Dashboard - Quản lý sản xuất</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 280px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+    
+    .sidebar.collapsed {
+      width: 70px;
+    }
+    
+    .sidebar-content {
+      padding: 1rem;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .sidebar-content::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .sidebar-content::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.1);
+    }
+    
+    .sidebar-content::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.3);
+      border-radius: 3px;
+    }
+    
+    .sidebar-content::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.5);
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+    
+    .sidebar-toggle {
+      position: absolute;
+      top: 50%;
+      right: -35px;
+      transform: translateY(-50%);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: none;
+      background: #667eea;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 1001;
+    }
+    
+    .sidebar.collapsed .sidebar-toggle {
+      right: -35px;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .sidebar.collapsed .sidebar-brand h5 {
+      display: none;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .sidebar-nav .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      border-radius: 0.5rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    
+    .sidebar.collapsed .sidebar-nav .nav-link {
+      justify-content: center;
+      padding: 0.75rem;
+    }
+    
+    .sidebar.collapsed .sidebar-nav .nav-link .nav-text {
+      display: none;
+    }
+    
+    .sidebar-nav .nav-link:hover {
+      background: rgba(255,255,255,0.1);
+      color: white;
+    }
+    
+    .sidebar-nav .nav-link.active {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      text-align: center;
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+    
+    .sidebar.collapsed .sidebar-footer {
+      display: none;
+    }
+
+    /* Main content */
+    .main-content {
+      margin-left: 280px;
+      min-height: 100vh;
+      background-color: #f8f9fa;
+      transition: margin-left 0.3s ease;
+      padding: 2rem;
+    }
+    
+    .main-content.sidebar-collapsed {
+      margin-left: 70px;
+    }
+
+    /* Page header */
+    .page-header {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    /* Stats cards */
+    .stat-card {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border: none;
+      height: 100%;
+    }
+    
+    .stat-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+      color: #6c757d;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-change {
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    
+    .stat-change.positive {
+      color: #28a745;
+    }
+    
+    .stat-change.negative {
+      color: #dc3545;
+    }
+
+    /* Chart cards */
+    .chart-card {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border: none;
+      height: 400px;
+    }
+    
+    .chart-container {
+      position: relative;
+      height: 300px;
+    }
+
+    /* Quick actions */
+    .quick-action {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border: none;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s ease;
+      display: block;
+    }
+    
+    .quick-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      color: inherit;
+      text-decoration: none;
+    }
+    
+    .quick-action-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Recent orders table */
+    .table-card {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border: none;
+    }
+    
+    .table {
+      margin-bottom: 0;
+    }
+    
+    .table th {
+      border-top: none;
+      font-weight: 600;
+      color: #495057;
+      font-size: 0.9rem;
+    }
+    
+    .table td {
+      font-size: 0.9rem;
+      vertical-align: middle;
+    }
+    
+    .status-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      
+      .sidebar.show {
+        transform: translateX(0);
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+      
+      .main-content.sidebar-collapsed {
+        margin-left: 0;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="sidebar">
-    <div class="logo">
-      <img src="images/logo.svg" alt="Logo" style="height:32px;margin-right:10px;"> Carton Manager
+  <!-- Sidebar -->
+  <div class="sidebar collapsed" id="sidebar">
+    <div class="sidebar-content">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <i class="bi bi-gear-fill text-warning"></i>
+          <h5 class="mb-0">Production Manager</h5>
+        </div>
+        <button class="btn btn-primary sidebar-toggle" onclick="toggleSidebar()" id="toggleBtn" title="Thu nhỏ/Mở rộng">
+          <i class="bi bi-chevron-right" id="toggleIcon"></i>
+        </button>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-link active">
+          <i class="bi bi-house"></i>
+          <span class="nav-text">Dashboard</span>
+        </a>
+        <a href="production-orders.html" class="nav-link">
+          <i class="bi bi-clipboard-data"></i>
+          <span class="nav-text">Lệnh sản xuất</span>
+        </a>
+        <a href="progress.html" class="nav-link">
+          <i class="bi bi-lightning"></i>
+          <span class="nav-text">Tiến độ sản xuất</span>
+        </a>
+        <a href="materials.html" class="nav-link">
+          <i class="bi bi-box-seam"></i>
+          <span class="nav-text">Vật tư</span>
+        </a>
+        <a href="workflow.html" class="nav-link">
+          <i class="bi bi-arrow-repeat"></i>
+          <span class="nav-text">Quy trình</span>
+        </a>
+        <a href="stage-xa.html" class="nav-link">
+          <i class="bi bi-bullseye"></i>
+          <span class="nav-text">Công đoạn XẢ</span>
+        </a>
+        <a href="stage-xen.html" class="nav-link">
+          <i class="bi bi-scissors"></i>
+          <span class="nav-text">Công đoạn XÉN</span>
+        </a>
+        <a href="stage-in.html" class="nav-link">
+          <i class="bi bi-printer"></i>
+          <span class="nav-text">Công đoạn IN</span>
+        </a>
+        <a href="stage-boi.html" class="nav-link">
+          <i class="bi bi-file-text"></i>
+          <span class="nav-text">Công đoạn BỒI</span>
+        </a>
+        <a href="stage-be.html" class="nav-link">
+          <i class="bi bi-knife"></i>
+          <span class="nav-text">Công đoạn BẾ</span>
+        </a>
+        <a href="stage-dan.html" class="nav-link">
+          <i class="bi bi-link"></i>
+          <span class="nav-text">Công đoạn DÁN</span>
+        </a>
+        <a href="stage-kho.html" class="nav-link">
+          <i class="bi bi-building"></i>
+          <span class="nav-text">KHO THÀNH PHẨM</span>
+        </a>
+        <a href="reports.html" class="nav-link">
+          <i class="bi bi-graph-up"></i>
+          <span class="nav-text">Báo cáo sản xuất</span>
+        </a>
+      </nav>
+      
+      <div class="sidebar-footer">
+        © 2025 Production Manager
+      </div>
     </div>
-    <nav>
-      <ul>
-        <li><a href="dashboard.html" class="active">Dashboard</a></li>
-        <li><a href="orders.html">Lệnh sản xuất</a></li>
-        <li><a href="progress.html">Tiến độ</a></li>
-        <li><a href="materials.html">Vật tư</a></li>
-        <li><a href="workflow.html">Công đoạn</a></li>
-        <li><a href="reports.html">Báo cáo</a></li>
-        <li><a href="stage-xa.html">🎯 Công đoạn XẢ</a></li>
-        <li><a href="stage-xen.html">✂️ Công đoạn XÉN</a></li>
-        <li><a href="stage-in.html">🖨️ Công đoạn IN</a></li>
-        <li><a href="stage-boi.html">📄 Công đoạn BỒI</a></li>
-        <li><a href="stage-be.html">🔪 Công đoạn BẾ</a></li>
-        <li><a href="stage-dan.html">🔗 Công đoạn DÁN</a></li>
-        <li><a href="stage-kho.html">🏭 KHO THÀNH PHẨM</a></li>
-      </ul>
-    </nav>
-    <div style="padding:16px 24px 0 24px; font-size:13px; color:#cbd5e1;">© 2025 Carton Manager</div>
   </div>
-  <div class="main">
-    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
-      <h1>Dashboard</h1>
-      <div>
-        <span id="currentUser" style="font-weight:500;"></span>
-        <button class="btn btn-danger" id="logoutBtn">Đăng xuất</button>
-      </div>
-    </header>
-    <div class="card">
-      <h2>Tổng quan sản xuất</h2>
-      <div style="display:flex;gap:32px;flex-wrap:wrap;">
-        <div>
-          <div style="font-size:32px;font-weight:700;color:var(--primary);" id="totalOrders">0</div>
-          <div>Lệnh sản xuất</div>
+
+  <!-- Main Content -->
+  <div class="main-content sidebar-collapsed" id="mainContent">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col">
+          <h1><i class="bi bi-speedometer2 me-2"></i>Dashboard Sản xuất</h1>
+          <p class="mb-0">Tổng quan hoạt động sản xuất hôm nay</p>
         </div>
-        <div>
-          <div style="font-size:32px;font-weight:700;color:var(--success);" id="ordersDone">0</div>
-          <div>Hoàn thành</div>
-        </div>
-        <div>
-          <div style="font-size:32px;font-weight:700;color:var(--warning);" id="ordersInProgress">0</div>
-          <div>Đang sản xuất</div>
-        </div>
-        <div>
-          <div style="font-size:32px;font-weight:700;color:var(--danger);" id="ordersError">0</div>
-          <div>Lỗi/Sự cố</div>
+        <div class="col-auto">
+          <div class="text-end">
+            <div class="fw-bold" id="currentDate"></div>
+            <small class="opacity-75" id="currentTime"></small>
+          </div>
         </div>
       </div>
     </div>
-    <div class="card">
-      <h2>Biểu đồ sản xuất (Demo)</h2>
-      <canvas id="chart1" height="120"></canvas>
-    </div>
-    <div class="card">
-      <h2>Thao tác nhanh</h2>
-      <div style="display:flex;gap:16px;flex-wrap:wrap;">
-        <a href="orders.html" class="btn btn-primary">📋 Tạo lệnh sản xuất</a>
-        <a href="progress.html" class="btn btn-success">⚡ Quản lý tiến độ</a>
-        <a href="materials.html" class="btn btn-secondary">📦 Quản lý vật tư</a>
-        <a href="reports.html" class="btn btn-secondary">📊 Xem báo cáo</a>
+
+    <!-- Stats Overview -->
+    <div class="row mb-4">
+      <div class="col-xl-3 col-lg-6 mb-3">
+        <div class="stat-card">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon bg-primary text-white">
+              <i class="bi bi-clipboard-data"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="stat-value text-primary" id="totalOrders">0</div>
+              <div class="stat-label">Tổng lệnh sản xuất</div>
+              <div class="stat-change positive">
+                <i class="bi bi-arrow-up"></i> +12% so với hôm qua
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-xl-3 col-lg-6 mb-3">
+        <div class="stat-card">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon bg-warning text-white">
+              <i class="bi bi-clock"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="stat-value text-warning" id="inProgressOrders">0</div>
+              <div class="stat-label">Đang sản xuất</div>
+              <div class="stat-change positive">
+                <i class="bi bi-arrow-up"></i> +8% so với hôm qua
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-xl-3 col-lg-6 mb-3">
+        <div class="stat-card">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon bg-success text-white">
+              <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="stat-value text-success" id="completedOrders">0</div>
+              <div class="stat-label">Hoàn thành</div>
+              <div class="stat-change positive">
+                <i class="bi bi-arrow-up"></i> +15% so với hôm qua
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-xl-3 col-lg-6 mb-3">
+        <div class="stat-card">
+          <div class="d-flex align-items-center">
+            <div class="stat-icon bg-info text-white">
+              <i class="bi bi-boxes"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="stat-value text-info" id="totalQuantity">0</div>
+              <div class="stat-label">Tổng sản lượng</div>
+              <div class="stat-change positive">
+                <i class="bi bi-arrow-up"></i> +5% so với hôm qua
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="card">
-      <h2>Hoạt động gần đây</h2>
-      <ul id="recentActivities" style="padding-left:18px;"></ul>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+      <div class="col-lg-8 mb-4">
+        <div class="chart-card">
+          <h5 class="mb-3"><i class="bi bi-bar-chart me-2"></i>Sản lượng theo ngày</h5>
+          <div class="chart-container">
+            <canvas id="productionChart"></canvas>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4 mb-4">
+        <div class="chart-card">
+          <h5 class="mb-3"><i class="bi bi-pie-chart me-2"></i>Trạng thái lệnh SX</h5>
+          <div class="chart-container">
+            <canvas id="statusChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions & Recent Orders -->
+    <div class="row mb-4">
+      <div class="col-lg-4 mb-4">
+        <div class="table-card">
+          <h5 class="mb-3"><i class="bi bi-lightning me-2"></i>Thao tác nhanh</h5>
+          <div class="row">
+            <div class="col-6 mb-3">
+              <a href="production-orders.html" class="quick-action">
+                <div class="quick-action-icon bg-primary text-white">
+                  <i class="bi bi-plus-circle"></i>
+                </div>
+                <div class="fw-bold">Tạo lệnh SX</div>
+                <small class="text-muted">Thêm lệnh sản xuất mới</small>
+              </a>
+            </div>
+            <div class="col-6 mb-3">
+              <a href="progress.html" class="quick-action">
+                <div class="quick-action-icon bg-success text-white">
+                  <i class="bi bi-eye"></i>
+                </div>
+                <div class="fw-bold">Theo dõi</div>
+                <small class="text-muted">Xem tiến độ sản xuất</small>
+              </a>
+            </div>
+            <div class="col-6 mb-3">
+              <a href="materials.html" class="quick-action">
+                <div class="quick-action-icon bg-warning text-white">
+                  <i class="bi bi-box"></i>
+                </div>
+                <div class="fw-bold">Vật tư</div>
+                <small class="text-muted">Quản lý vật tư</small>
+              </a>
+            </div>
+            <div class="col-6 mb-3">
+              <a href="reports.html" class="quick-action">
+                <div class="quick-action-icon bg-info text-white">
+                  <i class="bi bi-file-earmark-text"></i>
+                </div>
+                <div class="fw-bold">Báo cáo</div>
+                <small class="text-muted">Xem báo cáo</small>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-8 mb-4">
+        <div class="table-card">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Lệnh sản xuất gần đây</h5>
+            <a href="production-orders.html" class="btn btn-outline-primary btn-sm">Xem tất cả</a>
+          </div>
+          <div class="table-responsive">
+            <table class="table" id="recentOrdersTable">
+              <thead>
+                <tr>
+                  <th>Mã LSX</th>
+                  <th>Sản phẩm</th>
+                  <th>Khách hàng</th>
+                  <th>Số lượng</th>
+                  <th>Trạng thái</th>
+                  <th>Ngày tạo</th>
+                </tr>
+              </thead>
+              <tbody id="recentOrdersBody">
+                <!-- Dynamic content -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage Status -->
+    <div class="row">
+      <div class="col-12">
+        <div class="table-card">
+          <h5 class="mb-3"><i class="bi bi-diagram-3 me-2"></i>Tình trạng các công đoạn</h5>
+          <div class="row" id="stageStatus">
+            <!-- Dynamic content -->
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-  <script src="js/app.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
   <script>
-    // Demo dữ liệu
-    const orders = App.load('orders', [
-      {id:'LSX001', name:'Hộp carton A4', status:'done'},
-      {id:'LSX002', name:'Hộp carton B5', status:'inprogress'},
-      {id:'LSX003', name:'Hộp carton C3', status:'inprogress'},
-      {id:'LSX004', name:'Hộp carton D2', status:'error'}
-    ]);
-    document.getElementById('totalOrders').textContent = orders.length;
-    document.getElementById('ordersDone').textContent = orders.filter(o=>o.status==='done').length;
-    document.getElementById('ordersInProgress').textContent = orders.filter(o=>o.status==='inprogress').length;
-    document.getElementById('ordersError').textContent = orders.filter(o=>o.status==='error').length;
-    // Biểu đồ demo
-    new Chart(document.getElementById('chart1').getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: orders.map(o=>o.id),
-        datasets: [{
-          label: 'Tiến độ (%)',
-          data: [100, 60, 40, 10],
-          backgroundColor: ['#10b981','#f59e0b','#f59e0b','#ef4444']
-        }]
-      },
-      options: {responsive:true,scales:{y:{beginAtZero:true,max:100}}}
-    });
-    // Hoạt động gần đây demo
-    const activities = [
-      'Tạo lệnh sản xuất LSX004',
-      'Cập nhật tiến độ công đoạn IN OFFSET cho LSX002',
-      'Nhập vật tư cho LSX003',
-      'Báo lỗi công đoạn BẾ cho LSX004'
-    ];
-    document.getElementById('recentActivities').innerHTML = activities.map(a=>`<li>${a}</li>`).join('');
-    // Đăng xuất
-    document.getElementById('logoutBtn').onclick = function() {
-      App.remove('currentUser');
-      window.location.href = 'index.html';
+    // Sample data for dashboard
+    const dashboardData = {
+      totalOrders: 45,
+      inProgressOrders: 18,
+      completedOrders: 22,
+      totalQuantity: 125000,
+      recentOrders: [
+        {
+          id: 'LSX-2025-001',
+          productName: 'Hộp carton A4',
+          customerName: 'Công ty ABC',
+          quantity: 1000,
+          status: 'Đang sản xuất',
+          date: '2025-01-15'
+        },
+        {
+          id: 'LSX-2025-002',
+          productName: 'Thùng carton B5',
+          customerName: 'Công ty XYZ',
+          quantity: 2000,
+          status: 'Hoàn thành',
+          date: '2025-01-14'
+        },
+        {
+          id: 'LSX-2025-003',
+          productName: 'Hộp đựng giày',
+          customerName: 'Shop Giày DEF',
+          quantity: 500,
+          status: 'Chờ triển khai',
+          date: '2025-01-13'
+        }
+      ],
+      stages: [
+        { name: 'XẢ', active: 5, total: 8, percentage: 62.5 },
+        { name: 'XÉN', active: 3, total: 6, percentage: 50 },
+        { name: 'IN', active: 8, total: 10, percentage: 80 },
+        { name: 'BỒI', active: 4, total: 7, percentage: 57 },
+        { name: 'BẾ', active: 6, total: 8, percentage: 75 },
+        { name: 'DÁN', active: 2, total: 5, percentage: 40 },
+        { name: 'KHO', active: 12, total: 15, percentage: 80 }
+      ]
     };
-    // Hiển thị user demo
-    document.getElementById('currentUser').textContent = App.load('currentUser','Quản trị viên');
+
+    // Initialize dashboard
+    function initDashboard() {
+      updateDateTime();
+      updateStats();
+      updateRecentOrders();
+      updateStageStatus();
+      initCharts();
+      
+      // Update time every second
+      setInterval(updateDateTime, 1000);
+    }
+
+    // Update date and time
+    function updateDateTime() {
+      const now = new Date();
+      const dateOptions = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      };
+      const timeOptions = {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      };
+      
+      document.getElementById('currentDate').textContent = now.toLocaleDateString('vi-VN', dateOptions);
+      document.getElementById('currentTime').textContent = now.toLocaleTimeString('vi-VN', timeOptions);
+    }
+
+    // Update statistics
+    function updateStats() {
+      document.getElementById('totalOrders').textContent = dashboardData.totalOrders;
+      document.getElementById('inProgressOrders').textContent = dashboardData.inProgressOrders;
+      document.getElementById('completedOrders').textContent = dashboardData.completedOrders;
+      document.getElementById('totalQuantity').textContent = formatNumber(dashboardData.totalQuantity);
+    }
+
+    // Update recent orders table
+    function updateRecentOrders() {
+      const tbody = document.getElementById('recentOrdersBody');
+      tbody.innerHTML = '';
+      
+      dashboardData.recentOrders.forEach(order => {
+        const statusClass = getStatusClass(order.status);
+        const row = `
+          <tr>
+            <td><strong>${order.id}</strong></td>
+            <td>${order.productName}</td>
+            <td>${order.customerName}</td>
+            <td>${formatNumber(order.quantity)}</td>
+            <td><span class="badge ${statusClass}">${order.status}</span></td>
+            <td>${formatDate(order.date)}</td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
+      });
+    }
+
+    // Update stage status
+    function updateStageStatus() {
+      const container = document.getElementById('stageStatus');
+      container.innerHTML = '';
+      
+      dashboardData.stages.forEach(stage => {
+        const progressColor = stage.percentage >= 80 ? 'success' : 
+                              stage.percentage >= 60 ? 'warning' : 'danger';
+        
+        const stageCard = `
+          <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body text-center">
+                <h5 class="text-primary">${stage.name}</h5>
+                <div class="display-6 fw-bold">${stage.active}/${stage.total}</div>
+                <div class="progress mt-2 mb-3" style="height: 8px;">
+                  <div class="progress-bar bg-${progressColor}" style="width: ${stage.percentage}%"></div>
+                </div>
+                <small class="text-muted">${stage.percentage}% hoạt động</small>
+              </div>
+            </div>
+          </div>
+        `;
+        container.innerHTML += stageCard;
+      });
+    }
+
+    // Initialize charts
+    function initCharts() {
+      // Production chart
+      const productionCtx = document.getElementById('productionChart').getContext('2d');
+      new Chart(productionCtx, {
+        type: 'line',
+        data: {
+          labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
+          datasets: [{
+            label: 'Sản lượng',
+            data: [12000, 15000, 18000, 14000, 16000, 20000, 8000],
+            borderColor: '#28a745',
+            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return formatNumber(value);
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // Status chart
+      const statusCtx = document.getElementById('statusChart').getContext('2d');
+      new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Đang sản xuất', 'Hoàn thành', 'Chờ triển khai', 'Đã hủy'],
+          datasets: [{
+            data: [18, 22, 4, 1],
+            backgroundColor: [
+              '#ffc107',
+              '#28a745',
+              '#17a2b8',
+              '#dc3545'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    }
+
+    // Utility functions
+    function formatNumber(num) {
+      return num.toLocaleString('vi-VN');
+    }
+
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('vi-VN');
+    }
+
+    function getStatusClass(status) {
+      switch(status) {
+        case 'Chờ triển khai': return 'bg-info text-dark';
+        case 'Đang sản xuất': return 'bg-warning text-dark';
+        case 'Hoàn thành': return 'bg-success';
+        case 'Đã hủy': return 'bg-danger';
+        default: return 'bg-secondary';
+      }
+    }
+
+    // Toggle sidebar
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const toggleIcon = document.getElementById('toggleIcon');
+      
+      sidebar.classList.toggle('collapsed');
+      mainContent.classList.toggle('sidebar-collapsed');
+      
+      if (sidebar.classList.contains('collapsed')) {
+        toggleIcon.innerHTML = '<i class="bi bi-chevron-right"></i>';
+      } else {
+        toggleIcon.innerHTML = '<i class="bi bi-chevron-left"></i>';
+      }
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', initDashboard);
   </script>
 </body>
 </html> 

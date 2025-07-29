@@ -1,0 +1,131 @@
+-- Script để tạo 500 lệnh INSERT cho bảng production_orders
+-- Dành cho môi trường MySQL/MariaDB
+
+-- Cách sử dụng: 
+-- 1. Lưu file này dưới dạng .sql
+-- 2. Chạy file SQL trong MySQL Workbench hoặc terminal MySQL
+-- 3. Script sẽ tạo ra 500 lệnh INSERT có thể sao chép và dán vào file SQL khác
+
+-- Chuẩn bị các mảng dữ liệu mẫu
+SET @order_types = 'Thường,Khẩn,Mẫu,Gia công,Đại trà,Bù';
+SET @customer_groups = 'VIP,Thường,Mới,Chiến lược,Nhóm 2,Nhóm 3,Nhóm 4';
+SET @customers = 'Công ty TNHH Dược phẩm Mekophar,Công ty CP Dược Traphaco,Công ty TNHH Unilever Việt Nam,Công ty CP Dược phẩm Pharmavina,Công ty CP Sữa Việt Nam,Công ty CP Dược Hậu Giang,Công ty CP NCB Việt Nam,Công ty TNHH Abbott Việt Nam,Công ty TNHH Nestlé Việt Nam,Công ty CP Dầu khí Long Sơn,Công ty CP Pizza Express,Công ty CP Simpharma,Công ty TNHH Satori,Công ty CP Aeon Việt Nam,Công ty TNHH ACE Manufacturing,Công ty TNHH Kim Đồng Hải,Công ty CP In Phương Mai Phát,Công ty CP Amtec Electronics,Công ty TNHH Thành Hưng Việt,Công ty TNHH Cosmetic Plus';
+SET @customer_codes = '3245782,2781456,1956234,2854367,3642189,1547823,1852367,2456789,3215478,2658741,1958742,2314587,3654789,1857423,2541698,3214569,2698745,3654127,1952368,2841596';
+SET @products = 'Hộp thuốc PainRelief 500mg,Vỉ thuốc Boganic 250mg,Hộp kem đánh răng Close-up 200g,Hộp thuốc Paracetamol 500mg,Hộp sữa tiệt trùng 180ml,Hộp thuốc kháng sinh 650mg,Hộp bánh trung thu Premium,Hộp sữa bột Ensure Gold 400g,Hộp bánh ngũ cốc Milo 250g,Hộp đựng sản phẩm hóa dầu 500ml,Hộp đựng bánh pizza size L,Vỉ thuốc Dưỡng Gan 300mg,Hộp trà thảo mộc 20 gói,Túi giấy đựng thực phẩm size M,Hộp đựng thiết bị điện tử Model A25,Hộp thuốc bổ Khoáng đa vi chất,Vỏ hộp điện thoại Model T20,Vỏ hộp TV LED 55 inch,Hộp đựng thực phẩm bảo quản 500g,Hộp mỹ phẩm kem dưỡng da Premium';
+SET @product_prefixes = 'MEV,TRP,UNI,PVN,VNM,DHG,NCB,ABT,NES,DKL,PIZ,SMP,SAT,AEO,ACE,KDH,PMP,AMT,THV,CPP';
+SET @paper_types = 'Duplex Nhật,Duplex Hanson,Ivory NingBo,Couches TQ,Couches Hàn Quốc,Kraft,Ivory Cao cấp,Giấy tái chế,C2S 2 mặt bóng,Giấy kraft lạnh';
+SET @work_stages = 'Xả-Xén-In-Bế-Dán-Đóng thùng,Xả-Xén-In-Bế-Đóng thùng,Xả-Xén-In-Bế-Dán,Xả-Xén-In-Bế-Dán-Ép kim-Đóng thùng,Xả-Xén-In-Bế-Dán quai-Đóng thùng,Bế-Dán-Đóng thùng,Xả-Xén-In-Cán màng-Bế-Đóng thùng';
+SET @statuses = 'Chờ triển khai,Đang sản xuất,Hoàn thành,Đã hủy';
+SET @sales_notes = 'Như lô gần nhất,Cần giao gấp trong tuần,Khách đề nghị giao sớm,Sản phẩm mới,Theo thiết kế đã duyệt,Yêu cầu in đẹp,Đơn hàng ưu tiên,Kiểm tra kỹ màu sắc,Hàng xuất khẩu,Cập nhật thông tin mới';
+SET @prod_notes = 'In theo màu Pantone chuẩn,Chú ý độ sắc nét hình ảnh,Kiểm tra kỹ khâu bế,Bổ sung mã QR mới,Sản xuất theo tiêu chuẩn ISO,Yêu cầu giấy không bị cong vênh,Đảm bảo màu sắc theo mẫu đã duyệt,Kiểm tra kỹ chất lượng in và bế,Đóng gói riêng biệt,Chú ý số lượng đóng thùng';
+
+-- Tạo chuỗi INSERT mẫu cho 500 bản ghi
+WITH RECURSIVE generate_orders(n, order_data) AS (
+  SELECT 1, CONCAT(
+    'INSERT INTO production_orders (\n',
+    '    deployment_date, production_order, po_number, sales_order_code, order_date, delivery_date,\n',
+    '    internal_product_code, order_type, customer_code, customer_name, product_name, version,\n',
+    '    not_deployed_reason, sales_note, customer_production_note, order_quantity, inventory,\n',
+    '    required_quantity, deployed_quantity, offset_waste, waste, sheet_count, product_length,\n',
+    '    product_width, product_height, paper_length, paper_width, part_count, color_count,\n',
+    '    customer_group, paper_type, paper_weight, work_stage, status\n',
+    ') VALUES'
+  )
+  UNION ALL
+  SELECT n + 1, CONCAT(order_data, 
+    IF(n = 1, '', ','), 
+    '\n(',
+    -- Tạo deployment_date: ngày ngẫu nhiên trong phạm vi 6 tháng
+    '\'', DATE_FORMAT(DATE_ADD('2025-01-01', INTERVAL n % 180 DAY), '%Y-%m-%d'), '\', ',
+    -- production_order: định dạng 01-YYMM-XXXXX
+    '\'01-', DATE_FORMAT(DATE_ADD('2025-01-01', INTERVAL n % 180 DAY), '%y%m'), '-', LPAD(n % 100, 5, '0'), '\', ',
+    -- po_number: định dạng YY.MM.XXX.XX
+    '\'', DATE_FORMAT(DATE_ADD('2025-01-01', INTERVAL n % 180 DAY), '%y'), '.', 
+          DATE_FORMAT(DATE_ADD('2025-01-01', INTERVAL n % 180 DAY), '%m'), '.', 
+          LPAD((n % 100), 3, '0'), '.', LPAD((n % 10) + 1, 2, '0'), '\', ',
+    -- sales_order_code: SLM-XXXXXYYY-VV
+    '\'SLM-', LPAD(n % 1000, 5, '0'),
+    SUBSTRING_INDEX(SUBSTRING_INDEX(@product_prefixes, ',', 1 + (n % 20)), ',', -1), '-',
+    LPAD((n % 10) + 1, 2, '0'), '\', ',
+    -- order_date: ngày đặt hàng = deployment_date - 3 ngày
+    '\'', DATE_FORMAT(DATE_ADD('2025-01-01', INTERVAL (n % 180) - 3 DAY), '%Y-%m-%d'), '\', ',
+    -- delivery_date: ngày giao hàng = deployment_date + 15 ngày
+    '\'', DATE_FORMAT(DATE_ADD('2025-01-01', INTERVAL (n % 180) + 15 DAY), '%Y-%m-%d'), '\', ',
+    -- internal_product_code: mã sản phẩm nội bộ
+    '\'SLM-', LPAD(n % 1000, 5, '0'),
+    SUBSTRING_INDEX(SUBSTRING_INDEX(@product_prefixes, ',', 1 + (n % 20)), ',', -1), '-',
+    LPAD((n % 10) + 1, 2, '0'), '-', (n % 9) + 1, 'b\', ',
+    -- order_type: loại lệnh sản xuất
+    '\'', SUBSTRING_INDEX(SUBSTRING_INDEX(@order_types, ',', 1 + (n % 6)), ',', -1), '\', ',
+    -- customer_code: mã khách hàng
+    '\'', SUBSTRING_INDEX(SUBSTRING_INDEX(@customer_codes, ',', 1 + (n % 20)), ',', -1), '\', ',
+    -- customer_name: tên khách hàng
+    '\'', SUBSTRING_INDEX(SUBSTRING_INDEX(@customers, ',', 1 + (n % 20)), ',', -1), '\', ',
+    -- product_name: tên sản phẩm
+    '\'', SUBSTRING_INDEX(SUBSTRING_INDEX(@products, ',', 1 + (n % 20)), ',', -1), '\', ',
+    -- version: phiên bản
+    '\'', (n % 10) + 1, '\', ',
+    -- not_deployed_reason: lý do chưa triển khai
+    '\'\', ',
+    -- sales_note: ghi chú đơn hàng
+    '\'', SUBSTRING_INDEX(SUBSTRING_INDEX(@sales_notes, ',', 1 + (n % 10)), ',', -1), '\', ',
+    -- customer_production_note: ghi chú lệnh sản xuất
+    '\'', SUBSTRING_INDEX(SUBSTRING_INDEX(@prod_notes, ',', 1 + (n % 10)), ',', -1),
+    ' - ', SUBSTRING_INDEX(SUBSTRING_INDEX(@prod_notes, ',', 1 + ((n + 5) % 10)), ',', -1), '\', ',
+    -- order_quantity: số lượng đơn hàng
+    CASE WHEN SUBSTRING_INDEX(SUBSTRING_INDEX(@order_types, ',', 1 + (n % 6)), ',', -1) = 'Mẫu' THEN '0' 
+         ELSE 10000 + (n * 251) % 90000 END, ', ',
+    -- inventory: tồn kho
+    CASE WHEN SUBSTRING_INDEX(SUBSTRING_INDEX(@order_types, ',', 1 + (n % 6)), ',', -1) = 'Mẫu' THEN '0'
+         WHEN SUBSTRING_INDEX(SUBSTRING_INDEX(@order_types, ',', 1 + (n % 6)), ',', -1) = 'Bù' THEN CONCAT('-', 100 + (n * 17) % 900)
+         ELSE (n * 47) % 5000 END, ', ',
+    -- required_quantity: số lượng cần sản xuất
+    CASE WHEN SUBSTRING_INDEX(SUBSTRING_INDEX(@order_types, ',', 1 + (n % 6)), ',', -1) = 'Mẫu' THEN 10 + (n * 7) % 90
+         WHEN SUBSTRING_INDEX(SUBSTRING_INDEX(@order_types, ',', 1 + (n % 6)), ',', -1) = 'Bù' THEN 500 + (n * 73) % 2500
+         ELSE 10000 + (n * 251) % 90000 - ((n * 47) % 5000) END, ', ',
+    -- deployed_quantity: số lượng triển khai
+    CASE WHEN SUBSTRING_INDEX(SUBSTRING_INDEX(@order_types, ',', 1 + (n % 6)), ',', -1) = 'Mẫu' THEN 100 + (n * 23) % 400
+         WHEN SUBSTRING_INDEX(SUBSTRING_INDEX(@order_types, ',', 1 + (n % 6)), ',', -1) = 'Bù' THEN 
+              CEILING(1.05 * (500 + (n * 73) % 2500))
+         ELSE CEILING(1.05 * (10000 + (n * 251) % 90000 - ((n * 47) % 5000))) END, ', ',
+    -- offset_waste: hao phí in offset
+    CASE WHEN SUBSTRING_INDEX(SUBSTRING_INDEX(@order_types, ',', 1 + (n % 6)), ',', -1) = 'Mẫu' THEN '0'
+         ELSE 100 + (n * 11) % 500 END, ', ',
+    -- waste: hao phí
+    CASE WHEN SUBSTRING_INDEX(SUBSTRING_INDEX(@order_types, ',', 1 + (n % 6)), ',', -1) = 'Mẫu' THEN 100 + (n * 37) % 900
+         ELSE 10 + (n * 3) % 90 END, ', ',
+    -- sheet_count: số tờ triển khai
+    CASE WHEN SUBSTRING_INDEX(SUBSTRING_INDEX(@order_types, ',', 1 + (n % 6)), ',', -1) = 'Mẫu' THEN 50 + (n * 7) % 150
+         ELSE 1000 + (n * 143) % 9000 END, ', ',
+    -- product_length: chiều dài sản phẩm
+    80 + (n * 13) % 120, '.00, ',
+    -- product_width: chiều rộng sản phẩm
+    50 + (n * 11) % 100, '.00, ',
+    -- product_height: chiều cao sản phẩm
+    10 + (n * 7) % 140, '.00, ',
+    -- paper_length: chiều dài giấy
+    500 + (n * 23) % 200, '.00, ',
+    -- paper_width: chiều rộng giấy
+    400 + (n * 19) % 200, '.00, ',
+    -- part_count: số part
+    2 + (n * 3) % 10, ', ',
+    -- color_count: số màu
+    1 + (n * 2) % 5, ', ',
+    -- customer_group: nhóm khách hàng
+    '\'', SUBSTRING_INDEX(SUBSTRING_INDEX(@customer_groups, ',', 1 + (n % 7)), ',', -1), '\', ',
+    -- paper_type: loại giấy
+    '\'', SUBSTRING_INDEX(SUBSTRING_INDEX(@paper_types, ',', 1 + (n % 10)), ',', -1), '\', ',
+    -- paper_weight: định lượng giấy
+    200 + (n * 17) % 300, ', ',
+    -- work_stage: công đoạn
+    '\'', SUBSTRING_INDEX(SUBSTRING_INDEX(@work_stages, ',', 1 + (n % 7)), ',', -1), '\', ',
+    -- status: trạng thái
+    '\'', SUBSTRING_INDEX(SUBSTRING_INDEX(@statuses, ',', 1 + (n % 4)), ',', -1), '\'',
+    ')'
+  ) FROM generate_orders WHERE n < 500
+)
+SELECT order_data FROM generate_orders WHERE n = 500;
+
+-- Lưu ý: Script này tạo các câu lệnh INSERT cho 500 bản ghi
+-- Nếu script không chạy được trong môi trường của bạn do giới hạn SQL,
+-- hãy tách thành các đoạn INSERT nhỏ hơn, mỗi đoạn khoảng 50-100 bản ghi 

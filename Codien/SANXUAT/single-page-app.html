@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý Sản xuất - SPA</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    :root {
+      --sidebar-width: 280px;
+      --sidebar-collapsed-width: 70px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f8f9fa;
+    }
+
+    /* Sidebar styles - giống như cũ */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: var(--sidebar-width);
+      background: white;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+      transition: width 0.3s ease;
+      z-index: 1000;
+      overflow: hidden;
+    }
+    
+    .sidebar.collapsed {
+      width: var(--sidebar-collapsed-width);
+    }
+    
+    .sidebar-content {
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid #dee2e6;
+      position: relative;
+    }
+    
+    .sidebar-toggle {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: none;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: opacity 0.3s ease;
+    }
+    
+    .sidebar.collapsed .sidebar-brand h5 {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .sidebar-nav {
+      padding: 1rem 0;
+    }
+    
+    .sidebar-nav .nav-link {
+      padding: 0.75rem 1rem;
+      margin: 0.25rem 1rem;
+      border-radius: 0.5rem;
+      color: #6c757d;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+    }
+    
+    .sidebar.collapsed .sidebar-nav .nav-link {
+      padding: 0.75rem;
+      margin: 0.25rem 0.5rem;
+      justify-content: center;
+    }
+    
+    .sidebar.collapsed .sidebar-nav .nav-link .nav-text {
+      display: none;
+    }
+    
+    .sidebar-nav .nav-link:hover {
+      background-color: #f8f9fa;
+      color: #0d6efd;
+    }
+    
+    .sidebar-nav .nav-link.active {
+      background-color: #0d6efd;
+      color: white;
+    }
+
+    .sidebar-footer {
+      padding: 1rem 1.5rem;
+      font-size: 0.8rem;
+      color: #6c757d;
+      transition: opacity 0.3s ease;
+    }
+    
+    .sidebar.collapsed .sidebar-footer {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    /* Main content */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      transition: margin-left 0.3s ease;
+      min-height: 100vh;
+    }
+    
+    .main-content.sidebar-collapsed {
+      margin-left: var(--sidebar-collapsed-width);
+    }
+
+    /* Page styles */
+    .page-content {
+      display: none;
+    }
+    
+    .page-content.active {
+      display: block;
+    }
+
+    .stage-header {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      text-align: center;
+      padding: 1.5rem;
+    }
+    
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #28a745;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+
+    .table-responsive {
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      overflow-x: auto;
+    }
+    
+    .table th {
+      background-color: #f8f9fa;
+      border-bottom: 2px solid #dee2e6;
+      font-weight: 600;
+      white-space: nowrap;
+      font-size: 0.85rem;
+      padding: 0.75rem 0.5rem;
+    }
+    
+    .table td {
+      white-space: nowrap;
+      font-size: 0.85rem;
+      vertical-align: middle;
+      padding: 0.75rem 0.5rem;
+    }
+
+    .quantity-display {
+      font-weight: 600;
+      color: #28a745;
+    }
+
+    .action-buttons .btn {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.8rem;
+      margin-right: 0.25rem;
+    }
+
+    /* Loading spinner */
+    .loading {
+      text-align: center;
+      padding: 3rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        position: relative;
+        height: auto;
+      }
+      
+      .sidebar.collapsed {
+        width: 100%;
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+      
+      .main-content.sidebar-collapsed {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-content">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <div class="bg-primary text-white rounded d-flex align-items-center justify-content-center" style="width:32px;height:32px;">
+            <i class="bi bi-gear"></i>
+          </div>
+          <h5 class="mb-0 text-primary">Carton Manager</h5>
+        </div>
+        <button class="btn btn-primary sidebar-toggle" onclick="toggleSidebar()" title="Thu nhỏ/Mở rộng">
+          <span id="toggleIcon"><i class="bi bi-chevron-left"></i></span>
+        </button>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a class="nav-link" data-page="dashboard">
+          <i class="bi bi-house"></i>
+          <span class="nav-text">Trang chủ</span>
+        </a>
+        <a class="nav-link" data-page="production-orders">
+          <i class="bi bi-clipboard-data"></i>
+          <span class="nav-text">Lệnh sản xuất</span>
+        </a>
+        <a class="nav-link" data-page="progress">
+          <i class="bi bi-lightning"></i>
+          <span class="nav-text">Quản lý tiến độ</span>
+        </a>
+        <a class="nav-link" data-page="materials">
+          <i class="bi bi-box-seam"></i>
+          <span class="nav-text">Vật tư</span>
+        </a>
+        <a class="nav-link" data-page="workflow">
+          <i class="bi bi-arrow-repeat"></i>
+          <span class="nav-text">Công đoạn</span>
+        </a>
+        <a class="nav-link" data-page="reports">
+          <i class="bi bi-graph-up"></i>
+          <span class="nav-text">Báo cáo</span>
+        </a>
+        <a class="nav-link" data-page="stage-xa">
+          <i class="bi bi-bullseye"></i>
+          <span class="nav-text">Công đoạn XẢ</span>
+        </a>
+        <a class="nav-link" data-page="stage-xen">
+          <i class="bi bi-scissors"></i>
+          <span class="nav-text">Công đoạn XÉN</span>
+        </a>
+        <a class="nav-link" data-page="stage-in">
+          <i class="bi bi-printer"></i>
+          <span class="nav-text">Công đoạn IN</span>
+        </a>
+        <a class="nav-link" data-page="stage-boi">
+          <i class="bi bi-file-text"></i>
+          <span class="nav-text">Công đoạn BỒI</span>
+        </a>
+        <a class="nav-link" data-page="stage-be">
+          <i class="bi bi-knife"></i>
+          <span class="nav-text">Công đoạn BẾ</span>
+        </a>
+        <a class="nav-link" data-page="stage-dan">
+          <i class="bi bi-link"></i>
+          <span class="nav-text">Công đoạn DÁN</span>
+        </a>
+        <a class="nav-link" data-page="stage-kho">
+          <i class="bi bi-building"></i>
+          <span class="nav-text">KHO THÀNH PHẨM</span>
+        </a>
+      </nav>
+      
+      <div class="sidebar-footer">
+        © 2025 Carton Manager
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+    
+    <!-- Dashboard Page -->
+    <div class="page-content" id="page-dashboard">
+      <div class="container-fluid p-4">
+        <div class="stage-header">
+          <h1><i class="bi bi-house me-2"></i>Trang chủ</h1>
+          <p class="mb-0">Dashboard tổng quan hệ thống</p>
+        </div>
+        <div class="alert alert-info">
+          <h5>Chào mừng đến với hệ thống quản lý sản xuất Carton!</h5>
+          <p class="mb-0">Chọn công đoạn từ menu bên trái để bắt đầu.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Production Orders Page -->
+    <div class="page-content" id="page-production-orders">
+      <div class="container-fluid p-4">
+        <div class="stage-header">
+          <h1><i class="bi bi-clipboard-data me-2"></i>Lệnh sản xuất</h1>
+          <p class="mb-0">Quản lý các lệnh sản xuất</p>
+        </div>
+        <div class="alert alert-success">
+          <p class="mb-0">Trang quản lý lệnh sản xuất</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage Template - sẽ được clone cho các stage -->
+    <div class="page-content stage-template" id="page-stage-template" style="display: none;">
+      <div class="container-fluid p-4">
+        <!-- Stage Header -->
+        <div class="stage-header">
+          <h1><i class="stage-icon me-2"></i><span class="stage-title">Công đoạn</span></h1>
+          <p class="mb-0 stage-description">Mô tả công đoạn</p>
+        </div>
+        
+        <!-- Statistics -->
+        <div class="row mb-4 stage-stats">
+          <!-- Thống kê sẽ được tạo động -->
+        </div>
+        
+        <!-- Main Card -->
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Danh sách lệnh sản xuất</h5>
+            <div>
+              <button class="btn btn-primary me-2" onclick="refreshStageData()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Làm mới
+              </button>
+              <button class="btn btn-success" onclick="showNewOrderForm()">
+                <i class="bi bi-plus-lg me-1"></i>Thêm mới
+              </button>
+            </div>
+          </div>
+          
+          <div class="card-body">
+            <!-- Filters -->
+            <div class="row mb-3">
+              <div class="col-md-3">
+                <label class="form-label">Ngày sản xuất:</label>
+                <input type="date" class="form-control stage-filter" id="dateFilter">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Ca:</label>
+                <select class="form-select stage-filter" id="shiftFilter">
+                  <option value="">Tất cả</option>
+                  <option value="Ca 1">Ca 1</option>
+                  <option value="Ca 2">Ca 2</option>
+                  <option value="Ca 3">Ca 3</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Máy:</label>
+                <select class="form-select stage-filter" id="machineFilter">
+                  <option value="">Tất cả</option>
+                  <!-- Options sẽ được tạo động -->
+                </select>
+              </div>
+              <div class="col-md-5">
+                <label class="form-label">Tìm kiếm:</label>
+                <input type="text" class="form-control stage-filter" id="searchInput" placeholder="Nhập mã lệnh, mã SP, tên sản phẩm...">
+              </div>
+            </div>
+            
+            <!-- Table -->
+            <div class="table-responsive">
+              <table class="table table-striped table-hover stage-table">
+                <thead class="stage-table-head">
+                  <!-- Headers sẽ được tạo động -->
+                </thead>
+                <tbody class="stage-table-body">
+                  <!-- Dữ liệu sẽ được tạo động -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Stage Configuration -->
+  <script src="stage-config.js"></script>
+
+  <script>
+    // SPA Router & Stage Manager
+    class StageRouter {
+      constructor() {
+        this.currentStage = null;
+        this.stageData = {};
+        this.init();
+      }
+
+      init() {
+        // Bind navigation events
+        document.querySelectorAll('.nav-link[data-page]').forEach(link => {
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const page = link.getAttribute('data-page');
+            this.navigateTo(page);
+          });
+        });
+
+        // Load default page
+        this.navigateTo('dashboard');
+      }
+
+      navigateTo(page) {
+        // Remove active class from all nav links
+        document.querySelectorAll('.nav-link').forEach(link => {
+          link.classList.remove('active');
+        });
+
+        // Add active class to current nav link
+        const currentLink = document.querySelector(`[data-page="${page}"]`);
+        if (currentLink) {
+          currentLink.classList.add('active');
+        }
+
+        // Hide all pages
+        document.querySelectorAll('.page-content').forEach(page => {
+          page.classList.remove('active');
+        });
+
+        // Show target page
+        if (page.startsWith('stage-')) {
+          this.loadStagePage(page);
+        } else {
+          const targetPage = document.getElementById(`page-${page}`);
+          if (targetPage) {
+            targetPage.classList.add('active');
+          }
+        }
+
+        // Update URL without page reload
+        history.pushState({ page }, '', `#${page}`);
+      }
+
+      loadStagePage(stagePageId) {
+        const stageCode = stagePageId.replace('page-stage-', '').replace('stage-', '');
+        const config = window.STAGE_CONFIG[stageCode];
+        
+        if (!config) {
+          console.error(`No config found for stage: ${stageCode}`);
+          return;
+        }
+
+        // Check if stage page already exists
+        let stagePage = document.getElementById(`page-${stagePageId}`);
+        
+        if (!stagePage) {
+          // Clone template và tạo page mới
+          stagePage = this.createStagePage(stagePageId, stageCode, config);
+        }
+
+        // Show stage page
+        stagePage.classList.add('active');
+        this.currentStage = stageCode;
+
+        // Load stage data
+        this.loadStageData(stageCode, config);
+      }
+
+      createStagePage(pageId, stageCode, config) {
+        const template = document.getElementById('page-stage-template');
+        const newPage = template.cloneNode(true);
+        
+        newPage.id = `page-${pageId}`;
+        newPage.style.display = 'block';
+        newPage.classList.remove('stage-template');
+
+        // Update stage info
+        newPage.querySelector('.stage-icon').className = `bi ${config.icon} me-2`;
+        newPage.querySelector('.stage-title').textContent = `Công đoạn ${config.name}`;
+        newPage.querySelector('.stage-description').textContent = config.description;
+
+        // Generate table headers
+        this.generateTableHeaders(newPage, config);
+
+        // Generate machine options
+        this.generateMachineOptions(newPage, config);
+
+        // Add to DOM
+        document.getElementById('mainContent').appendChild(newPage);
+
+        // Bind events for this stage
+        this.bindStageEvents(newPage, stageCode);
+
+        return newPage;
+      }
+
+      generateTableHeaders(stagePage, config) {
+        const thead = stagePage.querySelector('.stage-table-head');
+        let headers = '<tr>';
+        
+        if (config.tableColumns) {
+          config.tableColumns.forEach(column => {
+            headers += `<th style="width: ${column.width || 'auto'}">${column.label}</th>`;
+          });
+        }
+        headers += '<th style="width: 150px">Thao tác</th></tr>';
+        
+        thead.innerHTML = headers;
+      }
+
+      generateMachineOptions(stagePage, config) {
+        const machineFilter = stagePage.querySelector('#machineFilter');
+        let options = '<option value="">Tất cả</option>';
+        
+        if (config.machines) {
+          config.machines.forEach(machine => {
+            options += `<option value="${machine}">${machine}</option>`;
+          });
+        }
+        
+        machineFilter.innerHTML = options;
+      }
+
+      bindStageEvents(stagePage, stageCode) {
+        // Bind filter events
+        stagePage.querySelectorAll('.stage-filter').forEach(filter => {
+          filter.addEventListener('change', () => this.renderStageData(stageCode));
+          filter.addEventListener('input', () => this.renderStageData(stageCode));
+        });
+      }
+
+      async loadStageData(stageCode, config) {
+        try {
+          // Show loading
+          this.showStageLoading(stageCode);
+
+          // Try API first
+          let data = await this.fetchFromAPI(stageCode);
+          
+          if (!data || data.length === 0) {
+            // Fallback to localStorage
+            data = this.loadFromStorage(stageCode);
+            
+            if (!data || data.length === 0) {
+              // Use sample data
+              data = config.sampleData || [];
+              this.saveToStorage(stageCode, data);
+            }
+          }
+
+          this.stageData[stageCode] = data;
+          this.renderStageData(stageCode);
+
+        } catch (error) {
+          console.error(`Error loading stage data for ${stageCode}:`, error);
+          this.stageData[stageCode] = config.sampleData || [];
+          this.renderStageData(stageCode);
+        }
+      }
+
+      async fetchFromAPI(stageCode) {
+        const response = await fetch(`../api/work_history.php?action=get_orders&stage=${stageCode}`);
+        if (!response.ok) throw new Error('API Error');
+        const result = await response.json();
+        return result.data || [];
+      }
+
+      loadFromStorage(stageCode) {
+        try {
+          const data = localStorage.getItem(`${stageCode}_orders`);
+          return data ? JSON.parse(data) : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      saveToStorage(stageCode, data) {
+        try {
+          localStorage.setItem(`${stageCode}_orders`, JSON.stringify(data));
+        } catch (e) {
+          console.error('Storage error:', e);
+        }
+      }
+
+      showStageLoading(stageCode) {
+        const stagePage = document.getElementById(`page-stage-${stageCode}`);
+        const tbody = stagePage.querySelector('.stage-table-body');
+        tbody.innerHTML = '<tr><td colspan="100%" class="text-center"><div class="loading"><div class="spinner-border"></div><div>Đang tải dữ liệu...</div></div></td></tr>';
+      }
+
+      renderStageData(stageCode) {
+        const stagePage = document.getElementById(`page-stage-${stageCode}`);
+        const config = window.STAGE_CONFIG[stageCode];
+        const data = this.stageData[stageCode] || [];
+
+        // Apply filters
+        const filteredData = this.applyFilters(stagePage, data);
+
+        // Render statistics
+        this.renderStageStats(stagePage, filteredData);
+
+        // Render table
+        this.renderStageTable(stagePage, config, filteredData);
+      }
+
+      applyFilters(stagePage, data) {
+        const date = stagePage.querySelector('#dateFilter').value;
+        const shift = stagePage.querySelector('#shiftFilter').value;
+        const machine = stagePage.querySelector('#machineFilter').value;
+        const search = stagePage.querySelector('#searchInput').value.toLowerCase();
+
+        let filtered = data;
+
+        if (date) {
+          filtered = filtered.filter(item => item.date === date);
+        }
+        if (shift) {
+          filtered = filtered.filter(item => item.shift === shift);
+        }
+        if (machine) {
+          filtered = filtered.filter(item => item.machine === machine);
+        }
+        if (search) {
+          filtered = filtered.filter(item => 
+            (item.orderCode || '').toLowerCase().includes(search) ||
+            (item.productCode || '').toLowerCase().includes(search) ||
+            (item.productName || '').toLowerCase().includes(search)
+          );
+        }
+
+        return filtered;
+      }
+
+      renderStageStats(stagePage, data) {
+        const statsContainer = stagePage.querySelector('.stage-stats');
+        const stats = {
+          totalOrders: data.length,
+          totalQty: data.reduce((sum, item) => sum + (item.planQty || 0), 0),
+          totalGoodQty: data.reduce((sum, item) => sum + (item.goodQty || 0), 0),
+          totalNgQty: data.reduce((sum, item) => sum + ((item.ngQty || 0) + (item.ngStartEndQty || 0)), 0)
+        };
+
+        statsContainer.innerHTML = `
+          <div class="col-md-3">
+            <div class="card stat-card">
+              <div class="card-body">
+                <div class="stat-value">${stats.totalOrders}</div>
+                <div class="stat-label">Tổng lệnh</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card stat-card">
+              <div class="card-body">
+                <div class="stat-value">${stats.totalQty}</div>
+                <div class="stat-label">Tổng SL triển khai</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card stat-card">
+              <div class="card-body">
+                <div class="stat-value">${stats.totalGoodQty}</div>
+                <div class="stat-label">Tổng SL đạt</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card stat-card">
+              <div class="card-body">
+                <div class="stat-value">${stats.totalNgQty}</div>
+                <div class="stat-label">Tổng SL NG</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      renderStageTable(stagePage, config, data) {
+        const tbody = stagePage.querySelector('.stage-table-body');
+        let tableHtml = '';
+
+        data.forEach(item => {
+          let rowHtml = '<tr>';
+          
+          if (config.tableColumns) {
+            config.tableColumns.forEach(column => {
+              const value = item[column.field] || '';
+              const displayValue = column.format ? column.format(value) : value;
+              rowHtml += `<td>${displayValue}</td>`;
+            });
+          }
+
+          // Action buttons
+          rowHtml += `
+            <td>
+              <div class="action-buttons">
+                <button class="btn btn-primary btn-sm" onclick="editQuantity('${item.orderCode}')">
+                  <i class="bi bi-pencil me-1"></i>Nhập SL
+                </button>
+                <button class="btn btn-info btn-sm" onclick="editOrder('${item.orderCode}')">
+                  <i class="bi bi-pencil-square me-1"></i>Sửa
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="deleteOrder('${item.orderCode}')">
+                  <i class="bi bi-trash me-1"></i>Xóa
+                </button>
+              </div>
+            </td>
+          `;
+          
+          rowHtml += '</tr>';
+          tableHtml += rowHtml;
+        });
+
+        tbody.innerHTML = tableHtml || '<tr><td colspan="100%" class="text-center text-muted">Không có dữ liệu</td></tr>';
+      }
+    }
+
+    // Utility functions
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const toggleIcon = document.getElementById('toggleIcon');
+      
+      sidebar.classList.toggle('collapsed');
+      mainContent.classList.toggle('sidebar-collapsed');
+      
+      if (sidebar.classList.contains('collapsed')) {
+        toggleIcon.innerHTML = '<i class="bi bi-chevron-right"></i>';
+      } else {
+        toggleIcon.innerHTML = '<i class="bi bi-chevron-left"></i>';
+      }
+    }
+
+    function refreshStageData() {
+      if (router.currentStage) {
+        const config = window.STAGE_CONFIG[router.currentStage];
+        router.loadStageData(router.currentStage, config);
+      }
+    }
+
+    function showNewOrderForm() {
+      alert('Chức năng thêm mới sẽ được implement');
+    }
+
+    function editQuantity(orderCode) {
+      alert(`Chỉnh sửa số lượng cho lệnh: ${orderCode}`);
+    }
+
+    function editOrder(orderCode) {
+      alert(`Chỉnh sửa lệnh: ${orderCode}`);
+    }
+
+    function deleteOrder(orderCode) {
+      if (confirm(`Bạn có chắc muốn xóa lệnh ${orderCode}?`)) {
+        alert(`Đã xóa lệnh: ${orderCode}`);
+      }
+    }
+
+    // Initialize router
+    const router = new StageRouter();
+
+    // Handle browser back/forward
+    window.addEventListener('popstate', (e) => {
+      if (e.state && e.state.page) {
+        router.navigateTo(e.state.page);
+      }
+    });
+  </script>
+</body>
+</html>

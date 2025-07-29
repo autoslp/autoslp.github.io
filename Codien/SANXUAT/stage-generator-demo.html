@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stage Template Generator - Demo</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-8 mx-auto">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="bi bi-gear me-2"></i>Stage Template Generator</h4>
+          </div>
+          
+          <div class="card-body">
+            <div class="alert alert-info">
+              <h6><i class="bi bi-info-circle me-2"></i>Hướng dẫn sử dụng:</h6>
+              <ol>
+                <li>Chọn công đoạn cần tạo file từ dropdown bên dưới</li>
+                <li>Click <strong>"Tạo file"</strong> để tạo file HTML cho công đoạn đó</li>
+                <li>Hoặc click <strong>"Tạo tất cả"</strong> để tạo file cho tất cả công đoạn</li>
+                <li>File sẽ được tự động download về máy</li>
+              </ol>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Chọn công đoạn:</label>
+                <select class="form-select" id="stageSelect">
+                  <option value="">-- Chọn công đoạn --</option>
+                  <option value="xa">XẢ - Xả giấy cuộn</option>
+                  <option value="xen">XÉN - Xén giấy</option>
+                  <option value="in">IN - In ấn</option>
+                  <option value="boi">BỒI - Bồi giấy</option>
+                  <option value="be">BẾ - Bế hộp</option>
+                  <option value="dan">DÁN - Dán hộp</option>
+                  <option value="kho">KHO - Kho thành phẩm</option>
+                </select>
+              </div>
+              
+              <div class="col-md-6 d-flex align-items-end">
+                <button class="btn btn-success me-2" onclick="generateSingleStage()">
+                  <i class="bi bi-download me-1"></i>Tạo file
+                </button>
+                <button class="btn btn-primary" onclick="generateAllStages()">
+                  <i class="bi bi-cloud-download me-1"></i>Tạo tất cả
+                </button>
+              </div>
+            </div>
+
+            <hr>
+
+            <div class="row">
+              <div class="col-12">
+                <h6>Cấu hình hiện tại:</h6>
+                <div id="configPreview" class="bg-light p-3 rounded">
+                  <small class="text-muted">Chọn công đoạn để xem cấu hình</small>
+                </div>
+              </div>
+            </div>
+
+            <hr>
+
+            <div class="row">
+              <div class="col-12">
+                <h6>Ưu điểm của hệ thống Template:</h6>
+                <div class="row">
+                  <div class="col-md-6">
+                    <ul class="list-unstyled">
+                      <li><i class="bi bi-check-circle text-success me-2"></i>Duy trì 1 template duy nhất</li>
+                      <li><i class="bi bi-check-circle text-success me-2"></i>Cấu hình riêng cho từng stage</li>
+                      <li><i class="bi bi-check-circle text-success me-2"></i>Dễ dàng thêm/sửa công đoạn mới</li>
+                      <li><i class="bi bi-check-circle text-success me-2"></i>Sidebar menu thống nhất</li>
+                    </ul>
+                  </div>
+                  <div class="col-md-6">
+                    <ul class="list-unstyled">
+                      <li><i class="bi bi-check-circle text-success me-2"></i>CSS/JS chia sẻ chung</li>
+                      <li><i class="bi bi-check-circle text-success me-2"></i>API endpoints chuẩn hóa</li>
+                      <li><i class="bi bi-check-circle text-success me-2"></i>Responsive design nhất quán</li>
+                      <li><i class="bi bi-check-circle text-success me-2"></i>Dễ bảo trì và nâng cấp</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-4">
+          <div class="card-header">
+            <h6 class="mb-0">Log hoạt động</h6>
+          </div>
+          <div class="card-body">
+            <div id="logArea" class="bg-dark text-light p-3 rounded" style="height: 200px; overflow-y: auto; font-family: monospace; font-size: 0.9rem;">
+              <div class="text-success">Hệ thống sẵn sàng...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load configuration and generator -->
+  <script src="stage-config.js"></script>
+  <script src="stage-generator.js"></script>
+
+  <script>
+    // Log function
+    function log(message, type = 'info') {
+      const logArea = document.getElementById('logArea');
+      const timestamp = new Date().toLocaleTimeString();
+      const colorClass = {
+        info: 'text-info',
+        success: 'text-success', 
+        error: 'text-danger',
+        warning: 'text-warning'
+      }[type] || 'text-light';
+      
+      const logEntry = `<div class="${colorClass}">[${timestamp}] ${message}</div>`;
+      logArea.innerHTML += logEntry;
+      logArea.scrollTop = logArea.scrollHeight;
+    }
+
+    // Preview config when stage selected
+    document.getElementById('stageSelect').addEventListener('change', function() {
+      const stageCode = this.value;
+      const configPreview = document.getElementById('configPreview');
+      
+      if (!stageCode) {
+        configPreview.innerHTML = '<small class="text-muted">Chọn công đoạn để xem cấu hình</small>';
+        return;
+      }
+
+      const config = window.STAGE_CONFIG[stageCode];
+      if (!config) {
+        configPreview.innerHTML = '<small class="text-danger">Không tìm thấy cấu hình</small>';
+        return;
+      }
+
+      const preview = `
+        <div class="row">
+          <div class="col-md-6">
+            <strong>Tên:</strong> ${config.name}<br>
+            <strong>Mô tả:</strong> ${config.description}<br>
+            <strong>Icon:</strong> <i class="bi ${config.icon}"></i><br>
+            <strong>Máy móc:</strong> ${config.machines ? config.machines.join(', ') : 'Chưa định nghĩa'}
+          </div>
+          <div class="col-md-6">
+            <strong>Số cột bảng:</strong> ${config.tableColumns ? config.tableColumns.length : 0}<br>
+            <strong>Số trường form:</strong> ${config.formFields ? config.formFields.length : 0}<br>
+            <strong>Số trường số lượng:</strong> ${config.quantityFields ? config.quantityFields.length : 0}<br>
+            <strong>Dữ liệu mẫu:</strong> ${config.sampleData ? config.sampleData.length + ' records' : 'Không có'}
+          </div>
+        </div>
+      `;
+      
+      configPreview.innerHTML = preview;
+      log(`Xem cấu hình cho stage: ${config.name}`);
+    });
+
+    // Generate single stage
+    async function generateSingleStage() {
+      const stageCode = document.getElementById('stageSelect').value;
+      
+      if (!stageCode) {
+        log('Vui lòng chọn công đoạn trước', 'error');
+        return;
+      }
+
+      try {
+        log(`Bắt đầu tạo file cho stage: ${stageCode}`, 'info');
+        await window.stageGenerator.generateStageFile(stageCode);
+        log(`Đã tạo thành công file stage-${stageCode}.html`, 'success');
+      } catch (error) {
+        log(`Lỗi khi tạo file: ${error.message}`, 'error');
+      }
+    }
+
+    // Generate all stages
+    async function generateAllStages() {
+      try {
+        log('Bắt đầu tạo tất cả file stage...', 'info');
+        
+        const stages = Object.keys(window.STAGE_CONFIG);
+        log(`Sẽ tạo ${stages.length} file: ${stages.join(', ')}`, 'info');
+        
+        for (const stageCode of stages) {
+          log(`Đang tạo stage-${stageCode}.html...`, 'info');
+          await window.stageGenerator.generateStageFile(stageCode);
+          log(`✓ Hoàn thành stage-${stageCode}.html`, 'success');
+          
+          // Delay giữa các file
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
+        log('🎉 Đã tạo xong tất cả file stage!', 'success');
+      } catch (error) {
+        log(`Lỗi khi tạo file: ${error.message}`, 'error');
+      }
+    }
+
+    // Initialize
+    log('Stage Template Generator đã sẵn sàng', 'success');
+    log('Các stage có sẵn: ' + Object.keys(window.STAGE_CONFIG).join(', '), 'info');
+  </script>
+</body>
+</html>

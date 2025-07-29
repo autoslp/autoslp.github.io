@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chuyển đổi CSV thành SQL - 500 lệnh INSERT</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .container {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        button, .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        button:hover, .button:hover {
+            background-color: #45a049;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: Consolas, monospace;
+            margin-bottom: 10px;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chuyển đổi CSV thành SQL - 500 lệnh INSERT</h1>
+    <div class="container">
+        <h2>Bước 1: Chọn file CSV</h2>
+        <input type="file" id="csvFile" accept=".csv">
+        <p>Hoặc dán dữ liệu CSV vào đây:</p>
+        <textarea id="csvData" placeholder="Dán dữ liệu CSV vào đây"></textarea>
+        
+        <h2>Bước 2: Tạo lệnh SQL</h2>
+        <button id="generateSQL">Tạo 500 lệnh INSERT SQL</button>
+        <p id="status" class="hidden"></p>
+        
+        <h2>Bước 3: Kết quả SQL</h2>
+        <textarea id="sqlResult" readonly placeholder="Kết quả SQL sẽ hiển thị ở đây"></textarea>
+        <button id="downloadSQL" class="hidden">Tải xuống file SQL</button>
+    </div>
+
+    <script>
+        // Các biến toàn cục
+        let csvData = [];
+        
+        // Định dạng ngày từ dd/mm/yyyy sang yyyy-mm-dd
+        function formatDate(dateStr) {
+            if (!dateStr || dateStr === '-') return 'NULL';
+            try {
+                const parts = dateStr.trim().split('/');
+                if (parts.length === 3) {
+                    return `'${parts[2]}-${parts[1]}-${parts[0]}'`;
+                }
+                return 'NULL';
+            } catch (e) {
+                return 'NULL';
+            }
+        }
+
+        // Định dạng chuỗi cho SQL
+        function formatString(str) {
+            if (!str || str === '-') return 'NULL';
+            // Thay thế dấu nháy đơn bằng hai dấu nháy đơn
+            return `'${str.replace(/'/g, "''")}'`;
+        }
+
+        // Định dạng số cho SQL
+        function formatNumber(num) {
+            if (!num || num === '-') return 'NULL';
+            // Loại bỏ dấu phẩy, dấu phần trăm và các ký tự không phải số
+            const cleanNum = num.replace(/[^\d.-]/g, '');
+            return cleanNum || 'NULL';
+        }
+
+        // Đọc file CSV
+        document.getElementById('csvFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('csvData').value = event.target.result;
+            };
+            reader.readAsText(file);
+        });
+
+        // Phân tích cú pháp CSV
+        function parseCSV(text) {
+            // Chia thành các dòng
+            const lines = text.split(/\r\n|\n|\r/);
+            const result = [];
+            
+            // Xử lý từng dòng
+            lines.forEach(line => {
+                if (line.trim()) {
+                    // Phân tích cú pháp CSV (xử lý các trường trong dấu ngoặc kép)
+                    const fields = [];
+                    let insideQuotes = false;
+                    let currentField = '';
+                    
+                    for (let i = 0; i < line.length; i++) {
+                        const char = line[i];
+                        
+                        if (char === '"') {
+                            insideQuotes = !insideQuotes;
+                            continue;
+                        }
+                        
+                        if (char === ',' && !insideQuotes) {
+                            fields.push(currentField);
+                            currentField = '';
+                        } else {
+                            currentField += char;
+                        }
+                    }
+                    
+                    // Thêm trường cuối cùng
+                    fields.push(currentField);
+                    result.push(fields);
+                }
+            });
+            
+            return result;
+        }
+
+        // Tạo lệnh SQL
+        document.getElementById('generateSQL').addEventListener('click', function() {
+            const csvText = document.getElementById('csvData').value;
+            if (!csvText) {
+                showStatus('Vui lòng nhập hoặc tải lên dữ liệu CSV', 'error');
+                return;
+            }
+            
+            csvData = parseCSV(csvText);
+            if (csvData.length === 0) {
+                showStatus('Không thể đọc dữ liệu CSV', 'error');
+                return;
+            }
+            
+            generateSQL(csvData);
+        });
+
+        // Tạo SQL từ dữ liệu CSV
+        function generateSQL(data) {
+            const numInserts = 500;
+            const statuses = ['Chờ triển khai', 'Đang sản xuất', 'Hoàn thành', 'Tạm dừng'];
+            
+            // Tạo header SQL
+            let sql = `-- Script tự động tạo ${numInserts} lệnh INSERT cho bảng production_orders
+-- Sử dụng dữ liệu từ file CSV thực tế
+-- Thời gian tạo: ${new Date().toISOString().slice(0, 19).replace('T', ' ')}
+
+-- Tạo bảng nếu chưa tồn tại
+CREATE TABLE IF NOT EXISTS production_orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    deployment_date DATE,
+    production_order VARCHAR(20),
+    po_number VARCHAR(20),
+    sales_order_code VARCHAR(50),
+    order_date DATE,
+    delivery_date DATE,
+    internal_product_code VARCHAR(50),
+    order_type VARCHAR(20),
+    customer_code VARCHAR(20),
+    customer_name VARCHAR(100),
+    product_name VARCHAR(255),
+    version VARCHAR(10),
+    not_deployed_reason TEXT,
+    sales_note TEXT,
+    customer_production_note TEXT,
+    order_quantity VARCHAR(20),
+    inventory VARCHAR(20),
+    required_quantity VARCHAR(20),
+    deployed_quantity VARCHAR(20),
+    offset_waste VARCHAR(20),
+    waste VARCHAR(20),
+    sheet_count VARCHAR(20),
+    product_length VARCHAR(20),
+    product_width VARCHAR(20),
+    product_height VARCHAR(20),
+    paper_length VARCHAR(20),
+    paper_width VARCHAR(20),
+    part_count VARCHAR(10),
+    color_count VARCHAR(20),
+    customer_group VARCHAR(50),
+    paper_type VARCHAR(100),
+    paper_weight VARCHAR(10),
+    work_stage VARCHAR(100),
+    status VARCHAR(20) DEFAULT 'Chờ triển khai'
+);
+
+-- Xóa dữ liệu cũ nếu cần
+-- TRUNCATE TABLE production_orders;
+
+-- ${numInserts} lệnh INSERT được tạo từ dữ liệu CSV thực tế
+INSERT INTO production_orders (
+    deployment_date, production_order, po_number, sales_order_code, order_date, delivery_date,
+    internal_product_code, order_type, customer_code, customer_name, product_name, version,
+    not_deployed_reason, sales_note, customer_production_note, order_quantity, inventory,
+    required_quantity, deployed_quantity, offset_waste, waste, sheet_count, product_length,
+    product_width, product_height, paper_length, paper_width, part_count, color_count,
+    customer_group, paper_type, paper_weight, work_stage, status
+) VALUES
+`;
+            
+            // Tạo từng câu lệnh INSERT
+            for (let i = 0; i < numInserts; i++) {
+                // Chọn một dòng dữ liệu ngẫu nhiên
+                const row = data[Math.floor(Math.random() * data.length)];
+                
+                // Đảm bảo có đủ cột
+                while (row.length < 33) {
+                    row.push('');
+                }
+                
+                // Lấy dữ liệu từ hàng
+                const deployment_date = formatDate(row[0]);
+                const production_order = formatString(row[1]);
+                const po_number = formatString(row[2]);
+                const sales_order_code = formatString(row[3]);
+                const order_date = formatDate(row[4]);
+                const delivery_date = formatDate(row[5]);
+                const internal_product_code = formatString(row[6]);
+                const order_type = row[7] ? formatString(row[7]) : "'Thường'";
+                const customer_code = formatString(row[8]);
+                const customer_name = formatString(row[9]);
+                const product_name = formatString(row[10]);
+                const version = formatString(row[11]);
+                const not_deployed_reason = formatString(row[12]);
+                const sales_note = formatString(row[13]);
+                const customer_production_note = formatString(row[14]);
+                const order_quantity = formatNumber(row[15]);
+                const inventory = formatNumber(row[16]);
+                const required_quantity = formatNumber(row[17]);
+                const deployed_quantity = formatNumber(row[18]);
+                const offset_waste = formatNumber(row[19]);
+                const waste = formatString(row[20]);
+                const sheet_count = formatNumber(row[21]);
+                const product_length = formatNumber(row[22]);
+                const product_width = formatNumber(row[23]);
+                const product_height = formatNumber(row[24]);
+                const paper_length = formatNumber(row[25]);
+                const paper_width = formatNumber(row[26]);
+                const part_count = formatNumber(row[27]);
+                const color_count = formatString(row[28]);
+                const customer_group = formatString(row[29]);
+                const paper_type = formatString(row[30]);
+                const paper_weight = formatNumber(row[31]);
+                const work_stage = formatString(row[32]);
+                const status = `'${statuses[Math.floor(Math.random() * statuses.length)]}'`;
+                
+                // Tạo câu lệnh SQL
+                sql += `(
+    ${deployment_date}, ${production_order}, ${po_number}, ${sales_order_code}, ${order_date}, ${delivery_date},
+    ${internal_product_code}, ${order_type}, ${customer_code}, ${customer_name}, ${product_name}, ${version},
+    ${not_deployed_reason}, ${sales_note}, ${customer_production_note}, ${order_quantity}, ${inventory},
+    ${required_quantity}, ${deployed_quantity}, ${offset_waste}, ${waste}, ${sheet_count}, ${product_length},
+    ${product_width}, ${product_height}, ${paper_length}, ${paper_width}, ${part_count}, ${color_count},
+    ${customer_group}, ${paper_type}, ${paper_weight}, ${work_stage}, ${status}
+)${i < numInserts - 1 ? ',' : ''}\n`;
+            }
+            
+            sql += ";\n\nCOMMIT;\n";
+            
+            // Thêm ghi chú
+            sql += `
+/*
+Lệnh SQL này tạo ${numInserts} lệnh INSERT dựa trên dữ liệu CSV thực tế.
+Các giá trị đã được định dạng phù hợp với cấu trúc bảng production_orders.
+Có thể chạy trực tiếp trong MySQL/MariaDB để nhập liệu.
+*/
+`;
+            
+            // Hiển thị kết quả
+            document.getElementById('sqlResult').value = sql;
+            document.getElementById('downloadSQL').classList.remove('hidden');
+            showStatus(`Đã tạo thành công ${numInserts} lệnh INSERT SQL.`, 'success');
+        }
+
+        // Tải xuống SQL
+        document.getElementById('downloadSQL').addEventListener('click', function() {
+            const sql = document.getElementById('sqlResult').value;
+            if (!sql) return;
+            
+            const blob = new Blob([sql], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'full_sample_production_orders.sql';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        // Hiển thị trạng thái
+        function showStatus(message, type) {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.className = type;
+            statusElement.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html> 

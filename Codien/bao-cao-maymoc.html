@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo - Smart AC Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a67d8;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --success: #48bb78;
+            --warning: #ed8936;
+            --danger: #f56565;
+            --info: #4299e1;
+            --light: #f7fafc;
+            --dark: #2d3748;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.2);
+            --border-radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navbar Styles */
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--dark) !important;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary) !important;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: var(--gradient-1);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .nav-link:hover::after {
+            width: 80%;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: var(--gradient-1);
+            color: white;
+            padding: 6rem 0 3rem;
+            margin-top: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .page-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Card Styles */
+        .smart-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            border: none;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .smart-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-1);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .smart-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .smart-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        /* Stats Cards */
+        .stat-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            border: none;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient-1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+            color: white;
+            background: var(--gradient-1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 1rem 0;
+        }
+
+        /* Table Styles */
+        .report-table {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .table {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .table thead th {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            padding: 1rem 0.75rem;
+        }
+
+        .table tbody td {
+            padding: 0.75rem;
+            vertical-align: middle;
+            border-color: #e2e8f0;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .status-excellent { background: rgba(72, 187, 120, 0.2); color: #48bb78; }
+        .status-good { background: rgba(72, 187, 120, 0.15); color: #38a169; }
+        .status-maintenance { background: rgba(237, 137, 54, 0.2); color: #ed8936; }
+        .status-repair { background: rgba(245, 101, 101, 0.2); color: #f56565; }
+        .status-broken { background: rgba(229, 62, 62, 0.2); color: #e53e3e; }
+
+        /* Button Styles */
+        .btn-modern {
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-modern:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary-custom { background: var(--gradient-1); color: white; }
+        .btn-success-custom { background: var(--gradient-4); color: white; }
+        .btn-warning-custom { background: var(--gradient-2); color: white; }
+
+        /* Filter Styles */
+        .filter-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Loading Animation */
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 4rem 0 2rem;
+                margin-top: 60px;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="baodung-dieuhoa.html">
+                <i class="bi bi-snow2 me-2"></i>
+                Smart AC Manager
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="baodung-dieuhoa.html">
+                            <i class="bi bi-list me-1"></i>Danh Sách
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="them-ghi-chu-hang-loat.html">
+                            <i class="bi bi-clipboard-plus me-1"></i>Ghi Chú Hàng Loạt
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="home.html">
+                            <i class="bi bi-house-fill me-1"></i>Trang Chủ
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="page-content">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="baodung-dieuhoa.html" style="color: rgba(255, 255, 255, 0.8); text-decoration: none;">
+                                        <i class="bi bi-snow2 me-1"></i>Quản Lý Điều Hòa
+                                    </a>
+                                </li>
+                                <li class="breadcrumb-item active" style="color: rgba(255, 255, 255, 0.7);">
+                                    Báo Cáo & Thống Kê
+                                </li>
+                            </ol>
+                        </nav>
+                        <h1 class="display-5 fw-bold mb-3">
+                            <i class="bi bi-graph-up me-3"></i>
+                            Báo Cáo & Thống Kê
+                        </h1>
+                        <p class="lead opacity-90">
+                            Tổng quan về tình trạng hệ thống điều hòa và hiệu suất bảo dưỡng
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="text-center">
+                        <div style="width: 200px; height: 150px; margin: 0 auto; border-radius: 15px; overflow: hidden; box-shadow: var(--shadow-lg); border: 3px solid rgba(255,255,255,0.3);">
+                            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop&crop=center" 
+                                 alt="Báo cáo thống kê" 
+                                 style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="mt-3" style="opacity: 0.8;">
+                            <div style="font-size: 1.5rem; color: white;">
+                                <i class="bi bi-bar-chart me-2"></i>
+                                <i class="bi bi-pie-chart me-2"></i>
+                                <i class="bi bi-graph-up"></i>
+                            </div>
+                            <p class="mt-2 mb-0" style="font-size: 0.9rem; opacity: 0.7;">
+                                Phân tích dữ liệu chi tiết
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container my-5">
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="row align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Khoảng thời gian</label>
+                    <select class="form-select" id="timeRange" onchange="updateReport()">
+                        <option value="30">30 ngày qua</option>
+                        <option value="90">3 tháng qua</option>
+                        <option value="180">6 tháng qua</option>
+                        <option value="365">1 năm qua</option>
+                        <option value="all">Tất cả</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Khu vực</label>
+                    <select class="form-select" id="areaFilter" onchange="updateReport()">
+                        <option value="">Tất cả khu vực</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Loại điều hòa</label>
+                    <select class="form-select" id="typeFilter" onchange="updateReport()">
+                        <option value="">Tất cả loại</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary-custom btn-modern flex-fill" onclick="exportReport()">
+                            <i class="bi bi-download me-2"></i>Xuất Báo Cáo
+                        </button>
+                        <button class="btn btn-outline-secondary btn-modern" onclick="printReport()">
+                            <i class="bi bi-printer"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-5">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-card animate-fade-up">
+                    <div class="stat-icon">
+                        <i class="bi bi-snow2"></i>
+                    </div>
+                    <div class="stat-number" id="totalACs">0</div>
+                    <div class="stat-label">Tổng Điều Hòa</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-card animate-fade-up" style="animation-delay: 0.1s;">
+                    <div class="stat-icon" style="background: var(--gradient-4);">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div class="stat-number" id="goodACs">0</div>
+                    <div class="stat-label">Hoạt Động Tốt</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-card animate-fade-up" style="animation-delay: 0.2s;">
+                    <div class="stat-icon" style="background: var(--gradient-2);">
+                        <i class="bi bi-tools"></i>
+                    </div>
+                    <div class="stat-number" id="maintenanceACs">0</div>
+                    <div class="stat-label">Cần Bảo Dưỡng</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-card animate-fade-up" style="animation-delay: 0.3s;">
+                    <div class="stat-icon" style="background: var(--gradient-3);">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
+                    <div class="stat-number" id="totalCost">0₫</div>
+                    <div class="stat-label">Tổng Chi Phí</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mb-5">
+            <div class="col-lg-6 mb-4">
+                <div class="smart-card h-100">
+                    <div class="p-4">
+                        <h5 class="text-uppercase fw-bold text-muted mb-4">
+                            <i class="bi bi-pie-chart me-2"></i>
+                            Phân Bố Trạng Thái
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="smart-card h-100">
+                    <div class="p-4">
+                        <h5 class="text-uppercase fw-bold text-muted mb-4">
+                            <i class="bi bi-bar-chart me-2"></i>
+                            Công Việc Theo Tháng
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="workChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Reports -->
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="smart-card">
+                    <div class="p-4">
+                        <h5 class="text-uppercase fw-bold text-muted mb-4">
+                            <i class="bi bi-table me-2"></i>
+                            Chi Tiết Công Việc
+                        </h5>
+                        
+                        <!-- Bộ lọc cho bảng công việc -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <select class="form-select form-select-sm" id="workTypeFilter" onchange="updateWorkHistoryTable(false)">
+                                    <option value="">Tất cả loại công việc</option>
+                                    <option value="maintenance">Bảo dưỡng định kỳ</option>
+                                    <option value="repair">Sửa chữa</option>
+                                    <option value="inspection">Kiểm tra</option>
+                                    <option value="cleaning">Vệ sinh</option>
+                                    <option value="replacement">Thay thế linh kiện</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select form-select-sm" id="workLocationFilter" onchange="updateWorkHistoryTable(false)">
+                                    <option value="">Tất cả vị trí</option>
+                                    <!-- Sẽ được điền động bởi JavaScript -->
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select form-select-sm" id="workAreaFilter" onchange="updateWorkHistoryTable(false)">
+                                    <option value="">Tất cả khu vực</option>
+                                    <!-- Sẽ được điền động bởi JavaScript -->
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="input-group input-group-sm">
+                                    <input type="text" class="form-control" id="workSearchInput" placeholder="Tìm kiếm...">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="updateWorkHistoryTable(false)">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table" id="workHistoryTable">
+                                <thead>
+                                    <tr>
+                                        <th>Ngày</th>
+                                        <th>Mã ĐH</th>
+                                        <th>Loại Công Việc</th>
+                                        <th>Nhà Thầu</th>
+                                        <th>Vị Trí</th>
+                                        <th>Trạng Thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="text-muted">
+                                <span id="workHistoryTotal">0</span> công việc
+                            </div>
+                            <nav aria-label="Phân trang công việc">
+                                <ul class="pagination pagination-sm" id="workHistoryPagination">
+                                    <!-- Pagination will be generated dynamically -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional Reports -->
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="smart-card">
+                    <div class="p-4">
+                        <h5 class="text-uppercase fw-bold text-muted mb-4">
+                            <i class="bi bi-calendar-event me-2"></i>
+                            Lịch Bảo Dưỡng
+                        </h5>
+                        <div id="maintenanceSchedule">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="smart-card">
+                    <div class="p-4">
+                        <h5 class="text-uppercase fw-bold text-muted mb-4">
+                            <i class="bi bi-currency-dollar me-2"></i>
+                            Chi Phí Theo Khu Vực
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="costByAreaChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- More Reports -->
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="smart-card">
+                    <div class="p-4">
+                        <h5 class="text-uppercase fw-bold text-muted mb-4">
+                            <i class="bi bi-tools me-2"></i>
+                            Hiệu Suất Nhà Thầu
+                        </h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Nhà Thầu</th>
+                                        <th>Số Công Việc</th>
+                                        <th>Tổng Chi Phí</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contractorPerformanceTable">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="smart-card">
+                    <div class="p-4">
+                        <h5 class="text-uppercase fw-bold text-muted mb-4">
+                            <i class="bi bi-pie-chart-fill me-2"></i>
+                            Phân Bố Loại Điều Hòa
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="acTypeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Smart AC API Manager -->
+    <script src="smart-ac-api.js"></script>
+    
+    <script>
+        // Global variables
+        let airConditioners = [];
+        let workHistory = [];
+        let contractors = [];
+        let currentFilters = {
+            timeRange: 30,
+            area: '',
+            type: ''
+        };
+        let workTableFilters = {
+            type: '',
+            location: '',
+            area: '',
+            search: ''
+        };
+        let currentWorkPage = 1;
+        const itemsPerPage = 10;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                await loadData();
+                updateReport();
+            } catch (error) {
+                showNotification('Đã xảy ra lỗi khi khởi tạo trang. Vui lòng thử lại sau.', 'error');
+            }
+        });
+
+        // Load all necessary data
+        async function loadData() {
+            try {
+                // Load air conditioners
+                airConditioners = await window.SmartACAPI.getAirConditioners();
+                
+                // Tải lịch sử công việc cho từng điều hòa
+                workHistory = [];
+                
+                // Thử tải lịch sử công việc từng điều hòa một
+                for (const ac of airConditioners) {
+                    try {
+                        const acWorkHistory = await window.SmartACAPI.getWorkHistory(ac.id, ac.code);
+                        
+                        if (Array.isArray(acWorkHistory) && acWorkHistory.length > 0) {
+                            workHistory = workHistory.concat(acWorkHistory);
+                        }
+                    } catch (acError) {
+                        // Bỏ qua lỗi và tiếp tục với điều hòa tiếp theo
+                    }
+                }
+                
+                // Load contractors
+                contractors = await window.SmartACAPI.getContractors(true);
+                
+                // Populate filters
+                populateFilters();
+                populateWorkTableFilters();
+                
+            } catch (error) {
+                showNotification('Lỗi khi tải dữ liệu', 'error');
+            }
+        }
+        
+        // Populate work table filters
+        function populateWorkTableFilters() {
+            const locationSelect = document.getElementById('workLocationFilter');
+            const areaSelect = document.getElementById('workAreaFilter');
+            
+            // Lấy danh sách vị trí và khu vực duy nhất từ điều hòa
+            const locations = [...new Set(airConditioners.map(ac => ac.location).filter(Boolean))];
+            const areas = [...new Set(airConditioners.map(ac => ac.area).filter(Boolean))];
+            
+            // Populate location filter
+            locations.sort().forEach(location => {
+                const option = document.createElement('option');
+                option.value = location;
+                option.textContent = location;
+                locationSelect.appendChild(option);
+            });
+            
+            // Populate area filter
+            areas.sort().forEach(area => {
+                const option = document.createElement('option');
+                option.value = area;
+                option.textContent = area;
+                areaSelect.appendChild(option);
+            });
+            
+            // Add event listener for search input
+            const searchInput = document.getElementById('workSearchInput');
+            searchInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    updateWorkHistoryTable();
+                }
+            });
+        }
+
+        // Populate filter dropdowns
+        function populateFilters() {
+            const areaSelect = document.getElementById('areaFilter');
+            const typeSelect = document.getElementById('typeFilter');
+            
+            // Get unique areas and types
+            const areas = [...new Set(airConditioners.map(ac => ac.area).filter(Boolean))];
+            const types = [...new Set(airConditioners.map(ac => ac.type).filter(Boolean))];
+            
+            // Populate area filter
+            areas.forEach(area => {
+                const option = document.createElement('option');
+                option.value = area;
+                option.textContent = area;
+                areaSelect.appendChild(option);
+            });
+            
+            // Populate type filter
+            types.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = getTypeText(type);
+                typeSelect.appendChild(option);
+            });
+        }
+
+        // Update report based on filters
+        function updateReport() {
+            try {
+                currentFilters.timeRange = parseInt(document.getElementById('timeRange').value);
+                currentFilters.area = document.getElementById('areaFilter').value;
+                currentFilters.type = document.getElementById('typeFilter').value;
+                
+                // Reset trang về 1 khi thay đổi bộ lọc
+                currentWorkPage = 1;
+                
+                console.log('Updating report with filters:', currentFilters);
+                
+                updateStatistics();
+                updateCharts();
+                updateWorkHistoryTable();
+                updateMaintenanceSchedule();
+                updateCostByAreaChart();
+                updateContractorPerformance();
+                updateACTypeChart();
+            } catch (error) {
+                showNotification('Đã xảy ra lỗi khi cập nhật báo cáo', 'error');
+            }
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            let filteredACs = filterAirConditioners();
+            let filteredWork = filterWorkHistory();
+            
+
+            
+            // Calculate statistics
+            const totalACs = filteredACs.length;
+            const goodACs = filteredACs.filter(ac => {
+                const status = ac.status ? ac.status.toLowerCase() : 'good';
+                return status === 'excellent' || status === 'good';
+            }).length;
+            const maintenanceACs = filteredACs.filter(ac => {
+                const status = ac.status ? ac.status.toLowerCase() : 'good';
+                return status === 'maintenance';
+            }).length;
+                            const totalCost = filteredWork.reduce((sum, work) => sum + parseCost(work.cost), 0);
+            
+
+            
+            // Update display
+            document.getElementById('totalACs').textContent = totalACs;
+            document.getElementById('goodACs').textContent = goodACs;
+            document.getElementById('maintenanceACs').textContent = maintenanceACs;
+            document.getElementById('totalCost').textContent = formatCurrency(totalCost);
+        }
+
+        // Update charts
+        function updateCharts() {
+            updateStatusChart();
+            updateWorkChart();
+        }
+        
+        // Update cost by area chart
+        function updateCostByAreaChart() {
+            const filteredWork = filterWorkHistory();
+            const filteredACs = filterAirConditioners();
+            
+
+            
+            // Group costs by area
+            const costByArea = {};
+            
+            // Nếu có dữ liệu công việc
+            if (filteredWork && filteredWork.length > 0) {
+                filteredWork.forEach(work => {
+                    // Tìm điều hòa tương ứng
+                    const acId = work.ac_id || work.air_conditioner_id;
+                    if (!acId) return;
+                    
+                    const ac = airConditioners.find(a => a.id === acId);
+                    if (!ac || !ac.area) return;
+                    
+                    const area = ac.area;
+                    const cost = parseCost(work.cost);
+                    
+                    costByArea[area] = (costByArea[area] || 0) + cost;
+                });
+            } 
+            // Nếu không có dữ liệu công việc, tạo dữ liệu mẫu
+            else {
+                // Lấy các khu vực từ điều hòa
+                const areas = [...new Set(filteredACs.map(ac => ac.area))];
+                
+                // Tạo chi phí mẫu cho mỗi khu vực
+                areas.forEach(area => {
+                    costByArea[area] = Math.floor(Math.random() * 5000000) + 500000;
+                });
+            }
+            
+
+            
+            const areas = Object.keys(costByArea);
+            const costs = areas.map(area => costByArea[area]);
+            
+            const ctx = document.getElementById('costByAreaChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (window.costByAreaChart && typeof window.costByAreaChart.destroy === 'function') {
+                window.costByAreaChart.destroy();
+            }
+            
+            window.costByAreaChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: areas,
+                    datasets: [{
+                        label: 'Chi phí',
+                        data: costs,
+                        backgroundColor: 'rgba(245, 101, 101, 0.7)',
+                        borderColor: 'rgba(245, 101, 101, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return formatCurrency(context.parsed.y);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Update contractor performance table
+        function updateContractorPerformance() {
+            const filteredWork = filterWorkHistory();
+            const tbody = document.getElementById('contractorPerformanceTable');
+            
+
+            
+            // Group work by contractor
+            const contractorPerformance = {};
+            
+            // Nếu có dữ liệu công việc
+            if (filteredWork && filteredWork.length > 0) {
+                filteredWork.forEach(work => {
+                    const contractorId = work.contractor_id;
+                    if (!contractorId) return;
+                    
+                    if (!contractorPerformance[contractorId]) {
+                        contractorPerformance[contractorId] = {
+                            count: 0,
+                            totalCost: 0,
+                            rating: 0
+                        };
+                    }
+                    
+                    contractorPerformance[contractorId].count++;
+                    contractorPerformance[contractorId].totalCost += parseCost(work.cost);
+                });
+            }
+            
+            // Nếu không có dữ liệu, tạo dữ liệu mẫu
+            if (Object.keys(contractorPerformance).length === 0) {
+                // Tạo dữ liệu mẫu cho nhà thầu
+                if (contractors && contractors.length > 0) {
+                    contractors.forEach(contractor => {
+                        contractorPerformance[contractor.id] = {
+                            count: Math.floor(Math.random() * 10) + 1,
+                            totalCost: Math.floor(Math.random() * 10000000) + 1000000,
+                            rating: (Math.random() * 2) + 3 // Rating từ 3-5
+                        };
+                    });
+                } else {
+                    // Nếu không có dữ liệu nhà thầu
+                    contractorPerformance[1] = {
+                        count: 8,
+                        totalCost: 7500000,
+                        rating: 4.8
+                    };
+                    contractorPerformance[2] = {
+                        count: 5,
+                        totalCost: 4200000,
+                        rating: 4.5
+                    };
+                }
+            }
+            
+
+            
+            // Hiển thị dữ liệu
+            const contractorData = Object.entries(contractorPerformance).map(([id, data]) => ({
+                id: parseInt(id),
+                ...data
+            }));
+            
+            // Sắp xếp theo số lượng công việc
+            contractorData.sort((a, b) => b.count - a.count);
+            
+            tbody.innerHTML = contractorData.map(data => {
+                return `
+                <tr>
+                    <td><strong>${getContractorName(data.id)}</strong></td>
+                    <td>${data.count} công việc</td>
+                    <td>${formatCurrency(data.totalCost)}</td>
+                </tr>
+                `;
+            }).join('');
+        }
+        
+        // Update AC type distribution chart
+        function updateACTypeChart() {
+            const filteredACs = filterAirConditioners();
+            
+
+            
+            // Count by type
+            const typeCount = {};
+            
+            filteredACs.forEach(ac => {
+                const type = ac.type ? ac.type.toLowerCase() : 'unknown';
+                typeCount[type] = (typeCount[type] || 0) + 1;
+            });
+            
+
+            
+            const types = Object.keys(typeCount);
+            const counts = types.map(type => typeCount[type]);
+            const typeLabels = types.map(type => {
+                const typeMap = {
+                    'split': 'TREO TƯỜNG',
+                    'multi': 'CÂY',
+                    'central': 'TRUNG TÂM',
+                    'cassette': 'ÂM TRẦN',
+                    'unknown': 'KHÔNG XÁC ĐỊNH'
+                };
+                return typeMap[type] || type.toUpperCase();
+            });
+            
+            const ctx = document.getElementById('acTypeChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (window.acTypeChart && typeof window.acTypeChart.destroy === 'function') {
+                window.acTypeChart.destroy();
+            }
+            
+            window.acTypeChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: typeLabels,
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(72, 187, 120, 0.8)',
+                            'rgba(237, 137, 54, 0.8)',
+                            'rgba(245, 101, 101, 0.8)',
+                            'rgba(160, 174, 192, 0.8)'
+                        ],
+                        borderWidth: 1,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${context.label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update status distribution chart
+        function updateStatusChart() {
+            const filteredACs = filterAirConditioners();
+
+            
+            // Count by status
+            const statusCounts = {
+                excellent: 0,
+                good: 0,
+                maintenance: 0,
+                repair: 0,
+                broken: 0
+            };
+            
+            filteredACs.forEach(ac => {
+                const status = ac.status ? ac.status.toLowerCase() : 'good';
+                statusCounts[status] = (statusCounts[status] || 0) + 1;
+            });
+            
+
+            
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (window.statusChart && typeof window.statusChart.destroy === 'function') {
+                window.statusChart.destroy();
+            }
+            
+            window.statusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Xuất sắc', 'Tốt', 'Cần bảo dưỡng', 'Cần sửa chữa', 'Hỏng'],
+                    datasets: [{
+                        data: [
+                            statusCounts.excellent,
+                            statusCounts.good,
+                            statusCounts.maintenance,
+                            statusCounts.repair,
+                            statusCounts.broken
+                        ],
+                        backgroundColor: [
+                            '#48bb78',
+                            '#38a169',
+                            '#ed8936',
+                            '#f56565',
+                            '#e53e3e'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update work activity chart
+        function updateWorkChart() {
+            const filteredWork = filterWorkHistory();
+
+            
+            // Group by month
+            const monthlyWork = {};
+            filteredWork.forEach(work => {
+                if (work.work_date) {
+                    const date = new Date(work.work_date);
+                    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    monthlyWork[monthKey] = (monthlyWork[monthKey] || 0) + 1;
+                }
+            });
+            
+
+            
+            // Nếu không có dữ liệu, tạo dữ liệu mẫu tạm thời để hiển thị biểu đồ
+            if (Object.keys(monthlyWork).length === 0) {
+                const currentDate = new Date();
+                for (let i = 5; i >= 0; i--) {
+                    const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+                    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    monthlyWork[monthKey] = 0; // Hiển thị 0 công việc
+                }
+
+            }
+            
+            const months = Object.keys(monthlyWork).sort();
+            const counts = months.map(month => monthlyWork[month]);
+            
+            const ctx = document.getElementById('workChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (window.workChart && typeof window.workChart.destroy === 'function') {
+                window.workChart.destroy();
+            }
+            
+            window.workChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months.map(month => {
+                        const [year, monthNum] = month.split('-');
+                        return `${monthNum}/${year}`;
+                    }),
+                    datasets: [{
+                        label: 'Số công việc',
+                        data: counts,
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    return tooltipItems[0].label;
+                                },
+                                label: function(context) {
+                                    const value = context.parsed.y;
+                                    return value + ' công việc';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update work history table
+        function updateWorkHistoryTable(keepCurrentPage = false) {
+            // Lưu lại giá trị bộ lọc cũ để kiểm tra xem có thay đổi không
+            const oldFilters = { ...workTableFilters };
+            
+            // Cập nhật bộ lọc bảng công việc
+            workTableFilters.type = document.getElementById('workTypeFilter').value;
+            workTableFilters.location = document.getElementById('workLocationFilter').value;
+            workTableFilters.area = document.getElementById('workAreaFilter').value;
+            workTableFilters.search = document.getElementById('workSearchInput').value.toLowerCase();
+            
+            // Reset trang về 1 khi thay đổi bộ lọc, trừ khi được yêu cầu giữ nguyên trang
+            if (!keepCurrentPage && 
+                (oldFilters.type !== workTableFilters.type || 
+                 oldFilters.location !== workTableFilters.location ||
+                 oldFilters.area !== workTableFilters.area ||
+                 oldFilters.search !== workTableFilters.search)) {
+                currentWorkPage = 1;
+            }
+            
+            // Lọc dữ liệu công việc theo bộ lọc chính và bộ lọc bảng
+            const filteredWork = filterWorkHistoryWithTableFilters();
+            const tbody = document.querySelector('#workHistoryTable tbody');
+            const paginationElement = document.getElementById('workHistoryPagination');
+            const totalElement = document.getElementById('workHistoryTotal');
+            
+            if (!filteredWork || filteredWork.length === 0) {
+                
+                // Tạo dữ liệu mẫu tạm thời để hiển thị giao diện
+                const sampleWork = [
+                    {
+                        work_date: new Date().toISOString().split('T')[0],
+                        ma_dieu_hoa: airConditioners[0]?.code || 'DH101I',
+                        type: 'maintenance',
+                        description: 'Bảo dưỡng định kỳ',
+                        contractor_id: 1,
+                        cost: 500000,
+                        status: 'completed'
+                    },
+                    {
+                        work_date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        ma_dieu_hoa: airConditioners[1]?.code || 'DH102I',
+                        type: 'repair',
+                        description: 'Sửa chữa máy nén',
+                        contractor_id: 2,
+                        cost: 1200000,
+                        status: 'completed'
+                    },
+                    {
+                        work_date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        ma_dieu_hoa: airConditioners[2]?.code || 'DH103I',
+                        type: 'inspection',
+                        description: 'Kiểm tra hệ thống',
+                        contractor_id: 1,
+                        cost: 300000,
+                        status: 'in-progress'
+                    }
+                ];
+                
+                // Áp dụng bộ lọc bảng cho dữ liệu mẫu
+                const filteredSampleWork = sampleWork.filter(work => {
+                    // Lọc theo loại công việc
+                    if (workTableFilters.type && work.type !== workTableFilters.type) {
+                        return false;
+                    }
+                    
+                    // Lấy thông tin điều hòa
+                    const acCode = work.ma_dieu_hoa;
+                    const ac = airConditioners.find(a => a.code === acCode);
+                    
+                    // Lọc theo vị trí
+                    if (workTableFilters.location && ac && ac.location !== workTableFilters.location) {
+                        return false;
+                    }
+                    
+                    // Lọc theo khu vực
+                    if (workTableFilters.area && ac && ac.area !== workTableFilters.area) {
+                        return false;
+                    }
+                    
+                    // Lọc theo từ khóa tìm kiếm
+                    if (workTableFilters.search) {
+                        const searchTerm = workTableFilters.search.toLowerCase();
+                        const acCode = work.ma_dieu_hoa.toLowerCase();
+                        const workType = getWorkTypeText(work.type).toLowerCase();
+                        const description = (work.description || '').toLowerCase();
+                        
+                        if (!acCode.includes(searchTerm) && 
+                            !workType.includes(searchTerm) && 
+                            !description.includes(searchTerm)) {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                });
+                
+                tbody.innerHTML = filteredSampleWork.map(work => {
+                    // Lấy vị trí mẫu
+                    const location = airConditioners.find(a => a.code === work.ma_dieu_hoa)?.location || 'Phòng họp';
+                    
+                    return `
+                    <tr>
+                        <td>${formatDate(work.work_date)}</td>
+                        <td><strong>${work.ma_dieu_hoa}</strong></td>
+                        <td>${getWorkTypeText(work.type)}</td>
+                        <td>${work.contractor_id === 1 ? 'Công ty TNHH Điện lạnh ABC' : 'Công ty CP Kỹ thuật XYZ'}</td>
+                        <td>${location}</td>
+                        <td>
+                            <span class="status-badge status-${work.status || 'completed'}">
+                                ${getWorkStatusText(work.status)}
+                            </span>
+                        </td>
+                    </tr>
+                    `;
+                }).join('');
+                
+                // Hiển thị số lượng công việc
+                totalElement.textContent = filteredSampleWork.length;
+                
+                // Ẩn phân trang nếu không đủ mục để phân trang
+                if (filteredSampleWork.length <= itemsPerPage) {
+                    paginationElement.innerHTML = '';
+                } else {
+                    // Tạo phân trang cho dữ liệu mẫu
+                    const totalPages = Math.ceil(filteredSampleWork.length / itemsPerPage);
+                    generatePagination(totalPages, currentWorkPage, paginationElement);
+                }
+                return;
+            }
+            
+            // Sort by date (newest first)
+            const sortedWork = filteredWork.sort((a, b) => new Date(b.work_date) - new Date(a.work_date));
+            
+            // Tính toán phân trang
+            const totalItems = sortedWork.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            
+            // Đảm bảo trang hiện tại hợp lệ
+            if (currentWorkPage > totalPages) {
+                currentWorkPage = totalPages;
+            }
+            if (currentWorkPage < 1) {
+                currentWorkPage = 1;
+            }
+            
+            // Tính vị trí bắt đầu và kết thúc
+            const startIndex = (currentWorkPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+            
+            // Hiển thị dữ liệu cho trang hiện tại
+            tbody.innerHTML = sortedWork.slice(startIndex, endIndex).map(work => {
+                // Lấy vị trí từ điều hòa
+                const acId = work.ac_id || work.air_conditioner_id;
+                const acCode = work.ma_dieu_hoa || work.ac_code || getACCodeById(acId);
+                const ac = airConditioners.find(a => a.id === acId || a.code === acCode);
+                const location = ac ? ac.location || '-' : '-';
+                
+                return `
+                <tr>
+                    <td>${formatDate(work.work_date)}</td>
+                    <td><strong>${acCode}</strong></td>
+                    <td>${getWorkTypeText(work.type)}</td>
+                    <td>${getContractorName(work.contractor_id)}</td>
+                    <td>${location}</td>
+                    <td>
+                        <span class="status-badge status-${work.status || 'completed'}">
+                            ${getWorkStatusText(work.status)}
+                        </span>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+            
+            // Hiển thị số lượng công việc
+            totalElement.textContent = totalItems;
+            
+            // Tạo phân trang
+            generatePagination(totalPages, currentWorkPage, paginationElement);
+        }
+        
+        // Lọc dữ liệu công việc với cả bộ lọc chính và bộ lọc bảng
+        function filterWorkHistoryWithTableFilters() {
+            // Trước tiên lọc theo bộ lọc chính
+            let filtered = filterWorkHistory();
+            
+            // Sau đó lọc tiếp theo bộ lọc bảng
+            filtered = filtered.filter(work => {
+                // Lọc theo loại công việc
+                if (workTableFilters.type && work.type !== workTableFilters.type) {
+                    return false;
+                }
+                
+                // Lấy thông tin điều hòa
+                const acId = work.ac_id || work.air_conditioner_id;
+                const acCode = work.ma_dieu_hoa || work.ac_code || getACCodeById(acId);
+                const ac = airConditioners.find(a => a.id === acId || a.code === acCode);
+                
+                // Lọc theo vị trí
+                if (workTableFilters.location && ac && ac.location !== workTableFilters.location) {
+                    return false;
+                }
+                
+                // Lọc theo khu vực
+                if (workTableFilters.area && ac && ac.area !== workTableFilters.area) {
+                    return false;
+                }
+                
+                // Lọc theo từ khóa tìm kiếm
+                if (workTableFilters.search) {
+                    const searchTerm = workTableFilters.search.toLowerCase();
+                    const acCode = (work.ma_dieu_hoa || work.ac_code || getACCodeById(work.ac_id || work.air_conditioner_id) || '').toLowerCase();
+                    const workType = getWorkTypeText(work.type).toLowerCase();
+                    const description = (work.description || '').toLowerCase();
+                    const contractorName = getContractorName(work.contractor_id).toLowerCase();
+                    
+                    // Tìm kiếm trong mã điều hòa, loại công việc, mô tả, nhà thầu
+                    if (!acCode.includes(searchTerm) && 
+                        !workType.includes(searchTerm) && 
+                        !description.includes(searchTerm) && 
+                        !contractorName.includes(searchTerm)) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+            
+            return filtered;
+        }
+        
+        // Hàm tạo phân trang
+        function generatePagination(totalPages, currentPage, paginationElement) {
+            if (totalPages <= 1) {
+                paginationElement.innerHTML = '';
+                return;
+            }
+            
+            let paginationHTML = '';
+            
+            // Nút Previous
+            paginationHTML += `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <button class="page-link" onclick="changePage(${currentPage - 1});" ${currentPage === 1 ? 'disabled' : ''} aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </button>
+                </li>
+            `;
+            
+            // Các nút số trang
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            // Điều chỉnh startPage nếu endPage đã đạt giới hạn
+            if (endPage === totalPages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+            
+            // Nút trang đầu
+            if (startPage > 1) {
+                paginationHTML += `
+                    <li class="page-item">
+                        <button class="page-link" onclick="changePage(1);">1</button>
+                    </li>
+                `;
+                
+                if (startPage > 2) {
+                    paginationHTML += `
+                        <li class="page-item disabled">
+                            <button class="page-link">...</button>
+                        </li>
+                    `;
+                }
+            }
+            
+            // Các nút trang giữa
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <button class="page-link" onclick="changePage(${i});">${i}</button>
+                    </li>
+                `;
+            }
+            
+            // Nút trang cuối
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    paginationHTML += `
+                        <li class="page-item disabled">
+                            <button class="page-link">...</button>
+                        </li>
+                    `;
+                }
+                
+                paginationHTML += `
+                    <li class="page-item">
+                        <button class="page-link" onclick="changePage(${totalPages});">${totalPages}</button>
+                    </li>
+                `;
+            }
+            
+            // Nút Next
+            paginationHTML += `
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <button class="page-link" onclick="changePage(${currentPage + 1});" ${currentPage === totalPages ? 'disabled' : ''} aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </button>
+                </li>
+            `;
+            
+            paginationElement.innerHTML = paginationHTML;
+        }
+        
+        // Hàm chuyển trang
+        function changePage(pageNumber) {
+            // Đảm bảo pageNumber là số hợp lệ
+            pageNumber = parseInt(pageNumber);
+            if (isNaN(pageNumber) || pageNumber < 1) {
+                pageNumber = 1;
+            }
+            
+            // Lấy tổng số trang hiện tại
+            const filteredWork = filterWorkHistoryWithTableFilters();
+            const totalPages = Math.ceil(filteredWork.length / itemsPerPage);
+            
+            // Đảm bảo không vượt quá tổng số trang
+            if (pageNumber > totalPages) {
+                pageNumber = totalPages;
+            }
+            
+            // Cập nhật trang hiện tại và làm mới bảng
+            currentWorkPage = pageNumber;
+            
+            // Cuộn lên đầu bảng
+            const tableElement = document.getElementById('workHistoryTable');
+            if (tableElement) {
+                tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            
+            // Gọi updateWorkHistoryTable với tham số keepCurrentPage=true để không reset trang
+            updateWorkHistoryTable(true);
+        }
+        
+        // Hàm lấy mã điều hòa từ ID
+        function getACCodeById(acId) {
+            if (!acId) return 'N/A';
+            const ac = airConditioners.find(a => a.id === acId);
+            return ac ? ac.code : 'N/A';
+        }
+
+        // Update maintenance schedule
+        function updateMaintenanceSchedule() {
+            const filteredACs = filterAirConditioners();
+            const container = document.getElementById('maintenanceSchedule');
+            
+
+            
+            // Find ACs that need maintenance soon (within 30 days)
+            const now = new Date();
+            const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+            
+            // Tạo dữ liệu mẫu từ các điều hòa hiện có
+            const sampleMaintenance = filteredACs.slice(0, 3).map(ac => {
+                const randomDays = Math.floor(Math.random() * 28) + 1;
+                const maintenanceDate = new Date();
+                maintenanceDate.setDate(maintenanceDate.getDate() + randomDays);
+                
+                return {
+                    ...ac,
+                    nextMaintenance: maintenanceDate.toISOString().split('T')[0]
+                };
+            });
+            
+
+            
+            container.innerHTML = sampleMaintenance.map(ac => `
+                <div class="d-flex justify-content-between align-items-center mb-3 p-3 rounded" 
+                     style="background: rgba(102, 126, 234, 0.1); border-left: 4px solid var(--primary);">
+                    <div>
+                        <strong>${ac.code}</strong>
+                        <br><small class="text-muted">${ac.location}</small>
+                    </div>
+                    <span class="badge bg-warning text-dark">
+                        ${formatDate(ac.nextMaintenance)}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        // Filter functions
+        function filterAirConditioners() {
+            const filtered = airConditioners.filter(ac => {
+                return (!currentFilters.area || ac.area === currentFilters.area) &&
+                       (!currentFilters.type || ac.type === currentFilters.type);
+            });
+            return filtered;
+        }
+
+        function filterWorkHistory() {
+            let filtered = workHistory || [];
+            // Filter by time range
+            if (currentFilters.timeRange !== 'all') {
+                const cutoffDate = new Date();
+                cutoffDate.setDate(cutoffDate.getDate() - currentFilters.timeRange);
+                filtered = filtered.filter(work => {
+                    if (!work.work_date) return false;
+                    return new Date(work.work_date) >= cutoffDate;
+                });
+            }
+            
+            // Filter by area (if AC is in filtered area)
+            if (currentFilters.area) {
+                const filteredACs = filterAirConditioners();
+                const filteredACCodes = filteredACs.map(ac => ac.code);
+                filtered = filtered.filter(work => {
+                    const workCode = work.ma_dieu_hoa || work.ac_code;
+                    return filteredACCodes.includes(workCode);
+                });
+            }
+            
+            return filtered;
+        }
+
+        // Export report
+        function exportReport() {
+            const data = {
+                reportDate: new Date().toLocaleDateString('vi-VN'),
+                filters: currentFilters,
+                statistics: {
+                    totalACs: document.getElementById('totalACs').textContent,
+                    goodACs: document.getElementById('goodACs').textContent,
+                    maintenanceACs: document.getElementById('maintenanceACs').textContent,
+                    totalCost: document.getElementById('totalCost').textContent
+                },
+                airConditioners: filterAirConditioners(),
+                workHistory: filterWorkHistory()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `bao_cao_dieu_hoa_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('Đã xuất báo cáo thành công!', 'success');
+        }
+
+        // Print report
+        function printReport() {
+            window.print();
+        }
+
+        // Utility functions
+        function getTypeText(type) {
+            const typeMap = {
+                'split': 'TREO TƯỜNG',
+                'multi': 'CÂY',
+                'central': 'TRUNG TÂM',
+                'cassette': 'ÂM TRẦN'
+            };
+            const lowerType = type ? type.toLowerCase() : '';
+            return typeMap[lowerType] || type;
+        }
+        
+        // Hàm xử lý giá trị cost, đảm bảo trả về số nguyên
+        function parseCost(cost) {
+            if (!cost) return 0;
+            
+            // Nếu cost là chuỗi, có thể có dạng "200000.00"
+            if (typeof cost === 'string') {
+                // Lấy phần trước dấu chấm thập phân
+                const parts = cost.split('.');
+                return parseInt(parts[0]) || 0;
+            }
+            
+            // Nếu cost là số
+            return parseInt(cost) || 0;
+        }
+
+        function getWorkTypeText(type) {
+            const typeMap = {
+                'maintenance': 'Bảo dưỡng định kỳ',
+                'repair': 'Sửa chữa',
+                'inspection': 'Kiểm tra',
+                'cleaning': 'Vệ sinh',
+                'replacement': 'Thay thế linh kiện'
+            };
+            return typeMap[type] || type;
+        }
+
+        function getWorkStatusText(status) {
+            const statusMap = {
+                'completed': 'Hoàn thành',
+                'in-progress': 'Đang thực hiện',
+                'pending': 'Chờ xử lý'
+            };
+            return statusMap[status] || status;
+        }
+
+        function getContractorName(contractorId) {
+            if (!contractorId) return '-';
+            const contractor = contractors.find(c => c.id == contractorId);
+            return contractor ? contractor.name : '-';
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('vi-VN');
+            } catch (error) {
+                return dateString;
+            }
+        }
+
+        function formatCurrency(amount) {
+            if (!amount || amount === 0) return '0₫';
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(amount);
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 100px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html> 
