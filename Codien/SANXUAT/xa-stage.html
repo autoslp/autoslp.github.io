@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Công đoạn XẢ - Carton Manager</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">    <link rel="stylesheet" href="universal-stage.css">
+  <style>
+    /* Đảm bảo modal hiển thị đúng và ở giữa màn hình */
+    .modal {
+      z-index: 1050 !important;
+    }
+    
+    .modal-backdrop {
+      z-index: 1040 !important;
+    }
+    
+    .modal-dialog {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 1.75rem auto;
+    }
+    
+    .modal-content {
+      max-width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+      border-radius: 8px;
+    }
+    
+    /* Đảm bảo các tab hiển thị đúng */
+    .nav-tabs .nav-link.active {
+      font-weight: bold;
+      border-bottom-color: transparent;
+    }
+    
+    /* Cải thiện hiển thị của form */
+    .form-control, .form-select {
+      margin-bottom: 0.5rem;
+      border-radius: 6px;
+    }
+    
+    /* Tạo khoảng cách rõ ràng giữa các phần của form */
+    .form-label {
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+    
+    /* Làm nổi bật thông tin quan trọng */
+    .alert {
+      border-radius: 6px;
+    }
+    
+    /* Đảm bảo modal không bị tràn màn hình trên thiết bị di động */
+    @media (max-width: 768px) {
+      .modal-dialog {
+        margin: 0.5rem;
+        max-width: 95%;
+      }
+      
+      .modal-dialog-centered {
+        min-height: calc(100% - 1rem);
+      }
+    }
+    
+    /* Fix cho nút đóng trên modal header */
+    .modal-header .btn-close {
+      padding: 0.5rem;
+      margin: -0.5rem -0.5rem -0.5rem auto;
+    }
+    
+    /* Hiệu ứng hover cho các nút */
+    .btn {
+      transition: all 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body data-stage="xa">
+  
+  <!-- Sidebar -->
+  <div class="sidebar collapsed" id="sidebar">
+    <div class="sidebar-content">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <div class="bg-primary text-white rounded d-flex align-items-center justify-content-center" style="width:32px;height:32px;">
+            <i class="bi bi-box"></i>
+          </div>
+          <h5 class="mb-0 text-primary">Carton Manager</h5>
+        </div>
+        <button class="btn btn-primary sidebar-toggle" onclick="toggleSidebar()" id="toggleBtn" title="Thu nhỏ/Mở rộng">
+          <span id="toggleIcon"><i class="bi bi-chevron-right"></i></span>
+        </button>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-link">
+          <i class="bi bi-house"></i>
+          <span class="nav-text">Trang chủ</span>
+        </a>
+        <a href="production-orders.html" class="nav-link">
+          <i class="bi bi-clipboard-data"></i>
+          <span class="nav-text">Lệnh sản xuất</span>
+        </a>
+        <a href="progress.html" class="nav-link">
+          <i class="bi bi-lightning"></i>
+          <span class="nav-text">Quản lý tiến độ</span>
+        </a>
+        <a href="materials.html" class="nav-link">
+          <i class="bi bi-box-seam"></i>
+          <span class="nav-text">Vật tư</span>
+        </a>
+        <a href="workflow.html" class="nav-link">
+          <i class="bi bi-arrow-repeat"></i>
+          <span class="nav-text">Công đoạn</span>
+        </a>
+        <a href="reports.html" class="nav-link">
+          <i class="bi bi-graph-up"></i>
+          <span class="nav-text">Báo cáo</span>
+        </a>
+        <a href="xa-stage.html" class="nav-link active">
+          <i class="bi bi-bullseye"></i>
+          <span class="nav-text">Công đoạn XẢ</span>
+        </a>
+        <a href="xen-stage.html" class="nav-link">
+          <i class="bi bi-scissors"></i>
+          <span class="nav-text">Công đoạn XÉN</span>
+        </a>
+        <a href="in-stage.html" class="nav-link">
+          <i class="bi bi-printer"></i>
+          <span class="nav-text">Công đoạn IN</span>
+        </a>
+        <a href="boi-stage.html" class="nav-link">
+          <i class="bi bi-file-text"></i>
+          <span class="nav-text">Công đoạn BỒI</span>
+        </a>
+        <a href="be-stage.html" class="nav-link">
+          <i class="bi bi-knife"></i>
+          <span class="nav-text">Công đoạn BẾ</span>
+        </a>
+        <a href="dan-stage.html" class="nav-link">
+          <i class="bi bi-link"></i>
+          <span class="nav-text">Công đoạn DÁN</span>
+        </a>
+        <a href="kho-stage.html" class="nav-link">
+          <i class="bi bi-building"></i>
+          <span class="nav-text">KHO THÀNH PHẨM</span>
+        </a>
+      </nav>
+      
+      <div class="sidebar-footer">
+        © 2025 Carton Manager
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content sidebar-collapsed" id="mainContent">
+    <div class="container-fluid p-4">
+      
+      <!-- Stage Header -->
+      <div class="stage-header">
+        <h1>
+          <i class="bi bi-bullseye me-2 text-primary"></i>
+          Công đoạn XẢ
+        </h1>
+        <p class="mb-0">Xả giấy cuộn - Quản lý chi tiết sản xuất</p>
+      </div>
+      
+      <!-- Statistics -->
+      <div class="row mb-4" id="stageStats">
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="stat-card">
+            <div class="stat-value" id="totalOrders">0</div>
+            <div class="stat-label">Tổng lệnh</div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="stat-card">
+            <div class="stat-value" id="totalPlan">0</div>
+            <div class="stat-label">SL Kế hoạch</div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="stat-card">
+            <div class="stat-value" id="totalGood">0</div>
+            <div class="stat-label">SL Đạt</div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="stat-card">
+            <div class="stat-value" id="totalNg">0</div>
+            <div class="stat-label">SL NG</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Main Card -->
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Danh sách lệnh sản xuất - Công đoạn Xả</h5>
+          <div>
+            <button class="btn btn-primary me-2" onclick="refreshData()">
+              <i class="bi bi-arrow-clockwise me-1"></i>Làm mới
+            </button>
+            <button class="btn btn-success" onclick="showNewOrderForm()">
+              <i class="bi bi-plus-lg me-1"></i>Thêm mới
+            </button>
+          </div>
+        </div>
+        
+        <div class="card-body">
+          <!-- Filters -->
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <label class="form-label">Ngày sản xuất:</label>
+              <input type="date" class="form-control" id="dateFilter">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Ca:</label>
+              <select class="form-select" id="shiftFilter">
+                <option value="">Tất cả</option>
+                <option value="Ca 1">Ca 1</option>
+                <option value="Ca 2">Ca 2</option>
+                <option value="Ca 3">Ca 3</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Máy:</label>
+              <select class="form-select" id="machineFilter">
+                <option value="">Tất cả</option>
+                <option value="Xả 1">Xả 1</option>
+                <option value="Xả 2">Xả 2</option>
+                <option value="Xả 3">Xả 3</option>
+              </select>
+            </div>
+            <div class="col-md-5">
+              <label class="form-label">Tìm kiếm:</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="searchInput" placeholder="Tìm theo mã lệnh, sản phẩm...">
+                <button class="btn btn-outline-secondary" type="button" onclick="applyFilters()">
+                  <i class="bi bi-search"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Table -->
+          <div class="table-container">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th width="50">#</th>
+                  <th width="150">Lệnh SX</th>
+                  <th width="200">Sản phẩm</th>
+                  <th width="80">Loại giấy</th>
+                  <th width="80">Định lượng</th>
+                  <th width="100">KH</th>
+                  <th width="100">Đầu vào</th>
+                  <th width="100">OK</th>
+                  <th width="100">NG</th>
+                  <th width="120">Tiến độ</th>
+                  <th width="120">Máy/Thợ</th>
+                  <th width="150">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="stageTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Order Modal -->
+  <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">Thêm lệnh sản xuất mới - Công đoạn Xả</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="orderForm">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Mã lệnh sản xuất *</label>
+                <input type="text" class="form-control" id="orderCode" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Mã sản phẩm *</label>
+                <input type="text" class="form-control" id="productCode" required>
+              </div>
+              <div class="col-md-12 mb-3">
+                <label class="form-label">Tên sản phẩm *</label>
+                <input type="text" class="form-control" id="productName" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Loại giấy *</label>
+                <select class="form-select" id="paperType" required>
+                  <option value="">Chọn loại giấy</option>
+                  <option value="BC">BC</option>
+                  <option value="CC">CC</option>
+                  <option value="WF">WF</option>
+                  <option value="OF">OF</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Định lượng (gsm) *</label>
+                <input type="number" class="form-control" id="paperWeight" required min="100" max="1000">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Khổ tờ</label>
+                <input type="text" class="form-control" id="sheetSize" placeholder="VD: 1020x720mm">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Số lượng kế hoạch *</label>
+                <input type="number" class="form-control" id="planQty" required min="1">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Ca sản xuất</label>
+                <select class="form-select" id="shift">
+                  <option value="Ca 1">Ca 1</option>
+                  <option value="Ca 2">Ca 2</option>
+                  <option value="Ca 3">Ca 3</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Máy xả</label>
+                <select class="form-select" id="machine">
+                  <option value="Xả 1">Xả 1</option>
+                  <option value="Xả 2">Xả 2</option>
+                  <option value="Xả 3">Xả 3</option>
+                </select>
+              </div>
+              <div class="col-md-12 mb-3">
+                <label class="form-label">Ghi chú</label>
+                <textarea class="form-control" id="orderNote" rows="3"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-primary" onclick="saveOrder()">Lưu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal hoàn thành công đoạn -->
+  <div class="modal fade" id="completeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title">
+            <i class="bi bi-check-circle me-2"></i>
+            Hoàn thành công đoạn XẢ
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Form tabs -->
+          <ul class="nav nav-tabs mb-3" id="modalTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="complete-tab" data-bs-toggle="tab" data-bs-target="#complete-tab-pane" type="button" role="tab">
+                <i class="bi bi-check-circle me-1"></i>Hoàn thành công đoạn
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="handover-tab" data-bs-toggle="tab" data-bs-target="#handover-tab-pane" type="button" role="tab">
+                <i class="bi bi-arrow-right-circle me-1"></i>Bàn giao công đoạn XÉN
+              </button>
+            </li>
+          </ul>
+
+          <!-- Tab content -->
+          <div class="tab-content" id="modalTabContent">
+            <!-- Complete stage tab -->
+            <div class="tab-pane fade show active" id="complete-tab-pane" role="tabpanel" tabindex="0">
+          <form id="completeStageForm">
+            <input type="hidden" id="completeOrderId">
+            
+            <!-- Order Info -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <strong>Mã lệnh:</strong> <span id="completeOrderCode"></span>
+              </div>
+              <div class="col-md-6">
+                <strong>Sản phẩm:</strong> <span id="completeProductName"></span>
+              </div>
+            </div>
+            
+            <!-- Current Stage Info -->
+            <div class="alert alert-info">
+              <h6><i class="bi bi-info-circle me-2"></i>Thông tin đầu vào:</h6>
+              <div class="row">
+                    <div class="col-md-4">
+                      <strong>Số lượng kế hoạch:</strong> <span id="completeQuantity" class="text-primary">0</span>
+                </div>
+                    <div class="col-md-4">
+                  <strong>Loại giấy:</strong> <span id="completePaperType"></span>
+                </div>
+                    <div class="col-md-4">
+                      <strong>Định lượng:</strong> <span id="completePaperWeight"></span>
+                    </div>
+              </div>
+            </div>
+            
+            <!-- Production Results -->
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Số lượng đạt (OK) *</label>
+                    <input type="number" class="form-control" id="completeGoodQty" required min="0" onchange="updateHandoverQty()">
+                <div class="form-text">Số lượng tờ giấy đạt chất lượng</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Số lượng NG *</label>
+                <input type="number" class="form-control" id="completeNgQty" required min="0">
+                <div class="form-text">Số lượng tờ giấy không đạt chất lượng</div>
+              </div>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">NG Đầu/Cuối</label>
+                <input type="number" class="form-control" id="completeNgStartEndQty" min="0">
+                <div class="form-text">Số lượng NG do setup máy</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Hàng trả</label>
+                <input type="number" class="form-control" id="completeReturnQty" min="0">
+                <div class="form-text">Số lượng hàng trả lại</div>
+              </div>
+            </div>
+            
+            <!-- Time and Worker -->
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                    <label class="form-label">Máy sản xuất</label>
+                    <select class="form-select" id="completeMachine">
+                      <option value="Xả 1">Xả 1</option>
+                      <option value="Xả 2">Xả 2</option>
+                      <option value="Xả 3">Xả 3</option>
+                    </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                    <label class="form-label">Ca sản xuất</label>
+                    <select class="form-select" id="completeShift">
+                      <option value="Ca 1">Ca 1 (6:00-14:00)</option>
+                      <option value="Ca 2">Ca 2 (14:00-22:00)</option>
+                      <option value="Ca 3">Ca 3 (22:00-6:00)</option>
+                    </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Thợ phụ trách</label>
+                <input type="text" class="form-control" id="completeWorker">
+              </div>
+            </div>
+            
+            <!-- Note -->
+            <div class="mb-3">
+              <label class="form-label">Ghi chú</label>
+                  <textarea class="form-control" id="completeNote" rows="2" placeholder="Ghi chú về quá trình sản xuất..."></textarea>
+                </div>
+              </form>
+            </div>
+            
+            <!-- Handover tab -->
+            <div class="tab-pane fade" id="handover-tab-pane" role="tabpanel" tabindex="0">
+              <form id="handoverForm">
+            <!-- Next Stage Info -->
+            <div class="alert alert-warning">
+              <h6><i class="bi bi-arrow-right me-2"></i>Công đoạn tiếp theo:</h6>
+              <p class="mb-1">Sau khi hoàn thành, sản phẩm OK sẽ được chuyển sang công đoạn <strong>XÉN</strong></p>
+            </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <strong>Mã lệnh:</strong> <span id="handoverOrderCode"></span>
+                  </div>
+                  <div class="col-md-6">
+                    <strong>Sản phẩm:</strong> <span id="handoverProductName"></span>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Số lượng bàn giao: <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="handoverQty" min="0">
+                    <div class="form-text">Số lượng chuyển sang công đoạn XÉN</div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Ngày bàn giao:</label>
+                    <input type="date" class="form-control" id="handoverDate">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Người bàn giao:</label>
+                    <input type="text" class="form-control" id="handoverPerson" placeholder="Nhập tên người bàn giao">
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Người nhận:</label>
+                    <input type="text" class="form-control" id="receiverPerson" placeholder="Nhập tên người nhận">
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Ghi chú bàn giao:</label>
+                  <textarea class="form-control" id="handoverNotes" rows="3" placeholder="Ghi chú về bàn giao sản phẩm..."></textarea>
+                </div>
+
+                <div class="alert alert-secondary">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="confirmHandover">
+                    <label class="form-check-label" for="confirmHandover">
+                      Tôi xác nhận đã bàn giao đủ số lượng và chất lượng cho công đoạn XÉN
+                    </label>
+                  </div>
+                </div>
+          </form>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-success" onclick="completeOrder()">
+            <i class="bi bi-check-lg me-1"></i>Hoàn thành & Bàn giao
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div class="text-center text-white">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <div class="mt-2">Đang tải dữ liệu từ API...</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Production Config -->
+  <script src="production-config.js"></script>
+  
+  <!-- Production Orders API -->
+  <script src="production-orders-api.js"></script>
+
+  <script>
+    // Stage configuration for XA
+    const STAGE_KEY = 'xa';
+    const STAGE_NAME = 'XẢ';
+    
+    // Sử dụng Production Orders API
+    const API = window.ProductionAPI;
+    
+    // App utility functions
+    const App = {
+      formatNumber: API.formatNumber,
+      notify: API.showNotification,
+      showLoading: API.showLoading,
+      hideLoading: API.hideLoading,
+      confirm: function(message, callback) {
+        if (confirm(message)) {
+          callback();
+        }
+      }
+    };
+
+    // Date utilities
+    const DateUtils = {
+      today: API.getToday,
+      format: API.formatDate
+    };
+
+    // Data storage
+    let stageOrders = [];
+    let editingOrderId = null;
+    
+    // Initialize data from API
+    async function initData() {
+      console.log('=== INIT XA STAGE DATA START ===');
+      try {
+        App.showLoading();
+        
+        try {
+          // Try to load from API using new unified method
+          const apiOrders = await API.getOrdersByStage(STAGE_KEY);
+          console.log('API orders loaded:', apiOrders.length);
+          
+          // Đảm bảo các đơn hàng luôn có trạng thái xác định
+          stageOrders = apiOrders.map(order => ({
+            ...order,
+            status: order.status || 'in_progress' // Default to 'in_progress' if status is undefined
+          }));
+          
+        } catch (apiError) {
+          console.warn('API not available, using sample data:', apiError);
+          stageOrders = createSampleData();
+          App.notify('Đang sử dụng dữ liệu mẫu (API không khả dụng)', 'warning');
+        }
+        
+        renderStageData();
+        updateStatistics();
+        
+        App.notify('Đã tải dữ liệu thành công', 'success');
+        
+      } catch (error) {
+        console.error('Error loading data:', error);
+        App.notify('Lỗi tải dữ liệu: ' + error.message, 'error');
+        stageOrders = [];
+        renderStageData();
+        updateStatistics();
+      } finally {
+        App.hideLoading();
+      }
+    }
+    
+    // Create sample data for testing
+    function createSampleData() {
+      console.log("Creating sample data with both in_progress and completed orders");
+      return [
+        {
+          id: 1,
+          production_order: 'LSX001',
+          internal_product_code: 'SP001',
+          product_name: 'Hộp carton A4 - Mẫu 1',
+          order_type: 'Thường',
+          deployed_quantity: 1000,
+          current_stage: 'xa',
+          production_shift: 'Ca 1',
+          assigned_machine: 'Xả 1',
+          paper_type: 'BC',
+          paper_weight: 350,
+          deployment_date: DateUtils.today(),
+          status: 'in_progress',  // Đơn hàng đang xử lý - hiển thị nút Hoàn thành
+          good_qty: 0,
+          ng_qty: 0,
+          ng_start_end_qty: 0,
+          return_qty: 0,
+          stage_note: '',
+          worker: 'Nguyễn Văn A',
+          completed_at: null,
+          handed_over_at: null,
+          handed_over_by: null,
+          handed_over_to: null,
+          handover_note: '',
+          xen_input_qty: 0
+        },
+        {
+          id: 2,
+          production_order: 'LSX002',
+          internal_product_code: 'SP002',
+          product_name: 'Hộp carton B4 - Mẫu 2',
+          order_type: 'Gấp',
+          deployed_quantity: 500,
+          current_stage: 'xa',
+          production_shift: 'Ca 2',
+          assigned_machine: 'Xả 2',
+          paper_type: 'CC',
+          paper_weight: 300,
+          deployment_date: DateUtils.today(),
+          status: 'completed',  // Đơn hàng đã hoàn thành - hiển thị nút Bàn giao
+          good_qty: 480,
+          ng_qty: 20,
+          ng_start_end_qty: 10,
+          return_qty: 0,
+          stage_note: 'Đã hoàn thành sản xuất',
+          worker: 'Nguyễn Văn B',
+          completed_at: new Date().toISOString(),
+          handed_over_at: null,
+          handed_over_by: null,
+          handed_over_to: null,
+          handover_note: '',
+          xen_input_qty: 0
+        }
+      ];
+    }
+    
+    // Render data to table
+    function renderStageData() {
+      console.log('Rendering stage data:', stageOrders.length, 'orders');
+      
+      const tbody = document.getElementById('stageTableBody');
+      if (!tbody) return;
+      
+      tbody.innerHTML = '';
+      
+      if (stageOrders.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="12" class="text-center text-muted py-4">
+              <i class="bi bi-inbox fs-1 mb-2"></i><br>
+              Không có lệnh sản xuất nào cho công đoạn Xả
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      stageOrders.forEach((order, index) => {
+        const row = createOrderRow(order, index);
+        tbody.appendChild(row);
+      });
+    }
+    
+    // Create table row
+    function createOrderRow(order, index) {
+      const row = document.createElement('tr');
+      row.className = 'order-row';
+      row.setAttribute('data-order-id', order.id);
+      
+      const status = order.status || 'in_progress';
+      let statusClass = 'text-primary';
+      let statusIcon = 'bi-clock';
+      
+      if (status === 'completed') {
+        statusClass = 'text-success';
+        statusIcon = 'bi-check-circle';
+      } else if (status === 'in_progress') {
+        statusClass = 'text-warning';
+        statusIcon = 'bi-play-circle';
+      }
+      
+      const planQty = order.deployed_quantity || 0;
+      const goodQty = order.good_qty || 0;
+      const ngQty = order.ng_qty || 0;
+      const completionPercent = planQty > 0 ? Math.round((goodQty / planQty) * 100) : 0;
+      
+      row.innerHTML = `
+        <td class="text-center">
+          <span class="badge bg-light text-dark">${index + 1}</span>
+        </td>
+        <td>
+          <div class="d-flex align-items-center">
+            <i class="bi ${statusIcon} ${statusClass} me-2"></i>
+            <div>
+              <div class="fw-bold">${order.production_order}</div>
+              <small class="text-muted">${order.deployment_date} - ${order.production_shift}</small>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div>
+            <div class="fw-bold">${order.internal_product_code}</div>
+            <small class="text-muted">${order.product_name}</small>
+          </div>
+        </td>
+        <td class="text-center">
+          <span class="badge bg-secondary">${order.paper_type}</span>
+        </td>
+        <td class="text-center">
+          <span class="fw-bold">${order.paper_weight} gsm</span>
+        </td>
+        <td class="text-center">
+          <div class="fw-bold">${App.formatNumber(planQty)}</div>
+          <small class="text-muted">kế hoạch</small>
+        </td>
+        <td class="text-center">
+          <div class="fw-bold">${App.formatNumber(planQty)}</div>
+          <small class="text-muted">đầu vào</small>
+        </td>
+        <td class="text-center">
+          <div class="fw-bold text-success">${App.formatNumber(goodQty)}</div>
+          <small class="text-muted">OK</small>
+        </td>
+        <td class="text-center">
+          <div class="fw-bold text-danger">${App.formatNumber(ngQty)}</div>
+          <small class="text-muted">NG</small>
+        </td>
+        <td class="text-center">
+          <div class="progress" style="height: 20px;">
+            <div class="progress-bar ${completionPercent >= 100 ? 'bg-success' : 'bg-primary'}" 
+                 style="width: ${Math.min(completionPercent, 100)}%">
+              ${completionPercent}%
+            </div>
+          </div>
+        </td>
+        <td class="text-center">
+          <small class="text-muted d-block">${order.assigned_machine}</small>
+          <small class="text-muted">${order.worker || 'Chưa phân công'}</small>
+        </td>
+        <td class="text-center">
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-info rounded-pill px-3 me-1" onclick="viewOrderDetails('${order.id}')" 
+                    title="Xem chi tiết">
+              <i class="bi bi-eye me-1"></i>Chi tiết
+            </button>
+            ${status !== 'completed' ? `
+              <button class="btn btn-success rounded-pill px-3" onclick="completeStageOrder('${order.id}')" 
+                      title="Hoàn thành công đoạn">
+                <i class="bi bi-check-lg me-1"></i>Hoàn thành
+              </button>
+            ` : `
+              <button class="btn btn-primary rounded-pill px-3" onclick="showHandoverModal('${order.id}')" 
+                      title="Bàn giao cho công đoạn Xén">
+                <i class="bi bi-arrow-right-circle me-1"></i>Bàn giao Xén
+            </button>
+            `}
+          </div>
+        </td>
+      `;
+      
+      return row;
+    }
+    
+    // Update statistics
+    function updateStatistics() {
+      const totalOrders = stageOrders.length;
+      const totalPlan = stageOrders.reduce((sum, o) => sum + (o.deployed_quantity || 0), 0);
+      const totalGood = stageOrders.reduce((sum, o) => sum + (o.good_qty || 0), 0);
+      const totalNg = stageOrders.reduce((sum, o) => sum + (o.ng_qty || 0), 0);
+      
+      document.getElementById('totalOrders').textContent = totalOrders;
+      document.getElementById('totalPlan').textContent = App.formatNumber(totalPlan);
+      document.getElementById('totalGood').textContent = App.formatNumber(totalGood);
+      document.getElementById('totalNg').textContent = App.formatNumber(totalNg);
+    }
+    
+    // Show new order form
+    function showNewOrderForm() {
+      editingOrderId = null;
+      document.getElementById('modalTitle').textContent = 'Thêm lệnh sản xuất mới - Công đoạn Xả';
+      document.getElementById('orderForm').reset();
+      
+      // Set default values
+      document.getElementById('shift').value = 'Ca 1';
+      document.getElementById('machine').value = 'Xả 1';
+      
+      const modal = new bootstrap.Modal(document.getElementById('orderModal'));
+      modal.show();
+    }
+    
+    // Save order
+    function saveOrder() {
+      const form = document.getElementById('orderForm');
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      
+      const orderData = {
+        production_order: document.getElementById('orderCode').value,
+        internal_product_code: document.getElementById('productCode').value,
+        product_name: document.getElementById('productName').value,
+        paper_type: document.getElementById('paperType').value,
+        paper_weight: parseInt(document.getElementById('paperWeight').value),
+        sheet_size: document.getElementById('sheetSize').value,
+        deployed_quantity: parseInt(document.getElementById('planQty').value),
+        production_shift: document.getElementById('shift').value,
+        assigned_machine: document.getElementById('machine').value,
+        note: document.getElementById('orderNote').value,
+        current_stage: STAGE_KEY,
+        deployment_date: DateUtils.today(),
+        status: 'in_progress'
+      };
+      
+      if (editingOrderId) {
+        // Update existing order
+        const orderIndex = stageOrders.findIndex(o => o.id == editingOrderId);
+        if (orderIndex >= 0) {
+          stageOrders[orderIndex] = { ...stageOrders[orderIndex], ...orderData };
+        }
+      } else {
+        // Add new order
+        orderData.id = Date.now();
+        stageOrders.push(orderData);
+      }
+      
+      renderStageData();
+      updateStatistics();
+      
+      const modal = bootstrap.Modal.getInstance(document.getElementById('orderModal'));
+      modal.hide();
+      
+      App.notify(editingOrderId ? 'Cập nhật lệnh thành công!' : 'Thêm lệnh thành công!', 'success');
+    }
+    
+    // Edit order
+    function editOrder(orderId) {
+      const order = stageOrders.find(o => o.id == orderId);
+      if (!order) {
+        App.notify('Không tìm thấy lệnh sản xuất', 'error');
+        return;
+      }
+      
+      editingOrderId = orderId;
+      document.getElementById('modalTitle').textContent = 'Chỉnh sửa lệnh sản xuất - Công đoạn Xả';
+      
+      // Populate form
+      document.getElementById('orderCode').value = order.production_order || '';
+      document.getElementById('productCode').value = order.internal_product_code || '';
+      document.getElementById('productName').value = order.product_name || '';
+      document.getElementById('paperType').value = order.paper_type || '';
+      document.getElementById('paperWeight').value = order.paper_weight || '';
+      document.getElementById('sheetSize').value = order.sheet_size || '';
+      document.getElementById('planQty').value = order.deployed_quantity || '';
+      document.getElementById('shift').value = order.production_shift || '';
+      document.getElementById('machine').value = order.assigned_machine || '';
+      document.getElementById('orderNote').value = order.note || '';
+      
+      const modal = new bootstrap.Modal(document.getElementById('orderModal'));
+      modal.show();
+    }
+    
+    // Complete stage for an order
+    function completeStageOrder(orderId) {
+      const order = stageOrders.find(o => o.id == orderId);
+      if (!order) {
+        App.notify('Không tìm thấy lệnh sản xuất', 'error');
+        return;
+      }
+      
+      editingOrderId = orderId;
+      
+      // Chuyển đến tab hoàn thành công đoạn
+      setTimeout(() => {
+        document.getElementById('complete-tab').click();
+      }, 200);
+      
+      // Populate completion form
+      document.getElementById('completeOrderCode').textContent = order.production_order;
+      document.getElementById('completeProductName').textContent = order.product_name;
+      document.getElementById('completeQuantity').textContent = App.formatNumber(order.deployed_quantity);
+      document.getElementById('completePaperType').textContent = order.paper_type || 'Chưa xác định';
+      document.getElementById('completePaperWeight').textContent = (order.paper_weight || 0) + ' gsm';
+      
+      // Set current values
+      document.getElementById('completeGoodQty').value = order.good_qty || 0;
+      document.getElementById('completeNgQty').value = order.ng_qty || 0;
+      document.getElementById('completeNgStartEndQty').value = order.ng_start_end_qty || 0;
+      document.getElementById('completeReturnQty').value = order.return_qty || 0;
+      document.getElementById('completeShift').value = order.production_shift || 'Ca 1';
+      document.getElementById('completeMachine').value = order.assigned_machine || 'Xả 1';
+      document.getElementById('completeWorker').value = order.worker || '';
+      document.getElementById('completeNote').value = order.stage_note || '';
+      
+      // Populate handover form (but we'll focus on completion tab)
+      document.getElementById('handoverOrderCode').textContent = order.production_order;
+      document.getElementById('handoverProductName').textContent = order.product_name;
+      document.getElementById('handoverQty').value = order.good_qty || 0;
+      document.getElementById('handoverDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('handoverPerson').value = order.worker || '';
+      document.getElementById('receiverPerson').value = '';
+      document.getElementById('handoverNotes').value = '';
+      document.getElementById('confirmHandover').checked = false;
+      
+      // Cập nhật handover quantity khi có thay đổi good quantity
+      updateHandoverQty();
+
+      // Hiển thị modal hoàn thành
+      const modal = new bootstrap.Modal(document.getElementById('completeModal'));
+      modal.show();
+    }
+    
+    // Complete stage
+    function completeOrder() {
+      if (!editingOrderId) {
+        App.notify('Lỗi: Không xác định được lệnh sản xuất', 'error');
+        return;
+      }
+      
+      const completeGoodQty = parseInt(document.getElementById('completeGoodQty').value) || 0;
+      const completeNgQty = parseInt(document.getElementById('completeNgQty').value) || 0;
+      const completeNgStartEndQty = parseInt(document.getElementById('completeNgStartEndQty').value) || 0;
+      const completeReturnQty = parseInt(document.getElementById('completeReturnQty').value) || 0;
+      const completeShift = document.getElementById('completeShift').value;
+      const completeMachine = document.getElementById('completeMachine').value;
+      const completeWorker = document.getElementById('completeWorker').value;
+      const completeNote = document.getElementById('completeNote').value;
+
+      // Validate đầu vào
+      if (completeGoodQty + completeNgQty === 0) {
+        App.notify('Tổng số lượng phải lớn hơn 0', 'error');
+        return;
+      }
+      
+      // Kiểm tra xem đang ở tab nào - hoàn thành hay bàn giao
+      const activeTab = document.querySelector('#modalTabs .nav-link.active');
+      const isHandoverTab = activeTab && activeTab.id === 'handover-tab';
+      
+      // Nếu đang ở tab bàn giao, kiểm tra thông tin bàn giao
+      if (isHandoverTab) {
+        const handoverQty = parseInt(document.getElementById('handoverQty').value) || 0;
+        const handoverDate = document.getElementById('handoverDate').value;
+        const handoverPerson = document.getElementById('handoverPerson').value;
+        const receiverPerson = document.getElementById('receiverPerson').value;
+        const handoverNotes = document.getElementById('handoverNotes').value;
+        const confirmHandover = document.getElementById('confirmHandover').checked;
+        
+        if (handoverQty <= 0) {
+          App.notify('Số lượng bàn giao phải lớn hơn 0', 'error');
+          return;
+        }
+        
+        if (!confirmHandover) {
+          App.notify('Bạn phải xác nhận đã bàn giao đủ số lượng và chất lượng cho công đoạn XÉN', 'warning');
+          return;
+        }
+        
+        // Cập nhật đơn hàng với thông tin bàn giao
+      const orderIndex = stageOrders.findIndex(o => o.id == editingOrderId);
+      if (orderIndex >= 0) {
+        stageOrders[orderIndex] = {
+          ...stageOrders[orderIndex],
+            good_qty: completeGoodQty,
+            ng_qty: completeNgQty,
+            ng_start_end_qty: completeNgStartEndQty,
+            return_qty: completeReturnQty,
+            worker: completeWorker,
+            stage_note: completeNote,
+          status: 'completed',
+            completed_at: new Date().toISOString(),
+            production_shift: completeShift,
+            assigned_machine: completeMachine,
+            handover_note: handoverNotes,
+            xen_input_qty: handoverQty,
+            handed_over_at: handoverDate,
+            handed_over_by: handoverPerson,
+            handed_over_to: receiverPerson
+        };
+      }
+      
+        // Hiển thị thông báo bàn giao
+        App.notify(`Đã hoàn thành công đoạn XẢ và bàn giao ${handoverQty} sản phẩm cho công đoạn XÉN!`, 'success');
+      } else {
+        // Chỉ hoàn thành công đoạn, không bàn giao
+        const orderIndex = stageOrders.findIndex(o => o.id == editingOrderId);
+        if (orderIndex >= 0) {
+          stageOrders[orderIndex] = {
+            ...stageOrders[orderIndex],
+            good_qty: completeGoodQty,
+            ng_qty: completeNgQty,
+            ng_start_end_qty: completeNgStartEndQty, 
+            return_qty: completeReturnQty,
+            worker: completeWorker,
+            stage_note: completeNote,
+            status: 'completed',
+            completed_at: new Date().toISOString(),
+            production_shift: completeShift,
+            assigned_machine: completeMachine
+          };
+        }
+        
+        // Hiển thị thông báo hoàn thành
+        App.notify(`Đã hoàn thành công đoạn XẢ! Bạn có thể bàn giao sản phẩm cho công đoạn XÉN.`, 'success');
+      }
+
+      // Cập nhật giao diện
+      renderStageData();
+      updateStatistics();
+      
+      // Đóng modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('completeModal'));
+      modal.hide();
+    }
+    
+    // Cập nhật số lượng bàn giao theo số lượng OK
+    function updateHandoverQty() {
+      const goodQty = parseInt(document.getElementById('completeGoodQty').value) || 0;
+      document.getElementById('handoverQty').value = goodQty;
+    }
+    
+    // View order details
+    function viewOrderDetails(orderId) {
+      const order = stageOrders.find(o => o.id == orderId);
+      if (!order) {
+        App.notify('Không tìm thấy lệnh sản xuất', 'error');
+        return;
+      }
+      
+      const details = `
+        Mã lệnh: ${order.production_order}
+        Sản phẩm: ${order.product_name}
+        Loại giấy: ${order.paper_type} - ${order.paper_weight} gsm
+        Kế hoạch: ${App.formatNumber(order.deployed_quantity)}
+        Đã hoàn thành: ${App.formatNumber(order.good_qty || 0)}
+        Lỗi: ${App.formatNumber(order.ng_qty || 0)}
+        Máy: ${order.assigned_machine}
+        Thợ: ${order.worker || 'Chưa phân công'}
+      `;
+      
+      alert('Chi tiết lệnh sản xuất:\n\n' + details);
+    }
+    
+    // Refresh data
+    async function refreshData() {
+      await initData();
+      App.notify('Làm mới dữ liệu thành công!', 'info');
+    }
+    
+    // Apply filters
+    function applyFilters() {
+      // Implementation for filtering functionality
+      App.notify('Chức năng lọc đang được phát triển', 'info');
+    }
+    
+    // Toggle sidebar
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const toggleIcon = document.getElementById('toggleIcon');
+      
+      if (sidebar.classList.contains('collapsed')) {
+        sidebar.classList.remove('collapsed');
+        mainContent.classList.remove('sidebar-collapsed');
+        toggleIcon.innerHTML = '<i class="bi bi-chevron-left"></i>';
+      } else {
+        sidebar.classList.add('collapsed');
+        mainContent.classList.add('sidebar-collapsed');
+        toggleIcon.innerHTML = '<i class="bi bi-chevron-right"></i>';
+      }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('=== XA STAGE PAGE LOADED ===');
+      initData();
+    });
+
+    // Hiển thị modal bàn giao cho công đoạn Xén
+    function showHandoverModal(orderId) {
+      const order = stageOrders.find(o => o.id == orderId);
+      if (!order) {
+        App.notify('Không tìm thấy lệnh sản xuất', 'error');
+        return;
+      }
+      
+      editingOrderId = orderId;
+      
+      // Chuyển đến tab bàn giao trong modal
+      document.getElementById('handover-tab').click();
+      
+      // Populate handover form
+      document.getElementById('handoverOrderCode').textContent = order.production_order;
+      document.getElementById('handoverProductName').textContent = order.product_name;
+      document.getElementById('handoverQty').value = order.good_qty || 0;
+      document.getElementById('handoverDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('handoverPerson').value = order.worker || '';
+      document.getElementById('receiverPerson').value = '';
+      document.getElementById('handoverNotes').value = '';
+      document.getElementById('confirmHandover').checked = false;
+      
+      // Hiển thị modal
+      const modal = new bootstrap.Modal(document.getElementById('completeModal'));
+      modal.show();
+    }
+  </script>
+</body>
+</html>

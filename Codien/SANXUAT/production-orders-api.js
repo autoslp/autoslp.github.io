@@ -23,6 +23,8 @@ class ProductionOrdersAPI {
             if (filters.search) params.append('search', filters.search);
             if (filters.limit) params.append('limit', filters.limit);
             if (filters.offset) params.append('offset', filters.offset);
+            if (filters.current_stage) params.append('current_stage', filters.current_stage);
+            if (filters.workflow_definition) params.append('workflow_definition', filters.workflow_definition);
             
             if (params.toString()) {
                 url += '?' + params.toString();
@@ -48,6 +50,82 @@ class ProductionOrdersAPI {
             console.error('Error fetching production order:', error);
             throw error;
         }
+    }
+
+    // Phương thức thống nhất để lấy orders theo công đoạn
+    async getOrdersByStage(stage) {
+        try {
+            console.log(`Fetching orders for stage: ${stage}`);
+            // Gọi API để lấy tất cả orders có current_stage là công đoạn này 
+            // hoặc có workflow_definition bao gồm công đoạn này
+            const orders = await this.getProductionOrders({
+                current_stage: stage
+            });
+            
+            console.log(`Found ${orders.length} orders for stage ${stage}`);
+            
+            // Trả về dữ liệu đã được chuẩn hóa theo stage
+            return this.normalizeStageData(orders, stage);
+        } catch (error) {
+            console.error(`Error fetching orders for stage ${stage}:`, error);
+            throw error;
+        }
+    }
+    
+    // Chuẩn hóa dữ liệu theo công đoạn
+    normalizeStageData(orders, stage) {
+        console.log(`Normalizing data for stage: ${stage}`);
+        // Đảm bảo trường stage_specific tồn tại cho mỗi order
+        return orders.map(order => {
+            // Clone order để không thay đổi dữ liệu gốc
+            const normalizedOrder = { ...order };
+            
+            // Đảm bảo trường status luôn có giá trị
+            normalizedOrder.status = normalizedOrder.status || 'in_progress';
+            
+            // Đảm bảo worker không bao giờ undefined
+            normalizedOrder.worker = normalizedOrder.worker || 'Chưa phân công';
+            
+            // Thêm các trường dữ liệu cần thiết theo stage
+            switch (stage) {
+                case 'xa':
+                    // Đảm bảo các trường cụ thể cho công đoạn XẢ
+                    normalizedOrder.paper_type = normalizedOrder.paper_type || 'Chưa xác định';
+                    normalizedOrder.paper_weight = normalizedOrder.paper_weight || 0;
+                    normalizedOrder.xa_input_qty = normalizedOrder.xa_input_qty || normalizedOrder.deployed_quantity || 0;
+                    normalizedOrder.xa_good_qty = normalizedOrder.xa_good_qty || 0;
+                    normalizedOrder.xa_ng_qty = normalizedOrder.xa_ng_qty || 0;
+                    normalizedOrder.assigned_machine = normalizedOrder.assigned_machine || 'Xả 1';
+                    break;
+                    
+                case 'xen':
+                    // Đảm bảo các trường cụ thể cho công đoạn XÉN
+                    normalizedOrder.dimensions = normalizedOrder.dimensions || 
+                        `${normalizedOrder.product_width || 0}x${normalizedOrder.product_length || 0}x${normalizedOrder.product_height || 0}`;
+                    normalizedOrder.xa_input_qty = normalizedOrder.xa_input_qty || normalizedOrder.xa_good_qty || 0;
+                    normalizedOrder.xen_input_qty = normalizedOrder.xen_input_qty || normalizedOrder.xa_input_qty || normalizedOrder.xa_good_qty || 0;
+                    normalizedOrder.xen_good_qty = normalizedOrder.xen_good_qty || 0;
+                    normalizedOrder.xen_ng_qty = normalizedOrder.xen_ng_qty || 0;
+                    normalizedOrder.assigned_machine = normalizedOrder.assigned_machine || 'Xén 1';
+                    break;
+                    
+                case 'in':
+                    // Đảm bảo các trường cụ thể cho công đoạn IN
+                    normalizedOrder.colors = normalizedOrder.colors || normalizedOrder.color_count || '1';
+                    normalizedOrder.xen_good_qty = normalizedOrder.xen_good_qty || 0;
+                    normalizedOrder.in_input_qty = normalizedOrder.in_input_qty || normalizedOrder.xen_good_qty || 0;
+                    normalizedOrder.in_good_qty = normalizedOrder.in_good_qty || 0;
+                    normalizedOrder.in_ng_qty = normalizedOrder.in_ng_qty || 0;
+                    normalizedOrder.assigned_machine = normalizedOrder.assigned_machine || 'In 1';
+                    break;
+                    
+                // Thêm các case khác nếu cần
+                default:
+                    break;
+            }
+            
+            return normalizedOrder;
+        });
     }
 
     async saveProductionOrder(data, isEdit = false, id = null) {
@@ -92,6 +170,109 @@ class ProductionOrdersAPI {
         } catch (error) {
             console.error('Error deleting production order:', error);
             throw error;
+        }
+    }
+
+    // === WORKFLOW & STAGE MANAGEMENT API ===
+    async getWorkflowStatus(productionOrderId) {
+        try {
+            const response = await fetch(`${this.API_BASE_URL}/data/production_workflow_status/${productionOrderId}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching workflow status:', error);
+            throw error;
+        }
+    }
+
+    async getStageDetails(productionOrderId, stage = null) {
+        try {
+            let url = `${this.API_BASE_URL}/data/production_stage_details/${productionOrderId}`;
+            if (stage) url += `?stage=${stage}`;
+            
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching stage details:', error);
+            throw error;
+        }
+    }
+
+    async updateStageProgress(productionOrderId, stageData) {
+        try {
+            const response = await fetch(`${this.API_BASE_URL}/data/production_stage_details`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    production_order_id: productionOrderId,
+                    ...stageData
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error updating stage progress:', error);
+            throw error;
+        }
+    }
+
+    async completeStage(productionOrderId, stageData) {
+        try {
+            const response = await fetch(`${this.API_BASE_URL}/data/production_stage_complete`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    production_order_id: productionOrderId,
+                    ...stageData
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error completing stage:', error);
+            throw error;
+        }
+    }
+
+    async getWorkflowTemplates() {
+        try {
+            const response = await fetch(`${this.API_BASE_URL}/data/workflow_templates`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            console.error('Error fetching workflow templates:', error);
+            return [];
+        }
+    }
+
+    async getStageMachines(stage = null) {
+        try {
+            let url = `${this.API_BASE_URL}/data/stage_machines`;
+            if (stage) url += `?stage=${stage}`;
+            
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            console.error('Error fetching stage machines:', error);
+            return [];
         }
     }
 
@@ -187,7 +368,14 @@ class ProductionOrdersAPI {
             paper_type: data.paperType,
             paper_weight: data.paperWeight,
             work_stage: data.workStage,
-            status: data.status
+            status: data.status,
+            // Workflow fields
+            workflow_definition: data.workflowDefinition,
+            current_stage: data.currentStage,
+            current_stage_index: data.currentStageIndex,
+            stage_progress: data.stageProgress,
+            production_shift: data.productionShift,
+            assigned_machine: data.assignedMachine
         };
     }
 
@@ -232,7 +420,14 @@ class ProductionOrdersAPI {
             workStage: apiData.work_stage,
             status: apiData.status,
             createdAt: apiData.created_at,
-            updatedAt: apiData.updated_at
+            updatedAt: apiData.updated_at,
+            // Workflow fields
+            workflowDefinition: apiData.workflow_definition,
+            currentStage: apiData.current_stage,
+            currentStageIndex: apiData.current_stage_index,
+            stageProgress: apiData.stage_progress,
+            productionShift: apiData.production_shift,
+            assignedMachine: apiData.assigned_machine
         };
     }
 
@@ -332,6 +527,31 @@ window.ProductionAPI = {
         return await window.ProductionOrdersAPI.getCustomers();
     },
 
+    // === WORKFLOW & STAGE MANAGEMENT ===
+    getWorkflowStatus: async function(productionOrderId) {
+        return await window.ProductionOrdersAPI.getWorkflowStatus(productionOrderId);
+    },
+
+    getStageDetails: async function(productionOrderId, stage = null) {
+        return await window.ProductionOrdersAPI.getStageDetails(productionOrderId, stage);
+    },
+
+    updateStageProgress: async function(productionOrderId, stageData) {
+        return await window.ProductionOrdersAPI.updateStageProgress(productionOrderId, stageData);
+    },
+
+    completeStage: async function(productionOrderId, stageData) {
+        return await window.ProductionOrdersAPI.completeStage(productionOrderId, stageData);
+    },
+
+    getWorkflowTemplates: async function() {
+        return await window.ProductionOrdersAPI.getWorkflowTemplates();
+    },
+
+    getStageMachines: async function(stage = null) {
+        return await window.ProductionOrdersAPI.getStageMachines(stage);
+    },
+
     // === UTILITY ===
     formatNumber: function(num) {
         if (!num && num !== 0) return '';
@@ -410,6 +630,16 @@ window.ProductionAPI = {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { ProductionOrdersAPI, ProductionAPI: window.ProductionAPI };
 }
+
+// Add helper methods to ProductionAPI
+window.ProductionAPI.getOrdersByStage = async function(stage) {
+    if (window.ProductionOrdersAPI && typeof window.ProductionOrdersAPI.getOrdersByStage === 'function') {
+        return await window.ProductionOrdersAPI.getOrdersByStage(stage);
+    } else {
+        console.error('ProductionOrdersAPI.getOrdersByStage is not available');
+        throw new Error('API method not available');
+    }
+};
 
 // Add CSS animations
 const style = document.createElement('style');

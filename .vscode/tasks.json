@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Open Universal Stage Page",
+			"type": "shell",
+			"command": "start",
+			"args": [
+				"universal-stage.html"
+			],
+			"group": "build",
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

@@ -6,141 +6,12 @@
   <title>Universal Stage Page</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-  <style>
-    /* Universal styles cho tất cả stage */
-    :root {
-      --sidebar-width: 280px;
-      --sidebar-collapsed-width: 70px;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background-color: #f8f9fa;
-    }
-
-    /* Sidebar styles */
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      width: var(--sidebar-width);
-      background: white;
-      box-shadow: 2px 0 8px rgba(0,0,0,0.1);
-      transition: width 0.3s ease;
-      z-index: 1000;
-      overflow: hidden;
-    }
-    
-    .sidebar.collapsed {
-      width: var(--sidebar-collapsed-width);
-    }
-    
-    /* ... các CSS khác giống nhau ... */
-
-    /* Main content */
-    .main-content {
-      margin-left: var(--sidebar-width);
-      transition: margin-left 0.3s ease;
-      min-height: 100vh;
-    }
-    
-    .main-content.sidebar-collapsed {
-      margin-left: var(--sidebar-collapsed-width);
-    }
-
-    /* Table responsive cho từng stage */
-    .table-container {
-      overflow-x: auto;
-      border-radius: 0.5rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    /* Hide/show columns based on stage */
-    [data-stage="xa"] .col-xen-only,
-    [data-stage="xa"] .col-in-only,
-    [data-stage="xa"] .col-boi-only { display: none; }
-    
-    [data-stage="xen"] .col-xa-only,
-    [data-stage="xen"] .col-in-only,
-    [data-stage="xen"] .col-boi-only { display: none; }
-    
-    [data-stage="in"] .col-xa-only,
-    [data-stage="in"] .col-xen-only,
-    [data-stage="in"] .col-boi-only { display: none; }
-    
-    [data-stage="boi"] .col-xa-only,
-    [data-stage="boi"] .col-xen-only,
-    [data-stage="boi"] .col-in-only { display: none; }
-
-    /* Stage-specific colors */
-    [data-stage="xa"] .stage-header {
-      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    }
-    
-    [data-stage="xen"] .stage-header {
-      background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
-    }
-    
-    [data-stage="in"] .stage-header {
-      background: linear-gradient(135deg, #0d6efd 0%, #6f42c1 100%);
-    }
-    
-    [data-stage="boi"] .stage-header {
-      background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-    }
-
-    /* Stage-specific machine options */
-    [data-stage="xa"] .machine-xen,
-    [data-stage="xa"] .machine-in,
-    [data-stage="xa"] .machine-boi { display: none; }
-    
-    [data-stage="xen"] .machine-xa,
-    [data-stage="xen"] .machine-in,
-    [data-stage="xen"] .machine-boi { display: none; }
-    
-    [data-stage="in"] .machine-xa,
-    [data-stage="in"] .machine-xen,
-    [data-stage="in"] .machine-boi { display: none; }
-    
-    [data-stage="boi"] .machine-xa,
-    [data-stage="boi"] .machine-xen,
-    [data-stage="boi"] .machine-in { display: none; }
-
-    /* Common styles */
-    .stage-header {
-      color: white;
-      padding: 2rem;
-      border-radius: 0.75rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .table th {
-      background-color: #f8f9fa;
-      border-bottom: 2px solid #dee2e6;
-      font-weight: 600;
-      white-space: nowrap;
-      font-size: 0.85rem;
-      padding: 0.75rem 0.5rem;
-    }
-    
-    .table td {
-      white-space: nowrap;
-      font-size: 0.85rem;
-      vertical-align: middle;
-      padding: 0.75rem 0.5rem;
-    }
-
-    .quantity-display {
-      font-weight: 600;
-      color: #28a745;
-    }
-  </style>
+  <link rel="stylesheet" href="universal-stage.css">
 </head>
 <body data-stage="xa"> <!-- Change this attribute to switch stage -->
   
   <!-- Universal Sidebar - SAME FOR ALL -->
-  <div class="sidebar" id="sidebar">
+  <div class="sidebar collapsed" id="sidebar">
     <div class="sidebar-content">
       <div class="sidebar-header">
         <div class="sidebar-brand">
@@ -149,8 +20,8 @@
           </div>
           <h5 class="mb-0 text-primary">Carton Manager</h5>
         </div>
-        <button class="btn btn-primary sidebar-toggle" onclick="toggleSidebar()" title="Thu nhỏ/Mở rộng">
-          <span id="toggleIcon"><i class="bi bi-chevron-left"></i></span>
+        <button class="btn btn-primary sidebar-toggle" onclick="toggleSidebar()" id="toggleBtn" title="Thu nhỏ/Mở rộng">
+          <span id="toggleIcon"><i class="bi bi-chevron-right"></i></span>
         </button>
       </div>
       
@@ -216,7 +87,7 @@
   </div>
 
   <!-- Main Content - SAME STRUCTURE -->
-  <div class="main-content" id="mainContent">
+  <div class="main-content sidebar-collapsed" id="mainContent">
     <div class="container-fluid p-4">
       
       <!-- Stage Header - Dynamic content based on data-stage -->
@@ -226,22 +97,54 @@
           <i class="bi bi-scissors me-2" data-stage-icon="xen" style="display: none;"></i>
           <i class="bi bi-printer me-2" data-stage-icon="in" style="display: none;"></i>
           <i class="bi bi-file-text me-2" data-stage-icon="boi" style="display: none;"></i>
+          <i class="bi bi-knife me-2" data-stage-icon="be" style="display: none;"></i>
+          <i class="bi bi-link me-2" data-stage-icon="dan" style="display: none;"></i>
+          <i class="bi bi-building me-2" data-stage-icon="kho" style="display: none;"></i>
           <span data-stage-title="xa">Công đoạn XẢ</span>
           <span data-stage-title="xen" style="display: none;">Công đoạn XÉN</span>
           <span data-stage-title="in" style="display: none;">Công đoạn IN</span>
           <span data-stage-title="boi" style="display: none;">Công đoạn BỒI</span>
+          <span data-stage-title="be" style="display: none;">Công đoạn BẾ</span>
+          <span data-stage-title="dan" style="display: none;">Công đoạn DÁN</span>
+          <span data-stage-title="kho" style="display: none;">KHO THÀNH PHẨM</span>
         </h1>
         <p class="mb-0">
           <span data-stage-desc="xa">Xả giấy cuộn - Quản lý chi tiết</span>
           <span data-stage-desc="xen" style="display: none;">Xén giấy - Quản lý chi tiết</span>
           <span data-stage-desc="in" style="display: none;">In ấn - Quản lý chi tiết</span>
           <span data-stage-desc="boi" style="display: none;">Bồi giấy - Quản lý chi tiết</span>
+          <span data-stage-desc="be" style="display: none;">Bế hộp - Quản lý chi tiết</span>
+          <span data-stage-desc="dan" style="display: none;">Dán hộp - Quản lý chi tiết</span>
+          <span data-stage-desc="kho" style="display: none;">Quản lý kho thành phẩm</span>
         </p>
       </div>
       
       <!-- Statistics - SAME -->
       <div class="row mb-4" id="stageStats">
-        <!-- Generated dynamically -->
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="stat-card">
+            <div class="stat-value" id="totalOrders">0</div>
+            <div class="stat-label">Tổng lệnh</div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="stat-card">
+            <div class="stat-value" id="totalPlan">0</div>
+            <div class="stat-label">SL Kế hoạch</div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="stat-card">
+            <div class="stat-value" id="totalGood">0</div>
+            <div class="stat-label">SL Đạt</div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="stat-card">
+            <div class="stat-value" id="totalNg">0</div>
+            <div class="stat-label">SL NG</div>
+          </div>
+        </div>
       </div>
       
       <!-- Main Card - SAME -->
@@ -287,6 +190,12 @@
                 <option value="Digital 1" class="machine-in">Digital 1</option>
                 <option value="Bồi 1" class="machine-boi">Bồi 1</option>
                 <option value="Bồi 2" class="machine-boi">Bồi 2</option>
+                <option value="Bế 1" class="machine-be">Bế 1</option>
+                <option value="Bế 2" class="machine-be">Bế 2</option>
+                <option value="Dán 1" class="machine-dan">Dán 1</option>
+                <option value="Dán 2" class="machine-dan">Dán 2</option>
+                <option value="Kho A" class="machine-kho">Kho A</option>
+                <option value="Kho B" class="machine-kho">Kho B</option>
               </select>
             </div>
             <div class="col-md-5">
@@ -308,6 +217,9 @@
                   <th style="width: 100px">Loại lệnh</th>
                   <th style="width: 120px">Mã SP</th>
                   <th style="width: 200px">Tên sản phẩm</th>
+                  <th style="width: 150px">Workflow</th>
+                  <th style="width: 100px">SL Đầu vào</th>
+                  <th style="width: 80px">Trạng thái</th>
                   <th style="width: 100px">SL Triển khai</th>
                   
                   <!-- XẢ specific columns -->
@@ -338,6 +250,18 @@
                   <th style="width: 100px" class="col-boi-only">Loại keo</th>
                   <th style="width: 80px" class="col-boi-only">Số lớp</th>
                   
+                  <!-- BẾ specific columns -->
+                  <th style="width: 120px" class="col-be-only">Loại dao bế</th>
+                  <th style="width: 100px" class="col-be-only">Độ phức tạp</th>
+                  
+                  <!-- DÁN specific columns -->
+                  <th style="width: 100px" class="col-dan-only">Loại keo dán</th>
+                  <th style="width: 100px" class="col-dan-only">T.gian khô (phút)</th>
+                  
+                  <!-- KHO specific columns -->
+                  <th style="width: 120px" class="col-kho-only">Vị trí lưu kho</th>
+                  <th style="width: 100px" class="col-kho-only">Loại đóng gói</th>
+                  
                   <!-- Common result columns -->
                   <th style="width: 100px">SL Đạt</th>
                   <th style="width: 100px">SL NG</th>
@@ -359,181 +283,1695 @@
     </div>
   </div>
 
+  <!-- Add/Edit Order Modal -->
+  <div class="modal fade" id="orderModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">Thêm lệnh sản xuất mới</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="orderForm">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Ngày sản xuất *</label>
+                <input type="date" class="form-control" id="orderDate" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Ca làm việc *</label>
+                <select class="form-select" id="orderShift" required>
+                  <option value="">Chọn ca</option>
+                  <option value="Ca 1">Ca 1 (6:00-14:00)</option>
+                  <option value="Ca 2">Ca 2 (14:00-22:00)</option>
+                  <option value="Ca 3">Ca 3 (22:00-6:00)</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Máy sản xuất *</label>
+                <select class="form-select" id="orderMachine" required>
+                  <option value="">Chọn máy</option>
+                  <!-- Options will be populated based on stage -->
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Mã lệnh sản xuất *</label>
+                <input type="text" class="form-control" id="orderCode" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Loại lệnh</label>
+                <select class="form-select" id="orderType">
+                  <option value="Thường">Thường</option>
+                  <option value="Gấp">Gấp</option>
+                  <option value="Mẫu">Mẫu</option>
+                  <option value="Bù">Bù</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Mã sản phẩm *</label>
+                <input type="text" class="form-control" id="productCode" required>
+              </div>
+              <div class="col-md-12 mb-3">
+                <label class="form-label">Tên sản phẩm *</label>
+                <input type="text" class="form-control" id="productName" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">SL Triển khai *</label>
+                <input type="number" class="form-control" id="planQty" required min="1">
+              </div>
+              
+              <!-- Stage-specific fields will be added dynamically here -->
+              <div id="stageSpecificFields"></div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-primary" onclick="saveOrder()">Lưu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quantity Input Modal -->
+  <div class="modal fade" id="quantityModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Cập nhật số lượng sản xuất</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="quantityForm">
+            <input type="hidden" id="editOrderId">
+            <div class="mb-3">
+              <label class="form-label">Số lượng đạt</label>
+              <input type="number" class="form-control" id="goodQty" min="0">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Số lượng NG</label>
+              <input type="number" class="form-control" id="ngQty" min="0">
+            </div>
+            <div class="mb-3" id="extraQuantityFields">
+              <!-- Extra fields for specific stages -->
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Giờ bắt đầu</label>
+              <input type="time" class="form-control" id="startTime">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Giờ kết thúc</label>
+              <input type="time" class="form-control" id="endTime">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Thợ phụ trách</label>
+              <input type="text" class="form-control" id="worker">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Ghi chú</label>
+              <textarea class="form-control" id="note" rows="3"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-primary" onclick="saveQuantity()">Cập nhật</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Complete Stage Modal -->
+  <div class="modal fade" id="completeStageModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title">
+            <i class="bi bi-check-circle me-2"></i>
+            Hoàn thành công đoạn <span id="completeStageTitle"></span>
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="completeStageForm">
+            <input type="hidden" id="completeOrderId">
+            
+            <!-- Order Info -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <strong>Mã lệnh:</strong> <span id="completeOrderCode"></span>
+              </div>
+              <div class="col-md-6">
+                <strong>Sản phẩm:</strong> <span id="completeProductName"></span>
+              </div>
+            </div>
+            
+            <!-- Current Stage Info -->
+            <div class="alert alert-info">
+              <h6><i class="bi bi-info-circle me-2"></i>Thông tin đầu vào:</h6>
+              <div class="row">
+                <div class="col-md-6">
+                  <strong>Số lượng đầu vào:</strong> <span id="completeInputQty" class="text-primary">0</span>
+                </div>
+                <div class="col-md-6">
+                  <strong>Công đoạn hiện tại:</strong> <span id="completeCurrentStage"></span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Production Results -->
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Số lượng đạt (OK) *</label>
+                <input type="number" class="form-control" id="completeGoodQty" required min="0">
+                <div class="form-text">Số lượng sản phẩm đạt chất lượng</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Số lượng NG *</label>
+                <input type="number" class="form-control" id="completeNgQty" required min="0">
+                <div class="form-text">Số lượng sản phẩm không đạt chất lượng</div>
+              </div>
+            </div>
+            
+            <!-- Extra quantity fields for specific stages -->
+            <div id="completeExtraFields"></div>
+            
+            <!-- Time and Worker -->
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Giờ bắt đầu</label>
+                <input type="time" class="form-control" id="completeStartTime">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Giờ kết thúc</label>
+                <input type="time" class="form-control" id="completeEndTime">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Thợ phụ trách</label>
+                <input type="text" class="form-control" id="completeWorker">
+              </div>
+            </div>
+            
+            <!-- Note -->
+            <div class="mb-3">
+              <label class="form-label">Ghi chú</label>
+              <textarea class="form-control" id="completeNote" rows="2" placeholder="Ghi chú về quá trình sản xuất..."></textarea>
+            </div>
+            
+            <!-- Next Stage Info -->
+            <div class="alert alert-warning" id="nextStageInfo" style="display: none;">
+              <h6><i class="bi bi-arrow-right me-2"></i>Công đoạn tiếp theo:</h6>
+              <p class="mb-1">Sau khi hoàn thành, <strong><span id="nextStageQty">0</span></strong> sản phẩm OK sẽ được chuyển sang công đoạn <strong><span id="nextStageName"></span></strong></p>
+            </div>
+            
+            <!-- Final Stage Info -->
+            <div class="alert alert-success" id="finalStageInfo" style="display: none;">
+              <h6><i class="bi bi-check-circle me-2"></i>Hoàn thành sản xuất:</h6>
+              <p class="mb-1">Đây là công đoạn cuối cùng. Sản phẩm sẽ được chuyển vào kho thành phẩm.</p>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-success" onclick="completeStage()">
+            <i class="bi bi-check-circle me-1"></i>Hoàn thành & Chuyển công đoạn
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div class="text-center text-white">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <div class="mt-2">Đang tải dữ liệu từ API...</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Production Config -->
+  <script src="production-config.js"></script>
+  
+  <!-- Production Orders API -->
+  <script src="production-orders-api.js"></script>
+
   <script>
-    // Get stage from URL or data attribute
-    const urlParams = new URLSearchParams(window.location.search);
-    const stageParam = urlParams.get('stage');
+    // Sử dụng Production Orders API
+    const API = window.ProductionAPI;
     
-    if (stageParam) {
-      document.body.setAttribute('data-stage', stageParam);
-      updateStageDisplay(stageParam);
-    }
+    // App utility functions - sử dụng từ API
+    const App = {
+      // API request helper
+      apiRequest: API.getOrders,
+      
+      // Format số
+      formatNumber: API.formatNumber,
+      
+      // Hiển thị thông báo
+      notify: API.showNotification,
+      
+      // Xác nhận hành động
+      confirm: function(message, callback) {
+        if (confirm(message)) {
+          callback();
+        }
+      },
+      
+      // Hiển thị loading
+      showLoading: API.showLoading,
+      
+      // Ẩn loading
+      hideLoading: API.hideLoading
+    };
+
+    // Date utilities - sử dụng từ API
+    const DateUtils = {
+      today: API.getToday,
+      format: API.formatDate
+    };
+
+    // Current stage and data
+    let currentStage = 'xa';
+    let stageData = {};
+    let editingOrderId = null;
+    let allOrders = []; // Tất cả lệnh sản xuất từ API
+    let allCustomers = [];
+    let globalOrders = []; // Global orders với workflow tracking
     
-    function updateStageDisplay(stage) {
-      // Hide all stage-specific elements
-      document.querySelectorAll('[data-stage-icon]').forEach(el => el.style.display = 'none');
-      document.querySelectorAll('[data-stage-title]').forEach(el => el.style.display = 'none');
-      document.querySelectorAll('[data-stage-desc]').forEach(el => el.style.display = 'none');
-      
-      // Show current stage elements
-      const icon = document.querySelector(`[data-stage-icon="${stage}"]`);
-      const title = document.querySelector(`[data-stage-title="${stage}"]`);
-      const desc = document.querySelector(`[data-stage-desc="${stage}"]`);
-      
-      if (icon) icon.style.display = 'inline';
-      if (title) title.style.display = 'inline';
-      if (desc) desc.style.display = 'inline';
-      
-      // Update active nav
-      document.querySelectorAll('.nav-link').forEach(link => {
-        link.classList.remove('active');
-        if (link.href.includes(`stage=${stage}`)) {
-          link.classList.add('active');
-        }
-      });
-    }
-    
-    // Sample data for different stages
-    const STAGE_DATA = {
-      xa: [
-        {
-          date: '2025-07-29',
-          shift: 'Ca 1',
-          machine: 'Xả',
-          orderCode: 'LSX001',
-          orderType: 'Thường',
-          productCode: 'SP001',
-          productName: 'Hộp giày Nike Air Max',
-          planQty: 1000,
-          paperType: 'BC',
-          paperWeight: 350,
-          length: 320,
-          width: 180,
-          pcsPerSheet: 2,
-          sheetLength: 350,
-          sheetWidth: 200,
-          turn: 1,
-          requiredQty: 500,
-          goodQty: 450,
-          ngQty: 30,
-          ngStartEndQty: 10,
-          returnQty: 10,
-          startTime: '08:00',
-          endTime: '12:00',
-          worker: 'Nguyễn Văn A'
-        }
-      ],
-      xen: [
-        {
-          date: '2025-07-29',
-          shift: 'Ca 1',
-          machine: 'Xén 1',
-          orderCode: 'LSX002',
-          orderType: 'Thường',
-          productCode: 'SP002',
-          productName: 'Hộp điện thoại iPhone',
-          planQty: 800,
-          paperType: 'Ivory',
-          paperWeight: 300,
-          cutLength: 280,
-          cutWidth: 160,
-          pcsPerSheet: 4,
-          totalSheets: 200,
-          goodQty: 780,
-          ngQty: 15,
-          ngStartEndQty: 5,
-          returnQty: 0,
-          startTime: '08:00',
-          endTime: '11:30',
-          worker: 'Trần Văn B'
-        }
-      ]
+    // Workflow configuration
+    const WORKFLOW_STAGES = ['xa', 'xen', 'in', 'boi', 'be', 'dan', 'kho'];
+    const STAGE_NAMES = {
+      xa: 'XẢ',
+      xen: 'XÉN', 
+      in: 'IN',
+      boi: 'BỒI',
+      be: 'BẾ',
+      dan: 'DÁN',
+      kho: 'KHO'
     };
     
-    function renderStageData() {
-      const currentStage = document.body.getAttribute('data-stage');
-      const data = STAGE_DATA[currentStage] || [];
-      const tbody = document.getElementById('stageTableBody');
+    // === STAGE CONFIGURATION ===
+    
+    const STAGE_CONFIG = {
+      xa: {
+        name: 'Xả',
+        machines: ['Xả 1', 'Xả 2', 'Xả 3'],
+        fields: [
+          { key: 'paperType', label: 'Loại giấy', type: 'select', options: ['BC', 'CC', 'WF', 'OF'] },
+          { key: 'paperWeight', label: 'Định lượng', type: 'number', unit: 'gsm' },
+          { key: 'sheetSize', label: 'Khổ tờ', type: 'text' }
+        ],
+        extraQuantityFields: [
+          { key: 'ngStartEndQty', label: 'NG Đầu/Cuối' },
+          { key: 'returnQty', label: 'Hàng trả' }
+        ]
+      },
+      xen: {
+        name: 'Xén',
+        machines: ['Xén 1', 'Xén 2'],
+        fields: [
+          { key: 'targetSize', label: 'Khổ mục tiêu', type: 'text' },
+          { key: 'cutDirection', label: 'Hướng cắt', type: 'select', options: ['Dọc', 'Ngang', 'Cả hai'] }
+        ],
+        extraQuantityFields: [
+          { key: 'ngStartEndQty', label: 'NG Đầu/Cuối' },
+          { key: 'returnQty', label: 'Hàng trả' }
+        ]
+      },
+      in: {
+        name: 'In',
+        machines: ['In 1', 'In 2', 'In 3', 'In 4'],
+        fields: [
+          { key: 'colorCount', label: 'Số màu', type: 'number' },
+          { key: 'inkType', label: 'Loại mực', type: 'select', options: ['Thường', 'UV', 'Offset'] },
+          { key: 'printSpeed', label: 'Tốc độ in', type: 'number', unit: 'tờ/phút' }
+        ],
+        extraQuantityFields: [
+          { key: 'ngStartEndQty', label: 'NG Đầu/Cuối' },
+          { key: 'returnQty', label: 'Hàng trả' }
+        ]
+      },
+      boi: {
+        name: 'Bồi',
+        machines: ['Bồi 1', 'Bồi 2'],
+        fields: [
+          { key: 'layerCount', label: 'Số lớp', type: 'number' },
+          { key: 'glueType', label: 'Loại keo', type: 'select', options: ['Keo trắng', 'Keo vàng', 'Keo trong'] }
+        ],
+        extraQuantityFields: [
+          { key: 'ngStartEndQty', label: 'NG Đầu/Cuối' },
+          { key: 'returnQty', label: 'Hàng trả' }
+        ]
+      },
+      be: {
+        name: 'Bế',
+        machines: ['Bế 1', 'Bế 2', 'Bế 3'],
+        fields: [
+          { key: 'dieType', label: 'Loại dao bế', type: 'text' },
+          { key: 'beSpeed', label: 'Tốc độ bế', type: 'number', unit: 'tờ/phút' }
+        ],
+        extraQuantityFields: [
+          { key: 'ngStartEndQty', label: 'NG Đầu/Cuối' },
+          { key: 'returnQty', label: 'Hàng trả' }
+        ]
+      },
+      dan: {
+        name: 'Dán',
+        machines: ['Dán 1', 'Dán 2'],
+        fields: [
+          { key: 'boxStyle', label: 'Kiểu hộp', type: 'select', options: ['Hộp thường', 'Hộp giày', 'Hộp nắp rời'] },
+          { key: 'danSpeed', label: 'Tốc độ dán', type: 'number', unit: 'hộp/phút' }
+        ],
+        extraQuantityFields: [
+          { key: 'ngStartEndQty', label: 'NG Đầu/Cuối' },
+          { key: 'returnQty', label: 'Hàng trả' }
+        ]
+      },
+      kho: {
+        name: 'Kho',
+        machines: ['Kho 1', 'Kho 2'],
+        fields: [
+          { key: 'packingType', label: 'Loại đóng gói', type: 'select', options: ['Thùng carton', 'Túi PE', 'Pallet'] },
+          { key: 'storageLocation', label: 'Vị trí lưu kho', type: 'text' }
+        ],
+        extraQuantityFields: [
+          { key: 'packagedQty', label: 'Đã đóng gói' },
+          { key: 'shippedQty', label: 'Đã xuất kho' }
+        ]
+      }
+    };
+    
+    // === INITIALIZATION FUNCTIONS ===
+    
+    // Create sample data for testing when API is not available
+    function createSampleData() {
+      console.log('Creating sample data for testing...');
       
-      let html = '';
-      data.forEach(item => {
-        html += `<tr>
-          <td>${item.date || ''}</td>
-          <td>${item.shift || ''}</td>
-          <td>${item.machine || ''}</td>
-          <td>${item.orderCode || ''}</td>
-          <td>${item.orderType || ''}</td>
-          <td>${item.productCode || ''}</td>
-          <td>${item.productName || ''}</td>
-          <td class="quantity-display">${item.planQty || 0}</td>`;
+      const sampleOrders = [
+        {
+          id: 1,
+          production_order: 'LSX001',
+          internal_product_code: 'SP001',
+          product_name: 'Hộp carton A4 - Mẫu 1',
+          order_type: 'Thường',
+          deployed_quantity: 1000,
+          order_quantity: 1000,
+          deployment_date: DateUtils.today(),
+          status: 'Đang sản xuất',
+          workflow_definition: 'xa,xen,in,boi,be,dan,kho',
+          current_stage: 'xa',
+          current_stage_index: 0,
+          production_shift: 'Ca 1',
+          assigned_machine: 'Xả 1',
+          paper_type: 'BC',
+          paper_weight: 350,
+          color_count: 4
+        },
+        {
+          id: 2,
+          production_order: 'LSX002',
+          internal_product_code: 'SP002',
+          product_name: 'Hộp carton B4 - Mẫu 2',
+          order_type: 'Gấp',
+          deployed_quantity: 500,
+          order_quantity: 500,
+          deployment_date: DateUtils.today(),
+          status: 'Đang sản xuất',
+          workflow_definition: 'xa,xen,in,boi,be,dan,kho',
+          current_stage: 'in',
+          current_stage_index: 2,
+          production_shift: 'Ca 2',
+          assigned_machine: 'In 1',
+          paper_type: 'CC',
+          paper_weight: 300,
+          color_count: 2
+        },
+        {
+          id: 3,
+          production_order: 'LSX003',
+          internal_product_code: 'SP003',
+          product_name: 'Hộp carton C5 - Mẫu 3',
+          order_type: 'Thường',
+          deployed_quantity: 2000,
+          order_quantity: 2000,
+          deployment_date: DateUtils.today(),
+          status: 'Hoàn thành',
+          workflow_definition: 'xa,xen,in,boi,be,dan,kho',
+          current_stage: 'kho',
+          current_stage_index: 6,
+          production_shift: 'Ca 1',
+          assigned_machine: 'Kho 1',
+          paper_type: 'WF',
+          paper_weight: 400,
+          color_count: 1
+        }
+      ];
+      
+      return sampleOrders;
+    }
+
+    // Khởi tạo dữ liệu từ API
+    async function initData() {
+      console.log('=== INIT STAGE DATA START ===');
+      try {
+        App.showLoading();
+        
+        console.log('Calling API.getOrders()...');
+        
+        try {
+          // Thử tải dữ liệu lệnh sản xuất từ API
+          allOrders = await API.getOrders();
+          console.log('API.getOrders() result:', allOrders);
+          console.log('Orders type:', typeof allOrders);
+          console.log('Orders length:', allOrders ? allOrders.length : 'null/undefined');
           
-        // Stage-specific columns
-        if (currentStage === 'xa') {
-          html += `
-            <td>${item.paperType || ''}</td>
-            <td>${item.paperWeight || ''}</td>
-            <td>${item.length || ''}</td>
-            <td>${item.width || ''}</td>
-            <td>${item.pcsPerSheet || ''}</td>
-            <td>${item.sheetLength || ''}</td>
-            <td>${item.sheetWidth || ''}</td>
-            <td>${item.turn || ''}</td>
-            <td class="quantity-display">${item.requiredQty || 0}</td>`;
-        } else if (currentStage === 'xen') {
-          html += `
-            <td>${item.paperType || ''}</td>
-            <td>${item.paperWeight || ''}</td>
-            <td>${item.cutLength || ''}</td>
-            <td>${item.cutWidth || ''}</td>
-            <td>${item.pcsPerSheet || ''}</td>
-            <td>${item.totalSheets || ''}</td>`;
+          // Tải danh sách khách hàng từ API
+          console.log('Calling API.getCustomers()...');
+          allCustomers = await API.getCustomers();
+          console.log('API.getCustomers() result:', allCustomers);
+          
+        } catch (apiError) {
+          console.warn('API not available, using sample data:', apiError);
+          // Dùng sample data khi API không hoạt động
+          allOrders = createSampleData();
+          allCustomers = [
+            { id: 1, name: 'Khách hàng A', code: 'KH001' },
+            { id: 2, name: 'Khách hàng B', code: 'KH002' }
+          ];
+          App.notify('Đang sử dụng dữ liệu mẫu (API không khả dụng)', 'warning');
         }
         
-        // Common result columns
-        html += `
-          <td class="quantity-display">${item.goodQty || 0}</td>
-          <td class="quantity-display">${item.ngQty || 0}</td>`;
-          
-        if (currentStage === 'xa' || currentStage === 'xen') {
-          html += `
-            <td class="quantity-display">${item.ngStartEndQty || 0}</td>
-            <td class="quantity-display">${item.returnQty || 0}</td>`;
-        }
+        // Chuyển đổi dữ liệu API thành format stage với workflow
+        convertAPIDataToStageData();
         
-        html += `
-          <td>${item.startTime || ''}</td>
-          <td>${item.endTime || ''}</td>
-          <td>${item.worker || ''}</td>
-          <td>
-            <div class="action-buttons">
-              <button class="btn btn-primary btn-sm">
-                <i class="bi bi-pencil me-1"></i>Nhập SL
-              </button>
-              <button class="btn btn-info btn-sm">
-                <i class="bi bi-pencil-square me-1"></i>Sửa
-              </button>
-              <button class="btn btn-danger btn-sm">
-                <i class="bi bi-trash me-1"></i>Xóa
-              </button>
-            </div>
-          </td>
-        </tr>`;
+        // Render dữ liệu
+        renderStageData();
+        updateStatistics();
+        
+        if (allOrders === createSampleData()) {
+          App.notify('Đã tải dữ liệu mẫu thành công', 'info');
+        } else {
+          App.notify('Đã tải dữ liệu thành công từ API', 'success');
+        }
+        console.log('=== INIT STAGE DATA SUCCESS ===');
+      } catch (error) {
+        console.error('=== INIT STAGE DATA ERROR ===');
+        console.error('Error details:', error);
+        
+        App.notify('Lỗi tải dữ liệu: ' + error.message, 'error');
+        
+        // Initialize empty stage data if everything fails
+        Object.keys(STAGE_CONFIG).forEach(stage => {
+          stageData[stage] = [];
+        });
+        
+        // Tạo empty global orders
+        globalOrders = [];
+        generateStageDataFromGlobalOrders();
+        
+        renderStageData();
+        updateStatistics();
+        
+        console.log('Fallback: Using empty data arrays');
+      } finally {
+        App.hideLoading();
+        console.log('=== INIT STAGE DATA END ===');
+      }
+    }
+    
+    // Chuyển đổi dữ liệu API thành format stage
+    function convertAPIDataToStageData() {
+      console.log('Converting API data to stage data with workflow...');
+      
+      // Reset stage data
+      Object.keys(STAGE_CONFIG).forEach(stage => {
+        stageData[stage] = [];
       });
       
-      tbody.innerHTML = html;
+      // Reset global orders
+      globalOrders = [];
+      
+      // Chuyển đổi từng order
+      allOrders.forEach((order, index) => {
+        // Parse workflow từ API data
+        let workflow = [];
+        let currentStageKey = 'xa';
+        let currentStageIndex = 0;
+        
+        // Kiểm tra workflow_definition từ API trước
+        if (order.workflow_definition) {
+          workflow = order.workflow_definition.split(',').map(s => s.trim());
+          currentStageKey = order.current_stage || workflow[0] || 'xa';
+          currentStageIndex = order.current_stage_index || 0;
+        } else if (order.work_stage) {
+          // Fallback: Parse work_stage string thành workflow array
+          const workStageStr = order.work_stage.toLowerCase();
+          
+          // Xác định workflow từ work_stage
+          if (workStageStr.includes('xả') || workStageStr.includes('xa')) workflow.push('xa');
+          if (workStageStr.includes('xén') || workStageStr.includes('xen')) workflow.push('xen');
+          if (workStageStr.includes('in')) workflow.push('in');
+          if (workStageStr.includes('bồi') || workStageStr.includes('boi')) workflow.push('boi');
+          if (workStageStr.includes('bế') || workStageStr.includes('be')) workflow.push('be');
+          if (workStageStr.includes('dán') || workStageStr.includes('dan')) workflow.push('dan');
+          if (workStageStr.includes('kho') || workStageStr.includes('đóng thùng')) workflow.push('kho');
+          
+          // Xác định stage hiện tại dựa trên status
+          if (order.status === 'Đang sản xuất' && workflow.length > 0) {
+            currentStageKey = workflow[0];
+            currentStageIndex = 0;
+          } else if (order.status === 'Hoàn thành' && workflow.length > 0) {
+            currentStageKey = workflow[workflow.length - 1];
+            currentStageIndex = workflow.length - 1;
+          }
+        } else {
+          // Default workflow nếu không có thông tin workflow
+          workflow = ['xa', 'xen', 'in', 'boi', 'be', 'dan', 'kho'];
+        }
+        
+        // Tạo global order với workflow tracking
+        const globalOrder = {
+          id: `order_${order.id || index}`,
+          originalId: order.id,
+          orderCode: order.production_order || `LSX${String(index + 1).padStart(3, '0')}`,
+          productCode: order.internal_product_code || order.id || `SP${String(index + 1).padStart(3, '0')}`,
+          productName: order.product_name || 'Sản phẩm từ API',
+          orderType: order.order_type || 'Thường',
+          originalQuantity: order.deployed_quantity || order.order_quantity || 1000,
+          
+          // Workflow configuration
+          workflow: workflow,
+          currentStage: currentStageKey,
+          currentStageIndex: currentStageIndex,
+          
+          // Stage progress tracking
+          stageProgress: {},
+          
+          // Common info
+          date: order.deployment_date || DateUtils.today(),
+          shift: order.production_shift || 'Ca 1',
+          machine: order.assigned_machine || (STAGE_CONFIG[currentStageKey] ? STAGE_CONFIG[currentStageKey].machines[0] : 'Máy 1'),
+          
+          // Stage-specific data từ API
+          paperType: order.paper_type || 'BC',
+          paperWeight: order.paper_weight || 350,
+          colorCount: order.color_count || 4,
+          
+          // API status
+          apiStatus: order.status
+        };
+        
+        // Parse stage_progress từ API nếu có
+        if (order.stage_progress) {
+          try {
+            const parsedProgress = typeof order.stage_progress === 'string' ? 
+              JSON.parse(order.stage_progress) : order.stage_progress;
+            globalOrder.stageProgress = parsedProgress;
+          } catch (e) {
+            console.warn('Failed to parse stage_progress for order', order.id, e);
+            // Generate default stage progress
+            globalOrder.stageProgress = generateDefaultStageProgress(globalOrder);
+          }
+        } else {
+          // Generate default stage progress
+          globalOrder.stageProgress = generateDefaultStageProgress(globalOrder);
+        }
+        
+        globalOrders.push(globalOrder);
+      });
+      
+      // Generate stage data từ global orders
+      generateStageDataFromGlobalOrders();
+      
+      // Save to localStorage
+      localStorage.setItem('globalOrders', JSON.stringify(globalOrders));
+      Object.keys(STAGE_CONFIG).forEach(stage => {
+        saveStageData(stage);
+      });
+      
+      console.log('Conversion complete:', {
+        globalOrders: globalOrders.length,
+        stageData: Object.keys(stageData).map(k => `${k}: ${stageData[k].length}`).join(', ')
+      });
     }
     
-    // Initialize
-    document.addEventListener('DOMContentLoaded', function() {
+    // Generate default stage progress for an order
+    function generateDefaultStageProgress(globalOrder) {
+      const stageProgress = {};
+      
+      globalOrder.workflow.forEach((stageKey, idx) => {
+        if (globalOrder.apiStatus === 'Hoàn thành') {
+          // Nếu order đã hoàn thành, mark tất cả stages là completed
+          stageProgress[stageKey] = {
+            status: 'completed',
+            inputQty: globalOrder.originalQuantity,
+            outputQty: Math.floor(globalOrder.originalQuantity * 0.95), // 95% pass rate
+            goodQty: Math.floor(globalOrder.originalQuantity * 0.95),
+            ngQty: Math.floor(globalOrder.originalQuantity * 0.05),
+            completedAt: globalOrder.date
+          };
+        } else if (globalOrder.apiStatus === 'Đang sản xuất') {
+          if (idx < globalOrder.currentStageIndex) {
+            // Đã hoàn thành
+            stageProgress[stageKey] = {
+              status: 'completed',
+              inputQty: globalOrder.originalQuantity,
+              outputQty: Math.floor(globalOrder.originalQuantity * 0.95), 
+              goodQty: Math.floor(globalOrder.originalQuantity * 0.95),
+              ngQty: Math.floor(globalOrder.originalQuantity * 0.05),
+              completedAt: DateUtils.today()
+            };
+          } else if (idx === globalOrder.currentStageIndex) {
+            // Đang thực hiện
+            const inputQty = idx === 0 ? globalOrder.originalQuantity : 
+              (stageProgress[globalOrder.workflow[idx-1]]?.goodQty || globalOrder.originalQuantity);
+            
+            stageProgress[stageKey] = {
+              status: 'in_progress',
+              inputQty: inputQty,
+              outputQty: 0,
+              goodQty: 0,
+              ngQty: 0
+            };
+          } else {
+            // Chưa bắt đầu
+            stageProgress[stageKey] = {
+              status: 'waiting',
+              inputQty: 0,
+              outputQty: 0,
+              goodQty: 0,
+              ngQty: 0
+            };
+          }
+        } else {
+          // Chờ triển khai hoặc đã hủy
+          stageProgress[stageKey] = {
+            status: globalOrder.apiStatus === 'Chờ triển khai' ? 'waiting' : 'cancelled',
+            inputQty: idx === 0 ? globalOrder.originalQuantity : 0,
+            outputQty: 0,
+            goodQty: 0,
+            ngQty: 0
+          };
+        }
+      });
+      
+      return stageProgress;
+    }
+    
+    // Generate stage data từ global orders
+    function generateStageDataFromGlobalOrders() {
+      // Reset stage data
+      Object.keys(STAGE_CONFIG).forEach(stage => {
+        stageData[stage] = [];
+      });
+      
+      globalOrders.forEach(globalOrder => {
+        // Add order vào mỗi stage trong workflow của nó
+        globalOrder.workflow.forEach(stageKey => {
+          const stageProgress = globalOrder.stageProgress[stageKey];
+          
+          // Chỉ hiển thị order ở stage hiện tại hoặc đã hoàn thành
+          if (stageProgress.status === 'in_progress' || stageProgress.status === 'completed') {
+            const stageOrder = createStageOrderFromGlobal(globalOrder, stageKey);
+            if (stageOrder) {
+              stageData[stageKey].push(stageOrder);
+            }
+          }
+        });
+      });
+    }
+    
+    // Tạo stage order từ global order
+    function createStageOrderFromGlobal(globalOrder, stageKey) {
+      const stageProgress = globalOrder.stageProgress[stageKey];
+      const config = STAGE_CONFIG[stageKey];
+      
+      if (!stageProgress) return null;
+      
+      const stageOrder = {
+        id: `${stageKey}_${globalOrder.id}`,
+        globalOrderId: globalOrder.id,
+        date: globalOrder.date,
+        shift: globalOrder.shift,
+        machine: globalOrder.machine,
+        orderCode: globalOrder.orderCode,
+        orderType: globalOrder.orderType,
+        productCode: globalOrder.productCode,
+        productName: globalOrder.productName,
+        
+        // Workflow info
+        workflow: globalOrder.workflow.map(s => STAGE_NAMES[s]).join(' → '),
+        currentStage: globalOrder.currentStage,
+        workflowStatus: stageProgress.status,
+        
+        // Quantities
+        planQty: globalOrder.originalQuantity,
+        inputQty: stageProgress.inputQty,
+        goodQty: stageProgress.goodQty,
+        ngQty: stageProgress.ngQty,
+        
+        // Times
+        startTime: stageProgress.startTime || '08:00',
+        endTime: stageProgress.endTime || '16:00',
+        worker: stageProgress.worker || 'Công nhân',
+        note: stageProgress.note || ''
+      };
+      
+      // Add stage-specific fields
+      config.fields.forEach(field => {
+        if (field.key === 'paperType') {
+          stageOrder[field.key] = globalOrder.paperType;
+        } else if (field.key === 'paperWeight') {
+          stageOrder[field.key] = globalOrder.paperWeight;
+        } else if (field.key === 'colorCount') {
+          stageOrder[field.key] = globalOrder.colorCount;
+        } else if (field.type === 'select' && field.options) {
+          stageOrder[field.key] = field.options[0];
+        } else if (field.type === 'number') {
+          stageOrder[field.key] = 100;
+        } else {
+          stageOrder[field.key] = 'API Data';
+        }
+      });
+      
+      // Add extra quantity fields
+      config.extraQuantityFields.forEach(field => {
+        stageOrder[field.key] = stageProgress[field.key] || 0;
+      });
+      
+      return stageOrder;
+    }
+
+    // Refresh data from API
+    async function refreshData() {
+      // Clear localStorage cache
+      localStorage.removeItem('globalOrders');
+      Object.keys(STAGE_CONFIG).forEach(stage => {
+        localStorage.removeItem(`stage_${stage}_data`);
+      });
+      
+      await initData();
+      App.notify('Làm mới dữ liệu thành công!', 'info');
+    }
+
+    // === API INTEGRATION FUNCTIONS ===
+    
+    // Save order to API with workflow information
+    async function saveOrderToAPI(orderData) {
+      try {
+        App.showLoading();
+        
+        // Convert local order data to API format
+        const apiData = {
+          deployment_date: orderData.date,
+          production_order: orderData.orderCode,
+          po_number: orderData.orderCode, // Can be different if needed
+          internal_product_code: orderData.productCode,
+          order_type: orderData.orderType,
+          customer_code: 'CUSTOMER_001', // Default, can be updated
+          customer_name: 'Khách hàng mặc định', // Default, can be updated
+          product_name: orderData.productName,
+          order_quantity: orderData.planQty,
+          deployed_quantity: orderData.planQty,
+          status: 'Đang sản xuất',
+          // Workflow fields
+          workflow_definition: 'xa,xen,in,boi,be,dan,kho', // Default workflow
+          current_stage: currentStage,
+          current_stage_index: 0,
+          production_shift: orderData.shift,
+          assigned_machine: orderData.machine,
+          production_date: orderData.date,
+          worker_name: orderData.worker || '',
+          stage_note: orderData.note || ''
+        };
+        
+        // Add stage-specific fields to the API data
+        Object.keys(orderData).forEach(key => {
+          if (!apiData.hasOwnProperty(key) && orderData[key] !== undefined) {
+            apiData[key] = orderData[key];
+          }
+        });
+        
+        // Save to API
+        const result = await API.saveOrder(apiData, !!orderData.originalId, orderData.originalId);
+        console.log('Saved order to API:', result);
+        
+        // Update the order with the returned ID
+        if (result.id && !orderData.originalId) {
+          orderData.originalId = result.id;
+        }
+        
+        return result;
+      } catch (error) {
+        console.error('Error saving order to API:', error);
+        throw error;
+      } finally {
+        App.hideLoading();
+      }
+    }
+    
+    // Update stage progress in API
+    async function updateStageProgressAPI(globalOrder, stageKey, stageProgress) {
+      try {
+        if (!globalOrder.originalId) {
+          console.warn('No originalId found for order, skipping API update');
+          return;
+        }
+        
+        const stageData = {
+          stage_name: stageKey,
+          stage_index: globalOrder.workflow.indexOf(stageKey),
+          status: stageProgress.status,
+          input_quantity: stageProgress.inputQty || 0,
+          output_quantity: stageProgress.outputQty || 0,
+          good_quantity: stageProgress.goodQty || 0,
+          ng_quantity: stageProgress.ngQty || 0,
+          ng_start_end_quantity: stageProgress.ngStartEndQty || 0,
+          return_quantity: stageProgress.returnQty || 0,
+          start_time: stageProgress.startTime,
+          end_time: stageProgress.endTime,
+          worker_name: stageProgress.worker,
+          machine_used: globalOrder.machine,
+          stage_note: stageProgress.note,
+          production_date: globalOrder.date,
+          production_shift: globalOrder.shift
+        };
+        
+        const result = await API.updateStageProgress(globalOrder.originalId, stageData);
+        console.log('Updated stage progress in API:', result);
+        return result;
+      } catch (error) {
+        console.error('Error updating stage progress in API:', error);
+        // Don't throw error to avoid blocking UI operations
+        App.notify('Cảnh báo: Không thể cập nhật tiến độ lên server', 'warning');
+      }
+    }
+    
+    // Complete stage and update API
+    async function completeStageAPI(globalOrder, stageKey, completionData) {
+      try {
+        if (!globalOrder.originalId) {
+          console.warn('No originalId found for order, skipping API update');
+          return;
+        }
+        
+        const stageData = {
+          stage_name: stageKey,
+          good_quantity: completionData.goodQty,
+          ng_quantity: completionData.ngQty,
+          start_time: completionData.startTime,
+          end_time: completionData.endTime,
+          worker_name: completionData.worker,
+          stage_note: completionData.note,
+          // Additional fields based on stage
+          ...completionData.extraFields
+        };
+        
+        const result = await API.completeStage(globalOrder.originalId, stageData);
+        console.log('Completed stage in API:', result);
+        
+        // Also update main production order with new current stage
+        if (globalOrder.currentStageIndex < globalOrder.workflow.length - 1) {
+          const updateData = {
+            current_stage: globalOrder.workflow[globalOrder.currentStageIndex + 1],
+            current_stage_index: globalOrder.currentStageIndex + 1,
+            stage_progress: JSON.stringify(globalOrder.stageProgress)
+          };
+          
+          await API.saveOrder(updateData, true, globalOrder.originalId);
+        } else {
+          // Final stage completed
+          const updateData = {
+            status: 'Hoàn thành',
+            current_stage: stageKey,
+            stage_progress: JSON.stringify(globalOrder.stageProgress)
+          };
+          
+          await API.saveOrder(updateData, true, globalOrder.originalId);
+        }
+        
+        return result;
+      } catch (error) {
+        console.error('Error completing stage in API:', error);
+        App.notify('Cảnh báo: Không thể cập nhật hoàn thành công đoạn lên server', 'warning');
+      }
+    }
+    
+    // Sync local data with API
+    async function syncWithAPI() {
+      try {
+        App.showLoading();
+        console.log('Syncing local data with API...');
+        
+        // Get fresh data from API
+        const freshOrders = await API.getOrders();
+        allOrders = freshOrders;
+        
+        // Update global orders from API
+        convertAPIDataToStageData();
+        
+        // Refresh UI
+        renderStageData();
+        updateStatistics();
+        
+        App.notify('Đồng bộ dữ liệu thành công', 'success');
+        console.log('Sync completed');
+      } catch (error) {
+        console.error('Error syncing with API:', error);
+        App.notify('Lỗi đồng bộ dữ liệu: ' + error.message, 'error');
+      } finally {
+        App.hideLoading();
+      }
+    }
+    
+    // === END API INTEGRATION ===
+    
+    // === UI RENDERING FUNCTIONS ===
+    
+    // Render dữ liệu stage lên bảng
+    function renderStageData() {
+      console.log('=== RENDER STAGE DATA START ===');
+      console.log('Current stage:', currentStage);
+      console.log('Stage data for current stage:', stageData[currentStage]);
+      
+      const tbody = document.getElementById('stageTableBody');
+      if (!tbody) {
+        console.error('Table body not found');
+        return;
+      }
+      
+      // Clear existing rows
+      tbody.innerHTML = '';
+      
+      // Get data for current stage
+      const currentStageData = stageData[currentStage] || [];
+      console.log('Rendering', currentStageData.length, 'orders for stage', currentStage);
+      
+      if (currentStageData.length === 0) {
+        // No data for current stage
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="12" class="text-center text-muted py-4">
+              <i class="bi bi-inbox fa-2x mb-2"></i><br>
+              Không có lệnh sản xuất nào cho công đoạn ${STAGE_NAMES[currentStage]}
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      // Render each order
+      currentStageData.forEach((order, index) => {
+        const row = createOrderRow(order, index);
+        tbody.appendChild(row);
+      });
+      
+      console.log('=== RENDER STAGE DATA COMPLETE ===');
+    }
+    
+    // Tạo dòng trong bảng cho một lệnh sản xuất
+    function createOrderRow(order, index) {
+      const row = document.createElement('tr');
+      row.className = 'order-row';
+      row.setAttribute('data-order-id', order.id);
+      
+      // Determine status style
+      let statusClass = 'text-primary';
+      let statusIcon = 'fa-clock';
+      if (order.workflowStatus === 'completed') {
+        statusClass = 'text-success';
+        statusIcon = 'fa-check-circle';
+      } else if (order.workflowStatus === 'in_progress') {
+        statusClass = 'text-warning';
+        statusIcon = 'fa-play-circle';
+      }
+      
+      // Calculate completion percentage
+      const completionPercent = order.planQty > 0 ? 
+        Math.round((order.goodQty / order.planQty) * 100) : 0;
+      
+      row.innerHTML = `
+        <td class="text-center">
+          <span class="badge bg-light text-dark">${index + 1}</span>
+        </td>
+        <td>
+          <div class="d-flex align-items-center">
+            <i class="fas ${statusIcon} ${statusClass} me-2"></i>
+            <div>
+              <div class="fw-bold">${order.orderCode}</div>
+              <small class="text-muted">${order.date} - ${order.shift}</small>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div>
+            <div class="fw-bold">${order.productCode}</div>
+            <small class="text-muted">${order.productName}</small>
+          </div>
+        </td>
+        <td class="text-center">
+          <span class="badge bg-secondary">${order.orderType}</span>
+        </td>
+        <td class="text-center">
+          <div class="fw-bold">${App.formatNumber(order.planQty)}</div>
+          <small class="text-muted">kế hoạch</small>
+        </td>
+        <td class="text-center">
+          <div class="fw-bold text-info">${App.formatNumber(order.inputQty)}</div>
+          <small class="text-muted">đầu vào</small>
+        </td>
+        <td class="text-center">
+          <div class="fw-bold text-success">${App.formatNumber(order.goodQty)}</div>
+          <small class="text-muted">OK</small>
+        </td>
+        <td class="text-center">
+          <div class="fw-bold text-danger">${App.formatNumber(order.ngQty)}</div>
+          <small class="text-muted">NG</small>
+        </td>
+        <td class="text-center">
+          <div class="progress" style="height: 20px;">
+            <div class="progress-bar ${completionPercent >= 100 ? 'bg-success' : 'bg-primary'}" 
+                 style="width: ${Math.min(completionPercent, 100)}%">
+              ${completionPercent}%
+            </div>
+          </div>
+        </td>
+        <td class="text-center">
+          <small class="text-muted d-block">${order.machine}</small>
+          <small class="text-muted">${order.worker}</small>
+        </td>
+        <td>
+          <small class="text-muted">${order.workflow}</small>
+        </td>
+        <td class="text-center">
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-primary" onclick="editOrder('${order.id}')" 
+                    title="Chỉnh sửa">
+              <i class="fas fa-edit"></i>
+            </button>
+            ${order.workflowStatus === 'in_progress' ? `
+              <button class="btn btn-outline-success" onclick="completeStageOrder('${order.id}')" 
+                      title="Hoàn thành công đoạn">
+                <i class="fas fa-check"></i>
+              </button>
+            ` : ''}
+            <button class="btn btn-outline-info" onclick="viewOrderDetails('${order.id}')" 
+                    title="Xem chi tiết">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </td>
+      `;
+      
+      return row;
+    }
+    
+    // Cập nhật thống kê
+    function updateStatistics() {
+      console.log('Updating statistics for stage:', currentStage);
+      
+      const currentStageData = stageData[currentStage] || [];
+      
+      // Calculate statistics
+      let totalOrders = currentStageData.length;
+      let inProgress = currentStageData.filter(o => o.workflowStatus === 'in_progress').length;
+      let completed = currentStageData.filter(o => o.workflowStatus === 'completed').length;
+      let totalPlanned = currentStageData.reduce((sum, o) => sum + (o.planQty || 0), 0);
+      let totalGood = currentStageData.reduce((sum, o) => sum + (o.goodQty || 0), 0);
+      let totalNG = currentStageData.reduce((sum, o) => sum + (o.ngQty || 0), 0);
+      
+      // Update display
+      updateStatElement('totalOrders', totalOrders);
+      updateStatElement('totalPlan', App.formatNumber(totalPlanned));
+      updateStatElement('totalGood', App.formatNumber(totalGood));
+      updateStatElement('totalNg', App.formatNumber(totalNG));
+      
+      // Calculate and update completion rate
+      const completionRate = totalPlanned > 0 ? Math.round((totalGood / totalPlanned) * 100) : 0;
+      updateStatElement('completionRate', `${completionRate}%`);
+      
+      console.log('Statistics updated:', {
+        totalOrders, inProgress, completed, totalPlanned, totalGood, totalNG
+      });
+    }
+    
+    // Helper function to update statistics element
+    function updateStatElement(elementId, value) {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.textContent = value;
+      }
+    }
+    
+    // === STAGE MANAGEMENT FUNCTIONS ===
+    
+    // Switch to different stage
+    function switchStage(stageKey) {
+      console.log('Switching to stage:', stageKey);
+      
+      if (!STAGE_CONFIG[stageKey]) {
+        console.error('Invalid stage:', stageKey);
+        return;
+      }
+      
+      // Update current stage
+      currentStage = stageKey;
+      
+      // Update active sidebar item
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+      });
+      
+      const activeLink = document.querySelector(`[onclick="switchStage('${stageKey}')"]`);
+      if (activeLink) {
+        activeLink.classList.add('active');
+      }
+      
+      // Update page title
+      const pageTitle = document.querySelector('.page-title');
+      if (pageTitle) {
+        pageTitle.textContent = `Công đoạn ${STAGE_NAMES[stageKey]}`;
+      }
+      
+      // Re-render data for new stage
       renderStageData();
+      updateStatistics();
+      
+      console.log('Stage switched to:', stageKey);
+    }
+    
+    // === ORDER MANAGEMENT FUNCTIONS ===
+    
+    // Edit order
+    function editOrder(orderId) {
+      console.log('Editing order:', orderId);
+      
+      // Find order in current stage data
+      const order = stageData[currentStage].find(o => o.id === orderId);
+      if (!order) {
+        console.error('Order not found:', orderId);
+        App.notify('Không tìm thấy lệnh sản xuất', 'error');
+        return;
+      }
+      
+      // Set editing mode
+      editingOrderId = orderId;
+      
+      // Populate form with order data (this would open a modal)
+      populateOrderForm(order);
+      
+      // Show edit modal
+      const editModal = new bootstrap.Modal(document.getElementById('orderModal'));
+      editModal.show();
+    }
+    
+    // Complete stage for an order
+    function completeStageOrder(orderId) {
+      console.log('Completing stage for order:', orderId);
+      
+      // Find order in current stage data
+      const order = stageData[currentStage].find(o => o.id === orderId);
+      if (!order) {
+        console.error('Order not found:', orderId);
+        App.notify('Không tìm thấy lệnh sản xuất', 'error');
+        return;
+      }
+      
+      // Set editing mode
+      editingOrderId = orderId;
+      
+      // Pre-fill completion data
+      populateCompletionForm(order);
+      
+      // Show completion modal
+      const completionModal = new bootstrap.Modal(document.getElementById('completeStageModal'));
+      completionModal.show();
+    }
+    
+    // View order details
+    function viewOrderDetails(orderId) {
+      console.log('Viewing order details:', orderId);
+      
+      // Find order across all stages
+      let order = null;
+      let globalOrder = null;
+      
+      // Find in current stage
+      order = stageData[currentStage].find(o => o.id === orderId);
+      
+      if (order) {
+        // Find corresponding global order
+        globalOrder = globalOrders.find(go => go.id === order.globalOrderId);
+      }
+      
+      if (!order || !globalOrder) {
+        console.error('Order not found:', orderId);
+        App.notify('Không tìm thấy lệnh sản xuất', 'error');
+        return;
+      }
+      
+      // Show order details in modal or navigate to details page
+      showOrderDetailsModal(order, globalOrder);
+    }
+    
+    // Populate order form for editing
+    function populateOrderForm(order) {
+      // This function would populate the order edit form
+      // Implementation depends on your form structure
+      console.log('Populating form for order:', order);
+    }
+    
+    // Populate completion form
+    function populateCompletionForm(order) {
+      // Pre-fill with current values
+      const inputs = {
+        'completeGoodQty': order.goodQty || 0,
+        'completeNgQty': order.ngQty || 0,
+        'completeStartTime': order.startTime || '08:00',
+        'completeEndTime': order.endTime || '16:00',
+        'completeWorker': order.worker || '',
+        'completeNote': order.note || ''
+      };
+      
+      Object.keys(inputs).forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.value = inputs[id];
+        }
+      });
+      
+      // Populate order info
+      const orderCode = document.getElementById('completeOrderCode');
+      const productName = document.getElementById('completeProductName');
+      const inputQty = document.getElementById('completeInputQty');
+      const currentStageEl = document.getElementById('completeCurrentStage');
+      const stageTitle = document.getElementById('completeStageTitle');
+      
+      if (orderCode) orderCode.textContent = order.orderCode;
+      if (productName) productName.textContent = order.productName;
+      if (inputQty) inputQty.textContent = App.formatNumber(order.inputQty);
+      if (currentStageEl) currentStageEl.textContent = STAGE_NAMES[currentStage];
+      if (stageTitle) stageTitle.textContent = STAGE_NAMES[currentStage];
+    }
+    
+    // Show order details modal
+    function showOrderDetailsModal(order, globalOrder) {
+      // This would show a detailed view of the order
+      // For now, just show an alert with key information
+      const details = `
+        Mã lệnh: ${order.orderCode}
+        Sản phẩm: ${order.productName}
+        Workflow: ${order.workflow}
+        Trạng thái: ${order.workflowStatus}
+        Kế hoạch: ${App.formatNumber(order.planQty)}
+        Đã hoàn thành: ${App.formatNumber(order.goodQty)}
+        Lỗi: ${App.formatNumber(order.ngQty)}
+      `;
+      
+      alert('Chi tiết lệnh sản xuất:\n\n' + details);
+    }
+    
+    // === FORM HANDLING FUNCTIONS ===
+    
+    // Handle complete stage form submission
+    function completeStage() {
+      console.log('Processing complete stage...');
+      
+      if (!editingOrderId) {
+        console.error('No order ID for completion');
+        App.notify('Lỗi: Không xác định được lệnh sản xuất', 'error');
+        return;
+      }
+      
+      // Get form data
+      const goodQty = parseInt(document.getElementById('completeGoodQty').value) || 0;
+      const ngQty = parseInt(document.getElementById('completeNgQty').value) || 0;
+      const startTime = document.getElementById('completeStartTime').value;
+      const endTime = document.getElementById('completeEndTime').value;
+      const worker = document.getElementById('completeWorker').value;
+      const note = document.getElementById('completeNote').value;
+      
+      // Validate input
+      if (goodQty < 0 || ngQty < 0) {
+        App.notify('Số lượng không được âm', 'error');
+        return;
+      }
+      
+      if (goodQty + ngQty === 0) {
+        App.notify('Tổng số lượng phải lớn hơn 0', 'error');
+        return;
+      }
+      
+      // Find the order
+      const order = stageData[currentStage].find(o => o.id === editingOrderId);
+      const globalOrder = globalOrders.find(go => go.id === order.globalOrderId);
+      
+      if (!order || !globalOrder) {
+        App.notify('Không tìm thấy lệnh sản xuất', 'error');
+        return;
+      }
+      
+      // Update order data
+      const completionData = {
+        goodQty: goodQty,
+        ngQty: ngQty,
+        startTime: startTime,
+        endTime: endTime,
+        worker: worker,
+        note: note,
+        completedAt: DateUtils.today(),
+        extraFields: {} // Can be expanded for stage-specific fields
+      };
+      
+      // Update local data
+      updateOrderCompletion(globalOrder, currentStage, completionData);
+      
+      // Close modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('completeStageModal'));
+      modal.hide();
+      
+      // Clear editing ID
+      editingOrderId = null;
+      
+      // Refresh display
+      renderStageData();
+      updateStatistics();
+      
+      App.notify(`Hoàn thành công đoạn ${STAGE_NAMES[currentStage]} thành công!`, 'success');
+    }
+    
+    // Update order completion data
+    function updateOrderCompletion(globalOrder, stageKey, completionData) {
+      console.log('Updating order completion:', globalOrder.id, stageKey, completionData);
+      
+      // Update stage progress
+      const stageProgress = globalOrder.stageProgress[stageKey];
+      if (stageProgress) {
+        stageProgress.status = 'completed';
+        stageProgress.outputQty = completionData.goodQty + completionData.ngQty;
+        stageProgress.goodQty = completionData.goodQty;
+        stageProgress.ngQty = completionData.ngQty;
+        stageProgress.startTime = completionData.startTime;
+        stageProgress.endTime = completionData.endTime;
+        stageProgress.worker = completionData.worker;
+        stageProgress.note = completionData.note;
+        stageProgress.completedAt = completionData.completedAt;
+        
+        // Add extra fields
+        Object.keys(completionData.extraFields).forEach(key => {
+          stageProgress[key] = completionData.extraFields[key];
+        });
+      }
+      
+      // Check if there's a next stage
+      const currentStageIndex = globalOrder.workflow.indexOf(stageKey);
+      if (currentStageIndex < globalOrder.workflow.length - 1) {
+        // Move to next stage
+        const nextStageKey = globalOrder.workflow[currentStageIndex + 1];
+        globalOrder.currentStage = nextStageKey;
+        globalOrder.currentStageIndex = currentStageIndex + 1;
+        
+        // Initialize next stage progress
+        const nextStageProgress = globalOrder.stageProgress[nextStageKey];
+        if (nextStageProgress) {
+          nextStageProgress.status = 'in_progress';
+          nextStageProgress.inputQty = completionData.goodQty; // Only good items move to next stage
+        }
+        
+        console.log(`Order moved to next stage: ${nextStageKey}`);
+      } else {
+        // Final stage completed
+        console.log('Order completed all stages');
+      }
+      
+      // Update API
+      completeStageAPI(globalOrder, stageKey, completionData);
+      
+      // Regenerate stage data
+      generateStageDataFromGlobalOrders();
+      
+      // Save to localStorage
+      localStorage.setItem('globalOrders', JSON.stringify(globalOrders));
+      Object.keys(STAGE_CONFIG).forEach(stage => {
+        saveStageData(stage);
+      });
+    }
+    
+    // Show new order form
+    function showNewOrderForm() {
+      console.log('Showing new order form...');
+      
+      // Clear editing ID
+      editingOrderId = null;
+      
+      // Update modal title
+      const modalTitle = document.getElementById('modalTitle');
+      if (modalTitle) {
+        modalTitle.textContent = `Thêm lệnh sản xuất mới - ${STAGE_NAMES[currentStage]}`;
+      }
+      
+      // Clear form
+      const form = document.getElementById('orderForm');
+      if (form) {
+        form.reset();
+      }
+      
+      // Show modal
+      const modal = new bootstrap.Modal(document.getElementById('orderModal'));
+      modal.show();
+    }
+    
+   
+    
+    // Save order (for new/edit order modal)
+    function saveOrder() {
+      console.log('Saving order...');
+      
+      // This function would handle saving a new/edited order
+      // For now, just show a message
+      App.notify('Chức năng lưu lệnh sản xuất đang được phát triển', 'info');
+      
+      // Close modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('orderModal'));
+      if (modal) {
+        modal.hide();
+      }
+    }
+    
+    // Save quantity (for quantity modal)
+    function saveQuantity() {
+      console.log('Saving quantity...');
+      
+      // This function would handle updating quantities
+      // For now, just show a message
+      App.notify('Chức năng cập nhật số lượng đang được phát triển', 'info');
+      
+      // Close modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('quantityModal'));
+      if (modal) {
+        modal.hide();
+      }
+    }
+
+    // === SIDEBAR FUNCTIONS ===
+    
+    // Toggle sidebar
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const toggleIcon = document.getElementById('toggleIcon');
+      
+      if (sidebar.classList.contains('collapsed')) {
+        // Expand sidebar
+        sidebar.classList.remove('collapsed');
+        mainContent.classList.remove('sidebar-collapsed');
+        toggleIcon.innerHTML = '<i class="bi bi-chevron-left"></i>';
+      } else {
+        // Collapse sidebar
+        sidebar.classList.add('collapsed');
+        mainContent.classList.add('sidebar-collapsed');
+        toggleIcon.innerHTML = '<i class="bi bi-chevron-right"></i>';
+      }
+    }
+
+    // === INITIALIZATION FUNCTIONS ===
+    
+    // Create sample data for testing when API is not available
+    function createSampleData() {
+      console.log('Creating sample data for testing...');
+      
+      const sampleOrders = [
+        {
+          id: 1,
+          production_order: 'LSX001',
+          internal_product_code: 'SP001',
+          product_name: 'Hộp carton A4 - Mẫu 1',
+          order_type: 'Thường',
+          deployed_quantity: 1000,
+          order_quantity: 1000,
+          deployment_date: DateUtils.today(),
+          status: 'Đang sản xuất',
+          workflow_definition: 'xa,xen,in,boi,be,dan,kho',
+          current_stage: 'xa',
+          current_stage_index: 0,
+          production_shift: 'Ca 1',
+          assigned_machine: 'Xả 1',
+          paper_type: 'BC',
+          paper_weight: 350,
+          color_count: 4
+        },
+        {
+          id: 2,
+          production_order: 'LSX002',
+          internal_product_code: 'SP002',
+          product_name: 'Hộp carton B4 - Mẫu 2',
+          order_type: 'Gấp',
+          deployed_quantity: 500,
+          order_quantity: 500,
+          deployment_date: DateUtils.today(),
+          status: 'Đang sản xuất',
+          workflow_definition: 'xa,xen,in,boi,be,dan,kho',
+          current_stage: 'in',
+          current_stage_index: 2,
+          production_shift: 'Ca 2',
+          assigned_machine: 'In 1',
+          paper_type: 'CC',
+          paper_weight: 300,
+          color_count: 2
+        },
+        {
+          id: 3,
+          production_order: 'LSX003',
+          internal_product_code: 'SP003',
+          product_name: 'Hộp carton C5 - Mẫu 3',
+          order_type: 'Thường',
+          deployed_quantity: 2000,
+          order_quantity: 2000,
+          deployment_date: DateUtils.today(),
+          status: 'Hoàn thành',
+          workflow_definition: 'xa,xen,in,boi,be,dan,kho',
+          current_stage: 'kho',
+          current_stage_index: 6,
+          production_shift: 'Ca 1',
+          assigned_machine: 'Kho 1',
+          paper_type: 'WF',
+          paper_weight: 400,
+          color_count: 1
+        }
+      ];
+      
+      return sampleOrders;
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('=== PAGE LOADED, INITIALIZING ===');
+      
+      // Get stage from URL parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const stageParam = urlParams.get('stage');
+      if (stageParam && STAGE_CONFIG[stageParam]) {
+        currentStage = stageParam;
+      }
+      
+      console.log('Current stage from URL:', currentStage);
+      
+      // Initialize stage configuration
+      initializeStageConfig();
+      
+      // Load data from API
+      initData();
+      
+      // Set up event listeners
+      setupEventListeners();
+      
+      console.log('=== INITIALIZATION COMPLETE ===');
     });
     
-    function toggleSidebar() {
-      // Sidebar toggle logic
+    // Initialize stage configuration
+    function initializeStageConfig() {
+      console.log('Initializing stage configuration for:', currentStage);
+      
+      // Update page title and description based on current stage
+      updatePageTitle();
+      
+      // Update sidebar active state
+      updateSidebarActiveState();
+      
+      // Update filter options based on current stage
+      updateStageSpecificFilters();
     }
     
-    function refreshData() {
-      renderStageData();
+    // Update page title based on current stage
+    function updatePageTitle() {
+      // Hide all stage titles and descriptions
+      document.querySelectorAll('[data-stage-title], [data-stage-desc], [data-stage-icon]').forEach(el => {
+        el.style.display = 'none';
+      });
+      
+      // Show current stage title and description
+      const titleEl = document.querySelector(`[data-stage-title="${currentStage}"]`);
+      const descEl = document.querySelector(`[data-stage-desc="${currentStage}"]`);
+      const iconEl = document.querySelector(`[data-stage-icon="${currentStage}"]`);
+      
+      if (titleEl) titleEl.style.display = 'inline';
+      if (descEl) descEl.style.display = 'inline';
+      if (iconEl) iconEl.style.display = 'inline';
+    }
+    
+    // Update sidebar active state
+    function updateSidebarActiveState() {
+      // Remove active class from all nav links
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+      });
+      
+      // Add active class to current stage link
+      const activeLink = document.querySelector(`a[href="universal-stage.html?stage=${currentStage}"]`);
+      if (activeLink) {
+        activeLink.classList.add('active');
+      }
+    }
+    
+    // Update stage-specific filter options
+    function updateStageSpecificFilters() {
+      const machineFilter = document.getElementById('machineFilter');
+      if (!machineFilter) return;
+      
+      // Hide all machine options
+      machineFilter.querySelectorAll('option[class^="machine-"]').forEach(option => {
+        option.style.display = 'none';
+      });
+      
+      // Show current stage machine options
+      machineFilter.querySelectorAll(`.machine-${currentStage}`).forEach(option => {
+        option.style.display = 'block';
+      });
+    }
+    
+    // Set up event listeners
+    function setupEventListeners() {
+      // Add any additional event listeners here
+      console.log('Setting up event listeners...');
+      
+      // Example: Listen for form submissions, button clicks, etc.
+    }
+    
+    // === UTILITIES ===
+    
+    // Save stage data to localStorage
+    function saveStageData(stage) {
+      localStorage.setItem(`stage_${stage}_data`, JSON.stringify(stageData[stage] || []));
+    }
+    
+    // Load stage data from localStorage
+    function loadStageData(stage) {
+      const saved = localStorage.getItem(`stage_${stage}_data`);
+      return saved ? JSON.parse(saved) : [];
     }
   </script>
 </body>

@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Công đoạn XÉN - Carton Manager</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">    <link rel="stylesheet" href="universal-stage.css">
+  <style>
+    /* Đảm bảo modal hiển thị đúng và ở giữa màn hình */
+    .modal {
+      z-index: 1050 !important;
+    }
+    
+    .modal-backdrop {
+      z-index: 1040 !important;
+    }
+    
+    .modal-dialog {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 1.75rem auto;
+    }
+    
+    .modal-content {
+      max-width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+      border-radius: 8px;
+    }
+    
+    /* Đảm bảo các tab hiển thị đúng */
+    .nav-tabs .nav-link.active {
+      font-weight: bold;
+      border-bottom-color: transparent;
+    }
+    
+    /* Cải thiện hiển thị của form */
+    .form-control, .form-select {
+      margin-bottom: 0.5rem;
+      border-radius: 6px;
+    }
+    
+    /* Tạo khoảng cách rõ ràng giữa các phần của form */
+    .form-label {
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+    
+    /* Làm nổi bật thông tin quan trọng */
+    .alert {
+      border-radius: 6px;
+    }
+    
+    /* Đảm bảo modal không bị tràn màn hình trên thiết bị di động */
+    @media (max-width: 768px) {
+      .modal-dialog {
+        margin: 0.5rem;
+        max-width: 95%;
+      }
+      
+      .modal-dialog-centered {
+        min-height: calc(100% - 1rem);
+      }
+    }
+    
+    /* Fix cho nút đóng trên modal header */
+    .modal-header .btn-close {
+      padding: 0.5rem;
+      margin: -0.5rem -0.5rem -0.5rem auto;
+    }
+    
+    /* Hiệu ứng hover cho các nút */
+    .btn {
+      transition: all 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body data-stage="xen">
+  
+  <!-- Sidebar -->
+  <div class="sidebar collapsed" id="sidebar">
+    <div class="sidebar-content">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <div class="bg-primary text-white rounded d-flex align-items-center justify-content-center" style="width:32px;height:32px;">
+            <i class="bi bi-box"></i>
+          </div>
+          <h5 class="mb-0 text-primary">Carton Manager</h5>
+        </div>
+        <button class="btn btn-primary sidebar-toggle" onclick="toggleSidebar()" id="toggleBtn" title="Thu nhỏ/Mở rộng">
+          <span id="toggleIcon"><i class="bi bi-chevron-right"></i></span>
+        </button>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-link">
+          <i class="bi bi-house"></i>
+          <span class="nav-text">Trang chủ</span>
+        </a>
+        <a href="production-orders.html" class="nav-link">
+          <i class="bi bi-clipboard-data"></i>
+          <span class="nav-text">Lệnh sản xuất</span>
+        </a>
+        <a href="progress.html" class="nav-link">
+          <i class="bi bi-lightning"></i>
+          <span class="nav-text">Quản lý tiến độ</span>
+        </a>
+        <a href="materials.html" class="nav-link">
+          <i class="bi bi-box-seam"></i>
+          <span class="nav-text">Vật tư</span>
+        </a>
+        <a href="workflow.html" class="nav-link">
+          <i class="bi bi-arrow-repeat"></i>
+          <span class="nav-text">Công đoạn</span>
+        </a>
+        <a href="reports.html" class="nav-link">
+          <i class="bi bi-graph-up"></i>
+          <span class="nav-text">Báo cáo</span>
+        </a>
+        <a href="xa-stage.html" class="nav-link">
+          <i class="bi bi-bullseye"></i>
+          <span class="nav-text">Công đoạn XẢ</span>
+        </a>
+        <a href="xen-stage.html" class="nav-link active">
+          <i class="bi bi-scissors"></i>
+          <span class="nav-text">Công đoạn XÉN</span>
+        </a>
+        <a href="in-stage.html" class="nav-link">
+          <i class="bi bi-printer"></i>
+          <span class="nav-text">Công đoạn IN</span>
+        </a>
+        <a href="boi-stage.html" class="nav-link">
+          <i class="bi bi-file-text"></i>
+          <span class="nav-text">Công đoạn BỒI</span>
+        </a>
+        <a href="be-stage.html" class="nav-link">
+          <i class="bi bi-knife"></i>
+          <span class="nav-text">Công đoạn BẾ</span>
+        </a>
+        <a href="dan-stage.html" class="nav-link">
+          <i class="bi bi-link"></i>
+          <span class="nav-text">Công đoạn DÁN</span>
+        </a>
+        <a href="kho-stage.html" class="nav-link">
+          <i class="bi bi-building"></i>
+          <span class="nav-text">KHO THÀNH PHẨM</span>
+        </a>
+      </nav>
+      
+      <div class="sidebar-footer">
+        © 2025 Carton Manager
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content sidebar-collapsed" id="mainContent">
+    <div class="container-fluid p-4">
+      
+      <!-- Stage Header -->
+      <div class="stage-header">
+        <h1>
+          <i class="bi bi-scissors me-2 text-success"></i>
+          Công đoạn XÉN
+        </h1>
+        <p class="mb-0">Xén kích thước - Định hình sản phẩm carton</p>
+      </div>
+      
+      <!-- Statistics -->
+      <div class="row mb-4" id="stageStats">
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="stat-card">
+            <div class="stat-value" id="totalOrders">0</div>
+            <div class="stat-label">Tổng lệnh</div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="stat-card">
+            <div class="stat-value" id="totalPlan">0</div>
+            <div class="stat-label">SL Kế hoạch</div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="stat-card">
+            <div class="stat-value" id="totalGood">0</div>
+            <div class="stat-label">SL Đạt</div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+          <div class="stat-card">
+            <div class="stat-value" id="totalNg">0</div>
+            <div class="stat-label">SL NG</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Main Card -->
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Danh sách lệnh sản xuất - Công đoạn Xén</h5>
+          <div>
+            <button class="btn btn-primary me-2" onclick="refreshData()">
+              <i class="bi bi-arrow-clockwise me-1"></i>Làm mới
+            </button>
+            <button class="btn btn-success" onclick="showNewOrderForm()">
+              <i class="bi bi-plus-lg me-1"></i>Thêm mới
+            </button>
+          </div>
+        </div>
+        
+        <div class="card-body">
+          <!-- Filters -->
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <label class="form-label">Ngày sản xuất:</label>
+              <input type="date" class="form-control" id="dateFilter">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Ca:</label>
+              <select class="form-select" id="shiftFilter">
+                <option value="">Tất cả</option>
+                <option value="Ca 1">Ca 1</option>
+                <option value="Ca 2">Ca 2</option>
+                <option value="Ca 3">Ca 3</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Máy:</label>
+              <select class="form-select" id="machineFilter">
+                <option value="">Tất cả</option>
+                <option value="Xén 1">Xén 1</option>
+                <option value="Xén 2">Xén 2</option>
+                <option value="Xén 3">Xén 3</option>
+              </select>
+            </div>
+            <div class="col-md-5">
+              <label class="form-label">Tìm kiếm:</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="searchInput" placeholder="Tìm theo mã lệnh, sản phẩm...">
+                <button class="btn btn-outline-secondary" type="button" onclick="applyFilters()">
+                  <i class="bi bi-search"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Table -->
+          <div class="table-container">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th width="50">#</th>
+                  <th width="150">Lệnh SX</th>
+                  <th width="200">Sản phẩm</th>
+                  <th width="120">Kích thước (mm)</th>
+                  <th width="100">KH</th>
+                  <th width="100">Đầu vào</th>
+                  <th width="100">OK</th>
+                  <th width="100">NG</th>
+                  <th width="120">Tiến độ</th>
+                  <th width="120">Máy/Thợ</th>
+                  <th width="150">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="stageTableBody">
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Loading and No Data States -->
+          <div id="loadingState" class="text-center py-5 d-none">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Đang tải...</span>
+            </div>
+            <p class="mt-2">Đang tải dữ liệu...</p>
+          </div>
+          
+          <div id="noDataState" class="text-center py-5 d-none">
+            <i class="bi bi-inbox display-1 text-muted"></i>
+            <p class="mt-2 text-muted">Không có lệnh sản xuất nào cho công đoạn Xén</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for Completing Stage -->
+  <div class="modal fade" id="completeStageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title">
+            <i class="bi bi-check-circle me-2"></i>
+            Hoàn thành công đoạn Xén
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Form tabs -->
+          <ul class="nav nav-tabs mb-3" id="modalTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="complete-tab" data-bs-toggle="tab" data-bs-target="#complete-tab-pane" type="button" role="tab">
+                <i class="bi bi-check-circle me-1"></i>Hoàn thành công đoạn
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="handover-tab" data-bs-toggle="tab" data-bs-target="#handover-tab-pane" type="button" role="tab">
+                <i class="bi bi-arrow-right-circle me-1"></i>Bàn giao công đoạn IN
+              </button>
+            </li>
+          </ul>
+
+          <!-- Tab content -->
+          <div class="tab-content" id="modalTabContent">
+            <!-- Complete stage tab -->
+            <div class="tab-pane fade show active" id="complete-tab-pane" role="tabpanel" tabindex="0">
+              <form id="completeStageForm">
+                <input type="hidden" id="completeOrderId">
+                
+                <!-- Order Info -->
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <strong>Mã lệnh:</strong> <span id="modalOrderCode"></span>
+                  </div>
+                  <div class="col-md-6">
+                    <strong>Sản phẩm:</strong> <span id="modalProductName"></span>
+                  </div>
+                </div>
+                
+                <!-- Current Stage Info -->
+                <div class="alert alert-info">
+                  <h6><i class="bi bi-info-circle me-2"></i>Thông tin đầu vào:</h6>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <strong>Số lượng đầu vào:</strong> <span id="modalInputQty" class="text-primary">0</span>
+                    </div>
+                    <div class="col-md-6">
+                      <strong>Kích thước:</strong> <span id="modalDimensions"></span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Production Results -->
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Số lượng đạt (OK) *</label>
+                    <input type="number" class="form-control" id="modalGoodQty" required min="0" onchange="updateHandoverQty()">
+                    <div class="form-text">Số lượng sản phẩm đạt chất lượng</div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Số lượng NG *</label>
+                    <input type="number" class="form-control" id="modalNgQty" required min="0">
+                    <div class="form-text">Số lượng sản phẩm không đạt chất lượng</div>
+                  </div>
+                </div>
+                
+                <!-- Time and Worker -->
+                <div class="row">
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">Máy sản xuất</label>
+                    <select class="form-select" id="modalMachine">
+                      <option value="">Chọn máy</option>
+                      <option value="Xén 1">Xén 1</option>
+                      <option value="Xén 2">Xén 2</option>
+                      <option value="Xén 3">Xén 3</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">Giờ sản xuất</label>
+                    <select class="form-select" id="modalShift">
+                      <option value="Ca 1">Ca 1 (6:00-14:00)</option>
+                      <option value="Ca 2">Ca 2 (14:00-22:00)</option>
+                      <option value="Ca 3">Ca 3 (22:00-6:00)</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">Thợ phụ trách</label>
+                    <input type="text" class="form-control" id="modalWorker">
+                  </div>
+                </div>
+                
+                <!-- Note -->
+                <div class="mb-3">
+                  <label class="form-label">Ghi chú</label>
+                  <textarea class="form-control" id="modalNotes" rows="2" placeholder="Ghi chú về quá trình sản xuất..."></textarea>
+                </div>
+              </form>
+            </div>
+
+            <!-- Handover tab -->
+            <div class="tab-pane fade" id="handover-tab-pane" role="tabpanel" tabindex="0">
+              <form id="handoverForm">
+                <!-- Next Stage Info -->
+                <div class="alert alert-warning">
+                  <h6><i class="bi bi-arrow-right me-2"></i>Công đoạn tiếp theo:</h6>
+                  <p class="mb-1">Sau khi hoàn thành, sản phẩm OK sẽ được chuyển sang công đoạn <strong>IN</strong></p>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <strong>Mã lệnh:</strong> <span id="handoverOrderCode"></span>
+                  </div>
+                  <div class="col-md-6">
+                    <strong>Sản phẩm:</strong> <span id="handoverProductName"></span>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Số lượng bàn giao: <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="handoverQty" min="0">
+                    <div class="form-text">Số lượng chuyển sang công đoạn IN</div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Ngày bàn giao:</label>
+                    <input type="date" class="form-control" id="handoverDate">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Người bàn giao:</label>
+                    <input type="text" class="form-control" id="handoverPerson" placeholder="Nhập tên người bàn giao">
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Người nhận:</label>
+                    <input type="text" class="form-control" id="receiverPerson" placeholder="Nhập tên người nhận">
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Ghi chú bàn giao:</label>
+                  <textarea class="form-control" id="handoverNotes" rows="3" placeholder="Ghi chú về bàn giao sản phẩm..."></textarea>
+                </div>
+
+                <div class="alert alert-secondary">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="confirmHandover">
+                    <label class="form-check-label" for="confirmHandover">
+                      Tôi xác nhận đã bàn giao đủ số lượng và chất lượng cho công đoạn tiếp theo
+                    </label>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-success" onclick="completeStage()">
+            <i class="bi bi-check-lg me-1"></i>Hoàn thành & Bàn giao
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Include Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="production-config.js"></script>
+  <script src="production-orders-api.js"></script>
+
+  <script>
+    // Global variables
+    let stageOrders = [];
+    let editingOrderId = null;
+    
+    // Current stage configuration
+    const CURRENT_STAGE = 'xen';
+    const STAGE_CONFIG = {
+      id: 'xen',
+      name: 'Xén',
+      icon: 'bi-scissors',
+      color: 'success',
+      description: 'Xén kích thước - Định hình sản phẩm carton',
+      inputStage: 'xa',
+      outputStage: 'in',
+      machines: ['Xén 1', 'Xén 2', 'Xén 3'],
+      fields: {
+        specific: ['dimensions'],
+        tracking: ['good_qty', 'ng_qty', 'assigned_machine', 'worker', 'notes']
+      }
+    };
+
+    // Utility functions
+    const App = {
+      formatNumber: function(num) {
+        return new Intl.NumberFormat('vi-VN').format(num || 0);
+      },
+      
+      notify: function(message, type = 'info') {
+        // Simple notification - replace with better notification library if needed
+        const alertClass = type === 'error' ? 'danger' : type;
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${alertClass} alert-dismissible fade show position-fixed`;
+        alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        alert.innerHTML = `
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alert);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+          if (alert.parentNode) {
+            alert.remove();
+          }
+        }, 5000);
+      }
+    };
+
+    // Sample data for offline/testing mode
+    const sampleStageOrders = [
+      {
+        id: 201,
+        production_order: 'LSX-XEN-001',
+        product_name: 'Thùng carton 30x20x15cm',
+        dimensions: '300x200x150',
+        deployed_quantity: 1000,
+        xa_input_qty: 950,
+        xen_input_qty: 950,
+        xen_good_qty: 920,
+        xen_ng_qty: 30,
+        assigned_machine: 'Xén 1',
+        worker: 'Nguyễn Văn B',
+        production_date: '2025-01-08',
+        shift: 'Ca 1',
+        current_stage: 'xen',
+        stage_status: 'in_progress',
+        notes: 'Kiểm tra kích thước cẩn thận'
+      },
+      {
+        id: 202,
+        production_order: 'LSX-XEN-002',
+        product_name: 'Hộp đựng giày 35x25x12cm',
+        dimensions: '350x250x120',
+        deployed_quantity: 800,
+        xa_input_qty: 750,
+        xen_input_qty: 750,
+        xen_good_qty: 0,
+        xen_ng_qty: 0,
+        assigned_machine: 'Xén 2',
+        worker: '',
+        production_date: '2025-01-08',
+        shift: 'Ca 2',
+        current_stage: 'xen',
+        stage_status: 'pending',
+        notes: ''
+      },
+      {
+        id: 203,
+        production_order: 'LSX-XEN-003',
+        product_name: 'Thùng gói hàng 40x30x20cm',
+        dimensions: '400x300x200',
+        deployed_quantity: 500,
+        xa_input_qty: 480,
+        xen_input_qty: 480,
+        xen_good_qty: 470,
+        xen_ng_qty: 10,
+        assigned_machine: 'Xén 3',
+        worker: 'Trần Thị C',
+        production_date: '2025-01-08',
+        shift: 'Ca 1',
+        current_stage: 'xen',
+        stage_status: 'completed',
+        notes: 'Chất lượng tốt'
+      }
+    ];
+
+    // Initialize data
+    async function initData() {
+      showLoading(true);
+      
+      try {
+        // Try to load from API first
+        if (typeof ProductionOrdersAPI !== 'undefined') {
+          console.log('Loading from API...');
+          const apiOrders = await window.ProductionAPI.getOrdersByStage(CURRENT_STAGE);
+          
+          if (apiOrders && apiOrders.length > 0) {
+            stageOrders = apiOrders;
+            console.log('Loaded from API:', stageOrders.length, 'orders');
+          } else {
+            throw new Error('No data from API');
+          }
+        } else {
+          throw new Error('API not available');
+        }
+      } catch (error) {
+        console.warn('API failed, using sample data:', error.message);
+        stageOrders = [...sampleStageOrders];
+        App.notify('Đang sử dụng dữ liệu mẫu (API không khả dụng)', 'warning');
+      }
+      
+      showLoading(false);
+      renderStageData();
+      updateStatistics();
+    }
+
+    // Show/hide loading state
+    function showLoading(show) {
+      document.getElementById('loadingState').classList.toggle('d-none', !show);
+      document.getElementById('stageTableBody').classList.toggle('d-none', show);
+      document.getElementById('noDataState').classList.toggle('d-none', show || stageOrders.length > 0);
+    }
+
+    // Render stage data in table
+    function renderStageData() {
+      const tbody = document.getElementById('stageTableBody');
+      
+      if (!stageOrders || stageOrders.length === 0) {
+        tbody.innerHTML = '';
+        document.getElementById('noDataState').classList.remove('d-none');
+        return;
+      }
+      
+      document.getElementById('noDataState').classList.add('d-none');
+      
+      tbody.innerHTML = stageOrders.map((order, index) => {
+        const progressPercent = order.xen_input_qty > 0 
+          ? Math.round((order.xen_good_qty / order.xen_input_qty) * 100) 
+          : 0;
+        
+        const statusClass = order.stage_status === 'completed' ? 'success' : 
+                           order.stage_status === 'in_progress' ? 'warning' : 'secondary';
+        
+        const statusText = order.stage_status === 'completed' ? 'Hoàn thành' :
+                          order.stage_status === 'in_progress' ? 'Đang thực hiện' : 'Chờ thực hiện';
+        
+        return `
+          <tr>
+            <td>${index + 1}</td>
+            <td>
+              <strong>${order.production_order}</strong>
+              <br><small class="text-muted">${order.production_date}</small>
+            </td>
+            <td>
+              <div>${order.product_name}</div>
+              <small class="text-muted">${order.shift || 'N/A'}</small>
+            </td>
+            <td>
+              <span class="badge bg-info">${order.dimensions}</span>
+            </td>
+            <td class="text-end">
+              <strong>${App.formatNumber(order.deployed_quantity)}</strong>
+            </td>
+            <td class="text-end">
+              <span class="text-primary">${App.formatNumber(order.xen_input_qty)}</span>
+            </td>
+            <td class="text-end">
+              <span class="text-success fw-bold">${App.formatNumber(order.xen_good_qty)}</span>
+            </td>
+            <td class="text-end">
+              <span class="text-danger">${App.formatNumber(order.xen_ng_qty)}</span>
+            </td>
+            <td>
+              <div class="progress mb-1" style="height: 8px;">
+                <div class="progress-bar bg-${statusClass}" style="width: ${progressPercent}%"></div>
+              </div>
+              <small class="text-${statusClass}">${statusText}</small>
+            </td>
+            <td>
+              <div><strong>${order.assigned_machine || 'Chưa phân'}</strong></div>
+              <small class="text-muted">${order.worker || 'Chưa có'}</small>
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-info rounded-pill px-3 me-1" onclick="viewOrderDetails(${order.id})" title="Xem chi tiết">
+                  <i class="bi bi-eye me-1"></i>Chi tiết
+                </button>
+                ${order.stage_status !== 'completed' ? `
+                  <button class="btn btn-success rounded-pill px-3" onclick="showCompleteModal(${order.id})" title="Hoàn thành">
+                    <i class="bi bi-check-lg me-1"></i>Hoàn thành
+                  </button>
+                ` : `
+                  <button class="btn btn-primary rounded-pill px-3" onclick="showHandoverModal(${order.id})" title="Bàn giao cho công đoạn IN">
+                    <i class="bi bi-arrow-right-circle me-1"></i>Bàn giao IN
+                  </button>
+                `}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Update statistics
+    function updateStatistics() {
+      const stats = {
+        totalOrders: stageOrders.length,
+        totalPlan: stageOrders.reduce((sum, order) => sum + (order.xen_input_qty || 0), 0),
+        totalGood: stageOrders.reduce((sum, order) => sum + (order.xen_good_qty || 0), 0),
+        totalNg: stageOrders.reduce((sum, order) => sum + (order.xen_ng_qty || 0), 0)
+      };
+      
+      document.getElementById('totalOrders').textContent = App.formatNumber(stats.totalOrders);
+      document.getElementById('totalPlan').textContent = App.formatNumber(stats.totalPlan);
+      document.getElementById('totalGood').textContent = App.formatNumber(stats.totalGood);
+      document.getElementById('totalNg').textContent = App.formatNumber(stats.totalNg);
+    }
+
+    // Complete stage
+    async function completeStage() {
+      if (!editingOrderId) {
+        App.notify('Không tìm thấy lệnh sản xuất', 'error');
+        return;
+      }
+      
+      const goodQty = parseInt(document.getElementById('modalGoodQty').value) || 0;
+      const ngQty = parseInt(document.getElementById('modalNgQty').value) || 0;
+      const machine = document.getElementById('modalMachine').value;
+      const worker = document.getElementById('modalWorker').value;
+      const notes = document.getElementById('modalNotes').value;
+      
+      // Thông tin bàn giao
+      const handoverQty = parseInt(document.getElementById('handoverQty').value) || 0;
+      const handoverDate = document.getElementById('handoverDate').value;
+      const handoverPerson = document.getElementById('handoverPerson').value;
+      const receiverPerson = document.getElementById('receiverPerson').value;
+      const handoverNotes = document.getElementById('handoverNotes').value;
+      const confirmHandover = document.getElementById('confirmHandover').checked;
+      
+      // Validate đầu vào
+      if (goodQty <= 0) {
+        App.notify('Vui lòng nhập số lượng OK hợp lệ', 'error');
+        return;
+      }
+      
+      if (handoverQty <= 0) {
+        App.notify('Vui lòng nhập số lượng bàn giao', 'error');
+        return;
+      }
+      
+      if (handoverQty > goodQty) {
+        App.notify('Số lượng bàn giao không được lớn hơn số lượng OK', 'error');
+        return;
+      }
+      
+      if (!confirmHandover) {
+        App.notify('Vui lòng xác nhận bàn giao sản phẩm', 'error');
+        return;
+      }
+      
+      // Find and update order
+      const orderIndex = stageOrders.findIndex(o => o.id == editingOrderId);
+      if (orderIndex === -1) {
+        App.notify('Không tìm thấy lệnh sản xuất', 'error');
+        return;
+      }
+      
+      const order = stageOrders[orderIndex];
+      
+      // Update order data
+      stageOrders[orderIndex] = {
+        ...order,
+        xen_good_qty: goodQty,
+        xen_ng_qty: ngQty,
+        assigned_machine: machine,
+        worker: worker,
+        notes: notes,
+        stage_status: 'completed',
+        // Prepare output for next stage (IN)
+        in_input_qty: handoverQty,
+        // Thông tin bàn giao
+        handover_info: {
+          date: handoverDate,
+          quantity: handoverQty,
+          from_person: handoverPerson,
+          to_person: receiverPerson,
+          notes: handoverNotes
+        }
+      };
+      
+      // Try to save to API
+      try {
+        if (typeof ProductionOrdersAPI !== 'undefined') {
+          await ProductionOrdersAPI.updateStageProgress(editingOrderId, CURRENT_STAGE, {
+            good_qty: goodQty,
+            ng_qty: ngQty,
+            assigned_machine: machine,
+            worker: worker,
+            notes: notes,
+            status: 'completed',
+            // Thông tin bàn giao
+            next_stage_input: handoverQty,
+            handover_info: {
+              date: handoverDate || new Date().toISOString().split('T')[0],
+              quantity: handoverQty,
+              from_person: handoverPerson || worker,
+              to_person: receiverPerson,
+              notes: handoverNotes
+            }
+          });
+          console.log('Saved to API successfully');
+        }
+      } catch (error) {
+        console.warn('Failed to save to API:', error.message);
+        App.notify('Lưu vào hệ thống thất bại, dữ liệu chỉ được lưu tạm thời', 'warning');
+      }
+      
+      renderStageData();
+      updateStatistics();
+      
+      const modal = bootstrap.Modal.getInstance(document.getElementById('completeStageModal'));
+      modal.hide();
+      
+      editingOrderId = null;
+      App.notify('Đã hoàn thành công đoạn Xén và bàn giao cho công đoạn IN!', 'success');
+    }
+    
+    // Hiển thị thông tin chi tiết lệnh để bàn giao
+    function showCompleteModal(orderId) {
+      const order = stageOrders.find(o => o.id == orderId);
+      if (!order) {
+        App.notify('Không tìm thấy lệnh sản xuất', 'error');
+        return;
+      }
+      
+      editingOrderId = orderId;
+      
+      // Chuyển đến tab hoàn thành công đoạn
+      setTimeout(() => {
+        document.getElementById('complete-tab').click();
+      }, 200);
+      
+      // Populate modal fields - Tab hoàn thành
+      document.getElementById('completeOrderId').value = order.id;
+      document.getElementById('modalOrderCode').textContent = order.production_order;
+      document.getElementById('modalProductName').textContent = order.product_name;
+      document.getElementById('modalInputQty').textContent = App.formatNumber(order.xen_input_qty);
+      document.getElementById('modalDimensions').textContent = order.dimensions;
+      document.getElementById('modalGoodQty').value = order.xen_good_qty || '';
+      document.getElementById('modalNgQty').value = order.xen_ng_qty || 0;
+      document.getElementById('modalMachine').value = order.assigned_machine || '';
+      document.getElementById('modalWorker').value = order.worker || '';
+      document.getElementById('modalNotes').value = order.notes || '';
+      document.getElementById('modalShift').value = order.shift || 'Ca 1'; // Default to Ca 1
+      
+      // Populate modal fields - Tab bàn giao
+      document.getElementById('handoverOrderCode').textContent = order.production_order;
+      document.getElementById('handoverProductName').textContent = order.product_name;
+      document.getElementById('handoverQty').value = order.xen_good_qty || '';
+      document.getElementById('handoverDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('handoverPerson').value = order.worker || '';
+      document.getElementById('receiverPerson').value = '';
+      document.getElementById('handoverNotes').value = '';
+      document.getElementById('confirmHandover').checked = false;
+      
+      // Cập nhật handover quantity khi có thay đổi good quantity
+      updateHandoverQty();
+      
+      const modal = new bootstrap.Modal(document.getElementById('completeStageModal'));
+      modal.show();
+    }
+    
+    // Hiển thị modal bàn giao cho công đoạn IN
+    function showHandoverModal(orderId) {
+      const order = stageOrders.find(o => o.id == orderId);
+      if (!order) {
+        App.notify('Không tìm thấy lệnh sản xuất', 'error');
+        return;
+      }
+      
+      editingOrderId = orderId;
+      
+      // Chuyển đến tab bàn giao trong modal
+      document.getElementById('handover-tab').click();
+      
+      // Populate modal fields - Tab bàn giao
+      document.getElementById('handoverOrderCode').textContent = order.production_order;
+      document.getElementById('handoverProductName').textContent = order.product_name;
+      document.getElementById('handoverQty').value = order.xen_good_qty || '';
+      document.getElementById('handoverDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('handoverPerson').value = order.worker || '';
+      document.getElementById('receiverPerson').value = '';
+      document.getElementById('handoverNotes').value = '';
+      document.getElementById('confirmHandover').checked = false;
+      
+      // Hiển thị modal
+      const modal = new bootstrap.Modal(document.getElementById('completeStageModal'));
+      modal.show();
+    }
+
+    // Cập nhật số lượng bàn giao theo số lượng OK
+    function updateHandoverQty() {
+      const goodQty = parseInt(document.getElementById('modalGoodQty').value) || 0;
+      document.getElementById('handoverQty').value = goodQty;
+    }
+
+    // Show new order form
+    function showNewOrderForm() {
+      App.notify('Chức năng thêm mới đang được phát triển', 'info');
+    }
+
+    // Edit order
+    function editOrder(orderId) {
+      App.notify('Chức năng chỉnh sửa đang được phát triển', 'info');
+    }
+
+    // View order details
+    function viewOrderDetails(orderId) {
+      const order = stageOrders.find(o => o.id == orderId);
+      if (!order) {
+        App.notify('Không tìm thấy lệnh sản xuất', 'error');
+        return;
+      }
+      
+      const details = `
+        Mã lệnh: ${order.production_order}
+        Sản phẩm: ${order.product_name}
+        Kích thước: ${order.dimensions} mm
+        Kế hoạch: ${App.formatNumber(order.deployed_quantity)}
+        Đầu vào từ Xả: ${App.formatNumber(order.xen_input_qty)}
+        Đã hoàn thành: ${App.formatNumber(order.xen_good_qty || 0)}
+        Lỗi: ${App.formatNumber(order.xen_ng_qty || 0)}
+        Máy: ${order.assigned_machine || 'Chưa phân công'}
+        Thợ: ${order.worker || 'Chưa phân công'}
+      `;
+      
+      alert('Chi tiết lệnh sản xuất:\n\n' + details);
+    }
+    
+    // Refresh data
+    async function refreshData() {
+      await initData();
+      App.notify('Làm mới dữ liệu thành công!', 'info');
+    }
+    
+    // Apply filters
+    function applyFilters() {
+      // Implementation for filtering functionality
+      App.notify('Chức năng lọc đang được phát triển', 'info');
+    }
+    
+    // Toggle sidebar
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const toggleIcon = document.getElementById('toggleIcon');
+      
+      if (sidebar.classList.contains('collapsed')) {
+        sidebar.classList.remove('collapsed');
+        mainContent.classList.remove('sidebar-collapsed');
+        toggleIcon.innerHTML = '<i class="bi bi-chevron-left"></i>';
+      } else {
+        sidebar.classList.add('collapsed');
+        mainContent.classList.add('sidebar-collapsed');
+        toggleIcon.innerHTML = '<i class="bi bi-chevron-right"></i>';
+      }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('=== XEN STAGE PAGE LOADED ===');
+      initData();
+    });
+  </script>
+</body>
+</html>
