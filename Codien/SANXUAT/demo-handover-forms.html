@@ -1,0 +1,2869 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo Form Bàn Giao - Carton Manager</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px 0;
+    }
+    
+    .demo-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .demo-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .demo-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .demo-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .demo-title {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .demo-subtitle {
+      opacity: 0.9;
+      margin-bottom: 0;
+    }
+    
+    .form-demo {
+      padding: 30px;
+    }
+    
+    .demo-form-title {
+      color: #667eea;
+      font-weight: bold;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 10px;
+    }
+    
+    .btn-demo {
+      border-radius: 25px;
+      padding: 10px 25px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-demo:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .feature-badge {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      padding: 5px 12px;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      margin: 2px;
+      display: inline-block;
+    }
+    
+    .pros-cons {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 15px;
+    }
+    
+    .pros {
+      color: #28a745;
+    }
+    
+    .cons {
+      color: #dc3545;
+    }
+    
+    /* Specific styles for different demo variants */
+    .compact-form .form-control,
+    .compact-form .form-select {
+      padding: 8px 12px;
+      font-size: 0.9rem;
+    }
+    
+    .modern-form {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      border-radius: 15px;
+      padding: 25px;
+    }
+    
+    .minimal-form .form-label {
+      font-weight: 400;
+      color: #6c757d;
+    }
+    
+    .card-style-form {
+      background: white;
+      border: 1px solid #e9ecef;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="demo-container">
+    
+    <!-- Header -->
+    <div class="demo-card">
+      <div class="demo-header">
+        <h1 class="demo-title">
+          <i class="bi bi-clipboard-check me-3"></i>
+          Demo Form Bàn Giao
+        </h1>
+        <p class="demo-subtitle">Nhiều mẫu thiết kế khác nhau để bạn lựa chọn</p>
+      </div>
+    </div>
+
+    <!-- Demo 1: Form hiện tại (Compact & Clean) -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title">
+          <i class="bi bi-1-circle-fill text-primary me-2"></i>
+          Demo 1: Form Compact & Clean (Đang sử dụng)
+        </h3>
+        
+        <div class="row">
+          <div class="col-md-8">
+            <div class="compact-form">
+              <!-- Sample order info -->
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <strong>Mã lệnh:</strong> <span class="text-primary">LSX001</span>
+                </div>
+                <div class="col-md-6">
+                  <strong>Sản phẩm:</strong> <span>Hộp carton 500x300x200</span>
+                </div>
+              </div>
+
+              <div class="border rounded p-3 mb-3 bg-success bg-opacity-10">
+                <h6 class="text-success mb-3">
+                  <i class="bi bi-arrow-right-circle me-2"></i>Thông tin bàn giao
+                </h6>
+                
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Số lượng bàn giao: <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" value="1000" readonly>
+                    <div class="form-text">Tự động = Số lượng OK</div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Ngày bàn giao:</label>
+                    <input type="date" class="form-control" value="2025-01-30">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Người bàn giao:</label>
+                    <input type="text" class="form-control" placeholder="Nhập tên người bàn giao">
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Người nhận:</label>
+                    <input type="text" class="form-control" placeholder="Nhập tên người nhận">
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Ghi chú bàn giao:</label>
+                  <textarea class="form-control" rows="2" placeholder="Ghi chú về bàn giao sản phẩm..."></textarea>
+                </div>
+
+                <div class="alert alert-secondary">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox">
+                    <label class="form-check-label">
+                      Tôi xác nhận đã bàn giao đủ số lượng và chất lượng cho công đoạn tiếp theo
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-grid">
+                <button type="button" class="btn btn-primary btn-demo">
+                  <i class="bi bi-arrow-right-circle me-2"></i>Chỉ bàn giao (không hoàn thành)
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="pros-cons">
+              <h6 class="pros"><i class="bi bi-check-circle me-1"></i>Ưu điểm:</h6>
+              <ul class="pros">
+                <li>Gọn gàng, tiết kiệm không gian</li>
+                <li>Tất cả thông tin trong 1 khối</li>
+                <li>Màu sắc nhẹ nhàng</li>
+                <li>Phù hợp màn hình nhỏ</li>
+              </ul>
+              
+              <h6 class="cons mt-3"><i class="bi bi-x-circle me-1"></i>Nhược điểm:</h6>
+              <ul class="cons">
+                <li>Hơi đơn điệu</li>
+                <li>Thiếu phân chia rõ ràng</li>
+              </ul>
+            </div>
+            
+            <div class="mt-3">
+              <span class="feature-badge">Compact</span>
+              <span class="feature-badge">Clean</span>
+              <span class="feature-badge">Mobile Friendly</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 2: Form Card Style -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title">
+          <i class="bi bi-2-circle-fill text-success me-2"></i>
+          Demo 2: Card Style Form
+        </h3>
+        
+        <div class="row">
+          <div class="col-md-8">
+            <!-- Order Info Card -->
+            <div class="card-style-form mb-3">
+              <h6 class="text-primary mb-3">
+                <i class="bi bi-info-circle me-2"></i>Thông tin lệnh sản xuất
+              </h6>
+              <div class="row">
+                <div class="col-md-6">
+                  <strong>Mã lệnh:</strong> <span class="badge bg-primary">LSX001</span>
+                </div>
+                <div class="col-md-6">
+                  <strong>Sản phẩm:</strong> <span>Hộp carton 500x300x200</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Handover Info Card -->
+            <div class="card-style-form mb-3">
+              <h6 class="text-warning mb-3">
+                <i class="bi bi-arrow-right me-2"></i>Công đoạn tiếp theo: XÉN
+              </h6>
+              <p class="text-muted mb-0">Sau khi bàn giao, sản phẩm sẽ được chuyển sang công đoạn XÉN để tiếp tục xử lý</p>
+            </div>
+
+            <!-- Handover Details Card -->
+            <div class="card-style-form mb-3">
+              <h6 class="text-success mb-3">
+                <i class="bi bi-clipboard-check me-2"></i>Chi tiết bàn giao
+              </h6>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Số lượng bàn giao</label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" value="1000">
+                    <span class="input-group-text">cái</span>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Ngày bàn giao</label>
+                  <input type="date" class="form-control" value="2025-01-30">
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Người bàn giao</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    <input type="text" class="form-control" placeholder="Tên người bàn giao">
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Người nhận</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person-check"></i></span>
+                    <input type="text" class="form-control" placeholder="Tên người nhận">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notes & Confirmation Card -->
+            <div class="card-style-form mb-3">
+              <h6 class="text-info mb-3">
+                <i class="bi bi-chat-square-text me-2"></i>Ghi chú & Xác nhận
+              </h6>
+              
+              <div class="mb-3">
+                <label class="form-label">Ghi chú bàn giao</label>
+                <textarea class="form-control" rows="3" placeholder="Nhập ghi chú về chất lượng, số lượng, yêu cầu đặc biệt..."></textarea>
+              </div>
+
+              <div class="alert alert-light border">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox">
+                  <label class="form-check-label">
+                    <strong>Tôi xác nhận:</strong> Đã kiểm tra và bàn giao đủ số lượng, đúng chất lượng theo yêu cầu
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Button -->
+            <div class="d-grid">
+              <button type="button" class="btn btn-success btn-lg btn-demo">
+                <i class="bi bi-check-circle-fill me-2"></i>Xác nhận bàn giao
+              </button>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="pros-cons">
+              <h6 class="pros"><i class="bi bi-check-circle me-1"></i>Ưu điểm:</h6>
+              <ul class="pros">
+                <li>Phân chia rõ ràng từng phần</li>
+                <li>Dễ đọc, dễ theo dõi</li>
+                <li>Icons hỗ trợ trực quan</li>
+                <li>Professional look</li>
+              </ul>
+              
+              <h6 class="cons mt-3"><i class="bi bi-x-circle me-1"></i>Nhược điểm:</h6>
+              <ul class="cons">
+                <li>Chiếm nhiều không gian</li>
+                <li>Có thể quá phức tạp</li>
+              </ul>
+            </div>
+            
+            <div class="mt-3">
+              <span class="feature-badge">Professional</span>
+              <span class="feature-badge">Clear Structure</span>
+              <span class="feature-badge">Visual Icons</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 3: Minimal & Modern Form -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title">
+          <i class="bi bi-3-circle-fill text-warning me-2"></i>
+          Demo 3: Minimal & Modern
+        </h3>
+        
+        <div class="row">
+          <div class="col-md-8">
+            <div class="modern-form">
+              <!-- Simple Header -->
+              <div class="text-center mb-4">
+                <h5 class="text-dark mb-1">Bàn giao: LSX001 → XÉN</h5>
+                <p class="text-muted">Hộp carton 500x300x200</p>
+              </div>
+
+              <div class="minimal-form">
+                <!-- Quantity Section -->
+                <div class="row mb-4">
+                  <div class="col-md-12">
+                    <label class="form-label">Số lượng bàn giao</label>
+                    <div class="input-group input-group-lg">
+                      <input type="number" class="form-control text-center fw-bold" value="1000" style="font-size: 1.5rem;">
+                      <span class="input-group-text">cái</span>
+                    </div>
+                    <div class="form-text text-center">Số lượng sản phẩm đạt chất lượng</div>
+                  </div>
+                </div>
+
+                <!-- People & Date -->
+                <div class="row mb-3">
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">Ngày</label>
+                    <input type="date" class="form-control" value="2025-01-30">
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">Người giao</label>
+                    <input type="text" class="form-control" placeholder="Tên">
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">Người nhận</label>
+                    <input type="text" class="form-control" placeholder="Tên">
+                  </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="mb-4">
+                  <label class="form-label">Ghi chú (tùy chọn)</label>
+                  <textarea class="form-control" rows="2" placeholder="Thêm ghi chú nếu cần..."></textarea>
+                </div>
+
+                <!-- Confirmation -->
+                <div class="text-center mb-4">
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" style="transform: scale(1.2);">
+                    <label class="form-check-label fw-bold">
+                      Xác nhận bàn giao chính xác
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Action -->
+                <div class="d-grid">
+                  <button type="button" class="btn btn-dark btn-lg btn-demo" style="border-radius: 30px;">
+                    <i class="bi bi-arrow-right me-2"></i>Bàn giao ngay
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="pros-cons">
+              <h6 class="pros"><i class="bi bi-check-circle me-1"></i>Ưu điểm:</h6>
+              <ul class="pros">
+                <li>Tối giản, dễ sử dụng</li>
+                <li>Tập trung vào nội dung chính</li>
+                <li>Modern design</li>
+                <li>Ít bị phân tâm</li>
+              </ul>
+              
+              <h6 class="cons mt-3"><i class="bi bi-x-circle me-1"></i>Nhược điểm:</h6>
+              <ul class="cons">
+                <li>Thiếu thông tin chi tiết</li>
+                <li>Có thể quá đơn giản</li>
+              </ul>
+            </div>
+            
+            <div class="mt-3">
+              <span class="feature-badge">Minimal</span>
+              <span class="feature-badge">Modern</span>
+              <span class="feature-badge">Focus</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 4: Step-by-Step Form -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title">
+          <i class="bi bi-4-circle-fill text-info me-2"></i>
+          Demo 4: Step-by-Step Process
+        </h3>
+        
+        <div class="row">
+          <div class="col-md-8">
+            <!-- Progress Steps -->
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="text-center">
+                  <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <i class="bi bi-check"></i>
+                  </div>
+                  <div class="small mt-1">Thông tin</div>
+                </div>
+                <div class="flex-grow-1 mx-3" style="height: 2px; background: #28a745;"></div>
+                <div class="text-center">
+                  <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <span>2</span>
+                  </div>
+                  <div class="small mt-1">Số lượng</div>
+                </div>
+                <div class="flex-grow-1 mx-3" style="height: 2px; background: #dee2e6;"></div>
+                <div class="text-center">
+                  <div class="bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <span>3</span>
+                  </div>
+                  <div class="small mt-1">Xác nhận</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2: Quantity -->
+            <div class="border rounded p-4 mb-3" style="border-left: 5px solid #007bff !important;">
+              <h6 class="text-primary mb-3">
+                <i class="bi bi-calculator me-2"></i>Bước 2: Nhập số lượng bàn giao
+              </h6>
+              
+              <div class="row">
+                <div class="col-md-8">
+                  <label class="form-label">Số lượng bàn giao cho công đoạn XÉN</label>
+                  <div class="input-group input-group-lg">
+                    <input type="number" class="form-control fw-bold text-center" value="1000" style="font-size: 1.3rem;">
+                    <span class="input-group-text">cái</span>
+                  </div>
+                  <div class="form-text">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Số lượng tối đa có thể bàn giao: <strong>1000 cái</strong>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Ngày bàn giao</label>
+                  <input type="date" class="form-control" value="2025-01-30">
+                </div>
+              </div>
+            </div>
+
+            <!-- People Information -->
+            <div class="border rounded p-4 mb-3" style="border-left: 5px solid #6c757d !important;">
+              <h6 class="text-secondary mb-3">
+                <i class="bi bi-people me-2"></i>Thông tin nhân sự
+              </h6>
+              <div class="row">
+                <div class="col-md-6">
+                  <label class="form-label">Người bàn giao (Công đoạn XẢ)</label>
+                  <input type="text" class="form-control" placeholder="Nhập tên người bàn giao">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Người nhận (Công đoạn XÉN)</label>
+                  <input type="text" class="form-control" placeholder="Nhập tên người nhận">
+                </div>
+              </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="d-flex justify-content-between">
+              <button type="button" class="btn btn-outline-secondary btn-demo">
+                <i class="bi bi-arrow-left me-2"></i>Quay lại
+              </button>
+              <button type="button" class="btn btn-primary btn-demo">
+                Tiếp tục <i class="bi bi-arrow-right ms-2"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="pros-cons">
+              <h6 class="pros"><i class="bi bi-check-circle me-1"></i>Ưu điểm:</h6>
+              <ul class="pros">
+                <li>Dễ theo dõi tiến trình</li>
+                <li>Giảm lỗi nhập liệu</li>
+                <li>Trải nghiệm rõ ràng</li>
+                <li>Có thể quay lại chỉnh sửa</li>
+              </ul>
+              
+              <h6 class="cons mt-3"><i class="bi bi-x-circle me-1"></i>Nhược điểm:</h6>
+              <ul class="cons">
+                <li>Mất nhiều thời gian hơn</li>
+                <li>Phức tạp cho việc đơn giản</li>
+              </ul>
+            </div>
+            
+            <div class="mt-3">
+              <span class="feature-badge">Step by Step</span>
+              <span class="feature-badge">User Friendly</span>
+              <span class="feature-badge">Progress Track</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 5: Quick Action Form -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title">
+          <i class="bi bi-5-circle-fill text-danger me-2"></i>
+          Demo 5: Quick Action (Siêu tối giản)
+        </h3>
+        
+        <div class="row">
+          <div class="col-md-8">
+            <div class="text-center">
+              <!-- Quick Summary -->
+              <div class="border rounded p-4 mb-4 bg-light">
+                <h4 class="text-primary mb-3">
+                  <i class="bi bi-box-arrow-right me-2"></i>
+                  Bàn giao: LSX001
+                </h4>
+                <div class="row text-center">
+                  <div class="col-md-4">
+                    <div class="h5 text-success mb-1">1000</div>
+                    <small class="text-muted">Số lượng</small>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="h5 text-primary mb-1">XẢ</div>
+                    <small class="text-muted">Từ công đoạn</small>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="h5 text-warning mb-1">XÉN</div>
+                    <small class="text-muted">Đến công đoạn</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Inputs -->
+              <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                  <input type="text" class="form-control form-control-lg text-center" placeholder="👤 Người giao">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <input type="text" class="form-control form-control-lg text-center" placeholder="👤 Người nhận">
+                </div>
+              </div>
+
+              <!-- Quick Confirmation -->
+              <div class="mb-4">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" style="transform: scale(1.5);">
+                  <label class="form-check-label fw-bold fs-5">
+                    ✅ Xác nhận bàn giao
+                  </label>
+                </div>
+              </div>
+
+              <!-- Big Action Button -->
+              <div class="d-grid">
+                <button type="button" class="btn btn-success btn-lg btn-demo" style="padding: 15px; font-size: 1.2rem; border-radius: 15px;">
+                  <i class="bi bi-lightning-fill me-2"></i>Bàn giao ngay lập tức
+                </button>
+              </div>
+
+              <div class="mt-3">
+                <small class="text-muted">
+                  <i class="bi bi-clock me-1"></i>Thời gian ước tính: 10 giây
+                </small>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="pros-cons">
+              <h6 class="pros"><i class="bi bi-check-circle me-1"></i>Ưu điểm:</h6>
+              <ul class="pros">
+                <li>Cực kỳ nhanh chóng</li>
+                <li>Ít click, ít nhập liệu</li>
+                <li>Phù hợp công việc lặp lại</li>
+                <li>Mobile optimization tốt</li>
+              </ul>
+              
+              <h6 class="cons mt-3"><i class="bi bi-x-circle me-1"></i>Nhược điểm:</h6>
+              <ul class="cons">
+                <li>Thiếu thông tin chi tiết</li>
+                <li>Khó kiểm soát</li>
+                <li>Không linh hoạt</li>
+              </ul>
+            </div>
+            
+            <div class="mt-3">
+              <span class="feature-badge">Super Fast</span>
+              <span class="feature-badge">One Click</span>
+              <span class="feature-badge">Mobile First</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 6: Two Tabs Traditional -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title">
+          <i class="bi bi-6-circle-fill text-purple me-2"></i>
+          Demo 6: Two Tabs Traditional (Như hiện tại)
+        </h3>
+        
+        <div class="row">
+          <div class="col-md-8">
+            <!-- Tab Navigation -->
+            <ul class="nav nav-tabs mb-3" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="complete-tab-6" data-bs-toggle="tab" data-bs-target="#complete-tab-pane-6" type="button" role="tab">
+                  <i class="bi bi-gear me-1"></i>Hoàn thành công đoạn
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="handover-tab-6" data-bs-toggle="tab" data-bs-target="#handover-tab-pane-6" type="button" role="tab">
+                  <i class="bi bi-arrow-right-circle me-1"></i>Bàn giao công đoạn
+                </button>
+              </li>
+            </ul>
+
+            <div class="tab-content">
+              <!-- Tab 1: Complete -->
+              <div class="tab-pane fade show active" id="complete-tab-pane-6" role="tabpanel">
+                <div class="border rounded p-3 mb-3 bg-light">
+                  <h6 class="text-primary mb-3">Kết quả sản xuất</h6>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Số lượng đạt (OK)</label>
+                      <input type="number" class="form-control" value="1000">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Số lượng NG</label>
+                      <input type="number" class="form-control" value="50">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Máy sản xuất</label>
+                      <select class="form-select">
+                        <option>Xả 1</option>
+                        <option>Xả 2</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Ca sản xuất</label>
+                      <select class="form-select">
+                        <option>Ca 1</option>
+                        <option>Ca 2</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Thợ phụ trách</label>
+                      <input type="text" class="form-control" placeholder="Tên thợ">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tab 2: Handover -->
+              <div class="tab-pane fade" id="handover-tab-pane-6" role="tabpanel">
+                <div class="border rounded p-3 mb-3 bg-success bg-opacity-10">
+                  <h6 class="text-success mb-3">Thông tin bàn giao</h6>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Số lượng bàn giao</label>
+                      <input type="number" class="form-control" value="1000" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Ngày bàn giao</label>
+                      <input type="date" class="form-control" value="2025-01-30">
+                    </div>
+                  </div>
+                  <div class="alert alert-secondary">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox">
+                      <label class="form-check-label">Xác nhận bàn giao đủ số lượng</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end">
+              <button type="button" class="btn btn-success btn-demo">
+                <i class="bi bi-check-lg me-1"></i>Hoàn thành & Bàn giao
+              </button>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="pros-cons">
+              <h6 class="pros">✓ Ưu điểm:</h6>
+              <ul class="pros small">
+                <li>Tách biệt rõ ràng 2 bước</li>
+                <li>Quen thuộc với người dùng</li>
+                <li>Dễ validation từng bước</li>
+              </ul>
+              <h6 class="cons mt-3">✗ Nhược điểm:</h6>
+              <ul class="cons small">
+                <li>Phải chuyển tab</li>
+                <li>Có thể quên bước 2</li>
+              </ul>
+            </div>
+            <div class="mt-3">
+              <span class="feature-badge">Traditional</span>
+              <span class="feature-badge">Familiar</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 7: Single Form All-in-One -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title">
+          <i class="bi bi-7-circle-fill text-success me-2"></i>
+          Demo 7: Single Form All-in-One (Một form duy nhất)
+        </h3>
+        
+        <div class="row">
+          <div class="col-md-8">
+            <form class="border rounded p-4">
+              <!-- Order Info Header -->
+              <div class="bg-primary text-white rounded p-3 mb-4">
+                <h5 class="mb-1">LSX001 - Hộp carton 500x300x200</h5>
+                <small>Hoàn thành công đoạn XẢ và bàn giao cho XÉN</small>
+              </div>
+
+              <!-- Production Results Section -->
+              <div class="mb-4">
+                <h6 class="text-primary border-bottom pb-2 mb-3">
+                  <i class="bi bi-clipboard-check me-2"></i>1. Kết quả sản xuất
+                </h6>
+                <div class="row">
+                  <div class="col-md-3">
+                    <label class="form-label">SL Đạt (OK)</label>
+                    <input type="number" class="form-control fw-bold text-success" value="1000" onchange="updateHandoverQty(this.value)">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">SL NG</label>
+                    <input type="number" class="form-control text-danger" value="50">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Máy</label>
+                    <select class="form-select">
+                      <option>Xả 1</option>
+                      <option>Xả 2</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Thợ</label>
+                    <input type="text" class="form-control" placeholder="Tên thợ">
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <label class="form-label">Ghi chú sản xuất</label>
+                  <textarea class="form-control" rows="2" placeholder="Ghi chú về quá trình sản xuất..."></textarea>
+                </div>
+              </div>
+
+              <!-- Handover Section -->
+              <div class="mb-4">
+                <h6 class="text-success border-bottom pb-2 mb-3">
+                  <i class="bi bi-arrow-right-circle me-2"></i>2. Bàn giao cho công đoạn XÉN
+                </h6>
+                <div class="row">
+                  <div class="col-md-4">
+                    <label class="form-label">SL Bàn giao</label>
+                    <input type="number" class="form-control fw-bold" id="handoverQty7" value="1000">
+                    <small class="text-muted">Tự động = SL OK</small>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Người giao</label>
+                    <input type="text" class="form-control" placeholder="Tên người giao">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Người nhận</label>
+                    <input type="text" class="form-control" placeholder="Tên người nhận">
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <label class="form-label">Ghi chú bàn giao</label>
+                  <textarea class="form-control" rows="2" placeholder="Ghi chú về bàn giao..."></textarea>
+                </div>
+              </div>
+
+              <!-- Final Confirmation -->
+              <div class="bg-light rounded p-3 mb-3">
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" id="confirmComplete7">
+                  <label class="form-check-label" for="confirmComplete7">
+                    ✅ Xác nhận kết quả sản xuất chính xác
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="confirmHandover7">
+                  <label class="form-check-label" for="confirmHandover7">
+                    ✅ Xác nhận bàn giao đủ số lượng và chất lượng
+                  </label>
+                </div>
+              </div>
+
+              <div class="d-grid">
+                <button type="button" class="btn btn-success btn-lg btn-demo">
+                  <i class="bi bi-check-circle-fill me-2"></i>Hoàn thành và Bàn giao một lượt
+                </button>
+              </div>
+            </form>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="pros-cons">
+              <h6 class="pros">✓ Ưu điểm:</h6>
+              <ul class="pros small">
+                <li>Làm 1 lần cho cả 2 việc</li>
+                <li>Tổng quan toàn bộ trên 1 màn hình</li>
+                <li>Nhanh gọn</li>
+                <li>Ít bước thao tác</li>
+              </ul>
+              <h6 class="cons mt-3">✗ Nhược điểm:</h6>
+              <ul class="cons small">
+                <li>Form dài, có thể choáng ngợp</li>
+                <li>Khó focus vào từng phần</li>
+              </ul>
+            </div>
+            <div class="mt-3">
+              <span class="feature-badge">All-in-One</span>
+              <span class="feature-badge">Efficient</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 8: Accordion Style -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title">
+          <i class="bi bi-8-circle-fill text-warning me-2"></i>
+          Demo 8: Accordion Style (Gập/Mở từng phần)
+        </h3>
+        
+        <div class="row">
+          <div class="col-md-8">
+            <div class="accordion" id="accordionDemo8">
+              <!-- Section 1: Production -->
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="true">
+                    <i class="bi bi-gear-fill me-2 text-primary"></i>
+                    <strong>Bước 1: Hoàn thành sản xuất</strong>
+                    <span class="badge bg-success ms-2">Bắt buộc</span>
+                  </button>
+                </h2>
+                <div id="collapse1" class="accordion-collapse collapse show" data-bs-parent="#accordionDemo8">
+                  <div class="accordion-body">
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Số lượng OK</label>
+                        <input type="number" class="form-control" value="1000">
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Số lượng NG</label>
+                        <input type="number" class="form-control" value="50">
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Máy sản xuất</label>
+                        <select class="form-select">
+                          <option>Xả 1</option>
+                          <option>Xả 2</option>
+                          <option>Xả 3</option>
+                        </select>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Thợ phụ trách</label>
+                        <input type="text" class="form-control" placeholder="Nhập tên thợ">
+                      </div>
+                    </div>
+                    <div class="alert alert-info">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox">
+                        <label class="form-check-label">
+                          ✅ Tôi xác nhận số liệu sản xuất chính xác
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 2: Handover -->
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false">
+                    <i class="bi bi-arrow-right-circle-fill me-2 text-success"></i>
+                    <strong>Bước 2: Bàn giao công đoạn tiếp theo</strong>
+                    <span class="badge bg-warning ms-2">Tùy chọn</span>
+                  </button>
+                </h2>
+                <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#accordionDemo8">
+                  <div class="accordion-body">
+                    <div class="alert alert-warning">
+                      <h6>🎯 Bàn giao cho: <strong>Công đoạn XÉN</strong></h6>
+                      <p class="mb-0">Sản phẩm sẽ được chuyển sang công đoạn XÉN để tiếp tục quy trình sản xuất</p>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Số lượng bàn giao</label>
+                        <input type="number" class="form-control fw-bold" value="1000" readonly>
+                        <small class="text-muted">Tự động lấy từ số lượng OK</small>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Ngày bàn giao</label>
+                        <input type="date" class="form-control" value="2025-01-30">
+                      </div>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Người bàn giao</label>
+                        <input type="text" class="form-control" placeholder="Tên người bàn giao">
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Người nhận</label>
+                        <input type="text" class="form-control" placeholder="Tên người nhận">
+                      </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <label class="form-label">Ghi chú bàn giao</label>
+                      <textarea class="form-control" rows="2" placeholder="Ghi chú đặc biệt về bàn giao..."></textarea>
+                    </div>
+                    
+                    <div class="alert alert-success">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox">
+                        <label class="form-check-label">
+                          ✅ Xác nhận bàn giao đầy đủ và đúng chất lượng
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 3: Summary -->
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false">
+                    <i class="bi bi-clipboard-check-fill me-2 text-info"></i>
+                    <strong>Bước 3: Tóm tắt và xác nhận cuối</strong>
+                  </button>
+                </h2>
+                <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#accordionDemo8">
+                  <div class="accordion-body">
+                    <div class="card">
+                      <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">📋 Tóm tắt thao tác</h6>
+                      </div>
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col-md-6">
+                            <h6>Sản xuất:</h6>
+                            <ul>
+                              <li>SL OK: <strong>1000 cái</strong></li>
+                              <li>SL NG: <strong>50 cái</strong></li>
+                              <li>Máy: <strong>Xả 1</strong></li>
+                            </ul>
+                          </div>
+                          <div class="col-md-6">
+                            <h6>Bàn giao:</h6>
+                            <ul>
+                              <li>Đến: <strong>Công đoạn XÉN</strong></li>
+                              <li>SL: <strong>1000 cái</strong></li>
+                              <li>Ngày: <strong>30/01/2025</strong></li>
+                            </ul>
+                          </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                          <button type="button" class="btn btn-success btn-lg btn-demo">
+                            <i class="bi bi-check-all me-2"></i>Xác nhận hoàn thành tất cả
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="pros-cons">
+              <h6 class="pros">✓ Ưu điểm:</h6>
+              <ul class="pros small">
+                <li>Từng bước rất rõ ràng</li>
+                <li>Tiết kiệm không gian màn hình</li>
+                <li>Có thể quay lại chỉnh sửa</li>
+                <li>Tóm tắt cuối rất trực quan</li>
+              </ul>
+              <h6 class="cons mt-3">✗ Nhược điểm:</h6>
+              <ul class="cons small">
+                <li>Phải click nhiều lần</li>
+                <li>Có thể quên mở section</li>
+              </ul>
+            </div>
+            <div class="mt-3">
+              <span class="feature-badge">Step by Step</span>
+              <span class="feature-badge">Space Saving</span>
+              <span class="feature-badge">Summary</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 9: Wizard Style -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title">
+          <i class="bi bi-9-circle-fill text-info me-2"></i>
+          Demo 9: Wizard Style (Hướng dẫn từng bước)
+        </h3>
+        
+        <div class="row">
+          <div class="col-md-8">
+            <!-- Progress Bar -->
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted">Tiến trình hoàn thành</span>
+                <span class="badge bg-primary">Bước 2/4</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-primary" style="width: 50%"></div>
+              </div>
+            </div>
+
+            <!-- Step Indicators -->
+            <div class="d-flex justify-content-between mb-4">
+              <div class="text-center">
+                <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                  <i class="bi bi-check"></i>
+                </div>
+                <div class="small mt-1 text-success">Thông tin</div>
+              </div>
+              <div class="flex-grow-1 align-self-center mx-2" style="height: 2px; background: #28a745;"></div>
+              <div class="text-center">
+                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                  <span class="fw-bold">2</span>
+                </div>
+                <div class="small mt-1 text-primary fw-bold">Sản xuất</div>
+              </div>
+              <div class="flex-grow-1 align-self-center mx-2" style="height: 2px; background: #dee2e6;"></div>
+              <div class="text-center">
+                <div class="bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                  <span>3</span>
+                </div>
+                <div class="small mt-1">Bàn giao</div>
+              </div>
+              <div class="flex-grow-1 align-self-center mx-2" style="height: 2px; background: #dee2e6;"></div>
+              <div class="text-center">
+                <div class="bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                  <span>4</span>
+                </div>
+                <div class="small mt-1">Hoàn thành</div>
+              </div>
+            </div>
+
+            <!-- Current Step Content -->
+            <div class="card">
+              <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                  <i class="bi bi-gear-fill me-2"></i>
+                  Bước 2: Nhập kết quả sản xuất
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="alert alert-info">
+                  <h6><i class="bi bi-info-circle me-2"></i>Hướng dẫn:</h6>
+                  <p class="mb-0">Vui lòng nhập số lượng sản phẩm đạt (OK) và không đạt (NG) sau khi hoàn thành sản xuất ở công đoạn XẢ.</p>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-check-circle text-success me-1"></i>
+                      Số lượng đạt (OK) <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                      <input type="number" class="form-control form-control-lg text-center fw-bold" value="1000" min="0" max="1050">
+                      <span class="input-group-text">cái</span>
+                    </div>
+                    <div class="form-text">Tối đa: 1050 cái (số lượng kế hoạch)</div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-x-circle text-danger me-1"></i>
+                      Số lượng không đạt (NG) <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                      <input type="number" class="form-control form-control-lg text-center" value="50" min="0">
+                      <span class="input-group-text">cái</span>
+                    </div>
+                    <div class="form-text">Sản phẩm không đạt tiêu chuẩn chất lượng</div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Máy sản xuất sử dụng</label>
+                    <select class="form-select">
+                      <option value="">-- Chọn máy --</option>
+                      <option value="xa1" selected>Xả 1</option>
+                      <option value="xa2">Xả 2</option>
+                      <option value="xa3">Xả 3</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Thợ phụ trách</label>
+                    <input type="text" class="form-control" placeholder="Nhập tên thợ phụ trách">
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Ghi chú sản xuất (tùy chọn)</label>
+                  <textarea class="form-control" rows="3" placeholder="Ghi chú về quá trình sản xuất, vấn đề gặp phải, chất lượng nguyên liệu..."></textarea>
+                </div>
+
+                <!-- Validation Messages -->
+                <div class="alert alert-success d-none" id="step2Valid">
+                  <i class="bi bi-check-circle-fill me-2"></i>Thông tin hợp lệ! Có thể chuyển sang bước tiếp theo.
+                </div>
+                
+                <div class="alert alert-danger d-none" id="step2Invalid">
+                  <i class="bi bi-exclamation-triangle-fill me-2"></i>Vui lòng kiểm tra lại thông tin đã nhập.
+                </div>
+              </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="d-flex justify-content-between mt-4">
+              <button type="button" class="btn btn-outline-secondary btn-demo">
+                <i class="bi bi-arrow-left me-2"></i>Quay lại
+              </button>
+              <div>
+                <button type="button" class="btn btn-outline-primary me-2 btn-demo">
+                  <i class="bi bi-floppy me-2"></i>Lưu nháp
+                </button>
+                <button type="button" class="btn btn-primary btn-demo">
+                  Tiếp tục <i class="bi bi-arrow-right ms-2"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <!-- Help Panel -->
+            <div class="card mb-3">
+              <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="bi bi-question-circle me-2"></i>Trợ giúp</h6>
+              </div>
+              <div class="card-body">
+                <h6>💡 Mẹo nhập liệu:</h6>
+                <ul class="small">
+                  <li>Số lượng OK + NG ≤ Kế hoạch</li>
+                  <li>Kiểm tra kỹ trước khi chuyển bước</li>
+                  <li>Có thể lưu nháp để nhập sau</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="pros-cons">
+              <h6 class="pros">✓ Ưu điểm:</h6>
+              <ul class="pros small">
+                <li>Hướng dẫn rất chi tiết</li>
+                <li>Hiển thị tiến trình rõ ràng</li>
+                <li>Có validation từng bước</li>
+                <li>Có thể lưu nháp</li>
+                <li>Phù hợp người mới</li>
+              </ul>
+              <h6 class="cons mt-3">✗ Nhược điểm:</h6>
+              <ul class="cons small">
+                <li>Mất nhiều thời gian</li>
+                <li>Phức tạp cho task đơn giản</li>
+                <li>Nhiều click</li>
+              </ul>
+            </div>
+            <div class="mt-3">
+              <span class="feature-badge">Wizard</span>
+              <span class="feature-badge">Guide</span>
+              <span class="feature-badge">Validation</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 10: Dashboard Style -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title">
+          <i class="bi bi-0-circle text-dark me-2"></i>
+          Demo 10: Dashboard Style (Tổng quan dạng dashboard)
+        </h3>
+        
+        <div class="row">
+          <div class="col-md-12">
+            <!-- Header Stats -->
+            <div class="row mb-4">
+              <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                  <div class="card-body text-center">
+                    <h4>LSX001</h4>
+                    <small>Mã lệnh sản xuất</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card bg-info text-white">
+                  <div class="card-body text-center">
+                    <h4>1050</h4>
+                    <small>Kế hoạch (cái)</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card bg-success text-white">
+                  <div class="card-body text-center">
+                    <h4 id="okQty10">1000</h4>
+                    <small>Đã sản xuất (cái)</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card bg-warning text-dark">
+                  <div class="card-body text-center">
+                    <h4>95.2%</h4>
+                    <small>Tỷ lệ đạt</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <!-- Left Panel: Production -->
+              <div class="col-md-6">
+                <div class="card h-100">
+                  <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                      <i class="bi bi-gear-fill me-2"></i>Hoàn thành sản xuất
+                    </h5>
+                  </div>
+                  <div class="card-body">
+                    <!-- Quick Stats -->
+                    <div class="row mb-3">
+                      <div class="col-6">
+                        <div class="border rounded p-2 text-center">
+                          <input type="number" class="form-control form-control-lg text-center fw-bold border-0" value="1000" style="font-size: 1.8rem;" onchange="updateDashboard()">
+                          <small class="text-success">SL Đạt (OK)</small>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div class="border rounded p-2 text-center">
+                          <input type="number" class="form-control form-control-lg text-center fw-bold border-0" value="50" style="font-size: 1.8rem;">
+                          <small class="text-danger">SL NG</small>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Production Details -->
+                    <div class="mb-3">
+                      <label class="form-label">Máy & Thợ</label>
+                      <div class="row">
+                        <div class="col-6">
+                          <select class="form-select">
+                            <option>Xả 1</option>
+                            <option>Xả 2</option>
+                          </select>
+                        </div>
+                        <div class="col-6">
+                          <input type="text" class="form-control" placeholder="Tên thợ">
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label">Ghi chú sản xuất</label>
+                      <textarea class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox">
+                      <label class="form-check-label">
+                        ✅ Xác nhận hoàn thành sản xuất
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Panel: Handover -->
+              <div class="col-md-6">
+                <div class="card h-100">
+                  <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                      <i class="bi bi-arrow-right-circle-fill me-2"></i>Bàn giao → XÉN
+                    </h5>
+                  </div>
+                  <div class="card-body">
+                    <!-- Handover Flow -->
+                    <div class="text-center mb-3">
+                      <div class="d-flex align-items-center justify-content-center">
+                        <span class="badge bg-primary me-2">XẢ</span>
+                        <i class="bi bi-arrow-right text-muted me-2"></i>
+                        <span class="badge bg-success">XÉN</span>
+                      </div>
+                      <small class="text-muted d-block mt-1">Luồng bàn giao</small>
+                    </div>
+
+                    <div class="border rounded p-3 mb-3 bg-light">
+                      <div class="text-center">
+                        <h4 class="text-success mb-1" id="handoverQty10">1000</h4>
+                        <small>Số lượng bàn giao</small>
+                      </div>
+                    </div>
+
+                    <div class="row mb-3">
+                      <div class="col-6">
+                        <label class="form-label">Người giao</label>
+                        <input type="text" class="form-control" placeholder="Tên">
+                      </div>
+                      <div class="col-6">
+                        <label class="form-label">Người nhận</label>
+                        <input type="text" class="form-control" placeholder="Tên">
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label">Ghi chú bàn giao</label>
+                      <textarea class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox">
+                      <label class="form-check-label">
+                        ✅ Xác nhận bàn giao chính xác
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Action Panel -->
+            <div class="card mt-4">
+              <div class="card-body">
+                <div class="row align-items-center">
+                  <div class="col-md-8">
+                    <h6 class="mb-1">Sẵn sàng hoàn thành?</h6>
+                    <small class="text-muted">Vui lòng kiểm tra lại tất cả thông tin trước khi xác nhận</small>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="d-grid">
+                      <button type="button" class="btn btn-success btn-lg btn-demo">
+                        <i class="bi bi-check-all me-2"></i>Hoàn thành tất cả
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Pros/Cons in separate row -->
+        <div class="row mt-4">
+          <div class="col-md-12">
+            <div class="pros-cons">
+              <div class="row">
+                <div class="col-md-6">
+                  <h6 class="pros">✓ Ưu điểm:</h6>
+                  <ul class="pros small">
+                    <li>Tổng quan toàn diện trên 1 màn hình</li>
+                    <li>Thống kê trực quan với numbers</li>
+                    <li>Layout chuyên nghiệp</li>
+                    <li>Dễ theo dõi tiến trình</li>
+                    <li>Phù hợp cho manager</li>
+                  </ul>
+                </div>
+                <div class="col-md-6">
+                  <h6 class="cons">✗ Nhược điểm:</h6>
+                  <ul class="cons small">
+                    <li>Phức tạp, nhiều thông tin</li>
+                    <li>Yêu cầu màn hình lớn</li>
+                    <li>Có thể choáng ngợp người mới</li>
+                    <li>Khó sử dụng trên mobile</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="text-center mt-3">
+                <span class="feature-badge">Dashboard</span>
+                <span class="feature-badge">Stats</span>
+                <span class="feature-badge">Professional</span>
+                <span class="feature-badge">Management</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Decision Helper -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title text-center">
+          <i class="bi bi-question-circle-fill text-secondary me-2"></i>
+          Gợi ý lựa chọn
+        </h3>
+        
+    <!-- Demo 11: Side-by-Side Columns -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title">
+          <i class="bi bi-11-circle-fill text-secondary me-2"></i>
+          Demo 11: Side-by-Side Columns (2 cột song song)
+        </h3>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <!-- Left Column: Production -->
+            <div class="border rounded p-3 h-100 bg-primary bg-opacity-10">
+              <h5 class="text-primary border-bottom pb-2 mb-3">
+                <i class="bi bi-gear me-2"></i>Hoàn thành sản xuất
+              </h5>
+              
+              <div class="mb-3">
+                <label class="form-label">Số lượng OK</label>
+                <input type="number" class="form-control" value="1000">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Số lượng NG</label>
+                <input type="number" class="form-control" value="50">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Máy sản xuất</label>
+                <select class="form-select">
+                  <option>Xả 1</option>
+                  <option>Xả 2</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Thợ phụ trách</label>
+                <input type="text" class="form-control" placeholder="Tên thợ">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Ghi chú sản xuất</label>
+                <textarea class="form-control" rows="2"></textarea>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox">
+                <label class="form-check-label">✅ Hoàn thành sản xuất</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <!-- Right Column: Handover -->
+            <div class="border rounded p-3 h-100 bg-success bg-opacity-10">
+              <h5 class="text-success border-bottom pb-2 mb-3">
+                <i class="bi bi-arrow-right-circle me-2"></i>Bàn giao → XÉN
+              </h5>
+              
+              <div class="mb-3">
+                <label class="form-label">Số lượng bàn giao</label>
+                <input type="number" class="form-control" value="1000" readonly>
+                <small class="text-muted">Tự động = SL OK</small>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Ngày bàn giao</label>
+                <input type="date" class="form-control" value="2025-01-30">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Người bàn giao</label>
+                <input type="text" class="form-control" placeholder="Tên người giao">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Người nhận</label>
+                <input type="text" class="form-control" placeholder="Tên người nhận">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Ghi chú bàn giao</label>
+                <textarea class="form-control" rows="2"></textarea>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox">
+                <label class="form-check-label">✅ Xác nhận bàn giao</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Bottom Action -->
+        <div class="text-center mt-4">
+          <button type="button" class="btn btn-success btn-lg btn-demo">
+            <i class="bi bi-check-all me-2"></i>Thực hiện cả hai
+          </button>
+        </div>
+        
+        <div class="pros-cons mt-4">
+          <div class="row">
+            <div class="col-md-6">
+              <h6 class="pros">✓ Ưu điểm:</h6>
+              <ul class="pros small">
+                <li>So sánh trực tiếp 2 phần</li>
+                <li>Nhìn tổng quan cùng lúc</li>
+                <li>Cân bằng không gian</li>
+                <li>Dễ điều hướng mắt</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h6 class="cons">✗ Nhược điểm:</h6>
+              <ul class="cons small">
+                <li>Hơi chật trên màn hình nhỏ</li>
+                <li>Không linh hoạt với nội dung dài</li>
+              </ul>
+            </div>
+          </div>
+          <div class="text-center mt-3">
+            <span class="feature-badge">Side by Side</span>
+            <span class="feature-badge">Balanced</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 12: Modal-in-Modal Style -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title">
+          <i class="bi bi-12-circle-fill text-dark me-2"></i>
+          Demo 12: Modal-in-Modal Style (Popup từng bước)
+        </h3>
+        
+        <div class="row">
+          <div class="col-md-8">
+            <!-- Main Form Container -->
+            <div class="border rounded p-4 bg-light">
+              <h5 class="mb-3">Hoàn thành công đoạn XẢ</h5>
+              
+              <!-- Step 1 Summary -->
+              <div class="alert alert-primary">
+                <h6><i class="bi bi-1-circle-fill me-2"></i>Bước 1: Hoàn thành sản xuất</h6>
+                <div class="row">
+                  <div class="col-md-4">SL OK: <strong>1000 cái</strong></div>
+                  <div class="col-md-4">SL NG: <strong>50 cái</strong></div>
+                  <div class="col-md-4">Máy: <strong>Xả 1</strong></div>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-primary mt-2 btn-demo">
+                  <i class="bi bi-pencil me-1"></i>Chỉnh sửa
+                </button>
+              </div>
+
+              <!-- Step 2 Button -->
+              <div class="text-center">
+                <button type="button" class="btn btn-success btn-lg btn-demo" data-bs-toggle="modal" data-bs-target="#handoverModal12">
+                  <i class="bi bi-arrow-right-circle me-2"></i>Tiếp tục: Bàn giao sản phẩm
+                </button>
+              </div>
+            </div>
+
+            <!-- Simulated Modal Content (normally would be in actual modal) -->
+            <div class="border rounded p-4 mt-3" style="background: rgba(0,0,0,0.05);">
+              <h6 class="text-success mb-3">
+                <i class="bi bi-window me-2"></i>Nội dung popup bàn giao (Demo)
+              </h6>
+              
+              <div class="bg-white rounded p-3">
+                <h6>Bàn giao cho công đoạn XÉN</h6>
+                
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Số lượng bàn giao</label>
+                    <input type="number" class="form-control" value="1000" readonly>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Người nhận</label>
+                    <input type="text" class="form-control" placeholder="Tên người nhận">
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label">Ghi chú</label>
+                  <textarea class="form-control" rows="2"></textarea>
+                </div>
+                
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox">
+                  <label class="form-check-label">Xác nhận bàn giao</label>
+                </div>
+                
+                <div class="d-flex justify-content-end">
+                  <button type="button" class="btn btn-secondary me-2 btn-demo">Hủy</button>
+                  <button type="button" class="btn btn-success btn-demo">Xác nhận bàn giao</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="pros-cons">
+              <h6 class="pros">✓ Ưu điểm:</h6>
+              <ul class="pros small">
+                <li>Tách biệt rõ ràng từng bước</li>
+                <li>Focus vào 1 task tại 1 thời điểm</li>
+                <li>Có thể quay lại chỉnh sửa</li>
+                <li>Tiết kiệm không gian</li>
+              </ul>
+              <h6 class="cons mt-3">✗ Nhược điểm:</h6>
+              <ul class="cons small">
+                <li>Phải mở popup nhiều lần</li>
+                <li>Mất context khi chuyển đổi</li>
+                <li>Phức tạp về mặt UI</li>
+              </ul>
+            </div>
+            <div class="mt-3">
+              <span class="feature-badge">Modal</span>
+              <span class="feature-badge">Step Focus</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 13: Timeline Style -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title">
+          <i class="bi bi-13-circle-fill text-warning me-2"></i>
+          Demo 13: Timeline Style (Dòng thời gian)
+        </h3>
+        
+        <div class="row">
+          <div class="col-md-8">
+            <div class="timeline">
+              <!-- Timeline Item 1 -->
+              <div class="timeline-item completed">
+                <div class="timeline-marker bg-success">
+                  <i class="bi bi-check text-white"></i>
+                </div>
+                <div class="timeline-content">
+                  <div class="card">
+                    <div class="card-header bg-success text-white">
+                      <h6 class="mb-0">✅ Hoàn thành sản xuất</h6>
+                      <small>Đã hoàn thành lúc 14:30</small>
+                    </div>
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col-6">
+                          <strong>SL OK:</strong> 1000 cái<br>
+                          <strong>SL NG:</strong> 50 cái
+                        </div>
+                        <div class="col-6">
+                          <strong>Máy:</strong> Xả 1<br>
+                          <strong>Thợ:</strong> Nguyễn Văn A
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Timeline Item 2 -->
+              <div class="timeline-item active">
+                <div class="timeline-marker bg-primary">
+                  <span class="text-white fw-bold">2</span>
+                </div>
+                <div class="timeline-content">
+                  <div class="card">
+                    <div class="card-header bg-primary text-white">
+                      <h6 class="mb-0">🚀 Đang thực hiện: Bàn giao sản phẩm</h6>
+                      <small>Bắt đầu lúc 14:35</small>
+                    </div>
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label">Số lượng bàn giao</label>
+                          <input type="number" class="form-control" value="1000" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label">Đến công đoạn</label>
+                          <input type="text" class="form-control" value="XÉN" readonly>
+                        </div>
+                      </div>
+                      
+                      <div class="row">
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label">Người bàn giao</label>
+                          <input type="text" class="form-control" value="Nguyễn Văn A">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label">Người nhận</label>
+                          <input type="text" class="form-control" placeholder="Nhập tên">
+                        </div>
+                      </div>
+                      
+                      <div class="mb-3">
+                        <label class="form-label">Ghi chú bàn giao</label>
+                        <textarea class="form-control" rows="2" placeholder="Ghi chú về chất lượng, yêu cầu đặc biệt..."></textarea>
+                      </div>
+                      
+                      <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox">
+                        <label class="form-check-label">
+                          Xác nhận bàn giao đúng số lượng và chất lượng
+                        </label>
+                      </div>
+                      
+                      <button type="button" class="btn btn-success btn-demo">
+                        <i class="bi bi-check-lg me-2"></i>Hoàn thành bàn giao
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Timeline Item 3 -->
+              <div class="timeline-item pending">
+                <div class="timeline-marker bg-secondary">
+                  <span class="text-white fw-bold">3</span>
+                </div>
+                <div class="timeline-content">
+                  <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                      <h6 class="mb-0">⏳ Chờ thực hiện: Hoàn thành quy trình</h6>
+                      <small>Sẽ thực hiện sau khi bàn giao</small>
+                    </div>
+                    <div class="card-body text-muted">
+                      <p class="mb-0">Cập nhật trạng thái lệnh sản xuất và thông báo cho các bộ phận liên quan</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="pros-cons">
+              <h6 class="pros">✓ Ưu điểm:</h6>
+              <ul class="pros small">
+                <li>Hiển thị tiến trình rất rõ ràng</li>
+                <li>Thể hiện thời gian thực hiện</li>
+                <li>Visual timeline đẹp mắt</li>
+                <li>Theo dõi được history</li>
+              </ul>
+              <h6 class="cons mt-3">✗ Nhược điểm:</h6>
+              <ul class="cons small">
+                <li>Chiếm nhiều không gian dọc</li>
+                <li>Phức tạp để implement</li>
+                <li>Có thể quá chi tiết</li>
+              </ul>
+            </div>
+            <div class="mt-3">
+              <span class="feature-badge">Timeline</span>
+              <span class="feature-badge">Visual</span>
+              <span class="feature-badge">History</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 14: Mobile-First -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title">
+          <i class="bi bi-14-circle-fill text-info me-2"></i>
+          Demo 14: Mobile-First (Tối ưu cho điện thoại)
+        </h3>
+        
+        <div class="row justify-content-center">
+          <div class="col-md-4">
+            <!-- Mobile Screen Simulation -->
+            <div class="border rounded" style="background: #f8f9fa; padding: 20px; max-width: 375px; margin: 0 auto;">
+              <div class="text-center mb-3">
+                <div class="bg-primary text-white rounded p-2">
+                  <h6 class="mb-0">📱 LSX001 - Hoàn thành</h6>
+                </div>
+              </div>
+
+              <!-- Big Number Display -->
+              <div class="card mb-3">
+                <div class="card-body text-center">
+                  <div class="row">
+                    <div class="col-6">
+                      <h3 class="text-success mb-0">1000</h3>
+                      <small>OK</small>
+                    </div>
+                    <div class="col-6">
+                      <h3 class="text-danger mb-0">50</h3>
+                      <small>NG</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Inputs -->
+              <div class="mb-3">
+                <input type="text" class="form-control form-control-lg" placeholder="👤 Tên thợ" style="font-size: 16px;">
+              </div>
+
+              <!-- Machine Selection -->
+              <div class="mb-3">
+                <div class="btn-group w-100" role="group">
+                  <input type="radio" class="btn-check" name="machine14" id="xa1" checked>
+                  <label class="btn btn-outline-primary" for="xa1">Xả 1</label>
+                  
+                  <input type="radio" class="btn-check" name="machine14" id="xa2">
+                  <label class="btn btn-outline-primary" for="xa2">Xả 2</label>
+                  
+                  <input type="radio" class="btn-check" name="machine14" id="xa3">
+                  <label class="btn btn-outline-primary" for="xa3">Xả 3</label>
+                </div>
+              </div>
+
+              <!-- Handover Section -->
+              <div class="border-top pt-3 mb-3">
+                <h6 class="text-center text-success">📤 Bàn giao → XÉN</h6>
+                
+                <div class="d-flex align-items-center mb-2">
+                  <span class="me-2">Người nhận:</span>
+                  <input type="text" class="form-control" placeholder="Tên" style="font-size: 16px;">
+                </div>
+                
+                <div class="form-check text-center mb-3">
+                  <input class="form-check-input" type="checkbox" style="transform: scale(1.5);">
+                  <label class="form-check-label ms-2">
+                    Xác nhận OK
+                  </label>
+                </div>
+              </div>
+
+              <!-- Big Action Button -->
+              <div class="d-grid">
+                <button type="button" class="btn btn-success btn-lg btn-demo" style="padding: 15px; font-size: 18px;">
+                  ✅ Hoàn thành
+                </button>
+              </div>
+
+              <!-- Optional Notes -->
+              <div class="mt-3">
+                <button type="button" class="btn btn-outline-secondary btn-sm w-100 btn-demo">
+                  <i class="bi bi-chat me-1"></i>Thêm ghi chú (tùy chọn)
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-8">
+            <div class="pros-cons">
+              <h6 class="pros">✓ Ưu điểm:</h6>
+              <ul class="pros">
+                <li><strong>Tối ưu cho touch:</strong> Buttons lớn, dễ bấm</li>
+                <li><strong>Đơn giản:</strong> Chỉ thông tin cần thiết</li>
+                <li><strong>Font size 16px:</strong> Không bị zoom trên iOS</li>
+                <li><strong>One-thumb operation:</strong> Dùng được bằng 1 tay</li>
+                <li><strong>Fast input:</strong> Ít typing, nhiều select</li>
+                <li><strong>Big targets:</strong> Dễ bấm đúng</li>
+              </ul>
+              
+              <h6 class="cons mt-3">✗ Nhược điểm:</h6>
+              <ul class="cons">
+                <li>Hạn chế thông tin chi tiết</li>
+                <li>Không phù hợp desktop</li>
+                <li>Khó mở rộng tính năng</li>
+              </ul>
+              
+              <h6 class="mt-3">📱 Mobile Design Principles:</h6>
+              <ul class="small">
+                <li>Touch targets ≥ 44px</li>
+                <li>Font size ≥ 16px (prevent zoom)</li>
+                <li>Minimize typing</li>
+                <li>Big numbers, clear hierarchy</li>
+                <li>Single column layout</li>
+                <li>Progressive disclosure</li>
+              </ul>
+            </div>
+            <div class="mt-3">
+              <span class="feature-badge">Mobile First</span>
+              <span class="feature-badge">Touch Optimized</span>
+              <span class="feature-badge">One Hand</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 15: Voice/Scan Ready -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title">
+          <i class="bi bi-15-circle-fill text-danger me-2"></i>
+          Demo 15: Voice/Scan Ready (Hỗ trợ giọng nói & QR scan)
+        </h3>
+        
+        <div class="row">
+          <div class="col-md-8">
+            <div class="card">
+              <div class="card-header bg-gradient" style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4);">
+                <h5 class="text-white mb-0">
+                  <i class="bi bi-mic-fill me-2"></i>Hoàn thành bằng giọng nói & QR
+                </h5>
+              </div>
+              <div class="card-body">
+                <!-- Voice Input Section -->
+                <div class="mb-4">
+                  <h6 class="text-primary mb-3">🎤 Nhập liệu bằng giọng nói</h6>
+                  
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Số lượng OK</label>
+                      <div class="input-group">
+                        <input type="text" class="form-control form-control-lg text-center" value="Một nghìn" readonly>
+                        <button class="btn btn-outline-danger" type="button">
+                          <i class="bi bi-mic-fill"></i>
+                        </button>
+                      </div>
+                      <small class="text-muted">Nói: "Một nghìn", "1000", "Nghìn lẻ"</small>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Số lượng NG</label>
+                      <div class="input-group">
+                        <input type="text" class="form-control form-control-lg text-center" value="Năm mười" readonly>
+                        <button class="btn btn-outline-danger" type="button">
+                          <i class="bi bi-mic-fill"></i>
+                        </button>
+                      </div>
+                      <small class="text-muted">Nói: "Năm mười", "50"</small>
+                    </div>
+                  </div>
+
+                  <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Voice Commands:</strong> "Hoàn thành", "Bàn giao", "Xác nhận", "Hủy"
+                  </div>
+                </div>
+
+                <!-- QR Scan Section -->
+                <div class="mb-4">
+                  <h6 class="text-success mb-3">📱 Quét QR Code</h6>
+                  
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Thông tin thợ</label>
+                      <div class="input-group">
+                        <input type="text" class="form-control" value="Nguyễn Văn A - ID: 001" readonly>
+                        <button class="btn btn-outline-success" type="button">
+                          <i class="bi bi-qr-code-scan"></i>
+                        </button>
+                      </div>
+                      <small class="text-muted">Quét thẻ nhân viên</small>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Máy sản xuất</label>
+                      <div class="input-group">
+                        <input type="text" class="form-control" value="Xả 1 - Máy ID: XA001" readonly>
+                        <button class="btn btn-outline-success" type="button">
+                          <i class="bi bi-qr-code-scan"></i>
+                        </button>
+                      </div>
+                      <small class="text-muted">Quét mã máy</small>
+                    </div>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">Người nhận bàn giao</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control" placeholder="Quét thẻ người nhận hoặc nói tên">
+                      <button class="btn btn-outline-success" type="button">
+                        <i class="bi bi-qr-code-scan"></i>
+                      </button>
+                      <button class="btn btn-outline-danger" type="button">
+                        <i class="bi bi-mic-fill"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Smart Suggestions -->
+                <div class="mb-4">
+                  <h6 class="text-warning mb-3">🤖 Gợi ý thông minh</h6>
+                  <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-outline-primary btn-sm btn-demo">Thợ thường xuyên: Nguyễn Văn B</button>
+                    <button type="button" class="btn btn-outline-primary btn-sm btn-demo">Máy ưu tiên: Xả 2</button>
+                    <button type="button" class="btn btn-outline-primary btn-sm btn-demo">SL thường: 1200</button>
+                  </div>
+                </div>
+
+                <!-- Voice Confirmation -->
+                <div class="text-center">
+                  <button type="button" class="btn btn-danger btn-lg btn-demo" style="border-radius: 50px; padding: 15px 30px;">
+                    <i class="bi bi-mic-fill me-2"></i>Nói "Hoàn thành" để xác nhận
+                  </button>
+                  <p class="mt-2 text-muted">Hoặc nhấn nút để hoàn thành thủ công</p>
+                  <button type="button" class="btn btn-success btn-demo">
+                    <i class="bi bi-check-lg me-2"></i>Hoàn thành thủ công
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="pros-cons">
+              <h6 class="pros">✓ Ưu điểm:</h6>
+              <ul class="pros small">
+                <li>Hands-free operation</li>
+                <li>Nhanh chóng với voice</li>
+                <li>Giảm lỗi nhập liệu với QR</li>
+                <li>Phù hợp môi trường sản xuất</li>
+                <li>Có AI suggestions</li>
+                <li>Modern, futuristic</li>
+              </ul>
+              
+              <h6 class="cons mt-3">✗ Nhược điểm:</h6>
+              <ul class="cons small">
+                <li>Cần microphone</li>
+                <li>Tiếng ồn có thể ảnh hưởng</li>
+                <li>Cần camera cho QR</li>
+                <li>Phức tạp về technical</li>
+                <li>Cần training giọng nói</li>
+              </ul>
+              
+              <h6 class="mt-3">🔧 Technical Requirements:</h6>
+              <ul class="small">
+                <li>Web Speech API</li>
+                <li>Camera access</li>
+                <li>QR code library</li>
+                <li>Offline voice processing</li>
+                <li>Vietnamese language support</li>
+              </ul>
+            </div>
+            <div class="mt-3">
+              <span class="feature-badge">Voice UI</span>
+              <span class="feature-badge">QR Scan</span>
+              <span class="feature-badge">AI Smart</span>
+              <span class="feature-badge">Hands Free</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Updated Comparison & Recommendations -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title text-center">
+          📊 Bảng So Sánh Tất Cả 15 Mẫu Form
+        </h3>
+        
+        <div class="table-responsive">
+          <table class="table table-striped table-hover">
+            <thead class="table-dark">
+              <tr>
+                <th>Mẫu</th>
+                <th>Tốc độ</th>
+                <th>Dễ sử dụng</th>
+                <th>Mobile</th>
+                <th>Kiểm soát</th>
+                <th>Phù hợp</th>
+                <th>Đặc biệt</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1. Compact & Clean</strong></td>
+                <td><span class="badge bg-success">Nhanh</span></td>
+                <td><span class="badge bg-success">Dễ</span></td>
+                <td><span class="badge bg-success">Tốt</span></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td>Đang sử dụng</td>
+                <td>Cân bằng</td>
+              </tr>
+              <tr>
+                <td><strong>2. Card Style</strong></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td><span class="badge bg-success">Dễ</span></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td><span class="badge bg-success">Cao</span></td>
+                <td>Doanh nghiệp</td>
+                <td>Professional</td>
+              </tr>
+              <tr>
+                <td><strong>3. Minimal & Modern</strong></td>
+                <td><span class="badge bg-success">Nhanh</span></td>
+                <td><span class="badge bg-success">Dễ</span></td>
+                <td><span class="badge bg-success">Tốt</span></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td>Startup, Gen Z</td>
+                <td>Đẹp mắt</td>
+              </tr>
+              <tr>
+                <td><strong>4. Step-by-Step</strong></td>
+                <td><span class="badge bg-danger">Chậm</span></td>
+                <td><span class="badge bg-success">Dễ</span></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td><span class="badge bg-success">Cao</span></td>
+                <td>Người mới</td>
+                <td>Hướng dẫn</td>
+              </tr>
+              <tr>
+                <td><strong>5. Quick Action</strong></td>
+                <td><span class="badge bg-success">Rất nhanh</span></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td><span class="badge bg-danger">Kém</span></td>
+                <td><span class="badge bg-danger">Thấp</span></td>
+                <td>Thành thạo</td>
+                <td>Siêu tốc</td>
+              </tr>
+              <tr>
+                <td><strong>6. Two Tabs</strong></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td><span class="badge bg-success">Dễ</span></td>
+                <td><span class="badge bg-success">Tốt</span></td>
+                <td><span class="badge bg-success">Cao</span></td>
+                <td>Hiện tại</td>
+                <td>Quen thuộc</td>
+              </tr>
+              <tr>
+                <td><strong>7. All-in-One</strong></td>
+                <td><span class="badge bg-success">Nhanh</span></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td>Hiệu quả cao</td>
+                <td>Tổng hợp</td>
+              </tr>
+              <tr>
+                <td><strong>8. Accordion</strong></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td><span class="badge bg-success">Dễ</span></td>
+                <td><span class="badge bg-success">Tốt</span></td>
+                <td><span class="badge bg-success">Cao</span></td>
+                <td>Tiết kiệm space</td>
+                <td>Tóm tắt</td>
+              </tr>
+              <tr>
+                <td><strong>9. Wizard</strong></td>
+                <td><span class="badge bg-danger">Chậm</span></td>
+                <td><span class="badge bg-success">Rất dễ</span></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td><span class="badge bg-success">Rất cao</span></td>
+                <td>Training</td>
+                <td>Chi tiết</td>
+              </tr>
+              <tr>
+                <td><strong>10. Dashboard</strong></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td><span class="badge bg-danger">Kém</span></td>
+                <td><span class="badge bg-success">Cao</span></td>
+                <td>Manager</td>
+                <td>Tổng quan</td>
+              </tr>
+              <tr>
+                <td><strong>11. Side-by-Side</strong></td>
+                <td><span class="badge bg-success">Nhanh</span></td>
+                <td><span class="badge bg-success">Dễ</span></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td><span class="badge bg-success">Cao</span></td>
+                <td>Desktop</td>
+                <td>So sánh</td>
+              </tr>
+              <tr>
+                <td><strong>12. Modal-in-Modal</strong></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td><span class="badge bg-success">Cao</span></td>
+                <td>Complex app</td>
+                <td>Focus</td>
+              </tr>
+              <tr>
+                <td><strong>13. Timeline</strong></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td><span class="badge bg-success">Dễ</span></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td><span class="badge bg-success">Cao</span></td>
+                <td>Audit trail</td>
+                <td>Visual</td>
+              </tr>
+              <tr>
+                <td><strong>14. Mobile-First</strong></td>
+                <td><span class="badge bg-success">Rất nhanh</span></td>
+                <td><span class="badge bg-success">Rất dễ</span></td>
+                <td><span class="badge bg-success">Tuyệt vời</span></td>
+                <td><span class="badge bg-warning">TB</span></td>
+                <td>Mobile only</td>
+                <td>Touch</td>
+              </tr>
+              <tr>
+                <td><strong>15. Voice/QR</strong></td>
+                <td><span class="badge bg-success">Rất nhanh</span></td>
+                <td><span class="badge bg-warning">Cần học</span></td>
+                <td><span class="badge bg-success">Tốt</span></td>
+                <td><span class="badge bg-success">Cao</span></td>
+                <td>Future tech</td>
+                <td>Hands-free</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Updated Recommendations -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title text-center">
+          💡 Khuyến nghị chi tiết theo từng tình huống
+        </h3>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="bi bi-speedometer2 me-2"></i>Ưu tiên TỐC ĐỘ</h6>
+              </div>
+              <div class="card-body">
+                <p><strong>Top choice:</strong> Demo 14 - Mobile-First</p>
+                <p><strong>Alternative:</strong> Demo 5 - Quick Action</p>
+                <ul class="small">
+                  <li>Sản xuất khối lượng lớn</li>
+                  <li>Công nhân thành thạo</li>
+                  <li>Ít biến đổi quy trình</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header bg-success text-white">
+                <h6 class="mb-0"><i class="bi bi-shield-check me-2"></i>Ưu tiên KIỂM SOÁT</h6>
+              </div>
+              <div class="card-body">
+                <p><strong>Top choice:</strong> Demo 9 - Wizard Style</p>
+                <p><strong>Alternative:</strong> Demo 8 - Accordion</p>
+                <ul class="small">
+                  <li>Quy trình phức tạp</li>
+                  <li>Cần audit trail chi tiết</li>
+                  <li>Nhiều validation rules</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0"><i class="bi bi-balance me-2"></i>Cần CÂN BẰNG</h6>
+              </div>
+              <div class="card-body">
+                <p><strong>Top choice:</strong> Demo 7 - All-in-One</p>
+                <p><strong>Alternative:</strong> Demo 11 - Side-by-Side</p>
+                <ul class="small">
+                  <li>Vừa nhanh vừa đầy đủ</li>
+                  <li>Đa dạng người dùng</li>
+                  <li>Linh hoạt requirements</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="bi bi-people me-2"></i>Ưu tiên TRẢI NGHIỆM</h6>
+              </div>
+              <div class="card-body">
+                <p><strong>Top choice:</strong> Demo 3 - Minimal & Modern</p>
+                <p><strong>Alternative:</strong> Demo 13 - Timeline</p>
+                <ul class="small">
+                  <li>Giao diện đẹp mắt</li>
+                  <li>User satisfaction cao</li>
+                  <li>Brand image tốt</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header bg-danger text-white">
+                <h6 class="mb-0"><i class="bi bi-phone me-2"></i>MOBILE ONLY</h6>
+              </div>
+              <div class="card-body">
+                <p><strong>Top choice:</strong> Demo 14 - Mobile-First</p>
+                <p><strong>Alternative:</strong> Demo 3 - Minimal</p>
+                <ul class="small">
+                  <li>Chỉ sử dụng smartphone/tablet</li>
+                  <li>Di chuyển nhiều trong nhà máy</li>
+                  <li>Touch-first interface</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header bg-dark text-white">
+                <h6 class="mb-0"><i class="bi bi-robot me-2"></i>TƯƠNG LAI & TECH</h6>
+              </div>
+              <div class="card-body">
+                <p><strong>Top choice:</strong> Demo 15 - Voice/QR</p>
+                <p><strong>Alternative:</strong> Demo 10 - Dashboard</p>
+                <ul class="small">
+                  <li>Đầu tư technology cao</li>
+                  <li>Hands-free operation</li>
+                  <li>Industry 4.0 ready</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="text-center mt-4">
+          <h5 class="mb-3">🎯 Bạn chọn mẫu nào?</h5>
+          <div class="row">
+            <div class="col-md-6">
+              <h6>Mẫu cơ bản (1-5):</h6>
+              <div class="btn-group mb-2" role="group">
+                <button type="button" class="btn btn-outline-primary btn-demo" onclick="selectDemo(1)">Demo 1</button>
+                <button type="button" class="btn btn-outline-success btn-demo" onclick="selectDemo(2)">Demo 2</button>
+                <button type="button" class="btn btn-outline-warning btn-demo" onclick="selectDemo(3)">Demo 3</button>
+                <button type="button" class="btn btn-outline-info btn-demo" onclick="selectDemo(4)">Demo 4</button>
+                <button type="button" class="btn btn-outline-danger btn-demo" onclick="selectDemo(5)">Demo 5</button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <h6>Mẫu nâng cao (6-10):</h6>
+              <div class="btn-group mb-2" role="group">
+                <button type="button" class="btn btn-outline-secondary btn-demo" onclick="selectDemo(6)">Demo 6</button>
+                <button type="button" class="btn btn-outline-primary btn-demo" onclick="selectDemo(7)">Demo 7</button>
+                <button type="button" class="btn btn-outline-success btn-demo" onclick="selectDemo(8)">Demo 8</button>
+                <button type="button" class="btn btn-outline-warning btn-demo" onclick="selectDemo(9)">Demo 9</button>
+                <button type="button" class="btn btn-outline-info btn-demo" onclick="selectDemo(10)">Demo 10</button>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <h6>Mẫu chuyên biệt (11-15):</h6>
+              <div class="btn-group mb-3" role="group">
+                <button type="button" class="btn btn-outline-dark btn-demo" onclick="selectDemo(11)">Demo 11</button>
+                <button type="button" class="btn btn-outline-secondary btn-demo" onclick="selectDemo(12)">Demo 12</button>
+                <button type="button" class="btn btn-outline-warning btn-demo" onclick="selectDemo(13)">Demo 13</button>
+                <button type="button" class="btn btn-outline-info btn-demo" onclick="selectDemo(14)">Demo 14</button>
+                <button type="button" class="btn btn-outline-danger btn-demo" onclick="selectDemo(15)">Demo 15</button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-4">
+            <a href="xa-stage.html" class="btn btn-secondary btn-lg me-3">
+              <i class="bi bi-arrow-left me-2"></i>Quay lại trang chính
+            </a>
+            <button type="button" class="btn btn-success btn-lg" onclick="implementSelected()">
+              <i class="bi bi-gear me-2"></i>Implement mẫu đã chọn
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 16: Vertical Steps -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title"><i class="bi bi-16-circle-fill text-primary me-2"></i>Demo 16: Vertical Steps</h3>
+        <ol class="list-group list-group-numbered mb-3">
+          <li class="list-group-item">Nhập số lượng OK/NG</li>
+          <li class="list-group-item">Chọn máy, thợ</li>
+          <li class="list-group-item">Nhập thông tin bàn giao</li>
+          <li class="list-group-item">Xác nhận & hoàn thành</li>
+        </ol>
+        <div class="d-grid"><button class="btn btn-primary btn-demo">Hoàn thành tất cả</button></div>
+      </div>
+    </div>
+
+    <!-- Demo 17: Floating Panel -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title"><i class="bi bi-17-circle-fill text-success me-2"></i>Demo 17: Floating Panel</h3>
+        <div class="position-relative" style="height:200px;">
+          <div class="position-absolute top-50 start-50 translate-middle bg-white border rounded shadow p-4" style="width:350px;">
+            <h6 class="mb-3">Bàn giao nhanh</h6>
+            <input type="number" class="form-control mb-2" placeholder="Số lượng OK">
+            <input type="text" class="form-control mb-2" placeholder="Người nhận">
+            <button class="btn btn-success w-100">Bàn giao</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 18: Tabbed Wizard -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title"><i class="bi bi-18-circle-fill text-warning me-2"></i>Demo 18: Tabbed Wizard</h3>
+        <ul class="nav nav-pills mb-3">
+          <li class="nav-item"><a class="nav-link active" href="#">Bước 1</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Bước 2</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Bước 3</a></li>
+        </ul>
+        <div class="border rounded p-3">Nội dung từng bước sẽ hiển thị ở đây.</div>
+      </div>
+    </div>
+
+    <!-- Demo 19: Card Flip -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title"><i class="bi bi-19-circle-fill text-info me-2"></i>Demo 19: Card Flip</h3>
+        <div class="card" style="width: 18rem; margin:auto;">
+          <div class="card-body text-center">
+            <h5 class="card-title">Hoàn thành sản xuất</h5>
+            <button class="btn btn-primary" onclick="this.parentNode.innerHTML='<h5>Bàn giao công đoạn</h5><button class=\'btn btn-success\'>Xác nhận</button>'">Tiếp tục</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 20: Timeline Horizontal -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title"><i class="bi bi-20-circle-fill text-danger me-2"></i>Demo 20: Timeline Horizontal</h3>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="text-center"><span class="badge bg-primary">Sản xuất</span></div>
+          <div class="flex-grow-1 border-top mx-2"></div>
+          <div class="text-center"><span class="badge bg-success">Bàn giao</span></div>
+          <div class="flex-grow-1 border-top mx-2"></div>
+          <div class="text-center"><span class="badge bg-info">Hoàn thành</span></div>
+        </div>
+        <div class="d-grid"><button class="btn btn-success btn-demo">Xác nhận hoàn thành</button></div>
+      </div>
+    </div>
+
+    <!-- Demo 21: Sticky Footer Form -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title"><i class="bi bi-21-circle-fill text-secondary me-2"></i>Demo 21: Sticky Footer Form</h3>
+        <form>
+          <input type="number" class="form-control mb-2" placeholder="Số lượng OK">
+          <input type="number" class="form-control mb-2" placeholder="Số lượng NG">
+          <input type="text" class="form-control mb-2" placeholder="Người nhận">
+          <textarea class="form-control mb-2" placeholder="Ghi chú"></textarea>
+          <div class="fixed-bottom bg-white p-3 border-top text-end">
+            <button class="btn btn-success">Hoàn thành & Bàn giao</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Demo 22: Progress Circles -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title"><i class="bi bi-22-circle-fill text-primary me-2"></i>Demo 22: Progress Circles</h3>
+        <div class="d-flex justify-content-center mb-3">
+          <div class="text-center mx-2">
+            <div class="rounded-circle bg-success text-white" style="width:50px;height:50px;line-height:50px;">1</div>
+            <small>Bước 1</small>
+          </div>
+          <div class="text-center mx-2">
+            <div class="rounded-circle bg-warning text-white" style="width:50px;height:50px;line-height:50px;">2</div>
+            <small>Bước 2</small>
+          </div>
+          <div class="text-center mx-2">
+            <div class="rounded-circle bg-info text-white" style="width:50px;height:50px;line-height:50px;">3</div>
+            <small>Bước 3</small>
+          </div>
+        </div>
+        <div class="border rounded p-3">Form từng bước sẽ hiển thị ở đây.</div>
+      </div>
+    </div>
+
+    <!-- Demo 23: Minimal Floating -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title"><i class="bi bi-23-circle-fill text-success me-2"></i>Demo 23: Minimal Floating</h3>
+        <div class="position-fixed bottom-0 end-0 m-4 bg-white border rounded shadow p-3" style="width:300px;">
+          <input type="number" class="form-control mb-2" placeholder="OK">
+          <input type="text" class="form-control mb-2" placeholder="Người nhận">
+          <button class="btn btn-primary w-100">Bàn giao</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo 24: Checklist Style -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title"><i class="bi bi-24-circle-fill text-warning me-2"></i>Demo 24: Checklist Style</h3>
+        <ul class="list-group mb-3">
+          <li class="list-group-item"><input type="checkbox"> Sản xuất xong</li>
+          <li class="list-group-item"><input type="checkbox"> Đã nhập số lượng</li>
+          <li class="list-group-item"><input type="checkbox"> Đã bàn giao</li>
+          <li class="list-group-item"><input type="checkbox"> Đã xác nhận</li>
+        </ul>
+        <div class="d-grid"><button class="btn btn-success btn-demo">Hoàn thành quy trình</button></div>
+      </div>
+    </div>
+
+    <!-- Demo 25: Animated Steps -->
+    <div class="demo-card">
+      <div class="form-demo">
+        <h3 class="demo-form-title"><i class="bi bi-25-circle-fill text-danger me-2"></i>Demo 25: Animated Steps</h3>
+        <div class="progress mb-3" style="height:20px;">
+          <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 80%">Bước 4/5</div>
+        </div>
+        <div class="border rounded p-3">Nội dung bước hiện tại sẽ hiển thị ở đây.</div>
+        <div class="d-grid"><button class="btn btn-success btn-demo">Tiếp tục</button></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    // Demo names mapping
+    const demoNames = {
+      1: 'Compact & Clean (Hiện tại)',
+      2: 'Card Style Form', 
+      3: 'Minimal & Modern',
+      4: 'Step-by-Step Process',
+      5: 'Quick Action',
+      6: 'Two Tabs Traditional',
+      7: 'Single Form All-in-One',
+      8: 'Accordion Style',
+      9: 'Wizard Style',
+      10: 'Dashboard Style',
+      11: 'Side-by-Side Columns',
+      12: 'Modal-in-Modal Style',
+      13: 'Timeline Style',
+      14: 'Mobile-First',
+      15: 'Voice/Scan Ready',
+      16: 'Vertical Steps',
+      17: 'Floating Panel',
+      18: 'Tabbed Wizard',
+      19: 'Card Flip',
+      20: 'Timeline Horizontal',
+      21: 'Sticky Footer Form',
+      22: 'Progress Circles',
+      23: 'Minimal Floating',
+      24: 'Checklist Style',
+      25: 'Animated Steps'
+    };
+
+    let selectedDemoId = null;
+
+    function selectDemo(demoNumber) {
+      const selectedDemo = demoNames[demoNumber];
+      
+      if (confirm(`Bạn chọn "${selectedDemo}"?\n\nTôi sẽ áp dụng mẫu này vào trang xa-stage.html`)) {
+        selectedDemoId = demoNumber;
+        
+        // Store selection
+        localStorage.setItem('selectedHandoverDemo', demoNumber);
+        localStorage.setItem('selectedDemoName', selectedDemo);
+        localStorage.setItem('selectedDemoTime', new Date().toISOString());
+        
+        // Highlight selected button
+        document.querySelectorAll('.btn-group .btn').forEach(btn => {
+          btn.classList.remove('btn-primary', 'btn-success', 'btn-warning', 'btn-info', 'btn-danger', 'btn-secondary', 'btn-dark');
+          btn.classList.add('btn-outline-secondary');
+        });
+        
+        const selectedBtn = event.target;
+        selectedBtn.classList.remove('btn-outline-secondary');
+        selectedBtn.classList.add('btn-success');
+        selectedBtn.innerHTML = `✅ Demo ${demoNumber}`;
+        
+        showSelectedInfo(demoNumber, selectedDemo);
+      }
+    }
+
+    function showSelectedInfo(demoNumber, demoName) {
+      // Create or update selection info
+      let infoDiv = document.getElementById('selection-info');
+      if (!infoDiv) {
+        infoDiv = document.createElement('div');
+        infoDiv.id = 'selection-info';
+        infoDiv.className = 'alert alert-success mt-3';
+        document.querySelector('.text-center.mt-4').appendChild(infoDiv);
+      }
+      
+      infoDiv.innerHTML = `
+        <h6><i class="bi bi-check-circle-fill me-2"></i>Đã chọn: ${demoName}</h6>
+        <p class="mb-0">Click "Implement mẫu đã chọn" để áp dụng vào xa-stage.html</p>
+      `;
+    }
+
+    function implementSelected() {
+      if (!selectedDemoId) {
+        alert('Vui lòng chọn một mẫu form trước!');
+        return;
+      }
+      
+      const demoName = demoNames[selectedDemoId];
+      
+      if (confirm(`Xác nhận implement "${demoName}" vào xa-stage.html?\n\nThao tác này sẽ thay đổi giao diện form bàn giao hiện tại.`)) {
+        // Show implementation message
+        alert(`🚀 Đang implement "${demoName}"...\n\n` +
+              `Các bước thực hiện:\n` +
+              `1. Backup form hiện tại\n` +
+              `2. Apply layout mới\n` +
+              `3. Update JavaScript logic\n` +
+              `4. Test functionality\n\n` +
+              `Vui lòng chờ developer thực hiện...`);
+              
+        // Store implementation request
+        localStorage.setItem('implementationRequest', JSON.stringify({
+          demoId: selectedDemoId,
+          demoName: demoName,
+          requestTime: new Date().toISOString(),
+          status: 'pending'
+        }));
+      }
+    }
+
+    // Dynamic functions for demos
+    function updateHandoverQty(value) {
+      const handoverQty = document.getElementById('handoverQty7');
+      if (handoverQty) {
+        handoverQty.value = value;
+      }
+    }
+
+    function updateDashboard() {
+      const okQty = document.querySelector('#okQty10').closest('.card-body').querySelector('input').value;
+      document.getElementById('okQty10').textContent = okQty;
+      document.getElementById('handoverQty10').textContent = okQty;
+    }
+
+    // Show previous selection on load
+    window.addEventListener('load', function() {
+      const savedDemo = localStorage.getItem('selectedHandoverDemo');
+      const savedName = localStorage.getItem('selectedDemoName');
+      const savedTime = localStorage.getItem('selectedDemoTime');
+      
+      if (savedDemo && savedName && savedTime) {
+        const timeString = new Date(savedTime).toLocaleString('vi-VN');
+        
+        // Show notification
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-info alert-dismissible fade show position-fixed';
+        alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 350px;';
+        alert.innerHTML = `
+          <strong>📋 Lựa chọn trước đó:</strong><br>
+          <small>Mẫu: ${savedName}<br>
+          Thời gian: ${timeString}</small>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alert);
+        
+        // Auto hide after 10 seconds
+        setTimeout(() => {
+          if (alert.parentNode) {
+            alert.remove();
+          }
+        }, 10000);
+        
+        // Highlight the previously selected button
+        selectedDemoId = parseInt(savedDemo);
+        const btn = document.querySelector(`[onclick="selectDemo(${savedDemo})"]`);
+        if (btn) {
+          btn.classList.remove('btn-outline-primary', 'btn-outline-success', 'btn-outline-warning', 'btn-outline-info', 'btn-outline-danger', 'btn-outline-secondary', 'btn-outline-dark');
+          btn.classList.add('btn-success');
+          btn.innerHTML = `✅ Demo ${savedDemo}`;
+        }
+        
+        showSelectedInfo(savedDemo, savedName);
+      }
+      
+      // Check for pending implementation
+      const implRequest = localStorage.getItem('implementationRequest');
+      if (implRequest) {
+        const request = JSON.parse(implRequest);
+        if (request.status === 'pending') {
+          const alert = document.createElement('div');
+          alert.className = 'alert alert-warning alert-dismissible fade show position-fixed';
+          alert.style.cssText = 'bottom: 20px; right: 20px; z-index: 9999; min-width: 350px;';
+          alert.innerHTML = `
+            <strong>⏳ Yêu cầu implement đang chờ:</strong><br>
+            <small>Mẫu: ${request.demoName}<br>
+            Thời gian: ${new Date(request.requestTime).toLocaleString('vi-VN')}</small>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          `;
+          document.body.appendChild(alert);
+        }
+      }
+    });
+
+    // Smooth scrolling
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+
+    // Add some CSS for timeline
+    const timelineCSS = `
+      .timeline {
+        position: relative;
+        padding-left: 30px;
+      }
+      
+      .timeline::before {
+        content: '';
+        position: absolute;
+        left: 20px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #dee2e6;
+      }
+      
+      .timeline-item {
+        position: relative;
+        margin-bottom: 30px;
+      }
+      
+      .timeline-marker {
+        position: absolute;
+        left: -50px;
+        top: 0;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        border: 3px solid white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+      
+      .timeline-content {
+        margin-left: 20px;
+      }
+      
+      .timeline-item.completed .timeline-marker {
+        background: #28a745;
+      }
+      
+      .timeline-item.active .timeline-marker {
+        background: #007bff;
+      }
+      
+      .timeline-item.pending .timeline-marker {
+        background: #6c757d;
+      }
+    `;
+    
+    const style = document.createElement('style');
+    style.textContent = timelineCSS;
+    document.head.appendChild(style);
+  </script>
+
+</body>
+</html>

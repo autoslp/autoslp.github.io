@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo - Biểu mẫu Hoàn thành & Bàn giao Công đoạn</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .demo-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      backdrop-filter: blur(10px);
+    }
+    
+    .form-preview {
+      border: 2px solid #e9ecef;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      background: white;
+    }
+    
+    .form-preview:hover {
+      border-color: #007bff;
+      box-shadow: 0 10px 25px rgba(0,123,255,0.15);
+      transform: translateY(-2px);
+    }
+    
+    .form-preview.selected {
+      border-color: #28a745;
+      box-shadow: 0 10px 25px rgba(40,167,69,0.2);
+    }
+    
+    .form-header {
+      background: linear-gradient(45deg, #007bff, #0056b3);
+      color: white;
+      padding: 15px;
+      border-radius: 8px 8px 0 0;
+      margin: -1px -1px 0 -1px;
+    }
+    
+    .form-variant {
+      background: linear-gradient(45deg, #28a745, #1e7e34);
+    }
+    
+    .form-variant-2 {
+      background: linear-gradient(45deg, #6f42c1, #5a2d91);
+    }
+    
+    .form-variant-3 {
+      background: linear-gradient(45deg, #fd7e14, #e55a00);
+    }
+    
+    .form-variant-4 {
+      background: linear-gradient(45deg, #dc3545, #c82333);
+    }
+    
+    .form-variant-5 {
+      background: linear-gradient(45deg, #17a2b8, #138496);
+    }
+    
+    .form-preview iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+      border-radius: 0 0 8px 8px;
+    }
+    
+    .form-info {
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 0 0 8px 8px;
+    }
+    
+    .feature-list {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .feature-list li {
+      padding: 5px 0;
+      border-bottom: 1px solid #e9ecef;
+    }
+    
+    .feature-list li:last-child {
+      border-bottom: none;
+    }
+    
+    .feature-list li i {
+      color: #28a745;
+      margin-right: 8px;
+    }
+    
+    .selection-indicator {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #28a745;
+      color: white;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .form-preview.selected .selection-indicator {
+      opacity: 1;
+    }
+    
+    .comparison-table {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .comparison-table th {
+      background: #f8f9fa;
+      font-weight: 600;
+      text-align: center;
+    }
+    
+    .btn-select-form {
+      background: linear-gradient(45deg, #28a745, #20c997);
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 25px;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-select-form:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+      color: white;
+    }
+    
+    .btn-preview {
+      background: linear-gradient(45deg, #007bff, #0056b3);
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+    
+    .btn-preview:hover {
+      color: white;
+      transform: translateY(-1px);
+    }
+    
+    .stats-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .stats-number {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .stats-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="demo-container p-4">
+          <div class="text-center mb-4">
+            <h1 class="display-5 fw-bold text-primary mb-3">
+              <i class="bi bi-clipboard-check me-3"></i>
+              Demo - Biểu mẫu Hoàn thành & Bàn giao Công đoạn
+            </h1>
+            <p class="lead text-muted">
+              Chọn mẫu form phù hợp nhất cho hệ thống quản lý sản xuất của bạn
+            </p>
+          </div>
+          
+          <!-- Statistics -->
+          <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+              <div class="stats-card">
+                <div class="stats-number">5</div>
+                <div class="stats-label">Mẫu Form</div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="stats-card">
+                <div class="stats-number">3</div>
+                <div class="stats-label">Layout Chính</div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="stats-card">
+                <div class="stats-number">100%</div>
+                <div class="stats-label">Responsive</div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="stats-card">
+                <div class="stats-number">∞</div>
+                <div class="stats-label">Tùy chỉnh</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Previews -->
+    <div class="row">
+      <!-- Form 1: Tab Layout (Current) -->
+      <div class="col-lg-6 mb-4">
+        <div class="form-preview" data-form="tab-layout">
+          <div class="selection-indicator">
+            <i class="bi bi-check-lg"></i>
+          </div>
+          <div class="form-header">
+            <h5 class="mb-0">
+              <i class="bi bi-layout-text-window me-2"></i>
+              Mẫu 1: Tab Layout (Hiện tại)
+            </h5>
+          </div>
+          <iframe src="xa-stage.html#completeModal" title="Tab Layout Form"></iframe>
+          <div class="form-info">
+            <div class="row">
+              <div class="col-md-8">
+                <h6 class="text-primary mb-2">Đặc điểm:</h6>
+                <ul class="feature-list">
+                  <li><i class="bi bi-check-circle"></i>Giao diện tab rõ ràng</li>
+                  <li><i class="bi bi-check-circle"></i>Hoàn thành và bàn giao tách biệt</li>
+                  <li><i class="bi bi-check-circle"></i>Dễ dàng chuyển đổi giữa các chức năng</li>
+                  <li><i class="bi bi-check-circle"></i>Phù hợp cho workflow phức tạp</li>
+                </ul>
+              </div>
+              <div class="col-md-4 text-end">
+                <button class="btn btn-select-form mb-2" onclick="selectForm('tab-layout')">
+                  <i class="bi bi-check-lg me-1"></i>Chọn mẫu này
+                </button>
+                <br>
+                <button class="btn btn-preview" onclick="previewForm('tab-layout')">
+                  <i class="bi bi-eye me-1"></i>Xem chi tiết
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form 2: Single Page Layout -->
+      <div class="col-lg-6 mb-4">
+        <div class="form-preview" data-form="single-page">
+          <div class="selection-indicator">
+            <i class="bi bi-check-lg"></i>
+          </div>
+          <div class="form-header form-variant">
+            <h5 class="mb-0">
+              <i class="bi bi-file-text me-2"></i>
+              Mẫu 2: Single Page Layout
+            </h5>
+          </div>
+          <iframe src="demo-single-page-form.html" title="Single Page Form"></iframe>
+          <div class="form-info">
+            <div class="row">
+              <div class="col-md-8">
+                <h6 class="text-success mb-2">Đặc điểm:</h6>
+                <ul class="feature-list">
+                  <li><i class="bi bi-check-circle"></i>Giao diện đơn giản, dễ sử dụng</li>
+                  <li><i class="bi bi-check-circle"></i>Tất cả thông tin trên một trang</li>
+                  <li><i class="bi bi-check-circle"></i>Phù hợp cho workflow đơn giản</li>
+                  <li><i class="bi bi-check-circle"></i>Loading nhanh, ít JavaScript</li>
+                </ul>
+              </div>
+              <div class="col-md-4 text-end">
+                <button class="btn btn-select-form mb-2" onclick="selectForm('single-page')">
+                  <i class="bi bi-check-lg me-1"></i>Chọn mẫu này
+                </button>
+                <br>
+                <button class="btn btn-preview" onclick="previewForm('single-page')">
+                  <i class="bi bi-eye me-1"></i>Xem chi tiết
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form 3: Wizard Layout -->
+      <div class="col-lg-6 mb-4">
+        <div class="form-preview" data-form="wizard-layout">
+          <div class="selection-indicator">
+            <i class="bi bi-check-lg"></i>
+          </div>
+          <div class="form-header form-variant-2">
+            <h5 class="mb-0">
+              <i class="bi bi-arrow-right-circle me-2"></i>
+              Mẫu 3: Wizard Layout
+            </h5>
+          </div>
+          <iframe src="demo-wizard-form.html" title="Wizard Form"></iframe>
+          <div class="form-info">
+            <div class="row">
+              <div class="col-md-8">
+                <h6 class="text-purple mb-2">Đặc điểm:</h6>
+                <ul class="feature-list">
+                  <li><i class="bi bi-check-circle"></i>Giao diện wizard từng bước</li>
+                  <li><i class="bi bi-check-circle"></i>Hướng dẫn người dùng rõ ràng</li>
+                  <li><i class="bi bi-check-circle"></i>Validation từng bước</li>
+                  <li><i class="bi bi-check-circle"></i>Phù hợp cho người dùng mới</li>
+                </ul>
+              </div>
+              <div class="col-md-4 text-end">
+                <button class="btn btn-select-form mb-2" onclick="selectForm('wizard-layout')">
+                  <i class="bi bi-check-lg me-1"></i>Chọn mẫu này
+                </button>
+                <br>
+                <button class="btn btn-preview" onclick="previewForm('wizard-layout')">
+                  <i class="bi bi-eye me-1"></i>Xem chi tiết
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form 4: Compact Layout -->
+      <div class="col-lg-6 mb-4">
+        <div class="form-preview" data-form="compact-layout">
+          <div class="selection-indicator">
+            <i class="bi bi-check-lg"></i>
+          </div>
+          <div class="form-header form-variant-3">
+            <h5 class="mb-0">
+              <i class="bi bi-grid-3x3-gap me-2"></i>
+              Mẫu 4: Compact Layout
+            </h5>
+          </div>
+          <iframe src="demo-compact-form.html" title="Compact Form"></iframe>
+          <div class="form-info">
+            <div class="row">
+              <div class="col-md-8">
+                <h6 class="text-warning mb-2">Đặc điểm:</h6>
+                <ul class="feature-list">
+                  <li><i class="bi bi-check-circle"></i>Giao diện gọn gàng, tiết kiệm không gian</li>
+                  <li><i class="bi bi-check-circle"></i>Phù hợp cho màn hình nhỏ</li>
+                  <li><i class="bi bi-check-circle"></i>Thao tác nhanh chóng</li>
+                  <li><i class="bi bi-check-circle"></i>Ít cuộn trang</li>
+                </ul>
+              </div>
+              <div class="col-md-4 text-end">
+                <button class="btn btn-select-form mb-2" onclick="selectForm('compact-layout')">
+                  <i class="bi bi-check-lg me-1"></i>Chọn mẫu này
+                </button>
+                <br>
+                <button class="btn btn-preview" onclick="previewForm('compact-layout')">
+                  <i class="bi bi-eye me-1"></i>Xem chi tiết
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form 5: Modern Card Layout -->
+      <div class="col-lg-6 mb-4">
+        <div class="form-preview" data-form="card-layout">
+          <div class="selection-indicator">
+            <i class="bi bi-check-lg"></i>
+          </div>
+          <div class="form-header form-variant-4">
+            <h5 class="mb-0">
+              <i class="bi bi-card-text me-2"></i>
+              Mẫu 5: Modern Card Layout
+            </h5>
+          </div>
+          <iframe src="demo-card-form.html" title="Card Form"></iframe>
+          <div class="form-info">
+            <div class="row">
+              <div class="col-md-8">
+                <h6 class="text-danger mb-2">Đặc điểm:</h6>
+                <ul class="feature-list">
+                  <li><i class="bi bi-check-circle"></i>Giao diện card hiện đại</li>
+                  <li><i class="bi bi-check-circle"></i>Phân chia thông tin rõ ràng</li>
+                  <li><i class="bi bi-check-circle"></i>Animation mượt mà</li>
+                  <li><i class="bi bi-check-circle"></i>Phù hợp cho ứng dụng web hiện đại</li>
+                </ul>
+              </div>
+              <div class="col-md-4 text-end">
+                <button class="btn btn-select-form mb-2" onclick="selectForm('card-layout')">
+                  <i class="bi bi-check-lg me-1"></i>Chọn mẫu này
+                </button>
+                <br>
+                <button class="btn btn-preview" onclick="previewForm('card-layout')">
+                  <i class="bi bi-eye me-1"></i>Xem chi tiết
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form 6: Sidebar Layout -->
+      <div class="col-lg-6 mb-4">
+        <div class="form-preview" data-form="sidebar-layout">
+          <div class="selection-indicator">
+            <i class="bi bi-check-lg"></i>
+          </div>
+          <div class="form-header form-variant-5">
+            <h5 class="mb-0">
+              <i class="bi bi-layout-sidebar me-2"></i>
+              Mẫu 6: Sidebar Layout
+            </h5>
+          </div>
+          <iframe src="demo-sidebar-form.html" title="Sidebar Form"></iframe>
+          <div class="form-info">
+            <div class="row">
+              <div class="col-md-8">
+                <h6 class="text-info mb-2">Đặc điểm:</h6>
+                <ul class="feature-list">
+                  <li><i class="bi bi-check-circle"></i>Giao diện sidebar chuyên nghiệp</li>
+                  <li><i class="bi bi-check-circle"></i>Navigation dễ dàng</li>
+                  <li><i class="bi bi-check-circle"></i>Phù hợp cho ứng dụng desktop</li>
+                  <li><i class="bi bi-check-circle"></i>Hiển thị nhiều thông tin cùng lúc</li>
+                </ul>
+              </div>
+              <div class="col-md-4 text-end">
+                <button class="btn btn-select-form mb-2" onclick="selectForm('sidebar-layout')">
+                  <i class="bi bi-check-lg me-1"></i>Chọn mẫu này
+                </button>
+                <br>
+                <button class="btn btn-preview" onclick="previewForm('sidebar-layout')">
+                  <i class="bi bi-eye me-1"></i>Xem chi tiết
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison Table -->
+    <div class="row mt-5">
+      <div class="col-12">
+        <div class="demo-container p-4">
+          <h3 class="text-center mb-4">
+            <i class="bi bi-bar-chart me-2"></i>
+            Bảng so sánh các mẫu form
+          </h3>
+          <div class="comparison-table">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Tiêu chí</th>
+                  <th>Tab Layout</th>
+                  <th>Single Page</th>
+                  <th>Wizard</th>
+                  <th>Compact</th>
+                  <th>Card Layout</th>
+                  <th>Sidebar</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Độ phức tạp</strong></td>
+                  <td><span class="badge bg-warning">Trung bình</span></td>
+                  <td><span class="badge bg-success">Đơn giản</span></td>
+                  <td><span class="badge bg-info">Phức tạp</span></td>
+                  <td><span class="badge bg-success">Đơn giản</span></td>
+                  <td><span class="badge bg-warning">Trung bình</span></td>
+                  <td><span class="badge bg-info">Phức tạp</span></td>
+                </tr>
+                <tr>
+                  <td><strong>UX/UI</strong></td>
+                  <td><span class="badge bg-success">Tốt</span></td>
+                  <td><span class="badge bg-warning">Trung bình</span></td>
+                  <td><span class="badge bg-success">Tốt</span></td>
+                  <td><span class="badge bg-info">Rất tốt</span></td>
+                  <td><span class="badge bg-success">Tốt</span></td>
+                  <td><span class="badge bg-info">Rất tốt</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Responsive</strong></td>
+                  <td><span class="badge bg-success">Tốt</span></td>
+                  <td><span class="badge bg-success">Tốt</span></td>
+                  <td><span class="badge bg-warning">Trung bình</span></td>
+                  <td><span class="badge bg-info">Rất tốt</span></td>
+                  <td><span class="badge bg-success">Tốt</span></td>
+                  <td><span class="badge bg-warning">Trung bình</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Performance</strong></td>
+                  <td><span class="badge bg-warning">Trung bình</span></td>
+                  <td><span class="badge bg-info">Rất tốt</span></td>
+                  <td><span class="badge bg-warning">Trung bình</span></td>
+                  <td><span class="badge bg-info">Rất tốt</span></td>
+                  <td><span class="badge bg-success">Tốt</span></td>
+                  <td><span class="badge bg-warning">Trung bình</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Maintenance</strong></td>
+                  <td><span class="badge bg-success">Tốt</span></td>
+                  <td><span class="badge bg-info">Rất tốt</span></td>
+                  <td><span class="badge bg-warning">Trung bình</span></td>
+                  <td><span class="badge bg-info">Rất tốt</span></td>
+                  <td><span class="badge bg-success">Tốt</span></td>
+                  <td><span class="badge bg-warning">Trung bình</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selection Summary -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="demo-container p-4">
+          <div class="text-center">
+            <h4 class="mb-3">Mẫu đã chọn: <span id="selectedFormName" class="text-primary">Chưa chọn</span></h4>
+            <div id="selectionDetails" class="alert alert-info" style="display: none;">
+              <h5>Chi tiết mẫu đã chọn:</h5>
+              <div id="selectionDescription"></div>
+            </div>
+            <div class="mt-3">
+              <button class="btn btn-lg btn-primary me-3" onclick="downloadSelectedForm()" disabled id="downloadBtn">
+                <i class="bi bi-download me-2"></i>Tải xuống mẫu đã chọn
+              </button>
+              <button class="btn btn-lg btn-success" onclick="implementSelectedForm()" disabled id="implementBtn">
+                <i class="bi bi-code-slash me-2"></i>Triển khai mẫu này
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    let selectedForm = null;
+    
+    const formDetails = {
+      'tab-layout': {
+        name: 'Tab Layout (Hiện tại)',
+        description: 'Giao diện tab với 2 tab chính: "Hoàn thành công đoạn" và "Bàn giao công đoạn". Phù hợp cho workflow phức tạp với nhiều bước xử lý.',
+        pros: ['Giao diện rõ ràng', 'Tách biệt chức năng', 'Dễ mở rộng'],
+        cons: ['Phức tạp hơn', 'Cần nhiều JavaScript'],
+        file: 'xa-stage.html'
+      },
+      'single-page': {
+        name: 'Single Page Layout',
+        description: 'Tất cả thông tin hiển thị trên một trang duy nhất. Đơn giản, dễ sử dụng và phù hợp cho workflow đơn giản.',
+        pros: ['Đơn giản', 'Loading nhanh', 'Ít JavaScript'],
+        cons: ['Có thể dài', 'Ít tương tác'],
+        file: 'demo-single-page-form.html'
+      },
+      'wizard-layout': {
+        name: 'Wizard Layout',
+        description: 'Giao diện wizard từng bước với hướng dẫn rõ ràng. Phù hợp cho người dùng mới và quy trình phức tạp.',
+        pros: ['Hướng dẫn rõ ràng', 'Validation từng bước', 'UX tốt'],
+        cons: ['Phức tạp', 'Cần nhiều JavaScript'],
+        file: 'demo-wizard-form.html'
+      },
+      'compact-layout': {
+        name: 'Compact Layout',
+        description: 'Giao diện gọn gàng, tiết kiệm không gian. Phù hợp cho màn hình nhỏ và thao tác nhanh.',
+        pros: ['Gọn gàng', 'Tiết kiệm không gian', 'Thao tác nhanh'],
+        cons: ['Ít thông tin hiển thị', 'Có thể khó đọc'],
+        file: 'demo-compact-form.html'
+      },
+      'card-layout': {
+        name: 'Modern Card Layout',
+        description: 'Giao diện card hiện đại với animation mượt mà. Phù hợp cho ứng dụng web hiện đại.',
+        pros: ['Hiện đại', 'Animation đẹp', 'UX tốt'],
+        cons: ['Phức tạp', 'Cần nhiều CSS'],
+        file: 'demo-card-form.html'
+      },
+      'sidebar-layout': {
+        name: 'Sidebar Layout',
+        description: 'Giao diện sidebar chuyên nghiệp với navigation dễ dàng. Phù hợp cho ứng dụng desktop.',
+        pros: ['Chuyên nghiệp', 'Navigation tốt', 'Hiển thị nhiều thông tin'],
+        cons: ['Ít responsive', 'Phức tạp'],
+        file: 'demo-sidebar-form.html'
+      }
+    };
+
+    function selectForm(formType) {
+      // Remove previous selection
+      document.querySelectorAll('.form-preview').forEach(preview => {
+        preview.classList.remove('selected');
+      });
+      
+      // Add selection to current form
+      const selectedPreview = document.querySelector(`[data-form="${formType}"]`);
+      if (selectedPreview) {
+        selectedPreview.classList.add('selected');
+      }
+      
+      selectedForm = formType;
+      
+      // Update selection display
+      const formDetail = formDetails[formType];
+      document.getElementById('selectedFormName').textContent = formDetail.name;
+      
+      // Show selection details
+      const detailsDiv = document.getElementById('selectionDetails');
+      const descriptionDiv = document.getElementById('selectionDescription');
+      
+      descriptionDiv.innerHTML = `
+        <p><strong>Mô tả:</strong> ${formDetail.description}</p>
+        <div class="row">
+          <div class="col-md-6">
+            <strong>Ưu điểm:</strong>
+            <ul>
+              ${formDetail.pros.map(pro => `<li>${pro}</li>`).join('')}
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <strong>Nhược điểm:</strong>
+            <ul>
+              ${formDetail.cons.map(con => `<li>${con}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+      `;
+      
+      detailsDiv.style.display = 'block';
+      
+      // Enable buttons
+      document.getElementById('downloadBtn').disabled = false;
+      document.getElementById('implementBtn').disabled = false;
+      
+      // Show notification
+      showNotification(`Đã chọn mẫu: ${formDetail.name}`, 'success');
+    }
+
+    function previewForm(formType) {
+      const formDetail = formDetails[formType];
+      const url = formDetail.file;
+      
+      // Open in new tab
+      window.open(url, '_blank');
+    }
+
+    function downloadSelectedForm() {
+      if (!selectedForm) {
+        showNotification('Vui lòng chọn một mẫu form trước', 'warning');
+        return;
+      }
+      
+      const formDetail = formDetails[selectedForm];
+      showNotification(`Đang tải xuống mẫu: ${formDetail.name}`, 'info');
+      
+      // In a real implementation, this would trigger a download
+      // For demo purposes, we'll just show a notification
+      setTimeout(() => {
+        showNotification(`Đã tải xuống thành công: ${formDetail.file}`, 'success');
+      }, 2000);
+    }
+
+    function implementSelectedForm() {
+      if (!selectedForm) {
+        showNotification('Vui lòng chọn một mẫu form trước', 'warning');
+        return;
+      }
+      
+      const formDetail = formDetails[selectedForm];
+      showNotification(`Đang triển khai mẫu: ${formDetail.name}`, 'info');
+      
+      // In a real implementation, this would copy the form to the main application
+      // For demo purposes, we'll just show a notification
+      setTimeout(() => {
+        showNotification(`Đã triển khai thành công mẫu ${formDetail.name} vào hệ thống!`, 'success');
+      }, 2000);
+    }
+
+    function showNotification(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `alert alert-${type === 'error' ? 'danger' : type} position-fixed`;
+      toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px; animation: fadeIn 0.3s ease;';
+      toast.innerHTML = `
+        <div class="d-flex align-items-center">
+          <i class="bi bi-${type === 'error' ? 'exclamation-triangle' : type === 'warning' ? 'exclamation-triangle' : 'check-circle'} me-2"></i>
+          <span>${message}</span>
+          <button type="button" class="btn-close ms-auto" onclick="this.parentElement.parentElement.remove()"></button>
+        </div>
+      `;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        if (toast.parentElement) {
+          toast.style.animation = 'fadeOut 0.3s ease';
+          setTimeout(() => toast.remove(), 300);
+        }
+      }, 5000);
+    }
+
+    // Auto-select the first form on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      // Select the first form by default
+      selectForm('tab-layout');
+    });
+  </script>
+</body>
+</html> 

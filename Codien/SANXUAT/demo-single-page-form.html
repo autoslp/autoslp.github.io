@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo - Single Page Form Layout</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .form-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      backdrop-filter: blur(10px);
+      margin: 20px;
+    }
+    
+    .form-header {
+      background: linear-gradient(45deg, #28a745, #1e7e34);
+      color: white;
+      padding: 20px;
+      border-radius: 15px 15px 0 0;
+    }
+    
+    .section-card {
+      border: 1px solid #e9ecef;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      background: white;
+    }
+    
+    .section-header {
+      background: #f8f9fa;
+      padding: 15px 20px;
+      border-bottom: 1px solid #e9ecef;
+      border-radius: 10px 10px 0 0;
+    }
+    
+    .section-body {
+      padding: 20px;
+    }
+    
+    .form-control, .form-select {
+      border-radius: 8px;
+      border: 2px solid #e9ecef;
+      transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      border-color: #28a745;
+      box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(45deg, #007bff, #0056b3);
+      border: none;
+      border-radius: 25px;
+      padding: 12px 30px;
+      font-weight: 600;
+    }
+    
+    .btn-success {
+      background: linear-gradient(45deg, #28a745, #1e7e34);
+      border: none;
+      border-radius: 25px;
+      padding: 12px 30px;
+      font-weight: 600;
+    }
+    
+    .info-badge {
+      background: linear-gradient(45deg, #17a2b8, #138496);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+    
+    .progress-section {
+      background: linear-gradient(45deg, #6f42c1, #5a2d91);
+      color: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="form-container">
+      <!-- Header -->
+      <div class="form-header">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h2 class="mb-1">
+              <i class="bi bi-clipboard-check me-3"></i>
+              Hoàn thành & Bàn giao Công đoạn XẢ
+            </h2>
+            <p class="mb-0 opacity-75">Mẫu Single Page Layout - Tất cả thông tin trên một trang</p>
+          </div>
+          <div class="col-md-4 text-end">
+            <span class="info-badge">
+              <i class="bi bi-info-circle me-1"></i>
+              Lệnh: PO-2024-001
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4">
+        <!-- Order Information -->
+        <div class="section-card">
+          <div class="section-header">
+            <h5 class="mb-0 text-primary">
+              <i class="bi bi-file-text me-2"></i>
+              Thông tin lệnh sản xuất
+            </h5>
+          </div>
+          <div class="section-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Mã lệnh sản xuất</label>
+                <input type="text" class="form-control" value="PO-2024-001" readonly>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Mã sản phẩm</label>
+                <input type="text" class="form-control" value="SP-001" readonly>
+              </div>
+              <div class="col-md-12 mb-3">
+                <label class="form-label fw-bold">Tên sản phẩm</label>
+                <input type="text" class="form-control" value="Hộp carton 3 lớp 30x20x15cm" readonly>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label fw-bold">Loại giấy</label>
+                <input type="text" class="form-control" value="BC" readonly>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label fw-bold">Định lượng</label>
+                <input type="text" class="form-control" value="250 gsm" readonly>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label fw-bold">Số lượng kế hoạch</label>
+                <input type="text" class="form-control" value="10,000 tờ" readonly>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Production Results -->
+        <div class="section-card">
+          <div class="section-header">
+            <h5 class="mb-0 text-success">
+              <i class="bi bi-clipboard-data me-2"></i>
+              Kết quả sản xuất
+            </h5>
+          </div>
+          <div class="section-body">
+            <div class="row">
+              <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">Số lượng đạt (OK) <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" value="9500" min="0">
+                <div class="form-text">Số lượng tờ giấy đạt chất lượng</div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">Số lượng NG <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" value="300" min="0">
+                <div class="form-text">Số lượng tờ giấy không đạt</div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">NG Đầu/Cuối</label>
+                <input type="number" class="form-control" value="150" min="0">
+                <div class="form-text">NG do setup máy</div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label fw-bold">Hàng trả</label>
+                <input type="number" class="form-control" value="50" min="0">
+                <div class="form-text">Số lượng hàng trả lại</div>
+              </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="progress-section">
+              <div class="row align-items-center">
+                <div class="col-md-8">
+                  <h6 class="mb-2">Tiến độ hoàn thành</h6>
+                  <div class="progress" style="height: 25px;">
+                    <div class="progress-bar bg-success" style="width: 95%">95%</div>
+                  </div>
+                </div>
+                <div class="col-md-4 text-end">
+                  <div class="h4 mb-0">9,500 / 10,000</div>
+                  <small>tờ đã hoàn thành</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Production Information -->
+        <div class="section-card">
+          <div class="section-header">
+            <h5 class="mb-0 text-warning">
+              <i class="bi bi-person-gear me-2"></i>
+              Thông tin sản xuất
+            </h5>
+          </div>
+          <div class="section-body">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label fw-bold">Máy sản xuất</label>
+                <select class="form-select">
+                  <option value="Xả 1" selected>Xả 1</option>
+                  <option value="Xả 2">Xả 2</option>
+                  <option value="Xả 3">Xả 3</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label fw-bold">Ca sản xuất</label>
+                <select class="form-select">
+                  <option value="Ca 1" selected>Ca 1 (6:00-14:00)</option>
+                  <option value="Ca 2">Ca 2 (14:00-22:00)</option>
+                  <option value="Ca 3">Ca 3 (22:00-6:00)</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label fw-bold">Thợ phụ trách</label>
+                <input type="text" class="form-control" value="Nguyễn Văn A" placeholder="Nhập tên thợ">
+              </div>
+              <div class="col-md-12 mb-3">
+                <label class="form-label fw-bold">Ghi chú sản xuất</label>
+                <textarea class="form-control" rows="3" placeholder="Ghi chú về quá trình sản xuất...">Máy hoạt động ổn định, chất lượng sản phẩm đạt yêu cầu</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Handover Information -->
+        <div class="section-card">
+          <div class="section-header">
+            <h5 class="mb-0 text-info">
+              <i class="bi bi-arrow-right-circle me-2"></i>
+              Thông tin bàn giao
+            </h5>
+          </div>
+          <div class="section-body">
+            <div class="alert alert-info">
+              <h6><i class="bi bi-info-circle me-2"></i>Công đoạn tiếp theo: XÉN</h6>
+              <p class="mb-0">Sản phẩm OK sẽ được chuyển sang công đoạn XÉN để tiếp tục xử lý</p>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Số lượng bàn giao <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" value="9500" min="0">
+                <div class="form-text">Tự động = Số lượng OK (có thể chỉnh sửa)</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Ngày bàn giao</label>
+                <input type="date" class="form-control" value="2024-01-15">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Người bàn giao</label>
+                <input type="text" class="form-control" value="Nguyễn Văn A" placeholder="Nhập tên người bàn giao">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Người nhận</label>
+                <input type="text" class="form-control" placeholder="Nhập tên người nhận">
+              </div>
+              <div class="col-md-12 mb-3">
+                <label class="form-label fw-bold">Ghi chú bàn giao</label>
+                <textarea class="form-control" rows="2" placeholder="Ghi chú về bàn giao sản phẩm...">Sản phẩm đạt chất lượng, sẵn sàng chuyển sang công đoạn tiếp theo</textarea>
+              </div>
+            </div>
+            
+            <div class="alert alert-secondary">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="confirmHandover">
+                <label class="form-check-label" for="confirmHandover">
+                  <strong>Tôi xác nhận đã bàn giao đủ số lượng và chất lượng cho công đoạn XÉN</strong>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="text-center mt-4">
+          <button class="btn btn-secondary btn-lg me-3">
+            <i class="bi bi-x-circle me-2"></i>Hủy bỏ
+          </button>
+          <button class="btn btn-primary btn-lg me-3">
+            <i class="bi bi-save me-2"></i>Lưu nháp
+          </button>
+          <button class="btn btn-success btn-lg">
+            <i class="bi bi-check-lg me-2"></i>Hoàn thành & Bàn giao
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo - Vertical Wizard Layout</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .wizard-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      backdrop-filter: blur(10px);
+      margin: 20px;
+      display: flex;
+      min-height: 80vh;
+    }
+    
+    .wizard-sidebar {
+      width: 300px;
+      background: linear-gradient(180deg, #8e44ad 0%, #6c5ce7 100%);
+      color: white;
+      padding: 30px 0;
+      position: relative;
+    }
+    
+    .wizard-header {
+      text-align: center;
+      padding: 0 20px 30px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      margin-bottom: 30px;
+    }
+    
+    .wizard-steps {
+      padding: 0 20px;
+    }
+    
+    .step-item {
+      display: flex;
+      align-items: center;
+      padding: 15px 20px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    
+    .step-item:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    
+    .step-item.active {
+      background: rgba(255,255,255,0.2);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .step-item.completed {
+      background: rgba(46, 204, 113, 0.3);
+    }
+    
+    .step-number {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-right: 15px;
+      transition: all 0.3s ease;
+    }
+    
+    .step-item.active .step-number {
+      background: #fff;
+      color: #8e44ad;
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.3);
+    }
+    
+    .step-item.completed .step-number {
+      background: #2ecc71;
+      color: white;
+    }
+    
+    .step-info {
+      flex: 1;
+    }
+    
+    .step-title {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    
+    .step-description {
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+    
+    .step-status {
+      font-size: 0.8rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.2);
+    }
+    
+    .wizard-content {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+    }
+    
+    .content-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .step-content {
+      display: none;
+      animation: slideIn 0.5s ease;
+    }
+    
+    .step-content.active {
+      display: block;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    .form-control, .form-select {
+      border-radius: 8px;
+      border: 2px solid #e9ecef;
+      padding: 12px 15px;
+      transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      border-color: #8e44ad;
+      box-shadow: 0 0 0 0.2rem rgba(142, 68, 173, 0.25);
+    }
+    
+    .btn {
+      border-radius: 25px;
+      padding: 12px 30px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: none;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(45deg, #8e44ad, #6c5ce7);
+    }
+    
+    .btn-success {
+      background: linear-gradient(45deg, #2ecc71, #27ae60);
+    }
+    
+    .btn-secondary {
+      background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+    }
+    
+    .info-card {
+      background: linear-gradient(45deg, #3498db, #2980b9);
+      color: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 25px;
+    }
+    
+    .progress-card {
+      background: linear-gradient(45deg, #e67e22, #d35400);
+      color: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 25px;
+    }
+    
+    .wizard-footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px;
+      background: rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .step-indicator {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.8);
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    
+    .stat-item {
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    
+    .stat-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(142, 68, 173, 0.15);
+    }
+    
+    .stat-number {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      font-size: 0.85rem;
+      color: #6c757d;
+    }
+  </style>
+</head>
+<body>
+  <div class="wizard-container">
+    <!-- Sidebar -->
+    <div class="wizard-sidebar">
+      <div class="wizard-header">
+        <h4 class="mb-2">
+          <i class="bi bi-magic me-2"></i>
+          Hoàn thành XẢ
+        </h4>
+        <p class="mb-0 opacity-75">Wizard Vertical Layout</p>
+        <div class="mt-3">
+          <span class="badge bg-light text-dark">PO-2024-001</span>
+        </div>
+      </div>
+      
+      <div class="wizard-steps">
+        <div class="step-item active" data-step="1" onclick="goToStep(1)">
+          <div class="step-number">1</div>
+          <div class="step-info">
+            <div class="step-title">Thông tin lệnh</div>
+            <div class="step-description">Kiểm tra thông tin cơ bản</div>
+          </div>
+          <div class="step-status">Hoàn thành</div>
+        </div>
+        
+        <div class="step-item" data-step="2" onclick="goToStep(2)">
+          <div class="step-number">2</div>
+          <div class="step-info">
+            <div class="step-title">Kết quả sản xuất</div>
+            <div class="step-description">Nhập số lượng OK/NG</div>
+          </div>
+          <div class="step-status">Đang xử lý</div>
+        </div>
+        
+        <div class="step-item" data-step="3" onclick="goToStep(3)">
+          <div class="step-number">3</div>
+          <div class="step-info">
+            <div class="step-title">Thông tin sản xuất</div>
+            <div class="step-description">Máy móc và nhân sự</div>
+          </div>
+          <div class="step-status">Chờ xử lý</div>
+        </div>
+        
+        <div class="step-item" data-step="4" onclick="goToStep(4)">
+          <div class="step-number">4</div>
+          <div class="step-info">
+            <div class="step-title">Bàn giao</div>
+            <div class="step-description">Thông tin chuyển giao</div>
+          </div>
+          <div class="step-status">Chờ xử lý</div>
+        </div>
+        
+        <div class="step-item" data-step="5" onclick="goToStep(5)">
+          <div class="step-number">5</div>
+          <div class="step-info">
+            <div class="step-title">Xác nhận</div>
+            <div class="step-description">Kiểm tra và hoàn thành</div>
+          </div>
+          <div class="step-status">Chờ xử lý</div>
+        </div>
+      </div>
+      
+      <div class="wizard-footer">
+        <div class="step-indicator">
+          Bước <span id="currentStepNum">1</span> / 5
+        </div>
+        <div>
+          <button class="btn btn-sm btn-outline-light me-2" onclick="previousStep()" id="prevBtn" style="display: none;">
+            <i class="bi bi-arrow-left"></i>
+          </button>
+          <button class="btn btn-sm btn-light" onclick="nextStep()" id="nextBtn">
+            <i class="bi bi-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="wizard-content">
+      <!-- Step 1: Order Information -->
+      <div class="step-content active" id="step1">
+        <div class="content-header">
+          <h3 class="text-primary mb-2">
+            <i class="bi bi-file-text me-2"></i>
+            Bước 1: Thông tin lệnh sản xuất
+          </h3>
+          <p class="text-muted">Kiểm tra và xác nhận thông tin lệnh sản xuất</p>
+        </div>
+        
+        <div class="info-card">
+          <h5><i class="bi bi-info-circle me-2"></i>Thông tin cần kiểm tra</h5>
+          <p class="mb-0">Vui lòng kiểm tra kỹ thông tin lệnh sản xuất trước khi tiếp tục sang bước tiếp theo.</p>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Mã lệnh sản xuất</label>
+            <input type="text" class="form-control" value="PO-2024-001" readonly>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Mã sản phẩm</label>
+            <input type="text" class="form-control" value="SP-001" readonly>
+          </div>
+          <div class="col-md-12 mb-3">
+            <label class="form-label fw-bold">Tên sản phẩm</label>
+            <input type="text" class="form-control" value="Hộp carton 3 lớp 30x20x15cm" readonly>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label fw-bold">Loại giấy</label>
+            <input type="text" class="form-control" value="BC" readonly>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label fw-bold">Định lượng</label>
+            <input type="text" class="form-control" value="250 gsm" readonly>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label fw-bold">Số lượng kế hoạch</label>
+            <input type="text" class="form-control" value="10,000 tờ" readonly>
+          </div>
+        </div>
+        
+        <div class="alert alert-success">
+          <i class="bi bi-check-circle me-2"></i>
+          <strong>Thông tin lệnh sản xuất đã được xác nhận!</strong> Bạn có thể tiếp tục sang bước tiếp theo.
+        </div>
+      </div>
+
+      <!-- Step 2: Production Results -->
+      <div class="step-content" id="step2">
+        <div class="content-header">
+          <h3 class="text-success mb-2">
+            <i class="bi bi-clipboard-data me-2"></i>
+            Bước 2: Kết quả sản xuất
+          </h3>
+          <p class="text-muted">Nhập số lượng sản phẩm đạt và không đạt chất lượng</p>
+        </div>
+        
+        <div class="info-card">
+          <h5><i class="bi bi-clipboard-data me-2"></i>Nhập kết quả sản xuất</h5>
+          <p class="mb-0">Vui lòng nhập chính xác số lượng sản phẩm đạt và không đạt chất lượng.</p>
+        </div>
+        
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-number text-primary">10,000</div>
+            <div class="stat-label">Kế hoạch</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number text-success">9,500</div>
+            <div class="stat-label">OK</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number text-danger">300</div>
+            <div class="stat-label">NG</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number text-info">95%</div>
+            <div class="stat-label">Tiến độ</div>
+          </div>
+        </div>
+
+        <div class="progress-card">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h6 class="mb-2">Tiến độ hoàn thành</h6>
+              <div class="progress" style="height: 25px;">
+                <div class="progress-bar bg-success" style="width: 95%" id="progressBar">95%</div>
+              </div>
+            </div>
+            <div class="col-md-4 text-end">
+              <div class="h4 mb-0" id="progressText">9,500 / 10,000</div>
+              <small>tờ đã hoàn thành</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Số lượng đạt (OK) <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" value="9500" min="0" id="goodQty">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Số lượng NG <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" value="300" min="0" id="ngQty">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">NG Đầu/Cuối</label>
+            <input type="number" class="form-control" value="150" min="0">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Hàng trả</label>
+            <input type="number" class="form-control" value="50" min="0">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Production Information -->
+      <div class="step-content" id="step3">
+        <div class="content-header">
+          <h3 class="text-warning mb-2">
+            <i class="bi bi-person-gear me-2"></i>
+            Bước 3: Thông tin sản xuất
+          </h3>
+          <p class="text-muted">Cung cấp thông tin về máy móc và nhân sự</p>
+        </div>
+        
+        <div class="info-card">
+          <h5><i class="bi bi-person-gear me-2"></i>Thông tin sản xuất</h5>
+          <p class="mb-0">Vui lòng cung cấp thông tin về máy móc và nhân sự tham gia sản xuất.</p>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label class="form-label fw-bold">Máy sản xuất</label>
+            <select class="form-select">
+              <option value="Xả 1" selected>Xả 1</option>
+              <option value="Xả 2">Xả 2</option>
+              <option value="Xả 3">Xả 3</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label fw-bold">Ca sản xuất</label>
+            <select class="form-select">
+              <option value="Ca 1" selected>Ca 1 (6:00-14:00)</option>
+              <option value="Ca 2">Ca 2 (14:00-22:00)</option>
+              <option value="Ca 3">Ca 3 (22:00-6:00)</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label fw-bold">Thợ phụ trách</label>
+            <input type="text" class="form-control" value="Nguyễn Văn A" placeholder="Nhập tên thợ">
+          </div>
+          <div class="col-md-12 mb-3">
+            <label class="form-label fw-bold">Ghi chú sản xuất</label>
+            <textarea class="form-control" rows="3" placeholder="Ghi chú về quá trình sản xuất...">Máy hoạt động ổn định, chất lượng sản phẩm đạt yêu cầu</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Handover Information -->
+      <div class="step-content" id="step4">
+        <div class="content-header">
+          <h3 class="text-info mb-2">
+            <i class="bi bi-arrow-right-circle me-2"></i>
+            Bước 4: Thông tin bàn giao
+          </h3>
+          <p class="text-muted">Cấu hình thông tin bàn giao cho công đoạn tiếp theo</p>
+        </div>
+        
+        <div class="info-card">
+          <h5><i class="bi bi-arrow-right-circle me-2"></i>Thông tin bàn giao</h5>
+          <p class="mb-0">Cấu hình thông tin bàn giao cho công đoạn tiếp theo.</p>
+        </div>
+        
+        <div class="alert alert-info">
+          <h6><i class="bi bi-info-circle me-2"></i>Công đoạn tiếp theo: XÉN</h6>
+          <p class="mb-0">Sản phẩm OK sẽ được chuyển sang công đoạn XÉN để tiếp tục xử lý</p>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Số lượng bàn giao <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" value="9500" min="0" id="handoverQty">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Ngày bàn giao</label>
+            <input type="date" class="form-control" value="2024-01-15">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Người bàn giao</label>
+            <input type="text" class="form-control" value="Nguyễn Văn A" placeholder="Nhập tên người bàn giao">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Người nhận</label>
+            <input type="text" class="form-control" placeholder="Nhập tên người nhận">
+          </div>
+          <div class="col-md-12 mb-3">
+            <label class="form-label fw-bold">Ghi chú bàn giao</label>
+            <textarea class="form-control" rows="2" placeholder="Ghi chú về bàn giao sản phẩm...">Sản phẩm đạt chất lượng, sẵn sàng chuyển sang công đoạn tiếp theo</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5: Confirmation -->
+      <div class="step-content" id="step5">
+        <div class="content-header">
+          <h3 class="text-success mb-2">
+            <i class="bi bi-check-circle me-2"></i>
+            Bước 5: Xác nhận hoàn thành
+          </h3>
+          <p class="text-muted">Kiểm tra lại tất cả thông tin trước khi hoàn thành</p>
+        </div>
+        
+        <div class="info-card">
+          <h5><i class="bi bi-check-circle me-2"></i>Xác nhận hoàn thành</h5>
+          <p class="mb-0">Kiểm tra lại tất cả thông tin trước khi hoàn thành.</p>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <h6 class="text-primary mb-3">Thông tin lệnh sản xuất</h6>
+            <ul class="list-unstyled">
+              <li><strong>Mã lệnh:</strong> PO-2024-001</li>
+              <li><strong>Sản phẩm:</strong> Hộp carton 3 lớp 30x20x15cm</li>
+              <li><strong>Loại giấy:</strong> BC - 250 gsm</li>
+              <li><strong>Số lượng kế hoạch:</strong> 10,000 tờ</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <h6 class="text-success mb-3">Kết quả sản xuất</h6>
+            <ul class="list-unstyled">
+              <li><strong>Số lượng OK:</strong> <span id="confirmGoodQty">9,500</span> tờ</li>
+              <li><strong>Số lượng NG:</strong> <span id="confirmNgQty">300</span> tờ</li>
+              <li><strong>Tiến độ:</strong> <span id="confirmProgress">95%</span></li>
+              <li><strong>Máy sản xuất:</strong> Xả 1</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="alert alert-warning mt-3">
+          <h6><i class="bi bi-exclamation-triangle me-2"></i>Thông tin bàn giao</h6>
+          <p class="mb-2"><strong>Số lượng bàn giao:</strong> <span id="confirmHandoverQty">9,500</span> tờ</p>
+          <p class="mb-2"><strong>Công đoạn tiếp theo:</strong> XÉN</p>
+          <p class="mb-0"><strong>Người bàn giao:</strong> Nguyễn Văn A</p>
+        </div>
+        
+        <div class="alert alert-secondary">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="confirmHandover">
+            <label class="form-check-label" for="confirmHandover">
+              <strong>Tôi xác nhận đã bàn giao đủ số lượng và chất lượng cho công đoạn XÉN</strong>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="text-center mt-4">
+        <button class="btn btn-secondary me-3" onclick="previousStep()" id="prevBtnMain" style="display: none;">
+          <i class="bi bi-arrow-left me-2"></i>Quay lại
+        </button>
+        <button class="btn btn-primary me-3" onclick="nextStep()" id="nextBtnMain">
+          Tiếp theo<i class="bi bi-arrow-right ms-2"></i>
+        </button>
+        <button class="btn btn-success" onclick="finishWizard()" id="finishBtn" style="display: none;">
+          <i class="bi bi-check-lg me-2"></i>Hoàn thành
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    let currentStep = 1;
+    const totalSteps = 5;
+    
+    function updateStepDisplay() {
+      // Update step indicators
+      document.querySelectorAll('.step-item').forEach((step, index) => {
+        const stepNum = index + 1;
+        step.classList.remove('active', 'completed');
+        
+        if (stepNum < currentStep) {
+          step.classList.add('completed');
+        } else if (stepNum === currentStep) {
+          step.classList.add('active');
+        }
+      });
+      
+      // Update step content
+      document.querySelectorAll('.step-content').forEach((content, index) => {
+        content.classList.remove('active');
+        if (index + 1 === currentStep) {
+          content.classList.add('active');
+        }
+      });
+      
+      // Update buttons
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const prevBtnMain = document.getElementById('prevBtnMain');
+      const nextBtnMain = document.getElementById('nextBtnMain');
+      const finishBtn = document.getElementById('finishBtn');
+      
+      prevBtn.style.display = currentStep > 1 ? 'inline-block' : 'none';
+      nextBtn.style.display = currentStep < totalSteps ? 'inline-block' : 'none';
+      prevBtnMain.style.display = currentStep > 1 ? 'inline-block' : 'none';
+      nextBtnMain.style.display = currentStep < totalSteps ? 'inline-block' : 'none';
+      finishBtn.style.display = currentStep === totalSteps ? 'inline-block' : 'none';
+      
+      // Update step indicator
+      document.getElementById('currentStepNum').textContent = currentStep;
+      
+      // Update progress in step 2
+      if (currentStep === 2) {
+        updateProgress();
+      }
+      
+      // Update confirmation data in step 5
+      if (currentStep === 5) {
+        updateConfirmation();
+      }
+    }
+    
+    function goToStep(step) {
+      if (step >= 1 && step <= totalSteps) {
+        currentStep = step;
+        updateStepDisplay();
+      }
+    }
+    
+    function nextStep() {
+      if (currentStep < totalSteps) {
+        currentStep++;
+        updateStepDisplay();
+      }
+    }
+    
+    function previousStep() {
+      if (currentStep > 1) {
+        currentStep--;
+        updateStepDisplay();
+      }
+    }
+    
+    function updateProgress() {
+      const goodQty = parseInt(document.getElementById('goodQty').value) || 0;
+      const ngQty = parseInt(document.getElementById('ngQty').value) || 0;
+      const total = goodQty + ngQty;
+      const progress = total > 0 ? Math.round((goodQty / total) * 100) : 0;
+      
+      document.getElementById('progressBar').style.width = progress + '%';
+      document.getElementById('progressBar').textContent = progress + '%';
+      document.getElementById('progressText').textContent = goodQty.toLocaleString() + ' / ' + total.toLocaleString();
+      
+      // Update handover quantity
+      document.getElementById('handoverQty').value = goodQty;
+    }
+    
+    function updateConfirmation() {
+      const goodQty = parseInt(document.getElementById('goodQty').value) || 0;
+      const ngQty = parseInt(document.getElementById('ngQty').value) || 0;
+      const handoverQty = parseInt(document.getElementById('handoverQty').value) || 0;
+      const total = goodQty + ngQty;
+      const progress = total > 0 ? Math.round((goodQty / total) * 100) : 0;
+      
+      document.getElementById('confirmGoodQty').textContent = goodQty.toLocaleString();
+      document.getElementById('confirmNgQty').textContent = ngQty.toLocaleString();
+      document.getElementById('confirmProgress').textContent = progress + '%';
+      document.getElementById('confirmHandoverQty').textContent = handoverQty.toLocaleString();
+    }
+    
+    function finishWizard() {
+      if (!document.getElementById('confirmHandover').checked) {
+        alert('Vui lòng xác nhận đã bàn giao đủ số lượng và chất lượng!');
+        return;
+      }
+      
+      alert('🎉 Hoàn thành! Dữ liệu đã được lưu thành công.');
+    }
+    
+    // Event listeners
+    document.getElementById('goodQty').addEventListener('input', updateProgress);
+    document.getElementById('ngQty').addEventListener('input', updateProgress);
+    document.getElementById('handoverQty').addEventListener('input', function() {
+      if (currentStep === 5) updateConfirmation();
+    });
+    
+    // Initialize
+    updateStepDisplay();
+  </script>
+</body>
+</html> 

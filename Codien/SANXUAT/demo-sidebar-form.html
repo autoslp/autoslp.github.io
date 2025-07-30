@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo - Sidebar Form Layout</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .sidebar-container {
+      display: flex;
+      min-height: 100vh;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      backdrop-filter: blur(10px);
+      margin: 20px;
+      overflow: hidden;
+    }
+    
+    .sidebar {
+      width: 280px;
+      background: linear-gradient(180deg, #17a2b8 0%, #138496 100%);
+      color: white;
+      padding: 0;
+      position: relative;
+    }
+    
+    .sidebar-header {
+      padding: 25px 20px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .sidebar-nav {
+      padding: 20px 0;
+    }
+    
+    .nav-item {
+      margin-bottom: 5px;
+    }
+    
+    .nav-link {
+      color: rgba(255,255,255,0.8);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+    }
+    
+    .nav-link:hover {
+      color: white;
+      background: rgba(255,255,255,0.1);
+      border-left-color: #fff;
+    }
+    
+    .nav-link.active {
+      color: white;
+      background: rgba(255,255,255,0.2);
+      border-left-color: #fff;
+      font-weight: 600;
+    }
+    
+    .nav-link i {
+      width: 20px;
+      margin-right: 12px;
+      font-size: 1.1rem;
+    }
+    
+    .main-content {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+    }
+    
+    .content-header {
+      background: linear-gradient(45deg, #17a2b8, #138496);
+      color: white;
+      padding: 20px 25px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+    
+    .form-section {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      margin-bottom: 25px;
+      overflow: hidden;
+      display: none;
+    }
+    
+    .form-section.active {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .section-header {
+      background: #f8f9fa;
+      padding: 15px 20px;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #495057;
+      margin: 0;
+      display: flex;
+      align-items: center;
+    }
+    
+    .section-status {
+      padding: 4px 12px;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    .status-completed {
+      background: #d1edff;
+      color: #0c5460;
+    }
+    
+    .section-body {
+      padding: 25px;
+    }
+    
+    .form-control, .form-select {
+      border-radius: 8px;
+      border: 2px solid #e9ecef;
+      padding: 12px 15px;
+      transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      border-color: #17a2b8;
+      box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+    }
+    
+    .btn {
+      border-radius: 25px;
+      padding: 12px 25px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: none;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(45deg, #17a2b8, #138496);
+    }
+    
+    .btn-success {
+      background: linear-gradient(45deg, #28a745, #1e7e34);
+    }
+    
+    .btn-secondary {
+      background: linear-gradient(45deg, #6c757d, #545b62);
+    }
+    
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: #17a2b8;
+      box-shadow: 0 8px 25px rgba(23, 162, 184, 0.15);
+    }
+    
+    .stat-number {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      font-size: 0.9rem;
+      color: #6c757d;
+      font-weight: 500;
+    }
+    
+    .progress-sidebar {
+      height: 10px;
+      border-radius: 5px;
+      background: #e9ecef;
+      overflow: hidden;
+      margin: 15px 0;
+    }
+    
+    .progress-sidebar .progress-bar {
+      height: 100%;
+      background: linear-gradient(45deg, #28a745, #20c997);
+      border-radius: 5px;
+      transition: width 0.5s ease;
+    }
+    
+    .alert-sidebar {
+      border-radius: 10px;
+      border: none;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .alert-sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: currentColor;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .info-badge {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 15px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+    
+    .sidebar-footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 15px 20px;
+      background: rgba(0,0,0,0.1);
+      text-align: center;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.8);
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h5 class="mb-2">
+          <i class="bi bi-layout-sidebar me-2"></i>
+          Hoàn thành XẢ
+        </h5>
+        <span class="info-badge">PO-2024-001</span>
+      </div>
+      
+      <div class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#order-info" class="nav-link active" onclick="showSection('order-info')">
+            <i class="bi bi-file-text"></i>
+            Thông tin lệnh
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#production-results" class="nav-link" onclick="showSection('production-results')">
+            <i class="bi bi-clipboard-data"></i>
+            Kết quả sản xuất
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#production-info" class="nav-link" onclick="showSection('production-info')">
+            <i class="bi bi-person-gear"></i>
+            Thông tin sản xuất
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#handover-info" class="nav-link" onclick="showSection('handover-info')">
+            <i class="bi bi-arrow-right-circle"></i>
+            Bàn giao
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#confirmation" class="nav-link" onclick="showSection('confirmation')">
+            <i class="bi bi-check-circle"></i>
+            Xác nhận
+          </a>
+        </div>
+      </div>
+      
+      <div class="sidebar-footer">
+        Mẫu Sidebar Layout
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Header -->
+      <div class="content-header">
+        <h3 class="mb-2">
+          <i class="bi bi-clipboard-check me-3"></i>
+          Hoàn thành & Bàn giao Công đoạn XẢ
+        </h3>
+        <p class="mb-0 opacity-75">Mẫu Sidebar Layout - Navigation chuyên nghiệp</p>
+      </div>
+
+      <!-- Order Information Section -->
+      <div class="form-section active" id="order-info">
+        <div class="section-header">
+          <h5 class="section-title">
+            <i class="bi bi-file-text me-2"></i>
+            Thông tin lệnh sản xuất
+          </h5>
+          <span class="section-status status-completed">Đã tải</span>
+        </div>
+        <div class="section-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Mã lệnh sản xuất</label>
+              <input type="text" class="form-control" value="PO-2024-001" readonly>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Mã sản phẩm</label>
+              <input type="text" class="form-control" value="SP-001" readonly>
+            </div>
+            <div class="col-md-12 mb-3">
+              <label class="form-label fw-bold">Tên sản phẩm</label>
+              <input type="text" class="form-control" value="Hộp carton 3 lớp 30x20x15cm" readonly>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label fw-bold">Loại giấy</label>
+              <input type="text" class="form-control" value="BC" readonly>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label fw-bold">Định lượng</label>
+              <input type="text" class="form-control" value="250 gsm" readonly>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label fw-bold">Số lượng kế hoạch</label>
+              <input type="text" class="form-control" value="10,000 tờ" readonly>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Production Results Section -->
+      <div class="form-section" id="production-results">
+        <div class="section-header">
+          <h5 class="section-title">
+            <i class="bi bi-clipboard-data me-2"></i>
+            Kết quả sản xuất
+          </h5>
+          <span class="section-status status-pending">Cần nhập</span>
+        </div>
+        <div class="section-body">
+          <div class="stats-cards">
+            <div class="stat-card">
+              <div class="stat-number text-primary">10,000</div>
+              <div class="stat-label">Kế hoạch</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number text-success">9,500</div>
+              <div class="stat-label">OK</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number text-danger">300</div>
+              <div class="stat-label">NG</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number text-info">95%</div>
+              <div class="stat-label">Tiến độ</div>
+            </div>
+          </div>
+
+          <div class="progress-sidebar">
+            <div class="progress-bar" style="width: 95%"></div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Số lượng đạt (OK) <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" value="9500" min="0">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Số lượng NG <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" value="300" min="0">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">NG Đầu/Cuối</label>
+              <input type="number" class="form-control" value="150" min="0">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Hàng trả</label>
+              <input type="number" class="form-control" value="50" min="0">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Production Information Section -->
+      <div class="form-section" id="production-info">
+        <div class="section-header">
+          <h5 class="section-title">
+            <i class="bi bi-person-gear me-2"></i>
+            Thông tin sản xuất
+          </h5>
+          <span class="section-status status-pending">Cần nhập</span>
+        </div>
+        <div class="section-body">
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label class="form-label fw-bold">Máy sản xuất</label>
+              <select class="form-select">
+                <option value="Xả 1" selected>Xả 1</option>
+                <option value="Xả 2">Xả 2</option>
+                <option value="Xả 3">Xả 3</option>
+              </select>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label fw-bold">Ca sản xuất</label>
+              <select class="form-select">
+                <option value="Ca 1" selected>Ca 1 (6:00-14:00)</option>
+                <option value="Ca 2">Ca 2 (14:00-22:00)</option>
+                <option value="Ca 3">Ca 3 (22:00-6:00)</option>
+              </select>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label fw-bold">Thợ phụ trách</label>
+              <input type="text" class="form-control" value="Nguyễn Văn A" placeholder="Nhập tên thợ">
+            </div>
+            <div class="col-md-12 mb-3">
+              <label class="form-label fw-bold">Ghi chú sản xuất</label>
+              <textarea class="form-control" rows="3" placeholder="Ghi chú về quá trình sản xuất...">Máy hoạt động ổn định, chất lượng sản phẩm đạt yêu cầu</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Handover Information Section -->
+      <div class="form-section" id="handover-info">
+        <div class="section-header">
+          <h5 class="section-title">
+            <i class="bi bi-arrow-right-circle me-2"></i>
+            Thông tin bàn giao
+          </h5>
+          <span class="section-status status-pending">Cần nhập</span>
+        </div>
+        <div class="section-body">
+          <div class="alert-sidebar alert-info">
+            <h6><i class="bi bi-info-circle me-2"></i>Công đoạn tiếp theo: XÉN</h6>
+            <p class="mb-0">Sản phẩm OK sẽ được chuyển sang công đoạn XÉN để tiếp tục xử lý</p>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Số lượng bàn giao <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" value="9500" min="0">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Ngày bàn giao</label>
+              <input type="date" class="form-control" value="2024-01-15">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Người bàn giao</label>
+              <input type="text" class="form-control" value="Nguyễn Văn A" placeholder="Nhập tên người bàn giao">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Người nhận</label>
+              <input type="text" class="form-control" placeholder="Nhập tên người nhận">
+            </div>
+            <div class="col-md-12 mb-3">
+              <label class="form-label fw-bold">Ghi chú bàn giao</label>
+              <textarea class="form-control" rows="2" placeholder="Ghi chú về bàn giao sản phẩm...">Sản phẩm đạt chất lượng, sẵn sàng chuyển sang công đoạn tiếp theo</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirmation Section -->
+      <div class="form-section" id="confirmation">
+        <div class="section-header">
+          <h5 class="section-title">
+            <i class="bi bi-check-circle me-2"></i>
+            Xác nhận hoàn thành
+          </h5>
+          <span class="section-status status-pending">Chờ xác nhận</span>
+        </div>
+        <div class="section-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h6 class="text-primary mb-3">Thông tin lệnh sản xuất</h6>
+              <ul class="list-unstyled">
+                <li><strong>Mã lệnh:</strong> PO-2024-001</li>
+                <li><strong>Sản phẩm:</strong> Hộp carton 3 lớp 30x20x15cm</li>
+                <li><strong>Loại giấy:</strong> BC - 250 gsm</li>
+                <li><strong>Số lượng kế hoạch:</strong> 10,000 tờ</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-success mb-3">Kết quả sản xuất</h6>
+              <ul class="list-unstyled">
+                <li><strong>Số lượng OK:</strong> 9,500 tờ</li>
+                <li><strong>Số lượng NG:</strong> 300 tờ</li>
+                <li><strong>Tiến độ:</strong> 95%</li>
+                <li><strong>Máy sản xuất:</strong> Xả 1</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="alert-sidebar alert-warning mt-3">
+            <h6><i class="bi bi-exclamation-triangle me-2"></i>Thông tin bàn giao</h6>
+            <p class="mb-2"><strong>Số lượng bàn giao:</strong> 9,500 tờ</p>
+            <p class="mb-2"><strong>Công đoạn tiếp theo:</strong> XÉN</p>
+            <p class="mb-0"><strong>Người bàn giao:</strong> Nguyễn Văn A</p>
+          </div>
+          
+          <div class="alert-sidebar alert-secondary">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="confirmHandover">
+              <label class="form-check-label" for="confirmHandover">
+                <strong>Tôi xác nhận đã bàn giao đủ số lượng và chất lượng cho công đoạn XÉN</strong>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button class="btn btn-secondary">
+          <i class="bi bi-x-circle me-2"></i>Hủy bỏ
+        </button>
+        <button class="btn btn-primary">
+          <i class="bi bi-save me-2"></i>Lưu nháp
+        </button>
+        <button class="btn btn-success">
+          <i class="bi bi-check-lg me-2"></i>Hoàn thành & Bàn giao
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    function showSection(sectionId) {
+      // Hide all sections
+      document.querySelectorAll('.form-section').forEach(section => {
+        section.classList.remove('active');
+      });
+      
+      // Show selected section
+      document.getElementById(sectionId).classList.add('active');
+      
+      // Update navigation
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+      });
+      
+      // Find and activate the corresponding nav link
+      const navLink = document.querySelector(`[href="#${sectionId}"]`);
+      if (navLink) {
+        navLink.classList.add('active');
+      }
+    }
+  </script>
+</body>
+</html> 

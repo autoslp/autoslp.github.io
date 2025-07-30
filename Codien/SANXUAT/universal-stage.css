@@ -149,10 +149,13 @@ body {
   margin-left: var(--sidebar-width);
   transition: margin-left 0.3s ease;
   min-height: 100vh;
+  position: relative;
+  width: calc(100% - var(--sidebar-width));
 }
 
 .main-content.sidebar-collapsed {
   margin-left: var(--sidebar-collapsed-width);
+  width: calc(100% - var(--sidebar-collapsed-width));
 }
 
 /* Table responsive container */
@@ -395,8 +398,13 @@ body {
 }
 
 .table tbody tr.selected {
-  background-color: #e3f2fd;
+  background-color: #e3f2fd !important;
   border-left: 4px solid #2196f3;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+}
+
+.table tbody tr.selected:hover {
+  background-color: #e3f2fd !important;
 }
 
 .quantity-display {
@@ -581,13 +589,15 @@ body {
 /* Content area and details panel styles */
 .content-area {
   flex: 1;
-  padding: 2rem;
+  /* padding: 1rem; */
   transition: all 0.3s ease;
   overflow: hidden;
+  width: 100%;
 }
 
 .content-area.details-open {
-  flex: 0 0 calc(100% - 400px);
+  width: calc(100% - 400px);
+  margin-right: 400px;
 }
 
 .details-panel {
@@ -602,14 +612,26 @@ body {
   right: 0;
   top: 0;
   z-index: 1000;
+  box-shadow: -2px 0 8px rgba(0,0,0,0.1);
 }
 
 .details-panel.show {
   transform: translateX(0);
 }
 
-.details-open {
-  flex: 0 0 calc(100% - 400px) !important;
+/* Removed conflicting rule */
+
+/* Container adjustments for details panel */
+.content-area.details-open .container-fluid {
+  max-width: 100%;
+  padding-right: 0.25rem;
+  padding-left: 0.25rem;
+}
+
+/* Reduce padding for container-fluid */
+.container-fluid {
+  padding-left: 0.25rem !important;
+  padding-right: 0.25rem !important;
 }
 
 /* Column width optimizations */

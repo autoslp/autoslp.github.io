@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Performance - XA Stage</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .performance-card {
+            border-left: 4px solid #007bff;
+            background: #f8f9fa;
+        }
+        .cache-hit {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        .cache-miss {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+        .api-error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        .log-entry {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin-bottom: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            background: #f8f9fa;
+        }
+        .log-info { color: #0c5460; }
+        .log-success { color: #155724; }
+        .log-warning { color: #856404; }
+        .log-error { color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4">
+                    <i class="bi bi-speedometer2 text-primary"></i>
+                    Test API Performance - XA Stage
+                </h1>
+                
+                <!-- Performance Controls -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Performance Controls</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <button class="btn btn-primary w-100 mb-2" onclick="testNormalLoad()">
+                                    <i class="bi bi-arrow-clockwise"></i> Normal Load
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-success w-100 mb-2" onclick="testCacheLoad()">
+                                    <i class="bi bi-lightning"></i> Cache Load
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-warning w-100 mb-2" onclick="testForceRefresh()">
+                                    <i class="bi bi-arrow-repeat"></i> Force Refresh
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-danger w-100 mb-2" onclick="clearCache()">
+                                    <i class="bi bi-trash"></i> Clear Cache
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Results -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Performance Metrics</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="performanceResults">
+                                    <p class="text-muted">Click a test button to see performance results...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Cache Status</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="cacheStatus">
+                                    <p class="text-muted">Checking cache status...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Console Logs -->
+                <div class="card mt-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Console Logs</h5>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="clearLogs()">
+                            <i class="bi bi-trash"></i> Clear
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="consoleLogs" style="max-height: 400px; overflow-y: auto;">
+                            <p class="text-muted">Logs will appear here...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === CẤU HÌNH API & PERFORMANCE ===
+        const API_BASE_URL = 'https://autoslp.duckdns.org/api';
+        const CACHE_CONFIG = {
+            ORDERS_CACHE_KEY: 'xa_orders_cache',
+            CACHE_DURATION: 5 * 60 * 1000, // 5 phút
+            RETRY_ATTEMPTS: 3,
+            RETRY_DELAY: 1000, // 1 giây
+            TIMEOUT: 10000 // 10 giây
+        };
+
+        let performanceMetrics = {};
+        let testStartTime = 0;
+
+        // === PERFORMANCE FUNCTIONS ===
+        function startTiming(operation) {
+            const startTime = performance.now();
+            performanceMetrics[operation] = { startTime };
+            log(`⏱️ [${operation}] Bắt đầu: ${new Date().toISOString()}`, 'info');
+            return startTime;
+        }
+
+        function endTiming(operation, additionalInfo = '') {
+            if (performanceMetrics[operation]) {
+                const endTime = performance.now();
+                const duration = endTime - performanceMetrics[operation].startTime;
+                performanceMetrics[operation].endTime = endTime;
+                performanceMetrics[operation].duration = duration;
+                
+                log(`✅ [${operation}] Hoàn thành: ${duration.toFixed(2)}ms ${additionalInfo}`, 'success');
+                return duration;
+            }
+            return 0;
+        }
+
+        function log(message, type = 'info') {
+            const logsContainer = document.getElementById('consoleLogs');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logsContainer.appendChild(logEntry);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+            
+            // Also log to console
+            console.log(message);
+        }
+
+        function clearLogs() {
+            document.getElementById('consoleLogs').innerHTML = '<p class="text-muted">Logs cleared...</p>';
+        }
+
+        // === CACHE FUNCTIONS ===
+        function saveToCache(key, data) {
+            try {
+                const cacheData = {
+                    data: data,
+                    timestamp: Date.now(),
+                    version: '1.0'
+                };
+                localStorage.setItem(key, JSON.stringify(cacheData));
+                log(`💾 Cache saved: ${key} (${JSON.stringify(data).length} bytes)`, 'success');
+            } catch (error) {
+                log(`Cache save failed: ${error.message}`, 'error');
+            }
+        }
+
+        function getFromCache(key) {
+            try {
+                const cached = localStorage.getItem(key);
+                if (!cached) return null;
+
+                const cacheData = JSON.parse(cached);
+                const now = Date.now();
+                const age = now - cacheData.timestamp;
+
+                if (age > CACHE_CONFIG.CACHE_DURATION) {
+                    log(`⏰ Cache expired: ${key} (age: ${(age/1000).toFixed(1)}s)`, 'warning');
+                    localStorage.removeItem(key);
+                    return null;
+                }
+
+                log(`⚡ Cache hit: ${key} (age: ${(age/1000).toFixed(1)}s)`, 'success');
+                return cacheData.data;
+            } catch (error) {
+                log(`Cache read failed: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        function clearCache() {
+            try {
+                localStorage.removeItem(CACHE_CONFIG.ORDERS_CACHE_KEY);
+                log('🗑️ Cache cleared', 'info');
+                updateCacheStatus();
+            } catch (error) {
+                log(`Cache clear failed: ${error.message}`, 'error');
+            }
+        }
+
+        function updateCacheStatus() {
+            const statusElement = document.getElementById('cacheStatus');
+            try {
+                const cached = localStorage.getItem(CACHE_CONFIG.ORDERS_CACHE_KEY);
+                if (!cached) {
+                    statusElement.innerHTML = '<p class="text-danger">❌ Không có cache</p>';
+                    return;
+                }
+
+                const cacheData = JSON.parse(cached);
+                const now = Date.now();
+                const age = now - cacheData.timestamp;
+                const ageSeconds = Math.floor(age / 1000);
+                const ageMinutes = Math.floor(ageSeconds / 60);
+
+                if (age > CACHE_CONFIG.CACHE_DURATION) {
+                    statusElement.innerHTML = `<p class="text-warning">⚠️ Cache hết hạn (${ageMinutes}m ${ageSeconds % 60}s)</p>`;
+                } else {
+                    statusElement.innerHTML = `<p class="text-success">✅ Cache hợp lệ (${ageMinutes}m ${ageSeconds % 60}s)</p>`;
+                }
+            } catch (error) {
+                statusElement.innerHTML = '<p class="text-danger">❌ Lỗi đọc cache</p>';
+            }
+        }
+
+        // === API FUNCTIONS ===
+        async function fetchWithTimeout(url, options = {}, timeout = CACHE_CONFIG.TIMEOUT) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                return response;
+            } catch (error) {
+                clearTimeout(timeoutId);
+                throw error;
+            }
+        }
+
+        async function fetchWithRetry(url, options = {}, maxRetries = CACHE_CONFIG.RETRY_ATTEMPTS) {
+            let lastError;
+            
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    log(`🔄 API attempt ${attempt}/${maxRetries}: ${url}`, 'info');
+                    const response = await fetchWithTimeout(url, options);
+                    
+                    if (response.ok) {
+                        if (attempt > 1) {
+                            log(`✅ API succeeded on attempt ${attempt}`, 'success');
+                        }
+                        return response;
+                    }
+                    
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    
+                } catch (error) {
+                    lastError = error;
+                    log(`❌ API attempt ${attempt} failed: ${error.message}`, 'error');
+                    
+                    if (attempt < maxRetries) {
+                        const delay = CACHE_CONFIG.RETRY_DELAY * attempt;
+                        log(`⏳ Retrying in ${delay}ms...`, 'warning');
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    }
+                }
+            }
+            
+            throw lastError;
+        }
+
+        // === TEST FUNCTIONS ===
+        async function testNormalLoad() {
+            testStartTime = performance.now();
+            log('🚀 Starting Normal Load Test...', 'info');
+            
+            try {
+                startTiming('apiCall');
+                const response = await fetchWithRetry(`${API_BASE_URL}/data/production_orders`);
+                const apiData = await response.json();
+                endTiming('apiCall', `(${Array.isArray(apiData) ? apiData.length : 'invalid'} records)`);
+                
+                startTiming('dataTransform');
+                const transformedData = transformApiData(apiData);
+                endTiming('dataTransform', `(${transformedData.length} orders)`);
+                
+                startTiming('cacheSave');
+                saveToCache(CACHE_CONFIG.ORDERS_CACHE_KEY, transformedData);
+                endTiming('cacheSave');
+                
+                const totalTime = performance.now() - testStartTime;
+                showPerformanceResults('Normal Load', totalTime, 'success');
+                
+            } catch (error) {
+                log(`❌ Normal load failed: ${error.message}`, 'error');
+                showPerformanceResults('Normal Load', 0, 'error', error.message);
+            }
+        }
+
+        async function testCacheLoad() {
+            testStartTime = performance.now();
+            log('⚡ Starting Cache Load Test...', 'info');
+            
+            try {
+                startTiming('cacheRead');
+                const cachedData = getFromCache(CACHE_CONFIG.ORDERS_CACHE_KEY);
+                endTiming('cacheRead');
+                
+                if (cachedData) {
+                    startTiming('dataProcess');
+                    // Simulate some processing
+                    const processedData = cachedData.map(item => ({...item, processed: true}));
+                    endTiming('dataProcess', `(${processedData.length} orders)`);
+                    
+                    const totalTime = performance.now() - testStartTime;
+                    showPerformanceResults('Cache Load', totalTime, 'success');
+                } else {
+                    log('⚠️ No cache available, running normal load instead', 'warning');
+                    await testNormalLoad();
+                }
+                
+            } catch (error) {
+                log(`❌ Cache load failed: ${error.message}`, 'error');
+                showPerformanceResults('Cache Load', 0, 'error', error.message);
+            }
+        }
+
+        async function testForceRefresh() {
+            testStartTime = performance.now();
+            log('🔄 Starting Force Refresh Test...', 'info');
+            
+            try {
+                // Clear cache first
+                startTiming('cacheClear');
+                clearCache();
+                endTiming('cacheClear');
+                
+                startTiming('apiCall');
+                const response = await fetchWithRetry(`${API_BASE_URL}/data/production_orders`);
+                const apiData = await response.json();
+                endTiming('apiCall', `(${Array.isArray(apiData) ? apiData.length : 'invalid'} records)`);
+                
+                startTiming('dataTransform');
+                const transformedData = transformApiData(apiData);
+                endTiming('dataTransform', `(${transformedData.length} orders)`);
+                
+                startTiming('cacheSave');
+                saveToCache(CACHE_CONFIG.ORDERS_CACHE_KEY, transformedData);
+                endTiming('cacheSave');
+                
+                const totalTime = performance.now() - testStartTime;
+                showPerformanceResults('Force Refresh', totalTime, 'success');
+                
+            } catch (error) {
+                log(`❌ Force refresh failed: ${error.message}`, 'error');
+                showPerformanceResults('Force Refresh', 0, 'error', error.message);
+            }
+        }
+
+        function transformApiData(apiData) {
+            if (!Array.isArray(apiData)) {
+                log('API data is not an array', 'error');
+                return [];
+            }
+
+            const transformedData = new Array(apiData.length);
+            
+            // Batch process for performance
+            const batchSize = 100;
+            for (let i = 0; i < apiData.length; i += batchSize) {
+                const batch = apiData.slice(i, i + batchSize);
+                
+                batch.forEach((order, batchIndex) => {
+                    const index = i + batchIndex;
+                    transformedData[index] = {
+                        id: order.id,
+                        production_order: order.order_code || order.production_order,
+                        product_name: order.product_name,
+                        // Add other fields as needed
+                    };
+                });
+            }
+            
+            return transformedData;
+        }
+
+        function showPerformanceResults(testName, totalTime, status, errorMessage = '') {
+            const resultsElement = document.getElementById('performanceResults');
+            
+            let resultsHtml = `
+                <div class="card performance-card ${status === 'success' ? 'cache-hit' : status === 'error' ? 'api-error' : 'cache-miss'}">
+                    <div class="card-body">
+                        <h6 class="card-title">${testName}</h6>
+                        <p class="card-text">
+                            <strong>Total Time:</strong> ${totalTime > 0 ? totalTime.toFixed(2) + 'ms' : 'N/A'}<br>
+                            <strong>Status:</strong> ${status === 'success' ? '✅ Success' : status === 'error' ? '❌ Error' : '⚠️ Warning'}
+                        </p>
+            `;
+            
+            if (errorMessage) {
+                resultsHtml += `<p class="text-danger"><strong>Error:</strong> ${errorMessage}</p>`;
+            }
+            
+            // Add detailed metrics
+            resultsHtml += '<div class="mt-2"><strong>Details:</strong><ul class="list-unstyled">';
+            Object.keys(performanceMetrics).forEach(operation => {
+                const metric = performanceMetrics[operation];
+                if (metric.duration) {
+                    const percentage = totalTime > 0 ? ((metric.duration / totalTime) * 100).toFixed(1) : 0;
+                    resultsHtml += `<li>• ${operation}: ${metric.duration.toFixed(2)}ms (${percentage}%)</li>`;
+                }
+            });
+            resultsHtml += '</ul></div></div></div>';
+            
+            resultsElement.innerHTML = resultsHtml;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Performance Test Page Loaded', 'info');
+            updateCacheStatus();
+        });
+
+        // Export functions
+        window.testNormalLoad = testNormalLoad;
+        window.testCacheLoad = testCacheLoad;
+        window.testForceRefresh = testForceRefresh;
+        window.clearCache = clearCache;
+        window.clearLogs = clearLogs;
+    </script>
+</body>
+</html> 
