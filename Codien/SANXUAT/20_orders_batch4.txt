@@ -1,0 +1,78 @@
+-- Batch 4: 20 Production Orders (61-80)
+INSERT INTO production_orders (
+    deployment_date, production_order, po_number, sales_order_code, order_date, delivery_date,
+    internal_product_code, order_type, customer_code, customer_name, product_name, version,
+    not_deployed_reason, sales_note, customer_production_note, order_quantity, inventory,
+    required_quantity, deployed_quantity, offset_waste, waste, sheet_count, product_length,
+    product_width, product_height, paper_length, paper_width, part_count, color_count,
+    customer_group, paper_type, paper_weight, work_stage, status
+) VALUES 
+('2025-05-11', '01-2503-00131', '25.03.071.05', 'SLM-00923BID-56', '2025-05-08', '2025-08-12',
+'SLM-00923BID-56-3b', 'Thường', '5678901', 'Công ty TNHH BIDV', 
+'Hộp đựng tài liệu BIDV Eco', '1', '', 'Giao hàng theo lịch trình',
+'In theo màu chuẩn - Kiểm tra độ bền màu - Đóng gói theo tiêu chuẩn',
+9000, 200, 8800, 9200, 40, 15, 230, 210.00, 150.00, 35.00, 720.00, 540.00, 12, 4,
+'VIP', 'Duplex Hanson', 350, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Chờ triển khai'),
+
+('2025-05-12', '01-2503-00132', '25.03.072.03', 'SLM-00456VNM-57', '2025-05-09', '2025-08-15',
+'SLM-00456VNM-57-4b', 'Khẩn', '6789012', 'Công ty CP Sữa Việt Nam', 
+'Hộp sữa chua Vinamilk 250g', '2', '', 'Khách yêu cầu giao gấp',
+'In logo mới theo hướng dẫn - Kiểm tra chất lượng giấy - Đóng gói theo tiêu chuẩn',
+35000, 800, 34200, 35800, 180, 30, 3580, 100.00, 75.00, 80.00, 660.00, 490.00, 10, 4,
+'Chiến lược', 'Couches Hàn Quốc', 330, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Đang sản xuất'),
+
+('2025-05-13', '01-2503-00133', '25.03.073.01', 'SLM-00890DHG-58', '2025-05-10', '2025-08-18',
+'SLM-00890DHG-58-5b', 'Đại trà', '7890123', 'Công ty CP Dược Hậu Giang', 
+'Hộp thuốc Hapacol 2000mg', '3', '', 'Sản xuất theo đơn hàng thường niên',
+'In theo thiết kế mới - Kiểm tra độ bóng - Đóng gói theo tiêu chuẩn GMP',
+18000, 400, 17600, 18400, 90, 18, 1840, 135.00, 85.00, 18.00, 670.00, 490.00, 10, 4,
+'VIP', 'Ivory NingBo', 310, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Đang sản xuất'),
+
+('2025-05-14', '01-2503-00134', '25.03.074.04', 'SLM-00678PGS-59', '2025-05-11', '2025-08-20',
+'SLM-00678PGS-59-6b', 'Mẫu', '8901234', 'Công ty TNHH P&G Việt Nam', 
+'Hộp bột giặt Ariel 5kg', '1', '', 'Mẫu để khách duyệt trước khi sản xuất',
+'In mẫu theo thiết kế mới - Kiểm tra màu sắc - Đóng gói mẫu đẹp',
+0, 0, 100, 1000, 0, 2000, 200, 240.00, 170.00, 100.00, 780.00, 560.00, 18, 6,
+'Thường', 'Couches TQ', 400, 'Xả-Xén-In-Bế-Dán', 'Chờ triển khai'),
+
+('2025-05-15', '01-2503-00135', '25.03.075.02', 'SLM-00923NST-60', '2025-05-12', '2025-08-22',
+'SLM-00923NST-60-7b', 'Bù', '9012345', 'Công ty CP Đường Biên Hòa', 
+'Hộp đường tinh luyện Biên Hòa 10kg', '2', '', 'Bù lại số lượng thiếu từ lô trước',
+'In bù cho LSX 01-2503-00125 = 1.000 cái - Kiểm tra chất lượng kỹ',
+5000, -1000, 1000, 1050, 50, 15, 212, 180.00, 120.00, 150.00, 740.00, 540.00, 14, 4,
+'Chiến lược', 'Couches Hàn Quốc', 450, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Đang sản xuất'),
+
+('2025-05-16', '01-2503-00136', '25.03.076.05', 'SLM-00567KDC-61', '2025-05-13', '2025-08-25',
+'SLM-00567KDC-61-8b', 'Thường', '0123456', 'Công ty TNHH Kinh Đô', 
+'Hộp bánh Cosy 1kg', '1', '', 'Giao hàng theo hợp đồng',
+'In theo màu chuẩn - Kiểm tra độ bền màu - Đóng gói theo tiêu chuẩn',
+21000, 500, 20500, 21500, 100, 20, 2150, 180.00, 120.00, 60.00, 720.00, 540.00, 12, 4,
+'VIP', 'Duplex Hanson', 350, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Chờ triển khai'),
+
+('2025-05-17', '01-2503-00137', '25.03.077.03', 'SLM-00734ACV-62', '2025-05-14', '2025-08-28',
+'SLM-00734ACV-62-9b', 'Khẩn', '1234567', 'Công ty CP Acecook Việt Nam', 
+'Hộp mì ăn liền Hảo Hảo 200g', '2', '', 'Khách yêu cầu giao gấp',
+'In logo mới theo hướng dẫn - Kiểm tra chất lượng giấy - Đóng gói theo tiêu chuẩn',
+19000, 400, 18600, 19200, 90, 18, 1920, 190.00, 125.00, 40.00, 740.00, 540.00, 12, 4,
+'Chiến lược', 'Couches Hàn Quốc', 330, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Đang sản xuất'),
+
+('2025-05-18', '01-2503-00138', '25.03.078.01', 'SLM-00456LVS-63', '2025-05-15', '2025-08-30',
+'SLM-00456LVS-63-1b', 'Đại trà', '2345678', 'Công ty TNHH Lavie', 
+'Hộp nước khoáng Lavie 10L', '3', '', 'Sản xuất theo đơn hàng thường niên',
+'In theo thiết kế mới - Kiểm tra độ bóng - Đóng gói theo tiêu chuẩn',
+12000, 300, 11700, 12300, 60, 12, 1230, 160.00, 100.00, 220.00, 720.00, 540.00, 10, 4,
+'VIP', 'Ivory NingBo', 400, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Đang sản xuất'),
+
+('2025-05-19', '01-2503-00139', '25.03.079.04', 'SLM-00890CCH-64', '2025-05-16', '2025-09-02',
+'SLM-00890CCH-64-2b', 'Mẫu', '3456789', 'Công ty CP Cholimex', 
+'Hộp nước mắm Cholimex 5L', '1', '', 'Mẫu để khách duyệt trước khi sản xuất',
+'In mẫu theo thiết kế mới - Kiểm tra màu sắc - Đóng gói mẫu đẹp',
+0, 0, 120, 1200, 0, 2400, 240, 160.00, 110.00, 180.00, 720.00, 540.00, 12, 4,
+'Thường', 'Couches TQ', 350, 'Xả-Xén-In-Bế-Dán', 'Chờ triển khai'),
+
+('2025-05-20', '01-2503-00140', '25.03.080.02', 'SLM-00678MAS-65', '2025-05-17', '2025-09-05',
+'SLM-00678MAS-65-3b', 'Bù', '4567890', 'Công ty TNHH Masan Consumer', 
+'Hộp nước chấm Chin-su 5L', '2', '', 'Bù lại số lượng thiếu từ lô trước',
+'In bù cho LSX 01-2503-00130 = 1.100 cái - Kiểm tra chất lượng kỹ',
+8000, -1100, 1100, 1150, 50, 15, 237, 170.00, 115.00, 160.00, 740.00, 540.00, 12, 4,
+'Chiến lược', 'Couches Hàn Quốc', 380, 'Xả-Xén-In-Bế-Dán-Đóng thùng', 'Đang sản xuất'); 

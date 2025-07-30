@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Bàn Giao Trực Tiếp - XẢ → XÉN</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .stage-box {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .stage-active {
+            border-color: #2196f3;
+            background: #e3f2fd;
+        }
+        .stage-completed {
+            border-color: #4caf50;
+            background: #e8f5e8;
+        }
+        .stage-waiting {
+            border-color: #ff9800;
+            background: #fff3e0;
+        }
+        .handover-arrow {
+            font-size: 48px;
+            color: #2196f3;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .quantity-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1976d2;
+        }
+        .console-log {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center">🔄 Test Bàn Giao Trực Tiếp</h1>
+        <p class="text-center text-muted">Khi XẢ bàn giao → số lượng sẽ ghi trực tiếp vào cột xen_input_quantity</p>
+        
+        <!-- Chọn đơn hàng -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <select id="order-select" class="form-select" onchange="loadOrderData()">
+                    <option value="">-- Chọn đơn hàng để test --</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button onclick="loadOrders()" class="btn btn-info">Tải danh sách</button>
+                <button onclick="createTestOrder()" class="btn btn-success">Tạo đơn test</button>
+            </div>
+        </div>
+
+        <!-- Hiển thị 2 stage: XẢ và XÉN -->
+        <div id="stages-display" style="display: none;">
+            <div class="row">
+                <!-- Stage XẢ -->
+                <div class="col-md-5">
+                    <div id="xa-stage" class="stage-box stage-active">
+                        <h3>🔥 XẢ (Công đoạn hiện tại)</h3>
+                        <div class="mb-3">
+                            <label>Input Quantity:</label>
+                            <div id="xa-input" class="quantity-display">-</div>
+                        </div>
+                        <div class="mb-3">
+                            <label>Output Quantity:</label>
+                            <input type="number" id="xa-output" class="form-control" min="0" placeholder="Nhập số lượng bàn giao">
+                        </div>
+                        <div class="mb-3">
+                            <label>Người bàn giao:</label>
+                            <input type="text" id="handover-person" class="form-control" placeholder="Tên người bàn giao">
+                        </div>
+                        <button onclick="performHandover()" class="btn btn-primary btn-lg">
+                            Bàn giao cho XÉN
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Arrow -->
+                <div class="col-md-2">
+                    <div class="handover-arrow">→</div>
+                    <div class="text-center">
+                        <strong>Bàn giao</strong><br>
+                        <small class="text-muted">xa_output_quantity → xen_input_quantity</small>
+                    </div>
+                </div>
+
+                <!-- Stage XÉN -->
+                <div class="col-md-5">
+                    <div id="xen-stage" class="stage-box stage-waiting">
+                        <h3>✂️ XÉN (Stage tiếp theo)</h3>
+                        <div class="mb-3">
+                            <label>Input Quantity:</label>
+                            <div id="xen-input" class="quantity-display text-warning">Chờ bàn giao</div>
+                        </div>
+                        <div class="mb-3">
+                            <label>Status:</label>
+                            <div id="xen-status" class="badge bg-warning">Waiting</div>
+                        </div>
+                        <div class="mb-3">
+                            <label>Người nhận:</label>
+                            <input type="text" id="receiver-person" class="form-control" placeholder="Tên người nhận">
+                        </div>
+                        <div class="text-muted">
+                            <small>Sẽ tự động nhận số lượng từ XẢ</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Console log -->
+        <div id="console-log" class="console-log">
+            <div>🚀 Hệ thống bàn giao trực tiếp đã sẵn sàng</div>
+        </div>
+        
+        <div class="text-center mt-3">
+            <button onclick="clearLog()" class="btn btn-secondary btn-sm">Xóa log</button>
+            <button onclick="refreshData()" class="btn btn-info btn-sm">Refresh dữ liệu</button>
+        </div>
+    </div>
+
+    <script>
+        let currentOrderId = null;
+        let currentOrderData = null;
+
+        // Utility functions
+        function log(message, type = 'info') {
+            const console = document.getElementById('console-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#f44336' : type === 'success' ? '#4caf50' : '#0f0';
+            console.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            console.scrollTop = console.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('console-log').innerHTML = '<div>🚀 Console đã được xóa</div>';
+        }
+
+        // Load danh sách đơn hàng
+        async function loadOrders() {
+            try {
+                log('🔄 Đang tải danh sách đơn hàng...');
+                const response = await fetch('/api/production_orders');
+                const data = await response.json();
+                
+                const select = document.getElementById('order-select');
+                select.innerHTML = '<option value="">-- Chọn đơn hàng để test --</option>';
+                
+                data.orders.forEach(order => {
+                    const option = document.createElement('option');
+                    option.value = order.id;
+                    option.textContent = `${order.production_order} - ${order.current_stage.toUpperCase()} - ${order.product_name}`;
+                    select.appendChild(option);
+                });
+                
+                log(`✅ Đã tải ${data.orders.length} đơn hàng`, 'success');
+            } catch (error) {
+                log(`❌ Lỗi tải đơn hàng: ${error.message}`, 'error');
+            }
+        }
+
+        // Tạo đơn hàng test
+        async function createTestOrder() {
+            try {
+                log('🔄 Đang tạo đơn hàng test...');
+                
+                const testOrder = {
+                    production_order: `TEST-HANDOVER-${Date.now()}`,
+                    po_number: `PO-${Date.now()}`,
+                    internal_product_code: `TEST-CODE-${Date.now()}`,
+                    customer_code: 'TEST001',
+                    customer_name: 'Khách hàng Test Bàn Giao',
+                    product_name: 'Sản phẩm Test Bàn Giao Trực Tiếp',
+                    order_quantity: 1000,
+                    required_quantity: 1000,
+                    deployed_quantity: 1200,
+                    current_stage: 'xa',
+                    current_stage_index: 0,
+                    xa_input_quantity: 1200,
+                    xa_status: 'in_progress'
+                };
+
+                const response = await fetch('/api/production_orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testOrder)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    log(`✅ Đã tạo đơn hàng test ID: ${result.id}`, 'success');
+                    loadOrders();
+                } else {
+                    throw new Error('Không thể tạo đơn hàng test');
+                }
+                
+            } catch (error) {
+                log(`❌ Lỗi tạo đơn hàng test: ${error.message}`, 'error');
+            }
+        }
+
+        // Load dữ liệu đơn hàng
+        async function loadOrderData() {
+            const orderId = document.getElementById('order-select').value;
+            if (!orderId) {
+                document.getElementById('stages-display').style.display = 'none';
+                return;
+            }
+
+            currentOrderId = orderId;
+            
+            try {
+                log(`🔄 Đang tải dữ liệu đơn hàng ${orderId}...`);
+                
+                const response = await fetch(`/api/production_orders/${orderId}/stages`);
+                const data = await response.json();
+                currentOrderData = data;
+                
+                // Hiển thị dữ liệu XẢ
+                document.getElementById('xa-input').textContent = data.stages.xa.input_quantity || 0;
+                document.getElementById('xa-output').value = data.stages.xa.output_quantity || '';
+                
+                // Hiển thị dữ liệu XÉN
+                const xenInput = data.stages.xen.input_quantity || 0;
+                document.getElementById('xen-input').textContent = xenInput > 0 ? xenInput : 'Chờ bàn giao';
+                document.getElementById('xen-input').className = xenInput > 0 ? 'quantity-display text-success' : 'quantity-display text-warning';
+                
+                const xenStatus = data.stages.xen.status || 'waiting';
+                document.getElementById('xen-status').textContent = xenStatus.toUpperCase();
+                document.getElementById('xen-status').className = xenStatus === 'in_progress' ? 'badge bg-success' : 'badge bg-warning';
+                
+                // Cập nhật UI
+                document.getElementById('xen-stage').className = xenInput > 0 ? 'stage-box stage-active' : 'stage-box stage-waiting';
+                
+                document.getElementById('stages-display').style.display = 'block';
+                log(`✅ Đã tải dữ liệu đơn hàng ${data.production_order}`, 'success');
+                
+            } catch (error) {
+                log(`❌ Lỗi tải dữ liệu: ${error.message}`, 'error');
+            }
+        }
+
+        // Thực hiện bàn giao
+        async function performHandover() {
+            if (!currentOrderId) {
+                alert('Vui lòng chọn đơn hàng');
+                return;
+            }
+
+            const outputQuantity = parseInt(document.getElementById('xa-output').value) || 0;
+            const handoverPerson = document.getElementById('handover-person').value.trim();
+            const receiverPerson = document.getElementById('receiver-person').value.trim();
+
+            if (outputQuantity <= 0) {
+                alert('Vui lòng nhập số lượng bàn giao > 0');
+                return;
+            }
+
+            try {
+                log(`🔄 Đang thực hiện bàn giao ${outputQuantity} sản phẩm từ XẢ sang XÉN...`);
+                
+                // Gọi API bàn giao trực tiếp
+                const response = await fetch('/api/handover_to_next_stage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        order_id: currentOrderId,
+                        current_stage: 'xa',
+                        handover_quantity: outputQuantity,
+                        handover_person: handoverPerson || 'Người test',
+                        receiver_person: receiverPerson || 'Người nhận test',
+                        notes: 'Test bàn giao trực tiếp từ giao diện'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                log(`✅ ${result.message}`, 'success');
+                log(`📝 Đã cập nhật cột: ${result.updated_column}`, 'success');
+                
+                // Refresh dữ liệu để thấy thay đổi
+                setTimeout(() => {
+                    refreshData();
+                }, 1000);
+                
+            } catch (error) {
+                log(`❌ Lỗi bàn giao: ${error.message}`, 'error');
+            }
+        }
+
+        // Refresh dữ liệu
+        async function refreshData() {
+            if (currentOrderId) {
+                await loadOrderData();
+                log('🔄 Đã refresh dữ liệu', 'info');
+            }
+        }
+
+        // Khởi tạo khi trang load
+        window.onload = function() {
+            log('🚀 Khởi tạo Test Bàn Giao Trực Tiếp');
+            loadOrders();
+        };
+    </script>
+</body>
+</html>

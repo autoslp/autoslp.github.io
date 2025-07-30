@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Webhook n8n Integration</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .test-section h3 { color: #333; margin-top: 0; }
+        .webhook-url { background: #f8f9fa; padding: 10px; margin: 10px 0; border-left: 4px solid #007bff; font-family: monospace; word-break: break-all; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 3px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        .test-btn { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 3px; cursor: pointer; margin: 5px; }
+        .test-btn:hover { background: #0056b3; }
+        .test-btn:disabled { background: #6c757d; cursor: not-allowed; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; max-height: 300px; }
+        .config-section { background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 5px; padding: 15px; margin-bottom: 20px; }
+        .sync-btn { background: #28a745; }
+        .sync-btn:hover { background: #218838; }
+        .webhook-icon { color: #6f42c1; font-size: 1.2em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Test Webhook n8n Integration</h1>
+        <p><strong>Mục đích:</strong> Test tích hợp webhook n8n thay vì gửi trực tiếp lên SQL database</p>
+
+        <!-- Configuration -->
+        <div class="config-section">
+            <h3><i class="webhook-icon">⚙️</i> Webhook Configuration</h3>
+            <div class="webhook-url">
+                <strong>Primary Webhook:</strong> https://n8n.autoslp.duckdns.org/webhook/production
+            </div>
+            <div class="webhook-url">
+                <strong>Backup Webhook:</strong> https://webhook.site/your-backup-url
+            </div>
+            <p><strong>Chức năng:</strong> Tất cả thao tác cập nhật sẽ được gửi qua webhook n8n thay vì ghi trực tiếp vào SQL database</p>
+        </div>
+
+        <!-- Test 1: Update Stage Output -->
+        <div class="test-section">
+            <h3>📤 Test 1: Update Stage Output via Webhook</h3>
+            <p>Cập nhật kết quả sản xuất công đoạn XẢ</p>
+            <button class="test-btn" onclick="testUpdateStageOutput()">Test Update Stage Output</button>
+            <div id="result1" class="result"></div>
+            <pre id="response1"></pre>
+        </div>
+
+        <!-- Test 2: Handover to Next Stage -->
+        <div class="test-section">
+            <h3>🔄 Test 2: Handover to Next Stage via Webhook</h3>
+            <p>Bàn giao từ XẢ sang XÉN qua webhook</p>
+            <button class="test-btn" onclick="testHandoverToNextStage()">Test Handover XẢ→XÉN</button>
+            <div id="result2" class="result"></div>
+            <pre id="response2"></pre>
+        </div>
+
+        <!-- Test 3: Complete and Handover -->
+        <div class="test-section">
+            <h3>🚀 Test 3: Complete XẢ and Handover to XÉN via Webhook</h3>
+            <p>Hoàn thành XẢ và bàn giao sang XÉN trong một webhook</p>
+            <button class="test-btn" onclick="testCompleteAndHandover()">Test Complete & Handover</button>
+            <div id="result3" class="result"></div>
+            <pre id="response3"></pre>
+        </div>
+
+        <!-- Test 4: Sync Pending Data -->
+        <div class="test-section">
+            <h3>🔄 Test 4: Sync Pending Data</h3>
+            <p>Đồng bộ dữ liệu đã lưu trong localStorage khi mạng bị gián đoạn</p>
+            <button class="test-btn sync-btn" onclick="testSyncPendingData()">Test Sync Pending Data</button>
+            <div id="result4" class="result"></div>
+            <pre id="response4"></pre>
+        </div>
+
+        <!-- Test 5: Load Orders (Read-only) -->
+        <div class="test-section">
+            <h3>📥 Test 5: Load Orders Data (Read-only)</h3>
+            <p>Tải dữ liệu lệnh sản xuất (không qua SQL, chỉ dữ liệu mẫu)</p>
+            <button class="test-btn" onclick="testLoadOrders()">Test Load Orders</button>
+            <div id="result5" class="result"></div>
+            <pre id="response5"></pre>
+        </div>
+
+        <!-- Test 6: Simulate Network Failure -->
+        <div class="test-section">
+            <h3>⚠️ Test 6: Simulate Network Failure</h3>
+            <p>Test fallback mechanism khi webhook không khả dụng</p>
+            <button class="test-btn" onclick="testNetworkFailure()">Test Network Failure</button>
+            <div id="result6" class="result"></div>
+            <pre id="response6"></pre>
+        </div>
+    </div>
+
+    <script src="simple-production-api.js"></script>
+    <script>
+        // Initialize API instance
+        const api = new SimpleProductionAPI();
+
+        // Test 1: Update Stage Output
+        async function testUpdateStageOutput() {
+            const resultDiv = document.getElementById('result1');
+            const responseDiv = document.getElementById('response1');
+            
+            try {
+                resultDiv.innerHTML = '<div class="warning">⏳ Testing update stage output via webhook...</div>';
+                
+                const result = await api.updateStageOutput(
+                    11, // orderId
+                    'xa', // stage
+                    1000, // outputQuantity
+                    950, // goodQuantity
+                    50, // ngQuantity
+                    'Webhook Test Worker', // workerName
+                    'Test update via webhook n8n' // notes
+                );
+                
+                resultDiv.innerHTML = `<div class="success">✅ Update Stage Output Success via Webhook!</div>`;
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                responseDiv.textContent = error.stack;
+            }
+        }
+
+        // Test 2: Handover to Next Stage
+        async function testHandoverToNextStage() {
+            const resultDiv = document.getElementById('result2');
+            const responseDiv = document.getElementById('response2');
+            
+            try {
+                resultDiv.innerHTML = '<div class="warning">⏳ Testing handover via webhook...</div>';
+                
+                const result = await api.handoverToNextStage(
+                    11, // orderId
+                    'xa', // currentStage
+                    950, // handoverQuantity
+                    'Webhook Test Handover Person', // handoverPerson
+                    'Webhook Test Receiver', // receiverPerson
+                    'Test handover via webhook n8n' // notes
+                );
+                
+                resultDiv.innerHTML = `<div class="success">✅ Handover Success via Webhook!</div>`;
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                responseDiv.textContent = error.stack;
+            }
+        }
+
+        // Test 3: Complete and Handover
+        async function testCompleteAndHandover() {
+            const resultDiv = document.getElementById('result3');
+            const responseDiv = document.getElementById('response3');
+            
+            try {
+                resultDiv.innerHTML = '<div class="warning">⏳ Testing complete and handover via webhook...</div>';
+                
+                const completionData = {
+                    outputQuantity: 1000,
+                    goodQuantity: 950,
+                    ngQuantity: 50,
+                    workerName: 'Webhook Complete Test Worker',
+                    notes: 'Complete test via webhook n8n',
+                    handoverQuantity: 950,
+                    handoverPerson: 'Webhook Complete Handover Person',
+                    receiverPerson: 'Webhook Complete Receiver',
+                    handoverNotes: 'Complete and handover test via webhook n8n'
+                };
+                
+                const result = await api.completeXaAndHandoverToXen(11, completionData);
+                
+                resultDiv.innerHTML = `<div class="success">✅ Complete & Handover Success via Webhook!</div>`;
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                responseDiv.textContent = error.stack;
+            }
+        }
+
+        // Test 4: Sync Pending Data
+        async function testSyncPendingData() {
+            const resultDiv = document.getElementById('result4');
+            const responseDiv = document.getElementById('response4');
+            
+            try {
+                resultDiv.innerHTML = '<div class="warning">⏳ Testing sync pending data...</div>';
+                
+                // First create some pending data
+                api.saveToLocalStorage('test_action', {
+                    test: 'pending data',
+                    created_at: new Date().toISOString()
+                });
+                
+                // Then sync it
+                await api.syncPendingData();
+                
+                resultDiv.innerHTML = `<div class="success">✅ Sync Pending Data Success!</div>`;
+                responseDiv.textContent = 'Pending data synced successfully';
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                responseDiv.textContent = error.stack;
+            }
+        }
+
+        // Test 5: Load Orders (Read-only)
+        async function testLoadOrders() {
+            const resultDiv = document.getElementById('result5');
+            const responseDiv = document.getElementById('response5');
+            
+            try {
+                resultDiv.innerHTML = '<div class="warning">⏳ Testing load orders (read-only)...</div>';
+                
+                const orders = await api.getOrdersByStage('xa');
+                
+                resultDiv.innerHTML = `<div class="success">✅ Loaded ${orders.length} orders (read-only mode)</div>`;
+                responseDiv.textContent = JSON.stringify(orders, null, 2);
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                responseDiv.textContent = error.stack;
+            }
+        }
+
+        // Test 6: Simulate Network Failure
+        async function testNetworkFailure() {
+            const resultDiv = document.getElementById('result6');
+            const responseDiv = document.getElementById('response6');
+            
+            try {
+                resultDiv.innerHTML = '<div class="warning">⏳ Testing network failure fallback...</div>';
+                
+                // Temporarily break the webhook URL
+                const originalURL = api.webhookURL;
+                api.webhookURL = 'https://invalid-webhook-url.com/webhook';
+                
+                const result = await api.updateStageOutput(
+                    11,
+                    'xa',
+                    100,
+                    90,
+                    10,
+                    'Network Failure Test',
+                    'Testing fallback mechanism'
+                );
+                
+                // Restore original URL
+                api.webhookURL = originalURL;
+                
+                resultDiv.innerHTML = `<div class="success">✅ Network Failure Handled Successfully!</div>`;
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                responseDiv.textContent = error.stack;
+            }
+        }
+
+        // Auto-run basic test on page load
+        window.addEventListener('load', function() {
+            console.log('=== Webhook n8n Integration Test Loaded ===');
+            console.log('Webhook URL:', api.webhookURL);
+            console.log('Backup URL:', api.backupWebhookURL);
+            
+            // Show current config
+            const configInfo = {
+                primary_webhook: api.webhookURL,
+                backup_webhook: api.backupWebhookURL,
+                local_storage_pending: localStorage.getItem('pending_webhooks'),
+                fallback_data_count: api.fallbackData.length
+            };
+            
+            console.log('Current Configuration:', configInfo);
+        });
+    </script>
+</body>
+</html>

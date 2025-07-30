@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Stage Handover APIs</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    .api-test-section {
+      border: 1px solid #dee2e6;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .response-box {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 0.375rem;
+      padding: 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.875rem;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .success {
+      color: #198754;
+    }
+    
+    .error {
+      color: #dc3545;
+    }
+    
+    .loading {
+      color: #0d6efd;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid py-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h1><i class="bi bi-api me-2"></i>Test Stage Handover APIs</h1>
+          <div>
+            <button class="btn btn-primary" onclick="testAllAPIs()">
+              <i class="bi bi-play-circle me-1"></i>Test All APIs
+            </button>
+            <button class="btn btn-secondary" onclick="clearAllResponses()">
+              <i class="bi bi-trash me-1"></i>Clear All
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <!-- GET Stage Handovers -->
+      <div class="col-md-6">
+        <div class="api-test-section">
+          <h5><i class="bi bi-list me-2"></i>GET Stage Handovers</h5>
+          <p class="text-muted">Lấy danh sách bàn giao công đoạn</p>
+          
+          <div class="mb-3">
+            <label class="form-label">Filters:</label>
+            <div class="row">
+              <div class="col-md-6">
+                <select class="form-select" id="filterStage">
+                  <option value="">All Stages</option>
+                  <option value="xa">XẢ</option>
+                  <option value="xen">XÉN</option>
+                  <option value="in">IN</option>
+                  <option value="boi">BỒI</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <input type="date" class="form-control" id="filterDate" placeholder="Handover Date">
+              </div>
+            </div>
+          </div>
+          
+          <button class="btn btn-success" onclick="testGetStageHandovers()">
+            <i class="bi bi-download me-1"></i>Test GET
+          </button>
+          
+          <div class="mt-3">
+            <label class="form-label">Response:</label>
+            <div id="getHandoversResponse" class="response-box">Chưa thực hiện...</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- POST Create Handover -->
+      <div class="col-md-6">
+        <div class="api-test-section">
+          <h5><i class="bi bi-plus-circle me-2"></i>POST Create Handover</h5>
+          <p class="text-muted">Tạo bàn giao công đoạn mới</p>
+          
+          <div class="mb-3">
+            <label class="form-label">Test Data:</label>
+            <textarea class="form-control" id="createHandoverData" rows="8">{
+  "production_order_id": 1,
+  "stage": "xa",
+  "to_stage": "xen",
+  "handover_quantity": 1000,
+  "good_quantity": 950,
+  "ng_quantity": 30,
+  "ng_start_end_quantity": 10,
+  "return_quantity": 10,
+  "handover_shift": "Ca 1",
+  "handover_machine": "Máy xả 1",
+  "handover_person": "Nguyễn Văn A",
+  "receiver_person": "Trần Văn B",
+  "handover_notes": "Test bàn giao từ API",
+  "worker": "Nguyễn Văn A"
+}</textarea>
+          </div>
+          
+          <button class="btn btn-primary" onclick="testCreateStageHandover()">
+            <i class="bi bi-upload me-1"></i>Test POST
+          </button>
+          
+          <div class="mt-3">
+            <label class="form-label">Response:</label>
+            <div id="createHandoverResponse" class="response-box">Chưa thực hiện...</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Complete and Handover Stage -->
+      <div class="col-md-6">
+        <div class="api-test-section">
+          <h5><i class="bi bi-check-circle me-2"></i>Complete and Handover Stage</h5>
+          <p class="text-muted">API đặc biệt: Hoàn thành và bàn giao công đoạn</p>
+          
+          <div class="mb-3">
+            <label class="form-label">Test Data:</label>
+            <textarea class="form-control" id="completeHandoverData" rows="8">{
+  "production_order_id": 1,
+  "stage": "xen",
+  "to_stage": "in",
+  "good_quantity": 920,
+  "ng_quantity": 20,
+  "ng_start_end_quantity": 5,
+  "return_quantity": 5,
+  "handover_quantity": 920,
+  "handover_person": "Trần Văn B",
+  "receiver_person": "Lê Văn C",
+  "machine": "Máy xén 1",
+  "worker": "Trần Văn B",
+  "shift": "Ca 2",
+  "handover_notes": "Bàn giao cho công đoạn IN",
+  "stage_notes": "Hoàn thành xén theo kích thước"
+}</textarea>
+          </div>
+          
+          <button class="btn btn-warning" onclick="testCompleteAndHandover()">
+            <i class="bi bi-arrow-right-circle me-1"></i>Test Complete & Handover
+          </button>
+          
+          <div class="mt-3">
+            <label class="form-label">Response:</label>
+            <div id="completeHandoverResponse" class="response-box">Chưa thực hiện...</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- GET Stats -->
+      <div class="col-md-6">
+        <div class="api-test-section">
+          <h5><i class="bi bi-graph-up me-2"></i>GET Handover Stats</h5>
+          <p class="text-muted">Lấy thống kê bàn giao theo công đoạn</p>
+          
+          <button class="btn btn-info" onclick="testGetHandoverStats()">
+            <i class="bi bi-bar-chart me-1"></i>Test GET Stats
+          </button>
+          
+          <div class="mt-3">
+            <label class="form-label">Response:</label>
+            <div id="getStatsResponse" class="response-box">Chưa thực hiện...</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Database Status -->
+      <div class="col-12">
+        <div class="api-test-section">
+          <h5><i class="bi bi-database me-2"></i>Database & Server Status</h5>
+          <p class="text-muted">Kiểm tra kết nối database và server</p>
+          
+          <div class="row">
+            <div class="col-md-4">
+              <button class="btn btn-outline-primary w-100" onclick="checkServerStatus()">
+                <i class="bi bi-server me-1"></i>Check Server
+              </button>
+            </div>
+            <div class="col-md-4">
+              <button class="btn btn-outline-success w-100" onclick="checkProductionOrders()">
+                <i class="bi bi-clipboard-data me-1"></i>Check Production Orders
+              </button>
+            </div>
+            <div class="col-md-4">
+              <button class="btn btn-outline-info w-100" onclick="checkStageHandoversTable()">
+                <i class="bi bi-table me-1"></i>Check Handovers Table
+              </button>
+            </div>
+          </div>
+          
+          <div class="mt-3">
+            <label class="form-label">Status:</label>
+            <div id="statusResponse" class="response-box">Server: Not checked | Database: Not checked | Table: Not checked</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Include Production API -->
+  <script src="production-orders-api.js"></script>
+
+  <script>
+    // Set default date to today
+    document.getElementById('filterDate').value = new Date().toISOString().split('T')[0];
+
+    // Utility functions
+    function updateResponse(elementId, data, isError = false) {
+      const element = document.getElementById(elementId);
+      const timestamp = new Date().toLocaleTimeString();
+      const status = isError ? 'error' : 'success';
+      
+      element.innerHTML = `<span class="${status}">[${timestamp}]</span> ` + 
+                         (typeof data === 'object' ? JSON.stringify(data, null, 2) : data);
+    }
+
+    function showLoading(elementId) {
+      const element = document.getElementById(elementId);
+      element.innerHTML = '<span class="loading">Loading...</span>';
+    }
+
+    // Test GET Stage Handovers
+    async function testGetStageHandovers() {
+      showLoading('getHandoversResponse');
+      
+      try {
+        const filters = {};
+        const stage = document.getElementById('filterStage').value;
+        const date = document.getElementById('filterDate').value;
+        
+        if (stage) filters.stage = stage;
+        if (date) filters.handover_date = date;
+        
+        const result = await window.ProductionAPI.getStageHandovers(filters);
+        updateResponse('getHandoversResponse', {
+          message: 'Success',
+          count: result.length,
+          data: result
+        });
+      } catch (error) {
+        updateResponse('getHandoversResponse', `Error: ${error.message}`, true);
+      }
+    }
+
+    // Test CREATE Stage Handover
+    async function testCreateStageHandover() {
+      showLoading('createHandoverResponse');
+      
+      try {
+        const dataText = document.getElementById('createHandoverData').value;
+        const data = JSON.parse(dataText);
+        
+        const result = await window.ProductionAPI.saveStageHandover(data, false);
+        updateResponse('createHandoverResponse', {
+          message: 'Created successfully',
+          result: result
+        });
+      } catch (error) {
+        updateResponse('createHandoverResponse', `Error: ${error.message}`, true);
+      }
+    }
+
+    // Test Complete and Handover
+    async function testCompleteAndHandover() {
+      showLoading('completeHandoverResponse');
+      
+      try {
+        const dataText = document.getElementById('completeHandoverData').value;
+        const data = JSON.parse(dataText);
+        
+        const result = await window.ProductionAPI.completeAndHandoverStage(data);
+        updateResponse('completeHandoverResponse', {
+          message: 'Completed and handover successfully',
+          result: result
+        });
+      } catch (error) {
+        updateResponse('completeHandoverResponse', `Error: ${error.message}`, true);
+      }
+    }
+
+    // Test GET Handover Stats
+    async function testGetHandoverStats() {
+      showLoading('getStatsResponse');
+      
+      try {
+        const result = await window.ProductionAPI.getStageHandoversStats();
+        updateResponse('getStatsResponse', {
+          message: 'Stats retrieved successfully',
+          data: result
+        });
+      } catch (error) {
+        updateResponse('getStatsResponse', `Error: ${error.message}`, true);
+      }
+    }
+
+    // Check Server Status
+    async function checkServerStatus() {
+      try {
+        const response = await fetch(window.ProductionAPI.API_BASE_URL);
+        const result = await response.text();
+        updateStatus('server', 'Online: ' + result);
+      } catch (error) {
+        updateStatus('server', 'Offline: ' + error.message);
+      }
+    }
+
+    // Check Production Orders
+    async function checkProductionOrders() {
+      try {
+        const result = await window.ProductionAPI.getOrders({ limit: 1 });
+        updateStatus('database', `Connected: ${result.length} orders found`);
+      } catch (error) {
+        updateStatus('database', 'Error: ' + error.message);
+      }
+    }
+
+    // Check Stage Handovers Table
+    async function checkStageHandoversTable() {
+      try {
+        const result = await window.ProductionAPI.getStageHandovers({ limit: 1 });
+        updateStatus('table', `Table exists: ${result.length} handovers found`);
+      } catch (error) {
+        updateStatus('table', 'Error: ' + error.message);
+      }
+    }
+
+    function updateStatus(type, message) {
+      const element = document.getElementById('statusResponse');
+      const current = element.textContent;
+      const patterns = {
+        server: /Server: [^|]*/,
+        database: /Database: [^|]*/,
+        table: /Table: [^|]*/
+      };
+      
+      const newText = current.replace(patterns[type], `${type.charAt(0).toUpperCase() + type.slice(1)}: ${message}`);
+      element.textContent = newText;
+    }
+
+    // Test All APIs
+    async function testAllAPIs() {
+      console.log('Testing all APIs...');
+      
+      // Test in sequence to avoid overwhelming the server
+      await checkServerStatus();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await checkProductionOrders();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await checkStageHandoversTable();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await testGetStageHandovers();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await testGetHandoverStats();
+      
+      console.log('All API tests completed!');
+    }
+
+    // Clear All Responses
+    function clearAllResponses() {
+      const responseBoxes = document.querySelectorAll('.response-box');
+      responseBoxes.forEach(box => {
+        if (box.id === 'statusResponse') {
+          box.textContent = 'Server: Not checked | Database: Not checked | Table: Not checked';
+        } else {
+          box.textContent = 'Chưa thực hiện...';
+        }
+      });
+    }
+
+    // Auto-check status on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Stage Handover API Test Page loaded');
+      console.log('Production API available:', !!window.ProductionAPI);
+      console.log('API Base URL:', window.ProductionAPI?.API_BASE_URL);
+    });
+  </script>
+</body>
+</html>

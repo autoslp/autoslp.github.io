@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Workflow Definition Database</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .action-buttons {
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-test {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-update {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-fallback {
+            background-color: #fd7e14;
+            color: white;
+        }
+        .btn-test:hover { background-color: #0056b3; }
+        .btn-update:hover { background-color: #1e7e34; }
+        .btn-fallback:hover { background-color: #e8630a; }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left-color: #dc3545;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left-color: #28a745;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .null-value {
+            color: #dc3545;
+            font-style: italic;
+        }
+        .has-value {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .log-container {
+            background-color: #1e1e1e;
+            color: #f1f1f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        .json-display {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Test Workflow Definition Database</h1>
+        
+        <div class="action-buttons">
+            <button class="btn-test" onclick="testWorkflowDefinition()">
+                🔍 Kiểm tra Workflow Definition
+            </button>
+            <button class="btn-update" onclick="updateWorkflowDefinition()">
+                ⚡ Cập nhật Test Workflows
+            </button>
+            <button class="btn-fallback" onclick="testFallbackAPI()">
+                🔄 Test API với Fallback
+            </button>
+        </div>
+
+        <div id="results"></div>
+        <div id="logs" class="log-container" style="display: none;">
+            <strong>📋 Debug Logs:</strong><br>
+            <div id="logContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://autoslp.duckdns.org/api';
+        
+        function log(message) {
+            const logContainer = document.getElementById('logs');
+            const logContent = document.getElementById('logContent');
+            logContainer.style.display = 'block';
+            
+            const timestamp = new Date().toLocaleTimeString();
+            logContent.innerHTML += `[${timestamp}] ${message}<br>`;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('logContent').innerHTML = '';
+            document.getElementById('logs').style.display = 'none';
+        }
+
+        function showResults(content, isError = false) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.className = `results ${isError ? 'error' : 'success'}`;
+            resultsDiv.innerHTML = content;
+        }
+
+        async function testWorkflowDefinition() {
+            clearLogs();
+            log('Đang kiểm tra workflow_definition trong database...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/test/workflow_definition`);
+                const data = await response.json();
+                
+                log(`Response status: ${response.status}`);
+                log(`Tổng số records: ${data.total_rows}`);
+                log(`Số records có workflow_definition null: ${data.null_workflow_count}`);
+                
+                let html = `
+                    <h3>📊 Kết quả kiểm tra Workflow Definition</h3>
+                    <p><strong>Tổng số orders:</strong> ${data.total_rows}</p>
+                    <p><strong>Orders có workflow_definition null:</strong> ${data.null_workflow_count}</p>
+                    <p><strong>Orders có workflow_definition:</strong> ${data.total_rows - data.null_workflow_count}</p>
+                `;
+                
+                if (data.results && data.results.length > 0) {
+                    html += `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Production Order</th>
+                                    <th>Workflow Definition</th>
+                                    <th>Work Stage</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    
+                    data.results.forEach(row => {
+                        const workflowStatus = row.workflow_definition ? 
+                            `<span class="has-value">${row.workflow_definition}</span>` : 
+                            `<span class="null-value">NULL</span>`;
+                        
+                        html += `
+                            <tr>
+                                <td>${row.id}</td>
+                                <td>${row.production_order}</td>
+                                <td>${workflowStatus}</td>
+                                <td>${row.work_stage || 'N/A'}</td>
+                                <td>${row.workflow_definition ? '✅ Có data' : '❌ Thiếu data'}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += `</tbody></table>`;
+                }
+                
+                html += `<div class="json-display">${JSON.stringify(data, null, 2)}</div>`;
+                showResults(html);
+                
+            } catch (error) {
+                log(`Error: ${error.message}`);
+                showResults(`❌ Lỗi kiểm tra database: ${error.message}`, true);
+            }
+        }
+
+        async function updateWorkflowDefinition() {
+            clearLogs();
+            log('Đang cập nhật workflow_definition cho test orders...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/test/update_workflow`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                log(`Response status: ${response.status}`);
+                log(`Tổng số updates: ${data.total_updates}`);
+                log(`Successful updates: ${data.successful_updates}`);
+                
+                let html = `
+                    <h3>⚡ Kết quả cập nhật Workflow Definition</h3>
+                    <p><strong>Tổng số orders được cập nhật:</strong> ${data.total_updates}</p>
+                    <p><strong>Cập nhật thành công:</strong> ${data.successful_updates}</p>
+                    <p><strong>Lỗi:</strong> ${data.errors ? data.errors.length : 0}</p>
+                `;
+                
+                if (data.updated_orders && data.updated_orders.length > 0) {
+                    html += `
+                        <h4>📋 Danh sách orders đã cập nhật:</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Workflow Definition</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    
+                    data.updated_orders.forEach(order => {
+                        const isError = data.errors && data.errors.find(e => e.id === order.id);
+                        html += `
+                            <tr>
+                                <td>${order.id}</td>
+                                <td>${order.workflow}</td>
+                                <td>${isError ? '❌ Lỗi' : '✅ Thành công'}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += `</tbody></table>`;
+                }
+                
+                if (data.errors && data.errors.length > 0) {
+                    html += `
+                        <h4>❌ Danh sách lỗi:</h4>
+                        <ul>
+                    `;
+                    data.errors.forEach(error => {
+                        html += `<li>Order ID ${error.id}: ${error.error}</li>`;
+                    });
+                    html += `</ul>`;
+                }
+                
+                html += `<div class="json-display">${JSON.stringify(data, null, 2)}</div>`;
+                showResults(html, data.errors && data.errors.length > 0);
+                
+            } catch (error) {
+                log(`Error: ${error.message}`);
+                showResults(`❌ Lỗi cập nhật database: ${error.message}`, true);
+            }
+        }
+
+        async function testFallbackAPI() {
+            clearLogs();
+            log('Đang test API với fallback workflow...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/data/production_orders_with_fallback`);
+                const data = await response.json();
+                
+                log(`Response status: ${response.status}`);
+                log(`Tổng số orders: ${data.length}`);
+                
+                const fallbackCount = data.filter(order => order.is_fallback_workflow).length;
+                const realCount = data.length - fallbackCount;
+                
+                log(`Orders có workflow thật: ${realCount}`);
+                log(`Orders dùng fallback: ${fallbackCount}`);
+                
+                let html = `
+                    <h3>🔄 Kết quả Test API với Fallback</h3>
+                    <p><strong>Tổng số orders:</strong> ${data.length}</p>
+                    <p><strong>Orders có workflow thật:</strong> ${realCount}</p>
+                    <p><strong>Orders dùng fallback:</strong> ${fallbackCount}</p>
+                `;
+                
+                if (data.length > 0) {
+                    html += `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Production Order</th>
+                                    <th>Workflow Definition</th>
+                                    <th>Work Stage</th>
+                                    <th>Source</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    
+                    data.slice(0, 10).forEach(order => { // Chỉ hiển thị 10 orders đầu
+                        const source = order.is_fallback_workflow ? 
+                            '<span style="color: #fd7e14;">📝 Fallback</span>' : 
+                            '<span style="color: #28a745;">💾 Database</span>';
+                        
+                        html += `
+                            <tr>
+                                <td>${order.id}</td>
+                                <td>${order.production_order}</td>
+                                <td><span class="has-value">${order.workflow_definition}</span></td>
+                                <td>${order.work_stage || 'N/A'}</td>
+                                <td>${source}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += `</tbody></table>`;
+                    
+                    if (data.length > 10) {
+                        html += `<p><em>... và ${data.length - 10} orders khác</em></p>`;
+                    }
+                }
+                
+                html += `<div class="json-display">${JSON.stringify(data.slice(0, 3), null, 2)}</div>`;
+                showResults(html);
+                
+            } catch (error) {
+                log(`Error: ${error.message}`);
+                showResults(`❌ Lỗi test fallback API: ${error.message}`, true);
+            }
+        }
+
+        // Auto-run test khi load trang
+        window.onload = function() {
+            log('Page loaded - Ready for testing');
+        };
+    </script>
+</body>
+</html>

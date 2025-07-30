@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test All API Endpoints</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .endpoint-test { margin: 15px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        .code { background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-4">
+        <h1>🔍 Test All API Endpoints</h1>
+        <p class="text-muted">Kiểm tra tất cả các endpoints để đảm bảo URL đúng</p>
+        
+        <button class="btn btn-primary mb-3" onclick="testAllEndpoints()">🚀 Test All Endpoints</button>
+        <button class="btn btn-secondary mb-3" onclick="clearResults()">🗑️ Clear Results</button>
+        
+        <div id="testResults"></div>
+        
+        <hr>
+        <h3>📋 Expected Endpoints:</h3>
+        <div class="code">
+            ✅ GET https://autoslp.duckdns.org/data/production_orders?current_stage=xa<br>
+            ✅ GET https://autoslp.duckdns.org/data/production_orders/1<br>
+            ✅ POST https://autoslp.duckdns.org/api/handover_to_next_stage<br>
+            ✅ PUT https://autoslp.duckdns.org/api/production_orders/1/stage_output
+        </div>
+    </div>
+
+    <script src="simple-production-api.js"></script>
+    <script>
+        async function testAllEndpoints() {
+            const resultsContainer = document.getElementById('testResults');
+            resultsContainer.innerHTML = '<h3>🧪 Testing Results:</h3>';
+            
+            const tests = [
+                {
+                    name: 'GET Orders by Stage (XẢ)',
+                    test: () => window.SimpleAPI.getOrdersByStage('xa'),
+                    description: 'Test loading orders for XẢ stage'
+                },
+                {
+                    name: 'GET Order Details',
+                    test: () => window.SimpleAPI.getOrderDetails(1),
+                    description: 'Test getting details for order ID 1'
+                },
+                {
+                    name: 'POST Handover XẢ → XÉN',
+                    test: () => window.SimpleAPI.handoverXaToXen(1, 100, 'Test Person', 'Receiver', 'Test handover'),
+                    description: 'Test handover from XẢ to XÉN'
+                },
+                {
+                    name: 'PUT Update Stage Output',
+                    test: () => window.SimpleAPI.updateStageOutput(1, 'xa', 100, 90, 10, 'Test Worker', 'Test completion'),
+                    description: 'Test updating stage output'
+                },
+                {
+                    name: 'Complete XẢ and Handover to XÉN',
+                    test: () => window.SimpleAPI.completeXaAndHandoverToXen(1, {
+                        outputQuantity: 100,
+                        goodQuantity: 90,
+                        ngQuantity: 10,
+                        workerName: 'Test Worker',
+                        notes: 'Test completion',
+                        handoverQuantity: 90,
+                        handoverPerson: 'Test Person',
+                        receiverPerson: 'Receiver',
+                        handoverNotes: 'Test handover'
+                    }),
+                    description: 'Test complete workflow: complete stage + handover'
+                }
+            ];
+            
+            for (let i = 0; i < tests.length; i++) {
+                const test = tests[i];
+                const testDiv = document.createElement('div');
+                testDiv.className = 'endpoint-test';
+                
+                testDiv.innerHTML = `
+                    <h5>${i + 1}. ${test.name}</h5>
+                    <p class="text-muted">${test.description}</p>
+                    <div class="test-status">⏳ Testing...</div>
+                `;
+                
+                resultsContainer.appendChild(testDiv);
+                
+                try {
+                    console.log(`\n=== Testing: ${test.name} ===`);
+                    const startTime = Date.now();
+                    const result = await test.test();
+                    const endTime = Date.now();
+                    
+                    testDiv.className = 'endpoint-test success';
+                    testDiv.querySelector('.test-status').innerHTML = `
+                        ✅ <strong>SUCCESS</strong> (${endTime - startTime}ms)<br>
+                        <small>Result: ${JSON.stringify(result).substring(0, 100)}${JSON.stringify(result).length > 100 ? '...' : ''}</small>
+                    `;
+                    
+                } catch (error) {
+                    console.error(`Error in ${test.name}:`, error);
+                    
+                    // Kiểm tra xem có phải simulation không
+                    if (error.message && error.message.includes('mô phỏng')) {
+                        testDiv.className = 'endpoint-test warning';
+                        testDiv.querySelector('.test-status').innerHTML = `
+                            ⚠️ <strong>SIMULATED</strong><br>
+                            <small>Server không khả dụng, đã chuyển sang chế độ mô phỏng</small>
+                        `;
+                    } else {
+                        testDiv.className = 'endpoint-test error';
+                        testDiv.querySelector('.test-status').innerHTML = `
+                            ❌ <strong>ERROR</strong><br>
+                            <small>${error.message}</small>
+                        `;
+                    }
+                }
+                
+                // Thêm delay giữa các test
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            // Tổng kết
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = 'endpoint-test';
+            summaryDiv.style.marginTop = '20px';
+            summaryDiv.style.background = '#e9ecef';
+            
+            const successCount = resultsContainer.querySelectorAll('.success').length;
+            const warningCount = resultsContainer.querySelectorAll('.warning').length;
+            const errorCount = resultsContainer.querySelectorAll('.error').length;
+            
+            summaryDiv.innerHTML = `
+                <h5>📊 Test Summary</h5>
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <div class="text-success">
+                            <h3>${successCount}</h3>
+                            <small>Successful</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-warning">
+                            <h3>${warningCount}</h3>
+                            <small>Simulated</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-danger">
+                            <h3>${errorCount}</h3>
+                            <small>Failed</small>
+                        </div>
+                    </div>
+                </div>
+                <p class="mt-2 mb-0">
+                    ${successCount > 0 ? '✅ Real server endpoints working properly' : ''}
+                    ${warningCount > 0 ? '⚠️ Fallback simulation active (server offline)' : ''}
+                    ${errorCount > 0 ? '❌ Some endpoints have issues' : ''}
+                </p>
+            `;
+            
+            resultsContainer.appendChild(summaryDiv);
+        }
+        
+        function clearResults() {
+            document.getElementById('testResults').innerHTML = '';
+        }
+        
+        // Auto test on load
+        setTimeout(() => {
+            console.log('API Base URL:', window.SimpleAPI.baseURL);
+            console.log('Starting endpoint tests in 2 seconds...');
+            setTimeout(testAllEndpoints, 2000);
+        }, 1000);
+    </script>
+</body>
+</html>

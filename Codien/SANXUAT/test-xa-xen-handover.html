@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Bàn Giao XẢ → XÉN</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .order-card { border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 8px; }
+        .completed { background-color: #e8f5e8; }
+        .pending { background-color: #fff8e1; }
+        .stage-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.85em; }
+        .stage-xa { background-color: #e3f2fd; color: #1976d2; }
+        .stage-xen { background-color: #f3e5f5; color: #7b1fa2; }
+        .quantity-info { display: flex; gap: 15px; margin: 10px 0; }
+        .quantity-item { text-align: center; }
+        .quantity-number { font-size: 1.2em; font-weight: bold; }
+        .quantity-label { font-size: 0.9em; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <h1><i class="bi bi-arrow-right-circle"></i> Test Bàn Giao: XẢ → XÉN</h1>
+        
+        <div class="row">
+            <!-- Cột trái: Danh sách lệnh XẢ -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5><i class="bi bi-scissors"></i> Công đoạn XẢ</h5>
+                        <small>Danh sách lệnh đang chờ xử lý</small>
+                    </div>
+                    <div class="card-body" id="xaOrders">
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Đang tải...</span>
+                            </div>
+                            <p>Đang tải dữ liệu...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cột phải: Lịch sử bàn giao -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5><i class="bi bi-check-circle"></i> Lịch sử bàn giao</h5>
+                        <small>Các lệnh đã được bàn giao sang XÉN</small>
+                    </div>
+                    <div class="card-body" id="handoverHistory">
+                        <p class="text-muted">Chưa có lệnh nào được bàn giao hôm nay</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Thống kê -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h6><i class="bi bi-graph-up"></i> Thống kê hôm nay</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <div class="quantity-item">
+                                    <div class="quantity-number text-primary" id="totalOrders">0</div>
+                                    <div class="quantity-label">Tổng lệnh</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="quantity-item">
+                                    <div class="quantity-number text-warning" id="pendingOrders">0</div>
+                                    <div class="quantity-label">Chờ xử lý</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="quantity-item">
+                                    <div class="quantity-number text-success" id="completedOrders">0</div>
+                                    <div class="quantity-label">Đã hoàn thành</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="quantity-item">
+                                    <div class="quantity-number text-info" id="handedOverOrders">0</div>
+                                    <div class="quantity-label">Đã bàn giao</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Bàn giao -->
+    <div class="modal fade" id="handoverModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title"><i class="bi bi-arrow-right"></i> Bàn giao từ XẢ sang XÉN</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <strong>Lệnh sản xuất:</strong> <span id="modalOrderCode"></span><br>
+                        <strong>Sản phẩm:</strong> <span id="modalProductName"></span><br>
+                        <strong>Số lượng hoàn thành:</strong> <span id="modalCompletedQty"></span>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <label class="form-label">Số lượng bàn giao:</label>
+                        <input type="number" class="form-control" id="handoverQuantity" min="1">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Người bàn giao:</label>
+                        <input type="text" class="form-control" id="handoverPerson" placeholder="Tên người bàn giao">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Người nhận (XÉN):</label>
+                        <input type="text" class="form-control" id="receiverPerson" placeholder="Tên người nhận">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ghi chú:</label>
+                        <textarea class="form-control" id="handoverNotes" rows="2" placeholder="Ghi chú về chất lượng, lưu ý đặc biệt..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-warning" onclick="executeHandover()">
+                        <i class="bi bi-check"></i> Xác nhận bàn giao
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Hoàn thành và Bàn giao -->
+    <div class="modal fade" id="completeHandoverModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="bi bi-check-all"></i> Hoàn thành XẢ và Bàn giao sang XÉN</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <strong>Lệnh sản xuất:</strong> <span id="completeModalOrderCode"></span><br>
+                        <strong>Sản phẩm:</strong> <span id="completeModalProductName"></span><br>
+                        <strong>Số lượng đầu vào:</strong> <span id="completeModalInputQty"></span>
+                    </div>
+                    <hr>
+                    
+                    <h6>📊 Kết quả công đoạn XẢ:</h6>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Số lượng đạt (OK):</label>
+                            <input type="number" class="form-control" id="completeGoodQty" min="0" oninput="updateHandoverQty()">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Số lượng lỗi (NG):</label>
+                            <input type="number" class="form-control" id="completeNgQty" min="0">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Thợ thực hiện:</label>
+                            <input type="text" class="form-control" id="completeWorker" placeholder="Tên thợ">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Máy sử dụng:</label>
+                            <select class="form-control" id="completeMachine">
+                                <option value="Xả 1">Xả 1</option>
+                                <option value="Xả 2">Xả 2</option>
+                                <option value="Xả 3">Xả 3</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ghi chú XẢ:</label>
+                        <textarea class="form-control" id="completeNotes" rows="2"></textarea>
+                    </div>
+                    
+                    <hr>
+                    <h6>🔄 Bàn giao sang XÉN:</h6>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Số lượng bàn giao:</label>
+                            <input type="number" class="form-control" id="completeHandoverQty" min="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Người nhận (XÉN):</label>
+                            <input type="text" class="form-control" id="completeReceiverPerson" placeholder="Tên người nhận">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ghi chú bàn giao:</label>
+                        <textarea class="form-control" id="completeHandoverNotes" rows="2" placeholder="Ghi chú về chất lượng, yêu cầu đặc biệt..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-success" onclick="executeCompleteAndHandover()">
+                        <i class="bi bi-check-all"></i> Hoàn thành và Bàn giao
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="simple-production-api.js"></script>
+    
+    <script>
+        let ordersData = [];
+        let handoverHistory = [];
+        let currentOrder = null;
+
+        // Khởi tạo trang
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+        });
+
+        // Load dữ liệu
+        async function loadData() {
+            try {
+                // Load orders từ công đoạn XẢ
+                ordersData = await window.SimpleAPI.getOrdersByStage('xa');
+                
+                // Render giao diện
+                renderXaOrders();
+                updateStatistics();
+                
+                console.log('Data loaded successfully:', ordersData.length, 'orders');
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                window.SimpleAPI.showNotification('Lỗi tải dữ liệu: ' + error.message, 'error');
+            }
+        }
+
+        // Render danh sách lệnh XẢ
+        function renderXaOrders() {
+            const container = document.getElementById('xaOrders');
+            
+            if (ordersData.length === 0) {
+                container.innerHTML = '<p class="text-muted">Không có lệnh nào đang chờ xử lý</p>';
+                return;
+            }
+            
+            container.innerHTML = ordersData.map(order => {
+                const status = order.xa_status || 'waiting';
+                const isCompleted = status === 'completed';
+                const goodQty = order.xa_good_quantity || 0;
+                const inputQty = order.xa_input_quantity || 0;
+                const progress = inputQty > 0 ? Math.round((goodQty / inputQty) * 100) : 0;
+                
+                return `
+                    <div class="order-card ${isCompleted ? 'completed' : 'pending'}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">
+                                    <strong>${order.production_order || order.order_code}</strong>
+                                    <span class="stage-badge stage-xa">XẢ</span>
+                                </h6>
+                                <p class="mb-2 text-truncate">${order.product_name}</p>
+                                <small class="text-muted">Khách hàng: ${order.customer_name}</small>
+                                
+                                <div class="quantity-info">
+                                    <div class="quantity-item">
+                                        <div class="quantity-number">${window.SimpleAPI.formatNumber(inputQty)}</div>
+                                        <div class="quantity-label">Kế hoạch</div>
+                                    </div>
+                                    <div class="quantity-item">
+                                        <div class="quantity-number text-success">${window.SimpleAPI.formatNumber(goodQty)}</div>
+                                        <div class="quantity-label">Đã hoàn thành</div>
+                                    </div>
+                                    <div class="quantity-item">
+                                        <div class="quantity-number text-danger">${window.SimpleAPI.formatNumber(order.xa_ng_quantity || 0)}</div>
+                                        <div class="quantity-label">NG</div>
+                                    </div>
+                                </div>
+                                
+                                ${goodQty > 0 ? `
+                                    <div class="progress mb-2" style="height: 6px;">
+                                        <div class="progress-bar bg-success" style="width: ${progress}%"></div>
+                                    </div>
+                                    <small class="text-muted">Tiến độ: ${progress}%</small>
+                                ` : ''}
+                            </div>
+                            
+                            <div class="text-end">
+                                ${isCompleted && goodQty > 0 ? `
+                                    <button class="btn btn-warning btn-sm mb-1" onclick="showHandoverModal(${order.id})">
+                                        <i class="bi bi-arrow-right"></i> Bàn giao
+                                    </button>
+                                ` : `
+                                    <button class="btn btn-success btn-sm mb-1" onclick="showCompleteHandoverModal(${order.id})">
+                                        <i class="bi bi-check-all"></i> Hoàn thành & Bàn giao
+                                    </button>
+                                `}
+                                <br>
+                                <small class="text-muted">${getStatusText(status)}</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Hiển thị modal bàn giao đơn giản
+        function showHandoverModal(orderId) {
+            const order = ordersData.find(o => o.id === orderId);
+            if (!order) return;
+            
+            currentOrder = order;
+            
+            document.getElementById('modalOrderCode').textContent = order.production_order || order.order_code;
+            document.getElementById('modalProductName').textContent = order.product_name;
+            document.getElementById('modalCompletedQty').textContent = window.SimpleAPI.formatNumber(order.xa_good_quantity);
+            document.getElementById('handoverQuantity').value = order.xa_good_quantity;
+            document.getElementById('handoverPerson').value = order.xa_worker_name || '';
+            
+            const modal = new bootstrap.Modal(document.getElementById('handoverModal'));
+            modal.show();
+        }
+
+        // Hiển thị modal hoàn thành và bàn giao
+        function showCompleteHandoverModal(orderId) {
+            const order = ordersData.find(o => o.id === orderId);
+            if (!order) return;
+            
+            currentOrder = order;
+            
+            document.getElementById('completeModalOrderCode').textContent = order.production_order || order.order_code;
+            document.getElementById('completeModalProductName').textContent = order.product_name;
+            document.getElementById('completeModalInputQty').textContent = window.SimpleAPI.formatNumber(order.xa_input_quantity);
+            document.getElementById('completeGoodQty').value = order.xa_good_quantity || 0;
+            document.getElementById('completeNgQty').value = order.xa_ng_quantity || 0;
+            document.getElementById('completeWorker').value = order.xa_worker_name || '';
+            document.getElementById('completeMachine').value = order.xa_machine_name || 'Xả 1';
+            document.getElementById('completeNotes').value = order.xa_note || '';
+            document.getElementById('completeHandoverQty').value = order.xa_good_quantity || 0;
+            
+            const modal = new bootstrap.Modal(document.getElementById('completeHandoverModal'));
+            modal.show();
+        }
+
+        // Cập nhật số lượng bàn giao khi thay đổi số lượng OK
+        function updateHandoverQty() {
+            const goodQty = parseInt(document.getElementById('completeGoodQty').value) || 0;
+            document.getElementById('completeHandoverQty').value = goodQty;
+        }
+
+        // Thực hiện bàn giao đơn giản
+        async function executeHandover() {
+            if (!currentOrder) return;
+            
+            const handoverQuantity = parseInt(document.getElementById('handoverQuantity').value);
+            const handoverPerson = document.getElementById('handoverPerson').value;
+            const receiverPerson = document.getElementById('receiverPerson').value;
+            const notes = document.getElementById('handoverNotes').value;
+            
+            if (!handoverQuantity || handoverQuantity <= 0) {
+                window.SimpleAPI.showNotification('Số lượng bàn giao phải lớn hơn 0', 'error');
+                return;
+            }
+            
+            try {
+                window.SimpleAPI.showLoading();
+                
+                const result = await window.SimpleAPI.handoverXaToXen(
+                    currentOrder.id,
+                    handoverQuantity,
+                    handoverPerson,
+                    receiverPerson,
+                    notes
+                );
+                
+                // Thêm vào lịch sử
+                handoverHistory.push({
+                    order: currentOrder,
+                    quantity: handoverQuantity,
+                    time: new Date(),
+                    person: handoverPerson,
+                    receiver: receiverPerson
+                });
+                
+                // Đóng modal và refresh
+                bootstrap.Modal.getInstance(document.getElementById('handoverModal')).hide();
+                await loadData();
+                
+            } catch (error) {
+                console.error('Error executing handover:', error);
+                window.SimpleAPI.showNotification('Lỗi bàn giao: ' + error.message, 'error');
+            } finally {
+                window.SimpleAPI.hideLoading();
+            }
+        }
+
+        // Thực hiện hoàn thành và bàn giao
+        async function executeCompleteAndHandover() {
+            if (!currentOrder) return;
+            
+            const goodQty = parseInt(document.getElementById('completeGoodQty').value) || 0;
+            const ngQty = parseInt(document.getElementById('completeNgQty').value) || 0;
+            const worker = document.getElementById('completeWorker').value;
+            const machine = document.getElementById('completeMachine').value;
+            const notes = document.getElementById('completeNotes').value;
+            const handoverQty = parseInt(document.getElementById('completeHandoverQty').value) || 0;
+            const receiverPerson = document.getElementById('completeReceiverPerson').value;
+            const handoverNotes = document.getElementById('completeHandoverNotes').value;
+            
+            if (goodQty + ngQty === 0) {
+                window.SimpleAPI.showNotification('Tổng số lượng phải lớn hơn 0', 'error');
+                return;
+            }
+            
+            if (handoverQty <= 0) {
+                window.SimpleAPI.showNotification('Số lượng bàn giao phải lớn hơn 0', 'error');
+                return;
+            }
+            
+            try {
+                window.SimpleAPI.showLoading();
+                
+                const result = await window.SimpleAPI.completeXaAndHandoverToXen(currentOrder.id, {
+                    outputQuantity: goodQty + ngQty,
+                    goodQuantity: goodQty,
+                    ngQuantity: ngQty,
+                    workerName: worker,
+                    notes: notes,
+                    handoverQuantity: handoverQty,
+                    handoverPerson: worker,
+                    receiverPerson: receiverPerson,
+                    handoverNotes: handoverNotes
+                });
+                
+                // Thêm vào lịch sử
+                handoverHistory.push({
+                    order: currentOrder,
+                    quantity: handoverQty,
+                    time: new Date(),
+                    person: worker,
+                    receiver: receiverPerson,
+                    completed: true
+                });
+                
+                // Đóng modal và refresh
+                bootstrap.Modal.getInstance(document.getElementById('completeHandoverModal')).hide();
+                await loadData();
+                
+            } catch (error) {
+                console.error('Error executing complete and handover:', error);
+                window.SimpleAPI.showNotification('Lỗi hoàn thành và bàn giao: ' + error.message, 'error');
+            } finally {
+                window.SimpleAPI.hideLoading();
+            }
+        }
+
+        // Cập nhật thống kê
+        function updateStatistics() {
+            const total = ordersData.length;
+            const pending = ordersData.filter(o => (o.xa_status || 'waiting') === 'waiting').length;
+            const completed = ordersData.filter(o => (o.xa_status || 'waiting') === 'completed').length;
+            const handedOver = handoverHistory.length;
+            
+            document.getElementById('totalOrders').textContent = total;
+            document.getElementById('pendingOrders').textContent = pending;
+            document.getElementById('completedOrders').textContent = completed;
+            document.getElementById('handedOverOrders').textContent = handedOver;
+        }
+
+        // Utility functions
+        function getStatusText(status) {
+            const statusMap = {
+                'waiting': 'Chờ xử lý',
+                'in_progress': 'Đang xử lý',
+                'completed': 'Hoàn thành',
+                'paused': 'Tạm dừng'
+            };
+            return statusMap[status] || 'Không xác định';
+        }
+        
+        // Làm mới dữ liệu
+        window.refreshData = loadData;
+    </script>
+</body>
+</html>

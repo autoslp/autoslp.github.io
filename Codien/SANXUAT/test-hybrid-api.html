@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Hybrid API - Đọc từ API, Gửi qua Webhook</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .test-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        .result-box {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .warning { color: #ffc107; }
+        .info { color: #17a2b8; }
+        .btn-group-custom {
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container my-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center mb-4">
+                    <i class="bi bi-gear-fill text-primary"></i> 
+                    Test Hybrid API System
+                </h1>
+                <p class="text-center text-muted mb-4">
+                    🔍 Đọc dữ liệu từ API (SQL Database) | 📤 Gửi dữ liệu qua Webhook n8n
+                </p>
+            </div>
+        </div>
+
+        <!-- Trạng thái kết nối -->
+        <div class="test-section">
+            <h3><i class="bi bi-wifi"></i> Trạng thái kết nối</h3>
+            <div class="d-flex gap-2 mb-3">
+                <button class="btn btn-outline-primary" onclick="checkAPIConnection()">
+                    <i class="bi bi-database"></i> Kiểm tra API
+                </button>
+                <button class="btn btn-outline-success" onclick="checkWebhookConnection()">
+                    <i class="bi bi-send"></i> Kiểm tra Webhook
+                </button>
+            </div>
+            <div id="connectionStatus" class="result-box"></div>
+        </div>
+
+        <!-- Test đọc dữ liệu từ API -->
+        <div class="test-section">
+            <h3><i class="bi bi-download"></i> Test Đọc Dữ Liệu từ API</h3>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <button class="btn btn-primary" onclick="testLoadOrdersByStage()">
+                    <i class="bi bi-list-ul"></i> Load Orders by Stage
+                </button>
+                <button class="btn btn-info" onclick="testGetOrderDetails()">
+                    <i class="bi bi-file-text"></i> Get Order Details
+                </button>
+                <select id="stageSelect" class="form-select" style="width: auto;">
+                    <option value="xa">XẢ</option>
+                    <option value="xen">XÉN</option>
+                    <option value="in_offset">IN OFFSET</option>
+                    <option value="kcs_in">KCS IN</option>
+                </select>
+                <input type="number" id="orderIdInput" class="form-control" placeholder="Order ID" value="1" style="width: 120px;">
+            </div>
+            <div id="readAPIResult" class="result-box"></div>
+        </div>
+
+        <!-- Test gửi dữ liệu qua Webhook -->
+        <div class="test-section">
+            <h3><i class="bi bi-upload"></i> Test Gửi Dữ Liệu qua Webhook</h3>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <button class="btn btn-success w-100 mb-2" onclick="testUpdateStageOutput()">
+                        <i class="bi bi-arrow-up-circle"></i> Update Stage Output
+                    </button>
+                    <button class="btn btn-warning w-100 mb-2" onclick="testHandoverToNextStage()">
+                        <i class="bi bi-arrow-right-circle"></i> Handover To Next Stage
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <button class="btn btn-danger w-100 mb-2" onclick="testCompleteAndHandover()">
+                        <i class="bi bi-check-circle"></i> Complete & Handover
+                    </button>
+                    <button class="btn btn-secondary w-100 mb-2" onclick="testSyncPendingData()">
+                        <i class="bi bi-arrow-repeat"></i> Sync Pending Data
+                    </button>
+                </div>
+            </div>
+            <div id="webhookResult" class="result-box"></div>
+        </div>
+
+        <!-- Test tích hợp workflow -->
+        <div class="test-section">
+            <h3><i class="bi bi-diagram-3"></i> Test Workflow Tích Hợp</h3>
+            <div class="d-flex gap-2 mb-3">
+                <button class="btn btn-lg btn-primary" onclick="testFullWorkflow()">
+                    <i class="bi bi-play-circle"></i> Test Full Workflow
+                </button>
+                <button class="btn btn-lg btn-outline-danger" onclick="testNetworkFailure()">
+                    <i class="bi bi-wifi-off"></i> Simulate Network Failure
+                </button>
+            </div>
+            <div id="workflowResult" class="result-box"></div>
+        </div>
+
+        <!-- Logs và Debug -->
+        <div class="test-section">
+            <h3><i class="bi bi-bug"></i> Debug Console</h3>
+            <div class="d-flex gap-2 mb-3">
+                <button class="btn btn-outline-secondary" onclick="clearDebugLog()">
+                    <i class="bi bi-trash"></i> Clear Log
+                </button>
+                <button class="btn btn-outline-info" onclick="exportDebugLog()">
+                    <i class="bi bi-download"></i> Export Log
+                </button>
+            </div>
+            <div id="debugLog" class="result-box" style="background-color: #1e1e1e; color: #fff; font-family: monospace; font-size: 12px;"></div>
+        </div>
+    </div>
+
+    <!-- Include Simple Production API -->
+    <script src="simple-production-api.js"></script>
+
+    <script>
+        // Debug logging
+        const originalConsoleLog = console.log;
+        const originalConsoleWarn = console.warn;
+        const originalConsoleError = console.error;
+
+        function logToDebug(message, type = 'log') {
+            const debugLog = document.getElementById('debugLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const colorClass = type === 'error' ? 'error' : type === 'warn' ? 'warning' : 'info';
+            debugLog.innerHTML += `<div class="${colorClass}">[${timestamp}] ${message}</div>`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            logToDebug(args.join(' '), 'log');
+        };
+
+        console.warn = function(...args) {
+            originalConsoleWarn.apply(console, args);
+            logToDebug(args.join(' '), 'warn');
+        };
+
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            logToDebug(args.join(' '), 'error');
+        };
+
+        // Helper function to display results
+        function displayResult(elementId, data, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const status = isSuccess ? 'success' : 'error';
+            const icon = isSuccess ? 'bi-check-circle-fill' : 'bi-x-circle-fill';
+            
+            element.innerHTML = `
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi ${icon} ${status} me-2"></i>
+                    <strong class="${status}">[${timestamp}] ${isSuccess ? 'SUCCESS' : 'ERROR'}</strong>
+                </div>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+        }
+
+        // Test connection functions
+        async function checkAPIConnection() {
+            try {
+                const isAvailable = await window.SimpleAPI.checkServerAvailability();
+                displayResult('connectionStatus', {
+                    api_status: isAvailable ? 'Connected' : 'Disconnected',
+                    api_url: window.SimpleAPI.baseURL,
+                    message: isAvailable ? 'API server đang hoạt động' : 'API server không khả dụng'
+                }, isAvailable);
+            } catch (error) {
+                displayResult('connectionStatus', { error: error.message }, false);
+            }
+        }
+
+        async function checkWebhookConnection() {
+            try {
+                const testPayload = {
+                    action: 'connection_test',
+                    timestamp: new Date().toISOString(),
+                    test_data: 'Hello webhook!'
+                };
+                
+                const response = await fetch(window.SimpleAPI.webhookURL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testPayload)
+                });
+                
+                displayResult('connectionStatus', {
+                    webhook_status: response.ok ? 'Connected' : 'Failed',
+                    webhook_url: window.SimpleAPI.webhookURL,
+                    status_code: response.status,
+                    message: response.ok ? 'Webhook n8n đang hoạt động' : 'Webhook n8n không khả dụng'
+                }, response.ok);
+            } catch (error) {
+                displayResult('connectionStatus', { 
+                    webhook_status: 'Error',
+                    error: error.message,
+                    message: 'Không thể kết nối webhook'
+                }, false);
+            }
+        }
+
+        // Test read functions
+        async function testLoadOrdersByStage() {
+            try {
+                const stage = document.getElementById('stageSelect').value;
+                const orders = await window.SimpleAPI.getOrdersByStage(stage);
+                displayResult('readAPIResult', {
+                    action: 'Load Orders by Stage',
+                    stage: stage,
+                    count: orders.length,
+                    orders: orders
+                }, true);
+            } catch (error) {
+                displayResult('readAPIResult', { error: error.message }, false);
+            }
+        }
+
+        async function testGetOrderDetails() {
+            try {
+                const orderId = document.getElementById('orderIdInput').value;
+                const order = await window.SimpleAPI.getOrderDetails(parseInt(orderId));
+                displayResult('readAPIResult', {
+                    action: 'Get Order Details',
+                    order_id: orderId,
+                    order: order
+                }, true);
+            } catch (error) {
+                displayResult('readAPIResult', { error: error.message }, false);
+            }
+        }
+
+        // Test webhook functions
+        async function testUpdateStageOutput() {
+            try {
+                const result = await window.SimpleAPI.updateStageOutput(
+                    1, // orderId
+                    'xa', // stage
+                    950, // outputQuantity
+                    930, // goodQuantity
+                    20, // ngQuantity
+                    'Nguyễn Văn A', // workerName
+                    'Test update từ hybrid API' // notes
+                );
+                displayResult('webhookResult', result, result.success);
+            } catch (error) {
+                displayResult('webhookResult', { error: error.message }, false);
+            }
+        }
+
+        async function testHandoverToNextStage() {
+            try {
+                const result = await window.SimpleAPI.handoverToNextStage(
+                    1, // orderId
+                    'xa', // currentStage
+                    900, // handoverQuantity
+                    'Nguyễn Văn A', // handoverPerson
+                    'Trần Thị B', // receiverPerson
+                    'Test handover từ hybrid API' // notes
+                );
+                displayResult('webhookResult', result, result.success);
+            } catch (error) {
+                displayResult('webhookResult', { error: error.message }, false);
+            }
+        }
+
+        async function testCompleteAndHandover() {
+            try {
+                const completionData = {
+                    outputQuantity: 980,
+                    goodQuantity: 950,
+                    ngQuantity: 30,
+                    workerName: 'Nguyễn Văn A',
+                    notes: 'Hoàn thành tốt',
+                    handoverQuantity: 950,
+                    handoverPerson: 'Nguyễn Văn A',
+                    receiverPerson: 'Trần Thị B',
+                    handoverNotes: 'Bàn giao đủ số lượng'
+                };
+                
+                const result = await window.SimpleAPI.completeXaAndHandoverToXen(1, completionData);
+                displayResult('webhookResult', result, result.success);
+            } catch (error) {
+                displayResult('webhookResult', { error: error.message }, false);
+            }
+        }
+
+        async function testSyncPendingData() {
+            try {
+                await window.SimpleAPI.syncPendingData();
+                displayResult('webhookResult', {
+                    action: 'Sync Pending Data',
+                    message: 'Đã đồng bộ dữ liệu pending thành công'
+                }, true);
+            } catch (error) {
+                displayResult('webhookResult', { error: error.message }, false);
+            }
+        }
+
+        // Test integrated workflow
+        async function testFullWorkflow() {
+            try {
+                let workflowResults = [];
+                
+                // Step 1: Load orders from API
+                console.log('🔄 Step 1: Loading orders from API...');
+                const orders = await window.SimpleAPI.getOrdersByStage('xa');
+                workflowResults.push({
+                    step: 1,
+                    action: 'Load Orders',
+                    result: `Loaded ${orders.length} orders from API`,
+                    success: true
+                });
+                
+                if (orders.length > 0) {
+                    const firstOrder = orders[0];
+                    
+                    // Step 2: Update stage output via webhook
+                    console.log('📤 Step 2: Updating stage output via webhook...');
+                    const updateResult = await window.SimpleAPI.updateStageOutput(
+                        firstOrder.id, 'xa', 500, 480, 20, 'Test Worker', 'Workflow test'
+                    );
+                    workflowResults.push({
+                        step: 2,
+                        action: 'Update Stage Output',
+                        result: updateResult,
+                        success: updateResult.success
+                    });
+                    
+                    // Step 3: Complete and handover via webhook
+                    console.log('🚀 Step 3: Complete and handover via webhook...');
+                    const completeResult = await window.SimpleAPI.completeXaAndHandoverToXen(firstOrder.id, {
+                        outputQuantity: 500,
+                        goodQuantity: 480,
+                        ngQuantity: 20,
+                        workerName: 'Test Worker',
+                        notes: 'Workflow test complete',
+                        handoverQuantity: 480,
+                        handoverPerson: 'Test Worker',
+                        receiverPerson: 'Next Stage Worker'
+                    });
+                    workflowResults.push({
+                        step: 3,
+                        action: 'Complete and Handover',
+                        result: completeResult,
+                        success: completeResult.success
+                    });
+                }
+                
+                displayResult('workflowResult', {
+                    workflow: 'Full Hybrid API Test',
+                    total_steps: workflowResults.length,
+                    results: workflowResults
+                }, true);
+                
+            } catch (error) {
+                displayResult('workflowResult', { error: error.message }, false);
+            }
+        }
+
+        async function testNetworkFailure() {
+            try {
+                // Temporarily change URLs to simulate failure
+                const originalWebhookURL = window.SimpleAPI.webhookURL;
+                const originalBaseURL = window.SimpleAPI.baseURL;
+                
+                window.SimpleAPI.webhookURL = 'https://invalid-webhook-url.com/test';
+                window.SimpleAPI.baseURL = 'https://invalid-api-url.com';
+                
+                console.log('🚫 Simulating network failure...');
+                
+                // Test with failed connections
+                const results = [];
+                
+                try {
+                    await window.SimpleAPI.getOrdersByStage('xa');
+                    results.push({ test: 'API Read', result: 'Fallback data used' });
+                } catch (error) {
+                    results.push({ test: 'API Read', result: 'Failed: ' + error.message });
+                }
+                
+                try {
+                    const webhookResult = await window.SimpleAPI.updateStageOutput(1, 'xa', 100, 90, 10);
+                    results.push({ test: 'Webhook Send', result: webhookResult });
+                } catch (error) {
+                    results.push({ test: 'Webhook Send', result: 'Failed: ' + error.message });
+                }
+                
+                // Restore original URLs
+                window.SimpleAPI.webhookURL = originalWebhookURL;
+                window.SimpleAPI.baseURL = originalBaseURL;
+                
+                displayResult('workflowResult', {
+                    test: 'Network Failure Simulation',
+                    results: results,
+                    note: 'URLs restored to original values'
+                }, true);
+                
+            } catch (error) {
+                displayResult('workflowResult', { error: error.message }, false);
+            }
+        }
+
+        // Debug functions
+        function clearDebugLog() {
+            document.getElementById('debugLog').innerHTML = '';
+        }
+
+        function exportDebugLog() {
+            const logContent = document.getElementById('debugLog').innerText;
+            const blob = new Blob([logContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `hybrid-api-debug-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Hybrid API Test Page Loaded');
+            console.log('📊 Ready to test: API reading + Webhook sending');
+            
+            // Auto-check connections on load
+            setTimeout(() => {
+                checkAPIConnection();
+                setTimeout(() => checkWebhookConnection(), 1000);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

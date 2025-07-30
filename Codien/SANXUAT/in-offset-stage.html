@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Công đoạn XÉN - Carton Manager</title>
+  <title>Công đoạn IN OFFSET - Carton Manager</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">    <link rel="stylesheet" href="universal-stage.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="universal-stage.css">
   <style>
     /* Đảm bảo modal hiển thị đúng và ở giữa màn hình */
     .modal {
@@ -81,9 +82,19 @@
       transform: translateY(-1px);
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
+    
+    /* Style đặc biệt cho công đoạn in offset */
+    .offset-card {
+      border-left: 4px solid #6f42c1;
+    }
+    
+    .offset-badge {
+      background: linear-gradient(45deg, #6f42c1, #e83e8c);
+      color: white;
+    }
   </style>
 </head>
-<body data-stage="xen">
+<body data-stage="in_offset">
   
   <!-- Sidebar -->
   <div class="sidebar collapsed" id="sidebar">
@@ -129,13 +140,17 @@
           <i class="bi bi-bullseye"></i>
           <span class="nav-text">Công đoạn XẢ</span>
         </a>
-        <a href="xen-stage.html" class="nav-link active">
+        <a href="xen-stage.html" class="nav-link">
           <i class="bi bi-scissors"></i>
           <span class="nav-text">Công đoạn XÉN</span>
         </a>
         <a href="in-stage.html" class="nav-link">
           <i class="bi bi-printer"></i>
           <span class="nav-text">Công đoạn IN</span>
+        </a>
+        <a href="in-offset-stage.html" class="nav-link active">
+          <i class="bi bi-printer-fill"></i>
+          <span class="nav-text">Công đoạn IN OFFSET</span>
         </a>
         <a href="boi-stage.html" class="nav-link">
           <i class="bi bi-file-text"></i>
@@ -168,34 +183,34 @@
       <!-- Stage Header -->
       <div class="stage-header">
         <h1>
-          <i class="bi bi-scissors me-2 text-success"></i>
-          Công đoạn XÉN
+          <i class="bi bi-printer-fill me-2 text-purple"></i>
+          Công đoạn IN OFFSET
         </h1>
-        <p class="mb-0">Xén kích thước - Định hình sản phẩm carton</p>
+        <p class="mb-0">In offset chất lượng cao - In màu CMYK chuyên nghiệp</p>
       </div>
       
       <!-- Statistics -->
       <div class="row mb-4" id="stageStats">
         <div class="col-xl-3 col-md-6 mb-3">
-          <div class="stat-card">
+          <div class="stat-card offset-card">
             <div class="stat-value" id="totalOrders">0</div>
             <div class="stat-label">Tổng lệnh</div>
           </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-3">
-          <div class="stat-card">
+          <div class="stat-card offset-card">
             <div class="stat-value" id="totalPlan">0</div>
             <div class="stat-label">SL Kế hoạch</div>
           </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-3">
-          <div class="stat-card">
+          <div class="stat-card offset-card">
             <div class="stat-value" id="totalGood">0</div>
             <div class="stat-label">SL Đạt</div>
           </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-3">
-          <div class="stat-card">
+          <div class="stat-card offset-card">
             <div class="stat-value" id="totalNg">0</div>
             <div class="stat-label">SL NG</div>
           </div>
@@ -205,7 +220,10 @@
       <!-- Main Card -->
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">Danh sách lệnh sản xuất - Công đoạn Xén</h5>
+          <h5 class="mb-0">
+            <span class="offset-badge badge me-2">IN OFFSET</span>
+            Danh sách lệnh sản xuất - Công đoạn In Offset
+          </h5>
           <div>
             <button class="btn btn-primary me-2" onclick="refreshData()">
               <i class="bi bi-arrow-clockwise me-1"></i>Làm mới
@@ -233,12 +251,13 @@
               </select>
             </div>
             <div class="col-md-2">
-              <label class="form-label">Máy:</label>
+              <label class="form-label">Máy in:</label>
               <select class="form-select" id="machineFilter">
                 <option value="">Tất cả</option>
-                <option value="Xén 1">Xén 1</option>
-                <option value="Xén 2">Xén 2</option>
-                <option value="Xén 3">Xén 3</option>
+                <option value="Offset 1">Offset 1</option>
+                <option value="Offset 2">Offset 2</option>
+                <option value="Offset 3">Offset 3</option>
+                <option value="Offset 4">Offset 4</option>
               </select>
             </div>
             <div class="col-md-5">
@@ -260,7 +279,7 @@
                   <th width="50">#</th>
                   <th width="150">Lệnh SX</th>
                   <th width="200">Sản phẩm</th>
-                  <th width="120">Kích thước (mm)</th>
+                  <th width="120">Màu sắc</th>
                   <th width="100">KH</th>
                   <th width="100">Đầu vào</th>
                   <th width="100">OK</th>
@@ -285,7 +304,7 @@
           
           <div id="noDataState" class="text-center py-5 d-none">
             <i class="bi bi-inbox display-1 text-muted"></i>
-            <p class="mt-2 text-muted">Không có lệnh sản xuất nào cho công đoạn Xén</p>
+            <p class="mt-2 text-muted">Không có lệnh sản xuất nào cho công đoạn In Offset</p>
           </div>
         </div>
       </div>
@@ -296,10 +315,10 @@
   <div class="modal fade" id="completeStageModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content">
-        <div class="modal-header bg-success text-white">
+        <div class="modal-header bg-purple text-white">
           <h5 class="modal-title">
-            <i class="bi bi-check-circle me-2"></i>
-            Hoàn thành công đoạn Xén
+            <i class="bi bi-printer-fill me-2"></i>
+            Hoàn thành công đoạn In Offset
           </h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -313,7 +332,7 @@
             </li>
             <li class="nav-item" role="presentation">
               <button class="nav-link" id="handover-tab" data-bs-toggle="tab" data-bs-target="#handover-tab-pane" type="button" role="tab">
-                <i class="bi bi-arrow-right-circle me-1"></i>Bàn giao công đoạn IN
+                <i class="bi bi-arrow-right-circle me-1"></i>Bàn giao công đoạn BỒI
               </button>
             </li>
           </ul>
@@ -343,7 +362,7 @@
                       <strong>Số lượng đầu vào:</strong> <span id="modalInputQty" class="text-primary">0</span>
                     </div>
                     <div class="col-md-6">
-                      <strong>Kích thước:</strong> <span id="modalDimensions"></span>
+                      <strong>Màu sắc in:</strong> <span id="modalColors"></span>
                     </div>
                   </div>
                 </div>
@@ -362,15 +381,24 @@
                   </div>
                 </div>
                 
-                <!-- Time and Worker -->
+                <!-- In Offset Specific Fields -->
                 <div class="row">
                   <div class="col-md-4 mb-3">
-                    <label class="form-label">Máy sản xuất</label>
+                    <label class="form-label">Máy in Offset</label>
                     <select class="form-select" id="modalMachine">
                       <option value="">Chọn máy</option>
-                      <option value="Xén 1">Xén 1</option>
-                      <option value="Xén 2">Xén 2</option>
-                      <option value="Xén 3">Xén 3</option>
+                      <option value="Offset 1">Offset 1 (4 màu)</option>
+                      <option value="Offset 2">Offset 2 (4 màu)</option>
+                      <option value="Offset 3">Offset 3 (6 màu)</option>
+                      <option value="Offset 4">Offset 4 (8 màu)</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">Chất lượng in</label>
+                    <select class="form-select" id="modalQuality">
+                      <option value="A">A - Xuất sắc</option>
+                      <option value="B" selected>B - Tốt</option>
+                      <option value="C">C - Trung bình</option>
                     </select>
                   </div>
                   <div class="col-md-4 mb-3">
@@ -381,16 +409,24 @@
                       <option value="Ca 3">Ca 3 (22:00-6:00)</option>
                     </select>
                   </div>
-                  <div class="col-md-4 mb-3">
-                    <label class="form-label">Thợ phụ trách</label>
-                    <input type="text" class="form-control" id="modalWorker">
+                </div>
+                
+                <!-- Worker and Materials -->
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Thợ in phụ trách</label>
+                    <input type="text" class="form-control" id="modalWorker" placeholder="Tên thợ in">
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Loại mực sử dụng</label>
+                    <input type="text" class="form-control" id="modalInkType" placeholder="VD: CMYK Standard">
                   </div>
                 </div>
                 
                 <!-- Note -->
                 <div class="mb-3">
-                  <label class="form-label">Ghi chú</label>
-                  <textarea class="form-control" id="modalNotes" rows="2" placeholder="Ghi chú về quá trình sản xuất..."></textarea>
+                  <label class="form-label">Ghi chú về chất lượng in</label>
+                  <textarea class="form-control" id="modalNotes" rows="3" placeholder="Ghi chú về màu sắc, chất lượng in, vấn đề gặp phải..."></textarea>
                 </div>
               </form>
             </div>
@@ -401,7 +437,7 @@
                 <!-- Next Stage Info -->
                 <div class="alert alert-warning">
                   <h6><i class="bi bi-arrow-right me-2"></i>Công đoạn tiếp theo:</h6>
-                  <p class="mb-1">Sau khi hoàn thành, sản phẩm OK sẽ được chuyển sang công đoạn <strong>IN</strong></p>
+                  <p class="mb-1">Sau khi hoàn thành in offset, sản phẩm OK sẽ được chuyển sang công đoạn <strong>BỒI</strong></p>
                 </div>
 
                 <div class="row mb-3">
@@ -417,7 +453,7 @@
                   <div class="col-md-6 mb-3">
                     <label class="form-label">Số lượng bàn giao: <span class="text-danger">*</span></label>
                     <input type="number" class="form-control" id="handoverQty" min="0">
-                    <div class="form-text">Số lượng chuyển sang công đoạn IN</div>
+                    <div class="form-text">Số lượng chuyển sang công đoạn BỒI</div>
                   </div>
                   <div class="col-md-6 mb-3">
                     <label class="form-label">Ngày bàn giao:</label>
@@ -438,14 +474,14 @@
 
                 <div class="mb-3">
                   <label class="form-label">Ghi chú bàn giao:</label>
-                  <textarea class="form-control" id="handoverNotes" rows="3" placeholder="Ghi chú về bàn giao sản phẩm..."></textarea>
+                  <textarea class="form-control" id="handoverNotes" rows="3" placeholder="Ghi chú về chất lượng in, lưu ý cho công đoạn bồi..."></textarea>
                 </div>
 
                 <div class="alert alert-secondary">
                   <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="confirmHandover">
                     <label class="form-check-label" for="confirmHandover">
-                      Tôi xác nhận đã bàn giao đủ số lượng và chất lượng cho công đoạn tiếp theo
+                      Tôi xác nhận đã kiểm tra chất lượng in và bàn giao đủ số lượng cho công đoạn tiếp theo
                     </label>
                   </div>
                 </div>
@@ -469,12 +505,12 @@
   <script>
     /**
      * =================================================================
-     * XÉN STAGE MANAGEMENT - QUẢN LÝ CÔNG ĐOẠN XÉN
+     * IN OFFSET STAGE MANAGEMENT - QUẢN LÝ CÔNG ĐOẠN IN OFFSET
      * =================================================================
      * Chức năng chính:
-     * 1. Hiển thị danh sách lệnh sản xuất ở công đoạn XÉN
-     * 2. Hoàn thành công đoạn XÉN (cập nhật số lượng OK, NG)
-     * 3. Bàn giao sang công đoạn IN (ghi trực tiếp vào cột in_input_quantity)
+     * 1. Hiển thị danh sách lệnh sản xuất ở công đoạn IN OFFSET
+     * 2. Hoàn thành công đoạn IN OFFSET (cập nhật số lượng OK, NG, chất lượng in)
+     * 3. Bàn giao sang công đoạn BỒI (ghi trực tiếp vào cột boi_input_quantity)
      */
 
     // === CẤU HÌNH API & WEBHOOK ===
@@ -483,9 +519,9 @@
 
     // === CẤU HÌNH CÔNG ĐOẠN ===
     const STAGE_CONFIG = {
-        KEY: 'xen',          // Tên key trong database
-        NAME: 'XÉN',         // Tên hiển thị
-        NEXT_STAGE: 'in'     // Công đoạn tiếp theo
+        KEY: 'in_offset',        // Tên key trong database
+        NAME: 'IN OFFSET',       // Tên hiển thị
+        NEXT_STAGE: 'boi'        // Công đoạn tiếp theo
     };
 
     // === BIẾN GLOBAL ===
@@ -509,7 +545,7 @@
             const payload = {
                 action: action,
                 timestamp: new Date().toISOString(),
-                source: 'xen_stage_frontend',
+                source: 'in_offset_stage_frontend',
                 data: data
             };
 
@@ -555,7 +591,7 @@
      */
     function saveToLocalStorage(action, data) {
         try {
-            const key = 'pending_webhooks_xen';
+            const key = 'pending_webhooks_in_offset';
             const existing = JSON.parse(localStorage.getItem(key) || '[]');
             
             existing.push({
@@ -576,7 +612,7 @@
      */
     async function syncPendingData() {
         try {
-            const key = 'pending_webhooks_xen';
+            const key = 'pending_webhooks_in_offset';
             const pending = JSON.parse(localStorage.getItem(key) || '[]');
             
             if (pending.length === 0) return;
@@ -604,7 +640,7 @@
     
     // Khởi tạo khi trang được load
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('=== XÉN STAGE PAGE LOADED ===');
+        console.log('=== IN OFFSET STAGE PAGE LOADED ===');
         initData();
     });
 
@@ -681,17 +717,19 @@
                         internal_product_code: order.internal_product_code || order.internal_code || '',
                         customer_name: order.customer_name || order.customer || 'Khách hàng',
                         deployed_quantity: order.quantity || order.total_quantity || order.deployed_quantity || 1000,
-                        dimensions: order.dimensions || order.size || order.dimension || '300x200x150',
-                        xen_input_qty: order.xen_input_quantity || order.xa_good_quantity || order.input_quantity || order.quantity || 0,
-                        xen_good_qty: order.xen_good_quantity || order.good_quantity || 0,
-                        xen_ng_qty: order.xen_ng_quantity || order.ng_quantity || 0,
-                        xen_status: order.xen_status || order.status || 'pending',
-                        assigned_machine: order.xen_machine_name || order.machine_name || order.machine || '',
-                        worker: order.xen_worker_name || order.worker_name || order.worker || '',
+                        colors: order.colors || order.print_colors || order.color_info || 'CMYK',
+                        in_offset_input_qty: order.in_offset_input_quantity || order.in_input_quantity || order.input_quantity || order.quantity || 0,
+                        in_offset_good_qty: order.in_offset_good_quantity || order.good_quantity || 0,
+                        in_offset_ng_qty: order.in_offset_ng_quantity || order.ng_quantity || 0,
+                        in_offset_status: order.in_offset_status || order.status || 'pending',
+                        assigned_machine: order.in_offset_machine_name || order.machine_name || order.machine || '',
+                        worker: order.in_offset_worker_name || order.worker_name || order.worker || '',
                         production_date: order.deployment_date || order.production_date || order.created_at || new Date().toISOString().split('T')[0],
                         shift: order.shift || order.production_shift || order.work_shift || 'Ca 1',
-                        stage_status: order.xen_status || order.stage_status || 'pending',
-                        notes: order.xen_note || order.notes || order.note || '',
+                        stage_status: order.in_offset_status || order.stage_status || 'pending',
+                        notes: order.in_offset_note || order.notes || order.note || '',
+                        quality_grade: order.quality_grade || 'B',
+                        ink_type: order.ink_type || 'CMYK Standard',
                         created_at: order.created_at || new Date().toISOString(),
                         updated_at: order.updated_at || new Date().toISOString()
                     };
@@ -732,8 +770,8 @@
         document.getElementById('noDataState').classList.add('d-none');
         
         tbody.innerHTML = stageOrders.map((order, index) => {
-            const progressPercent = order.xen_input_qty > 0 
-                ? Math.round((order.xen_good_qty / order.xen_input_qty) * 100) 
+            const progressPercent = order.in_offset_input_qty > 0 
+                ? Math.round((order.in_offset_good_qty / order.in_offset_input_qty) * 100) 
                 : 0;
             
             const statusClass = order.stage_status === 'completed' ? 'success' : 
@@ -754,19 +792,19 @@
                         <small class="text-muted">${order.shift || 'N/A'}</small>
                     </td>
                     <td>
-                        <span class="badge bg-info">${order.dimensions}</span>
+                        <span class="badge offset-badge">${order.colors}</span>
                     </td>
                     <td class="text-end">
                         <strong>${formatNumber(order.deployed_quantity)}</strong>
                     </td>
                     <td class="text-end">
-                        <span class="text-primary">${formatNumber(order.xen_input_qty)}</span>
+                        <span class="text-primary">${formatNumber(order.in_offset_input_qty)}</span>
                     </td>
                     <td class="text-end">
-                        <span class="text-success fw-bold">${formatNumber(order.xen_good_qty)}</span>
+                        <span class="text-success fw-bold">${formatNumber(order.in_offset_good_qty)}</span>
                     </td>
                     <td class="text-end">
-                        <span class="text-danger">${formatNumber(order.xen_ng_qty)}</span>
+                        <span class="text-danger">${formatNumber(order.in_offset_ng_qty)}</span>
                     </td>
                     <td>
                         <div class="progress mb-1" style="height: 8px;">
@@ -788,8 +826,8 @@
                                     <i class="bi bi-check-lg me-1"></i>Hoàn thành
                                 </button>
                             ` : `
-                                <button class="btn btn-primary rounded-pill px-3" onclick="showHandoverModal(${order.id})" title="Bàn giao cho công đoạn IN">
-                                    <i class="bi bi-arrow-right-circle me-1"></i>Bàn giao IN
+                                <button class="btn btn-primary rounded-pill px-3" onclick="showHandoverModal(${order.id})" title="Bàn giao cho công đoạn BỒI">
+                                    <i class="bi bi-arrow-right-circle me-1"></i>Bàn giao BỒI
                                 </button>
                             `}
                         </div>
@@ -803,9 +841,9 @@
     function updateStatistics() {
         const stats = {
             totalOrders: stageOrders.length,
-            totalPlan: stageOrders.reduce((sum, order) => sum + (order.xen_input_qty || 0), 0),
-            totalGood: stageOrders.reduce((sum, order) => sum + (order.xen_good_qty || 0), 0),
-            totalNg: stageOrders.reduce((sum, order) => sum + (order.xen_ng_qty || 0), 0)
+            totalPlan: stageOrders.reduce((sum, order) => sum + (order.in_offset_input_qty || 0), 0),
+            totalGood: stageOrders.reduce((sum, order) => sum + (order.in_offset_good_qty || 0), 0),
+            totalNg: stageOrders.reduce((sum, order) => sum + (order.in_offset_ng_qty || 0), 0)
         };
         
         document.getElementById('totalOrders').textContent = formatNumber(stats.totalOrders);
@@ -833,6 +871,8 @@
         const worker = document.getElementById('modalWorker').value;
         const notes = document.getElementById('modalNotes').value;
         const shift = document.getElementById('modalShift').value;
+        const quality = document.getElementById('modalQuality').value;
+        const inkType = document.getElementById('modalInkType').value;
         
         // Thông tin bàn giao
         const handoverQty = parseInt(document.getElementById('handoverQty').value) || 0;
@@ -877,6 +917,8 @@
                     workerName: worker,
                     shift: shift,
                     notes: notes,
+                    qualityGrade: quality,
+                    inkType: inkType,
                     handoverQuantity: handoverQty,
                     handoverDate: handoverDate,
                     handoverPerson: handoverPerson,
@@ -891,7 +933,9 @@
                     machine: machine,
                     workerName: worker,
                     shift: shift,
-                    notes: notes
+                    notes: notes,
+                    qualityGrade: quality,
+                    inkType: inkType
                 });
             }
             
@@ -902,7 +946,7 @@
             modal.hide();
             
             editingOrderId = null;
-            App.notify('Đã hoàn thành công đoạn XÉN thành công!', 'success');
+            App.notify('Đã hoàn thành công đoạn IN OFFSET thành công!', 'success');
             
         } catch (error) {
             console.error('Error completing stage:', error);
@@ -911,15 +955,15 @@
     }
 
     /**
-     * Xử lý hoàn thành và bàn giao từ XÉN sang IN
+     * Xử lý hoàn thành và bàn giao từ IN OFFSET sang BỒI
      */
     async function handleCompleteAndHandover(data) {
         try {
             const completeHandoverData = {
                 order_id: editingOrderId,
                 action_type: 'complete_and_handover',
-                from_stage: 'xen',
-                to_stage: 'in',
+                from_stage: 'in_offset',
+                to_stage: 'boi',
                 
                 // Thông tin hoàn thành
                 completion: {
@@ -929,7 +973,9 @@
                     worker_name: data.workerName,
                     machine_name: data.machine,
                     shift: data.shift,
-                    notes: data.notes
+                    notes: data.notes,
+                    quality_grade: data.qualityGrade,
+                    ink_type: data.inkType
                 },
                 
                 // Thông tin bàn giao
@@ -945,11 +991,11 @@
             };
             
             // Gửi qua webhook n8n
-            const result = await sendWebhook('complete_xen_and_handover_to_in', completeHandoverData);
+            const result = await sendWebhook('complete_in_offset_and_handover_to_boi', completeHandoverData);
             
             if (result.success) {
                 App.notify(
-                    `✅ Đã hoàn thành công đoạn XÉN và bàn giao ${formatNumber(data.handoverQuantity)} sản phẩm cho công đoạn IN thành công!`,
+                    `✅ Đã hoàn thành công đoạn IN OFFSET và bàn giao ${formatNumber(data.handoverQuantity)} sản phẩm cho công đoạn BỒI thành công!`,
                     'success'
                 );
             }
@@ -976,6 +1022,8 @@
                 machine_name: data.machine,
                 shift: data.shift,
                 notes: data.notes,
+                quality_grade: data.qualityGrade,
+                ink_type: data.inkType,
                 updated_at: new Date().toISOString()
             };
             
@@ -984,7 +1032,7 @@
             
             if (result.success) {
                 App.notify(
-                    `✅ Đã hoàn thành công đoạn XÉN: ${formatNumber(data.goodQuantity)} OK, ${formatNumber(data.ngQuantity)} NG`,
+                    `✅ Đã hoàn thành công đoạn IN OFFSET: ${formatNumber(data.goodQuantity)} OK, ${formatNumber(data.ngQuantity)} NG`,
                     'success'
                 );
             }
@@ -1015,19 +1063,21 @@
         document.getElementById('completeOrderId').value = order.id;
         document.getElementById('modalOrderCode').textContent = order.production_order;
         document.getElementById('modalProductName').textContent = order.product_name;
-        document.getElementById('modalInputQty').textContent = formatNumber(order.xen_input_qty);
-        document.getElementById('modalDimensions').textContent = order.dimensions;
-        document.getElementById('modalGoodQty').value = order.xen_good_qty || '';
-        document.getElementById('modalNgQty').value = order.xen_ng_qty || 0;
+        document.getElementById('modalInputQty').textContent = formatNumber(order.in_offset_input_qty);
+        document.getElementById('modalColors').textContent = order.colors;
+        document.getElementById('modalGoodQty').value = order.in_offset_good_qty || '';
+        document.getElementById('modalNgQty').value = order.in_offset_ng_qty || 0;
         document.getElementById('modalMachine').value = order.assigned_machine || '';
         document.getElementById('modalWorker').value = order.worker || '';
         document.getElementById('modalNotes').value = order.notes || '';
         document.getElementById('modalShift').value = order.shift || 'Ca 1';
+        document.getElementById('modalQuality').value = order.quality_grade || 'B';
+        document.getElementById('modalInkType').value = order.ink_type || '';
         
         // Populate modal fields - Tab bàn giao
         document.getElementById('handoverOrderCode').textContent = order.production_order;
         document.getElementById('handoverProductName').textContent = order.product_name;
-        document.getElementById('handoverQty').value = order.xen_good_qty || '';
+        document.getElementById('handoverQty').value = order.in_offset_good_qty || '';
         document.getElementById('handoverDate').value = new Date().toISOString().split('T')[0];
         document.getElementById('handoverPerson').value = order.worker || '';
         document.getElementById('receiverPerson').value = '';
@@ -1041,7 +1091,7 @@
         modal.show();
     }
     
-    // Hiển thị modal bàn giao cho công đoạn IN
+    // Hiển thị modal bàn giao cho công đoạn BỒI
     function showHandoverModal(orderId) {
         const order = stageOrders.find(o => o.id == orderId);
         if (!order) {
@@ -1057,7 +1107,7 @@
         // Populate modal fields - Tab bàn giao
         document.getElementById('handoverOrderCode').textContent = order.production_order;
         document.getElementById('handoverProductName').textContent = order.product_name;
-        document.getElementById('handoverQty').value = order.xen_good_qty || '';
+        document.getElementById('handoverQty').value = order.in_offset_good_qty || '';
         document.getElementById('handoverDate').value = new Date().toISOString().split('T')[0];
         document.getElementById('handoverPerson').value = order.worker || '';
         document.getElementById('receiverPerson').value = '';
@@ -1091,17 +1141,19 @@
         const details = `
 Mã lệnh: ${order.production_order}
 Sản phẩm: ${order.product_name}
-Kích thước: ${order.dimensions} mm
+Màu sắc: ${order.colors}
 Kế hoạch: ${formatNumber(order.deployed_quantity)}
-Đầu vào từ Xả: ${formatNumber(order.xen_input_qty)}
-Đã hoàn thành: ${formatNumber(order.xen_good_qty || 0)}
-Lỗi: ${formatNumber(order.xen_ng_qty || 0)}
-Máy: ${order.assigned_machine || 'Chưa phân công'}
-Thợ: ${order.worker || 'Chưa phân công'}
+Đầu vào: ${formatNumber(order.in_offset_input_qty)}
+Đã hoàn thành: ${formatNumber(order.in_offset_good_qty || 0)}
+Lỗi: ${formatNumber(order.in_offset_ng_qty || 0)}
+Máy in: ${order.assigned_machine || 'Chưa phân công'}
+Thợ in: ${order.worker || 'Chưa phân công'}
+Chất lượng: ${order.quality_grade || 'B'}
+Loại mực: ${order.ink_type || 'N/A'}
 Ghi chú: ${order.notes || 'Không có'}
         `.trim();
         
-        alert('CHI TIẾT LỆNH SẢN XUẤT\n\n' + details);
+        alert('CHI TIẾT LỆNH SẢN XUẤT - IN OFFSET\n\n' + details);
     }
     
     // Refresh data

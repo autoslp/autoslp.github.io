@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Simple Production API</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .result { background: #f5f5f5; padding: 10px; margin: 10px 0; }
+        .error { background: #ffe6e6; color: #d00; }
+        .success { background: #e6ffe6; color: #080; }
+        button { padding: 10px 15px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Test Simple Production API</h1>
+    
+    <div class="test-section">
+        <h3>1. Test API Connection</h3>
+        <button onclick="testConnection()">Test Base URL</button>
+        <div id="connectionResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Test Get Orders by Stage</h3>
+        <button onclick="testGetOrders()">Get XẢ Orders</button>
+        <div id="ordersResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Test All Available Endpoints</h3>
+        <button onclick="testAllEndpoints()">Test All Endpoints</button>
+        <div id="allEndpointsResult" class="result"></div>
+    </div>
+
+    <script src="simple-production-api.js"></script>
+    <script>
+        async function testConnection() {
+            const result = document.getElementById('connectionResult');
+            result.innerHTML = 'Testing connection...';
+            
+            try {
+                // Test basic server connection
+                const response = await fetch(SimpleAPI.baseURL);
+                if (response.ok) {
+                    result.innerHTML = `<div class="success">✅ Connected to: ${SimpleAPI.baseURL}</div>`;
+                } else {
+                    result.innerHTML = `<div class="error">❌ Server responded with: ${response.status} ${response.statusText}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Connection failed: ${error.message}</div>`;
+            }
+        }
+
+        async function testGetOrders() {
+            const result = document.getElementById('ordersResult');
+            result.innerHTML = 'Testing get orders by stage...';
+            
+            try {
+                const orders = await SimpleAPI.getOrdersByStage('xa');
+                result.innerHTML = `<div class="success">✅ Found ${orders.length} orders for XẢ stage</div>
+                                   <pre>${JSON.stringify(orders.slice(0, 2), null, 2)}</pre>`;
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testAllEndpoints() {
+            const result = document.getElementById('allEndpointsResult');
+            result.innerHTML = 'Testing all endpoints...';
+            
+            const endpoints = [
+                '/data/production_orders',
+                '/data/production_orders?current_stage=xa',
+                '/api/handover_to_next_stage',
+                '/api/production_orders/1/stage_output'
+            ];
+
+            let output = '';
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const url = SimpleAPI.baseURL + endpoint;
+                    const method = endpoint.includes('/api/') ? 'POST' : 'GET';
+                    
+                    let options = {};
+                    if (method === 'POST') {
+                        options = {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ test: true })
+                        };
+                    }
+                    
+                    const response = await fetch(url, options);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        output += `<div class="success">✅ ${endpoint}: Working (${Array.isArray(data) ? data.length + ' items' : 'Object'})</div>`;
+                    } else {
+                        output += `<div class="error">❌ ${endpoint}: ${response.status} ${response.statusText}</div>`;
+                    }
+                } catch (error) {
+                    output += `<div class="error">❌ ${endpoint}: ${error.message}</div>`;
+                }
+            }
+            
+            result.innerHTML = output;
+        }
+
+        // Auto test connection on load
+        window.onload = function() {
+            testConnection();
+        };
+    </script>
+</body>
+</html>

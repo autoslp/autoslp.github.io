@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Corrected Endpoints</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .test-section h3 { color: #333; margin-top: 0; }
+        .endpoint { background: #f8f9fa; padding: 10px; margin: 10px 0; border-left: 4px solid #007bff; font-family: monospace; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 3px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        .test-btn { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 3px; cursor: pointer; margin: 5px; }
+        .test-btn:hover { background: #0056b3; }
+        .test-btn:disabled { background: #6c757d; cursor: not-allowed; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; max-height: 300px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Corrected Endpoints Structure</h1>
+        <p><strong>Base URL:</strong> https://autoslp.duckdns.org</p>
+        <p><strong>Mục đích:</strong> Kiểm tra cấu trúc endpoint đã được sửa theo server.js</p>
+
+        <!-- Test 1: GET /data/production_orders -->
+        <div class="test-section">
+            <h3>📥 Test 1: GET Orders by Stage (XẢ)</h3>
+            <div class="endpoint">GET https://autoslp.duckdns.org/data/production_orders?current_stage=xa</div>
+            <button class="test-btn" onclick="testGetOrdersByStage()">Test GET Orders</button>
+            <div id="result1" class="result"></div>
+            <pre id="response1"></pre>
+        </div>
+
+        <!-- Test 2: PUT /data/production_orders/{id}/stage_output -->
+        <div class="test-section">
+            <h3>📤 Test 2: PUT Stage Output Update</h3>
+            <div class="endpoint">PUT https://autoslp.duckdns.org/data/production_orders/ORDER123/stage_output</div>
+            <button class="test-btn" onclick="testUpdateStageOutput()">Test PUT Stage Output</button>
+            <div id="result2" class="result"></div>
+            <pre id="response2"></pre>
+        </div>
+
+        <!-- Test 3: POST /api/handover_to_next_stage -->
+        <div class="test-section">
+            <h3>🔄 Test 3: POST Handover to Next Stage</h3>
+            <div class="endpoint">POST https://autoslp.duckdns.org/api/handover_to_next_stage</div>
+            <button class="test-btn" onclick="testHandoverToNextStage()">Test POST Handover</button>
+            <div id="result3" class="result"></div>
+            <pre id="response3"></pre>
+        </div>
+
+        <!-- Test 4: Complete Workflow Test -->
+        <div class="test-section">
+            <h3>🚀 Test 4: Complete XẢ→XÉN Workflow</h3>
+            <p>Test toàn bộ quy trình bàn giao từ XẢ sang XÉN</p>
+            <button class="test-btn" onclick="testCompleteWorkflow()">Test Complete Workflow</button>
+            <div id="result4" class="result"></div>
+            <pre id="response4"></pre>
+        </div>
+
+        <!-- Test 5: API Class Integration -->
+        <div class="test-section">
+            <h3>🔧 Test 5: SimpleProductionAPI Integration</h3>
+            <button class="test-btn" onclick="testApiClassIntegration()">Test API Class</button>
+            <div id="result5" class="result"></div>
+            <pre id="response5"></pre>
+        </div>
+    </div>
+
+    <script src="simple-production-api.js"></script>
+    <script>
+        // Initialize API instance
+        const api = new SimpleProductionAPI();
+
+        // Test 1: GET Orders by Stage
+        async function testGetOrdersByStage() {
+            const resultDiv = document.getElementById('result1');
+            const responseDiv = document.getElementById('response1');
+            
+            try {
+                resultDiv.innerHTML = '<div class="warning">⏳ Testing GET orders by stage...</div>';
+                
+                const orders = await api.getOrdersByStage('xa');
+                
+                resultDiv.innerHTML = `<div class="success">✅ Success: Found ${orders.length} orders in XẢ stage</div>`;
+                responseDiv.textContent = JSON.stringify(orders, null, 2);
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                responseDiv.textContent = error.stack;
+            }
+        }
+
+        // Test 2: PUT Stage Output Update
+        async function testUpdateStageOutput() {
+            const resultDiv = document.getElementById('result2');
+            const responseDiv = document.getElementById('response2');
+            
+            try {
+                resultDiv.innerHTML = '<div class="warning">⏳ Testing PUT stage output update...</div>';
+                
+                const result = await api.updateStageOutput(
+                    'TEST_ORDER_123',
+                    'xa',
+                    100,
+                    95,
+                    5,
+                    'Test Worker',
+                    'Test update from corrected endpoints'
+                );
+                
+                resultDiv.innerHTML = `<div class="success">✅ Success: Stage output updated</div>`;
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                responseDiv.textContent = error.stack;
+            }
+        }
+
+        // Test 3: POST Handover to Next Stage
+        async function testHandoverToNextStage() {
+            const resultDiv = document.getElementById('result3');
+            const responseDiv = document.getElementById('response3');
+            
+            try {
+                resultDiv.innerHTML = '<div class="warning">⏳ Testing POST handover to next stage...</div>';
+                
+                const result = await api.handoverToNextStage(
+                    'TEST_ORDER_123',
+                    'xa',
+                    'xen',
+                    100,
+                    'Test handover from corrected endpoints'
+                );
+                
+                resultDiv.innerHTML = `<div class="success">✅ Success: Handover completed</div>`;
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                responseDiv.textContent = error.stack;
+            }
+        }
+
+        // Test 4: Complete Workflow
+        async function testCompleteWorkflow() {
+            const resultDiv = document.getElementById('result4');
+            const responseDiv = document.getElementById('response4');
+            
+            try {
+                resultDiv.innerHTML = '<div class="warning">⏳ Testing complete XẢ→XÉN workflow...</div>';
+                
+                // Step 1: Get XẢ orders
+                const xaOrders = await api.getOrdersByStage('xa');
+                console.log('Step 1: Got XẢ orders:', xaOrders.length);
+                
+                // Step 2: Use first order or create test order
+                const testOrderId = xaOrders.length > 0 ? xaOrders[0].order_id : 'WORKFLOW_TEST_001';
+                
+                // Step 3: Update stage output
+                const updateResult = await api.updateStageOutput(
+                    testOrderId,
+                    'xa',
+                    100,
+                    95,
+                    5,
+                    'Workflow Tester',
+                    'Complete workflow test'
+                );
+                console.log('Step 2: Updated stage output:', updateResult);
+                
+                // Step 4: Handover to XÉN
+                const handoverResult = await api.handoverXaToXen(
+                    testOrderId,
+                    100,
+                    'Complete workflow test handover'
+                );
+                console.log('Step 3: Handover completed:', handoverResult);
+                
+                resultDiv.innerHTML = `<div class="success">✅ Complete workflow successful! Order ${testOrderId} moved from XẢ to XÉN</div>`;
+                responseDiv.textContent = JSON.stringify({
+                    step1_xa_orders: xaOrders.length,
+                    step2_update: updateResult,
+                    step3_handover: handoverResult
+                }, null, 2);
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Workflow failed: ${error.message}</div>`;
+                responseDiv.textContent = error.stack;
+            }
+        }
+
+        // Test 5: API Class Integration
+        async function testApiClassIntegration() {
+            const resultDiv = document.getElementById('result5');
+            const responseDiv = document.getElementById('response5');
+            
+            try {
+                resultDiv.innerHTML = '<div class="warning">⏳ Testing API class integration...</div>';
+                
+                // Test API initialization
+                console.log('API Base URL:', api.baseURL);
+                console.log('API initialized correctly');
+                
+                // Test fallback data
+                const fallbackCount = api.fallbackData.length;
+                console.log('Fallback data available:', fallbackCount, 'orders');
+                
+                // Test notification system
+                api.showNotification('Test notification from API integration', 'success');
+                
+                resultDiv.innerHTML = `<div class="success">✅ API class integration successful!</div>`;
+                responseDiv.textContent = JSON.stringify({
+                    baseURL: api.baseURL,
+                    fallbackDataCount: fallbackCount,
+                    hasNotificationSystem: typeof api.showNotification === 'function',
+                    apiMethods: Object.getOwnPropertyNames(Object.getPrototypeOf(api)).filter(name => name !== 'constructor')
+                }, null, 2);
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Integration test failed: ${error.message}</div>`;
+                responseDiv.textContent = error.stack;
+            }
+        }
+
+        // Auto-run basic test on page load
+        window.addEventListener('load', function() {
+            console.log('=== Endpoint Structure Test Loaded ===');
+            console.log('Base URL:', api.baseURL);
+            console.log('Ready to test corrected endpoint structure!');
+        });
+    </script>
+</body>
+</html>
