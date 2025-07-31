@@ -4,10 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Công đoạn XẢ - Carton Manager</title>
+  <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">   
-   <link rel="stylesheet" href="universal-stage.css">
-   <script src="sidebar-generator.js"></script>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <!-- Universal Stage CSS -->
+  <link rel="stylesheet" href="universal-stage.css">
+  <!-- Sidebar Generator -->
+  <script src="sidebar-generator.js"></script>
   <style>
     /* Đảm bảo modal hiển thị đúng và ở giữa màn hình */
     .modal {
@@ -46,7 +50,7 @@
     }
     
     /* Tạo khoảng cách rõ ràng giữa các phần của form */
-    .form-label {   
+    .form-label {
       font-weight: 500;
       margin-bottom: 0.25rem;
     }
@@ -92,6 +96,106 @@
       from { opacity: 1; transform: translateX(0); }
       to { opacity: 0; transform: translateX(100%); }
     }
+
+    /* Enhanced form styling for sidebar */
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .section-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+
+
+
+    .form-group {
+        margin-bottom: 0.5rem;
+    }
+
+    .form-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .detail-label {
+        min-width: 180px;
+        margin-bottom: 0;
+    }
+    
+
+    
+    /* Table styles */
+    .table {
+        table-layout: fixed;
+        width: 100%;
+    }
+    
+    
+
+    
+    /* Active row highlight */
+    .table-active {
+        background-color: #e3f2fd !important;
+        border-left: 4px solid #2196f3;
+    }
+    
+
+    
+    /* Hover effect for rows */
+    .order-row:hover {
+        background-color: #f8f9fa;
+        cursor: pointer;
+    }
+    
+
+    
+    /* Card styles for statistics */
+    .card.border-0 {
+        transition: transform 0.2s ease;
+    }
+    
+    .card.border-0:hover {
+        transform: translateY(-2px);
+    }
+
+    .form-control-lg, .form-select-lg {
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .form-control-lg:focus, .form-select-lg:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+
+    .input-group-lg .form-control {
+        border-radius: 8px 0 0 8px;
+    }
+
+    .input-group-lg .input-group-text {
+        border-radius: 0 8px 8px 0;
+    }
+
+    .alert {
+        border-radius: 8px;
+        border-left: 4px solid;
+    }
+
+    .btn-lg {
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+    }
+
+
 
     /* Wizard Form Styles */
     .wizard-container {
@@ -263,7 +367,7 @@
   <!-- Main Content -->
   <div class="main-content sidebar-collapsed" id="mainContent">
     <div class="content-area">
-      <div class="container-fluid p-4">
+    <div class="container-fluid p-4">
       
       <!-- Stage Header -->
       <div class="stage-header">
@@ -312,10 +416,7 @@
               <i class="bi bi-graph-up"></i>
             </button>
             
-            <!-- Fast Load Button -->
-            <button class="btn btn-outline-success btn-sm me-2" onclick="loadOrdersDataFast()" title="Load nhanh (chỉ 500 records)">
-              <i class="bi bi-lightning"></i> Load nhanh
-            </button>
+ 
             
             <!-- Main Actions -->
             <button class="btn btn-primary me-2" onclick="refreshData()">
@@ -329,36 +430,59 @@
         
         <div class="card-body">
           <!-- Filters -->
-          <div class="row mb-3">
-            <div class="col-md-3">
-              <label class="form-label">Ngày sản xuất:</label>
-              <input type="date" class="form-control" id="dateFilter">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">Ca:</label>
-              <select class="form-select" id="shiftFilter">
-                <option value="">Tất cả</option>
-                <option value="Ca 1">Ca 1</option>
-                <option value="Ca 2">Ca 2</option>
-                <option value="Ca 3">Ca 3</option>
-              </select>
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">Máy:</label>
-              <select class="form-select" id="machineFilter">
-                <option value="">Tất cả</option>
-                <option value="Xả 1">Xả 1</option>
-                <option value="Xả 2">Xả 2</option>
-                <option value="Xả 3">Xả 3</option>
-              </select>
-            </div>
-            <div class="col-md-5">
-              <label class="form-label">Tìm kiếm:</label>
-              <div class="input-group">
-                <input type="text" class="form-control" id="searchInput" placeholder="Tìm theo mã lệnh, sản phẩm...">
-                <button class="btn btn-outline-secondary" type="button" onclick="applyFilters()">
-                  <i class="bi bi-search"></i>
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                  <i class="bi bi-funnel me-2"></i>Bộ lọc dữ liệu
+                </h6>
+                <button class="btn btn-outline-secondary btn-sm" onclick="clearFilters()" title="Xóa tất cả bộ lọc">
+                  <i class="bi bi-x-circle me-1"></i>Xóa bộ lọc
                 </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label class="form-label fw-bold">
+                    <i class="bi bi-calendar me-1"></i>Ngày sản xuất:
+                  </label>
+                  <input type="date" class="form-control" id="dateFilter">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label fw-bold">
+                    <i class="bi bi-clock me-1"></i>Ca:
+                  </label>
+                  <select class="form-select" id="shiftFilter">
+                    <option value="">Tất cả</option>
+                    <option value="Ca 1">Ca 1</option>
+                    <option value="Ca 2">Ca 2</option>
+                    <option value="Ca 3">Ca 3</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label fw-bold">
+                    <i class="bi bi-gear me-1"></i>Máy:
+                  </label>
+                  <select class="form-select" id="machineFilter">
+                    <option value="">Tất cả</option>
+                    <option value="Xả 1">Xả 1</option>
+                    <option value="Xả 2">Xả 2</option>
+                    <option value="Xả 3">Xả 3</option>
+                  </select>
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label fw-bold">
+                    <i class="bi bi-search me-1"></i>Tìm kiếm:
+                  </label>
+                  <div class="input-group">
+                    <input type="text" class="form-control" id="searchInput" placeholder="Tìm theo mã lệnh, sản phẩm, máy, thợ...">
+                    <button class="btn btn-primary" type="button" onclick="applyFilters()">
+                      <i class="bi bi-search"></i>
+                    </button>
+                  </div>
+                  <small class="text-muted">Tự động tìm kiếm khi nhập (300ms delay)</small>
+                </div>
               </div>
             </div>
           </div>
@@ -368,18 +492,20 @@
             <table class="table table-striped table-hover">
               <thead>
                 <tr>
-                  <th width="50">#</th>
-                  <th width="150">Lệnh SX</th>
-                  <th width="200">Sản phẩm</th>
-                  <th width="80">Loại giấy</th>
-                  <th width="80">Định lượng</th>
-                  <th width="100">KH</th>
-                  <th width="100">Đầu vào</th>
-                  <th width="100">OK</th>
-                  <th width="100">NG</th>
-                  <th width="120">Tiến độ</th>
-                  <th width="120">Máy/Thợ</th>
-                  <th width="150">Thao tác</th>
+                  <th style="width: 40px!important; min-width: 40px!important;" class="text-center">#</th>
+                  <th style="width: 150px!important; min-width: 120px!important;" class="text-center">Lệnh SX</th>
+                    <th style="width: 70px!important; min-width: 50px!important;" class="text-center">Loại LSX</th>
+                    <th style="width: 260px!important; min-width: 150px!important;" class="text-center">Sản phẩm</th>
+                  <th style="width: 130px!important; min-width: 130px!important;" class="text-center">Loại giấy</th>
+                  <th style="width: 90px!important; min-width: 90px!important;" class="text-center">Định lượng</th>
+                  <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Kế hoạch</th>
+                  <th style="width: 150px!important; min-width: 150px!important;" class="text-center">Triển khai</th>
+                  <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT xả</th>
+                  <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Số phôi</th>
+                  <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Tiến độ</th>
+                  <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Máy/Thợ</th>
+                  <th style="width: auto!important; min-width: auto!important;" class="text-center">Thao tác</th>
+
                 </tr>
               </thead>
               <tbody id="stageTableBody">
@@ -467,230 +593,7 @@
     </div>
   </div>
 
-  <!-- Modal hoàn thành công đoạn - Wizard Form -->
-  <div class="modal fade" id="completeModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header bg-success text-white">
-          <div class="d-flex align-items-center">
-            <h5 class="modal-title mb-0">
-              <i class="bi bi-magic me-2"></i>
-              Hoàn thành & Bàn giao Công đoạn XẢ
-            </h5>
-            <div class="ms-3">
-              <span class="badge bg-light text-dark fs-6" id="modalOrderCode">-</span>
-            </div>
-          </div>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body p-0">
-          <!-- Wizard Container -->
-          <div class="wizard-container" style="margin: 0; border-radius: 0; box-shadow: none;">
-            <!-- Steps -->
-            <div class="wizard-steps">
-              <div class="step active" data-step="1">
-                <div class="step-circle">1</div>
-                <div class="step-label">Kết quả & Thông tin</div>
-              </div>
-              <div class="step" data-step="2">
-                <div class="step-circle">2</div>
-                <div class="step-label">Bàn giao</div>
-              </div>
-              <div class="step" data-step="3">
-                <div class="step-circle">3</div>
-                <div class="step-label">Xác nhận</div>
-              </div>
-            </div>
 
-            <!-- Content -->
-            <div class="wizard-content">
-              <!-- Hidden fields for order information -->
-              <input type="hidden" id="wizardOrderCode">
-              <input type="hidden" id="wizardProductCode">
-              <input type="hidden" id="wizardProductName">
-              <input type="hidden" id="wizardPaperType">
-              <input type="hidden" id="wizardPaperWeight">
-              <input type="hidden" id="wizardQuantity">
-              
-              <!-- Step 1: Production Results & Information -->
-              <div class="step-content active" id="step1">
-                <div class="info-card">
-                  <h5><i class="bi bi-clipboard-data me-2"></i>Bước 1: Kết quả & Thông tin sản xuất</h5>
-                  <p class="mb-0">Nhập kết quả sản xuất và thông tin máy móc, nhân sự.</p>
-                </div>
-                
-                <!-- Production Results Section -->
-                <div class="alert alert-success mb-4">
-                  <h6 class="alert-heading"><i class="bi bi-clipboard-check me-2"></i>Kết quả sản xuất</h6>
-                  <div class="row">
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label fw-bold">Số lượng đạt (OK) <span class="text-danger">*</span></label>
-                      <input type="number" class="form-control" value="0" min="0" id="wizardGoodQty">
-                      <div class="form-text">Số lượng tờ giấy đạt chất lượng</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label fw-bold">Số lượng NG <span class="text-danger">*</span></label>
-                      <input type="number" class="form-control" value="0" min="0" id="wizardNgQty">
-                      <div class="form-text">Số lượng tờ giấy không đạt chất lượng</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label fw-bold">NG Đầu/Cuối</label>
-                      <input type="number" class="form-control" value="0" min="0" id="wizardNgStartEndQty">
-                      <div class="form-text">NG do setup máy</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label fw-bold">Hàng trả</label>
-                      <input type="number" class="form-control" value="0" min="0" id="wizardReturnQty">
-                      <div class="form-text">Số lượng hàng trả lại</div>
-                    </div>
-                  </div>
-                </div>
-                
-                <!-- Production Information Section -->
-                <div class="alert alert-info mb-4">
-                  <h6 class="alert-heading"><i class="bi bi-person-gear me-2"></i>Thông tin sản xuất</h6>
-                  <div class="row">
-                    <div class="col-md-4 mb-3">
-                      <label class="form-label fw-bold">Máy sản xuất</label>
-                      <select class="form-select" id="wizardMachine">
-                        <option value="Xả 1" selected>Xả 1</option>
-                        <option value="Xả 2">Xả 2</option>
-                        <option value="Xả 3">Xả 3</option>
-                      </select>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                      <label class="form-label fw-bold">Ca sản xuất</label>
-                      <select class="form-select" id="wizardShift">
-                        <option value="Ca 1" selected>Ca 1 (6:00-14:00)</option>
-                        <option value="Ca 2">Ca 2 (14:00-22:00)</option>
-                        <option value="Ca 3">Ca 3 (22:00-6:00)</option>
-                      </select>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                      <label class="form-label fw-bold">Thợ phụ trách</label>
-                      <input type="text" class="form-control" id="wizardWorker" placeholder="Nhập tên thợ">
-                    </div>
-                    <div class="col-md-12 mb-3">
-                      <label class="form-label fw-bold">Ghi chú sản xuất</label>
-                      <textarea class="form-control" id="wizardNote" rows="3" placeholder="Ghi chú về quá trình sản xuất..."></textarea>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Step 2: Handover Information -->
-              <div class="step-content" id="step2">
-                <div class="info-card">
-                  <h5><i class="bi bi-arrow-right-circle me-2"></i>Bước 2: Thông tin bàn giao</h5>
-                  <p class="mb-0">Cấu hình thông tin bàn giao cho công đoạn tiếp theo.</p>
-                </div>
-                
-                <div class="alert alert-info">
-                  <h6><i class="bi bi-info-circle me-2"></i>Công đoạn tiếp theo: <span id="wizardNextStage">XÉN</span></h6>
-                  <p class="mb-0">Sản phẩm OK sẽ được chuyển sang công đoạn tiếp theo để tiếp tục xử lý</p>
-                </div>
-                
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Số lượng bàn giao <span class="text-danger">*</span></label>
-                    <input type="number" class="form-control" value="0" min="0" id="wizardHandoverQty">
-                    <div class="form-text">Tự động = Số lượng OK (có thể chỉnh sửa)</div>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Ngày bàn giao</label>
-                    <input type="date" class="form-control" id="wizardHandoverDate">
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Người bàn giao</label>
-                    <input type="text" class="form-control" id="wizardHandoverPerson" placeholder="Nhập tên người bàn giao">
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Người nhận</label>
-                    <input type="text" class="form-control" id="wizardReceiverPerson" placeholder="Nhập tên người nhận">
-                  </div>
-                  <div class="col-md-12 mb-3">
-                    <label class="form-label fw-bold">Ghi chú bàn giao</label>
-                    <textarea class="form-control" id="wizardHandoverNotes" rows="2" placeholder="Ghi chú về bàn giao sản phẩm..."></textarea>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Step 3: Confirmation -->
-              <div class="step-content" id="step3">
-                <div class="info-card">
-                  <h5><i class="bi bi-check-circle me-2"></i>Bước 3: Xác nhận hoàn thành</h5>
-                  <p class="mb-0">Kiểm tra lại tất cả thông tin trước khi hoàn thành.</p>
-                </div>
-                
-                <div class="row">
-                  <div class="col-md-6">
-                    <h6 class="text-primary mb-3">Thông tin lệnh sản xuất</h6>
-                    <ul class="list-unstyled">
-                      <li><strong>Mã lệnh:</strong> <span id="confirmOrderCode"></span></li>
-                      <li><strong>Mã sản phẩm:</strong> <span id="confirmProductCode"></span></li>
-                      <li><strong>Sản phẩm:</strong> <span id="confirmProductName"></span></li>
-                      <li><strong>Loại giấy:</strong> <span id="confirmPaperType"></span></li>
-                      <li><strong>Trọng lượng:</strong> <span id="confirmPaperWeight"></span></li>
-                      <li><strong>Số lượng kế hoạch:</strong> <span id="confirmQuantity"></span></li>
-                    </ul>
-                  </div>
-                  <div class="col-md-6">
-                    <h6 class="text-success mb-3">Kết quả sản xuất</h6>
-                    <ul class="list-unstyled">
-                      <li><strong>Số lượng OK:</strong> <span id="confirmGoodQty">0</span> tờ</li>
-                      <li><strong>Số lượng NG:</strong> <span id="confirmNgQty">0</span> tờ</li>
-                      <li><strong>Tiến độ:</strong> <span id="confirmProgress">0%</span></li>
-                      <li><strong>Máy sản xuất:</strong> <span id="confirmMachine">Xả 1</span></li>
-                      <li><strong>Thợ phụ trách:</strong> <span id="confirmWorker">Chưa nhập</span></li>
-                      <li><strong>Ca sản xuất:</strong> <span id="confirmShift">Ca 1</span></li>
-                    </ul>
-                  </div>
-                </div>
-                
-                <div class="alert alert-warning mt-3">
-                  <h6><i class="bi bi-exclamation-triangle me-2"></i>Thông tin bàn giao</h6>
-                  <p class="mb-2"><strong>Số lượng bàn giao:</strong> <span id="confirmHandoverQty">0</span> tờ</p>
-                  <p class="mb-2"><strong>Công đoạn tiếp theo:</strong> <span id="confirmNextStage">XÉN</span></p>
-                  <p class="mb-2"><strong>Người bàn giao:</strong> <span id="confirmHandoverPerson">Chưa nhập</span></p>
-                  <p class="mb-2"><strong>Người nhận:</strong> <span id="confirmReceiverPerson">Chưa nhập</span></p>
-                  <p class="mb-0"><strong>Ghi chú bàn giao:</strong> <span id="confirmHandoverNotes">Không có</span></p>
-                </div>
-                
-                <div class="alert alert-secondary">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="wizardConfirmHandover">
-                    <label class="form-check-label" for="wizardConfirmHandover">
-                      <strong>Tôi xác nhận đã bàn giao đủ số lượng và chất lượng cho công đoạn tiếp theo</strong>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="wizard-footer">
-              <div class="step-indicator">
-                Bước <span id="wizardCurrentStep">1</span> / 3
-              </div>
-              <div>
-                <button class="btn btn-secondary me-2" id="wizardPrevBtn" onclick="wizardPreviousStep()" style="display: none;">
-                  <i class="bi bi-arrow-left me-1"></i>Quay lại
-                </button>
-                <button class="btn btn-primary me-2" id="wizardNextBtn" onclick="wizardNextStep()">
-                  Tiếp theo<i class="bi bi-arrow-right ms-1"></i>
-                </button>
-                <button class="btn btn-success" id="wizardFinishBtn" onclick="wizardFinish()" style="display: none;">
-                  <i class="bi bi-check-lg me-1"></i>Hoàn thành
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-    </div>
-  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -728,6 +631,7 @@
     let currentEditingOrder = null;  // Đơn hàng đang chỉnh sửa
     let loadingStartTime = 0;   // Thời gian bắt đầu load
     let performanceMetrics = {}; // Metrics hiệu suất
+
 
     /**
      * =================================================================
@@ -912,45 +816,6 @@
         throw lastError;
     }
 
-    /**
-     * Load nhanh chỉ 500 records đầu tiên
-     */
-    async function loadOrdersDataFast() {
-        const timingKey = 'loadOrdersDataFast';
-        startTiming(timingKey);
-        
-        try {
-            console.log('⚡ Fast loading 500 records...');
-            showLoading('Đang tải nhanh 500 records...');
-            
-            // Load chỉ 500 records đầu tiên
-            const url = `${API_BASE_URL}/data/production_orders?limit=500`;
-            const response = await fetchWithRetry(url, {}, 1); // Chỉ retry 1 lần
-            const apiData = await response.json();
-            
-            console.log(`📊 Fast API response: ${Array.isArray(apiData) ? apiData.length : 'invalid'} records`);
-            
-            // Transform data
-            const transformStart = performance.now();
-            ordersData = transformApiData(apiData);
-            const transformTime = performance.now() - transformStart;
-            console.log(`🔄 Fast transformation: ${transformTime.toFixed(2)}ms`);
-            
-            // Re-render
-            renderOrdersTable();
-            updateStatistics();
-            
-            endTiming(timingKey, `(Fast load, ${ordersData.length} orders)`);
-            showNotification(`Đã tải nhanh ${ordersData.length} records`, 'success');
-            
-        } catch (error) {
-            console.error('❌ Fast load error:', error.message);
-            endTiming(timingKey, '(failed)');
-            showNotification('Lỗi tải nhanh: ' + error.message, 'error');
-        } finally {
-            hideLoading();
-        }
-    }
 
     /**
      * Tải dữ liệu lệnh sản xuất từ API với performance optimization
@@ -969,7 +834,7 @@
             let hasMore = true;
             
             while (hasMore) {
-                const url = `${API_BASE_URL}/data/production_orders?page=${page}&limit=${pageSize}`;
+                const url = `${API_BASE_URL}/data/production_orders/optimized?stage=xa&page=${page}&limit=${pageSize}&days_back=300`;
                 
                 // Tối ưu: Giảm timeout và retry cho load nhanh hơn
                 const fastOptions = {
@@ -1016,6 +881,10 @@
                 const transformTime = performance.now() - transformStart;
                 console.log(`🔄 Data transformation: ${transformTime.toFixed(2)}ms`);
             }
+            
+            // Lưu dữ liệu gốc cho filtering
+            originalOrdersData = [...ordersData];
+            filteredOrdersData = [...ordersData];
             
             endTiming(timingKey, `(API hit, ${ordersData.length} orders)`);
             
@@ -1099,27 +968,30 @@
     function transformOrder(order) {
         let workflowDef = order.workflow_definition;
         
-        // TEMPORARY FALLBACK: Nếu workflow_definition là null, tạo workflow test dựa trên work_stage hoặc ID
-        if (workflowDef === null || workflowDef === undefined || workflowDef === '') {
-            // Tạo workflow test dựa trên ID để demo
-            if (order.id % 3 === 0) {
-                workflowDef = "xa,in_offset,boi,kho"; // Test với in_offset
-            } else if (order.id % 3 === 1) {
-                workflowDef = "xa,xen,be,dan,kho"; // Test với xen
-            } else {
-                workflowDef = "xa,boi,kho"; // Test workflow ngắn
-            }
-        }
+        // // TEMPORARY FALLBACK: Nếu workflow_definition là null, tạo workflow test dựa trên work_stage hoặc ID
+        // if (workflowDef === null || workflowDef === undefined || workflowDef === '') {
+        //     // Tạo workflow test dựa trên ID để demo
+        //     if (order.id % 3 === 0) {
+        //         workflowDef = "xa,in_offset,boi,kho"; // Test với in_offset
+        //     } else if (order.id % 3 === 1) {
+        //         workflowDef = "xa,xen,be,dan,kho"; // Test với xen
+        //     } else {
+        //         workflowDef = "xa,boi,kho"; // Test workflow ngắn
+        //     }
+        // }
         
         const nextStage = getNextStageFromWorkflow(workflowDef, STAGE_CONFIG.KEY);
         
         return {
             id: order.id,
             production_order: order.order_code || order.production_order,
+            order_type: order.order_type || '', // Thêm trường loại LSX
             product_name: order.product_name,
             internal_product_code: order.internal_product_code,
             customer_name: order.customer_name,
             total_quantity: order.quantity || order.total_quantity,
+            deployed_quantity: order.deployed_quantity || 0, // Thêm deployed_quantity
+            sheet_count: order.sheet_count || 0, // Thêm sheet_count
             xa_input_quantity: order.quantity || order.total_quantity || 0,
             xa_output_quantity: order.xa_output_quantity || 0,
             xa_good_quantity: order.xa_good_quantity || 0,
@@ -1130,6 +1002,9 @@
             xa_note: order.xa_note || order.notes || '',
             paper_type: order.paper_type || '',
             paper_weight: order.paper_weight || 0,
+            paper_length: order.paper_length  || 0,
+            paper_width: order.paper_width  || 0,
+            blank_count: order.blank_count|| 0, // Số phôi
             production_shift: order.shift || order.production_shift || '',
             delivery_date: order.delivery_date,
             deployment_date: order.deployment_date || order.created_at,
@@ -1333,14 +1208,16 @@
             renderOrdersTable();
             endTiming('renderOrdersTable');
             
-            startTiming('updateStatistics');
+                        startTiming('updateStatistics');
             updateStatistics();
             endTiming('updateStatistics');
             
-            // Setup các event listeners
-            startTiming('setupEventListeners');
-            setupEventListeners();
-            endTiming('setupEventListeners');
+            // Khởi tạo filters
+            startTiming('setupFilters');
+            setupFilterChangeListeners();
+            setupSearchDebounce();
+            updateMachineFilterOptions();
+            endTiming('setupFilters');
             
             // Log tổng thời gian
             logTotalLoadTime();
@@ -1351,10 +1228,7 @@
             console.error('❌ Error initializing page:', error);
             showNotification('Lỗi tải dữ liệu: ' + error.message, 'error');
             
-            // Fallback: sử dụng dữ liệu mẫu
-            startTiming('loadSampleData');
-            loadSampleData();
-            endTiming('loadSampleData');
+   
             
             renderOrdersTable();
             updateStatistics();
@@ -1363,54 +1237,7 @@
         }
     }
 
-    /**
-     * =================================================================
-     * QUẢN LÝ DỮ LIỆU - DATA MANAGEMENT
-     * =================================================================
-     */
-
-
-
-    /**
-     * =================================================================
-     * REFRESH FUNCTIONS
-     * =================================================================
-     */
-
-    /**
-     * Refresh dữ liệu từ API
-     */
-    async function refreshData() {
-        console.log('🔄 Refreshing data...');
-        startTiming('refreshData');
-        
-        try {
-            showLoading('Đang làm mới dữ liệu...');
-            
-            // Reload data từ API
-            await loadOrdersData();
-            
-            // Re-render
-            renderOrdersTable();
-            updateStatistics();
-            
-            endTiming('refreshData');
-            showNotification('Đã làm mới dữ liệu thành công', 'success');
-            
-        } catch (error) {
-            console.error('❌ Refresh failed:', error);
-            endTiming('refreshData');
-            showNotification('Lỗi làm mới dữ liệu: ' + error.message, 'error');
-        } finally {
-            hideLoading();
-        }
-    }
-
-    /**
-     * =================================================================
-     * HIỂN THỊ DỮ LIỆU - DATA RENDERING
-     * =================================================================
-     */
+    
 
     /**
      * Render bảng danh sách lệnh sản xuất với performance optimization
@@ -1448,7 +1275,7 @@
             
             batch.forEach((order, batchIndex) => {
                 const index = i + batchIndex;
-                const row = createOrderTableRow(order, index);
+            const row = createOrderTableRow(order, index);
                 fragment.appendChild(row);
             });
             
@@ -1477,8 +1304,10 @@
         // Tính toán trạng thái và tiến độ
         const status = order.xa_status || 'waiting';
         const inputQty = order.xa_input_quantity || 0;
+      const sheet_count = order.sheet_count || 0; // Sửa: lấy số tờ giấy
         const goodQty = order.xa_good_quantity || 0;
         const ngQty = order.xa_ng_quantity || 0;
+        const deployedQty = order.deployed_quantity || 0;
         const progressPercent = inputQty > 0 ? Math.round((goodQty / inputQty) * 100) : 0;
         
         // Xác định icon và màu sắc theo trạng thái
@@ -1509,6 +1338,7 @@
             <td class="text-center">
                 <span class="badge bg-light text-dark">${index + 1}</span>
             </td>
+
             <td>
                 <div class="d-flex align-items-center">
                     <i class="bi ${statusIcon} ${statusClass} me-2"></i>
@@ -1518,10 +1348,14 @@
                     </div>
                 </div>
             </td>
+            
+            <td class="text-center">
+                <span class="fw-bold">${order.order_type || ''}</span>
+            </td>
             <td>
                 <div>
                     <div class="fw-bold">${order.internal_product_code}</div>
-                    <small class="text-muted" title="${order.product_name}">${truncateText(order.product_name, 30)}</small>
+                    <small class="text-muted" title="${order.product_name}">${truncateText(order.product_name, 100)}</small>
                 </div>
             </td>
             <td class="text-center">
@@ -1531,20 +1365,24 @@
                 <span class="fw-bold">${order.paper_weight || 0} gsm</span>
             </td>
             <td class="text-center">
-                <div class="fw-bold text-info">${formatNumber(inputQty)}</div>
-                <small class="text-muted">kế hoạch</small>
+                <div class="fw-bold">${formatNumber(deployedQty)}</div>
+                <small class="text-muted">pcs</small>
             </td>
             <td class="text-center">
-                <div class="fw-bold text-primary">${formatNumber(inputQty)}</div>
-                <small class="text-muted">đầu vào</small>
+                <div class="fw-bold text-primary">${formatNumber(sheet_count)}</div>
+                <small class="text-muted">tờ giấy</small>
             </td>
             <td class="text-center">
-                <div class="fw-bold text-success">${formatNumber(goodQty)}</div>
-                <small class="text-muted">OK</small>
+                <div class="fw-bold text-success">${formatNumber(order.paper_length || 0)}</div>
+                <small class="text-muted">chiều dài</small>
             </td>
             <td class="text-center">
-                <div class="fw-bold text-danger">${formatNumber(ngQty)}</div>
-                <small class="text-muted">NG</small>
+                <div class="fw-bold text-danger">${formatNumber(order.paper_width || 0)}</div>
+                <small class="text-muted">chiều rộng</small>
+            </td>
+            <td class="text-center">
+                <div class="fw-bold">${formatNumber(order.blank_count || 0)}</div>
+                <small class="text-muted">phôi</small>
             </td>
             <td class="text-center">
                 <div class="progress" style="height: 20px;">
@@ -1559,71 +1397,25 @@
                 <small class="text-muted d-block">${order.xa_machine_name || 'Chưa gán'}</small>
                 <small class="text-muted">${order.xa_worker_name || 'Chưa gán'}</small>
             </td>
-            <td class="text-center">
-                ${createActionButtons(order)}
-            </td>
+
         `;
         
-        // Add click event to show details panel
+        // Add click event to show order details
         row.style.cursor = 'pointer';
         row.onclick = (e) => {
-            // Don't trigger if clicking on action buttons
-            if (e.target.closest('.action-buttons')) {
-                return;
-            }
             showOrderDetails(order.id);
         };
         
         return row;
     }
 
-    /**
-     * Tạo các nút thao tác cho từng dòng
-     */
-    function createActionButtons(order) {
-        const status = order.xa_status || 'waiting';
-        const nextStage = order.next_stage;
-        const nextStageName = nextStage ? getStageDisplayName(nextStage) : 'HOÀN THÀNH';
-        
-        let buttons = `
-            <div class="btn-group btn-group-sm">
-                <button class="btn btn-info rounded-pill px-3 me-1" 
-                        onclick="viewOrderDetails(${order.id})" 
-                        title="Xem chi tiết">
-                    <i class="bi bi-eye me-1"></i>Chi tiết
-                </button>
-        `;
-        
-        // Nút Hoàn thành - chỉ hiện khi chưa hoàn thành
-        if (status !== 'completed') {
-            buttons += `
-                <button class="btn btn-success rounded-pill px-3" 
-                        onclick="showCompleteModal(${order.id})" 
-                        title="Hoàn thành công đoạn">
-                    <i class="bi bi-check-lg me-1"></i>Hoàn thành
-                </button>
-            `;
-        } else if (nextStage) {
-            // Nút Bàn giao - chỉ hiện khi đã hoàn thành và có stage tiếp theo
-            buttons += `
-                <button class="btn btn-primary rounded-pill px-3" 
-                        onclick="showHandoverModal(${order.id})" 
-                        title="Bàn giao cho công đoạn ${nextStageName}">
-                    <i class="bi bi-arrow-right-circle me-1"></i>Bàn giao ${nextStageName}
-                </button>
-            `;
-        } else {
-            // Đã hoàn thành và không có stage tiếp theo
-            buttons += `
-                <span class="badge bg-success">
-                    <i class="bi bi-check-circle me-1"></i>Hoàn thành workflow
-                </span>
-            `;
-        }
-        
-        buttons += `</div>`;
-        return buttons;
-    }
+
+    
+    
+
+ 
+    
+
 
     /**
      * Cập nhật thống kê tổng quan
@@ -1647,25 +1439,6 @@
      * =================================================================
      */
 
-    /**
-     * Setup các event listeners
-     */
-    function setupEventListeners() {
-        // Nút làm mới dữ liệu
-        const refreshBtn = document.querySelector('[onclick="refreshData()"]');
-        if (refreshBtn) {
-            refreshBtn.onclick = refreshData;
-        }
-        
-        // Nút thêm mới (tạm thời disable)
-        const addBtn = document.querySelector('[onclick="showNewOrderForm()"]');
-        if (addBtn) {
-            addBtn.onclick = () => showNotification('Chức năng thêm mới đang phát triển', 'info');
-        }
-        
-        // Wizard event listeners
-        setupWizardEventListeners();
-    }
 
     /**
      * Setup event listeners cho wizard form
@@ -1715,158 +1488,12 @@
         }
     }
 
-    /**
-     * Xem chi tiết lệnh sản xuất
-     */
-    function viewOrderDetails(orderId) {
-        const order = ordersData.find(o => o.id === orderId);
-        if (!order) {
-            showNotification('Không tìm thấy lệnh sản xuất', 'error');
-            return;
-        }
-        
-        // Tạo nội dung chi tiết
-        const details = `
-Mã lệnh: ${order.production_order}
-Sản phẩm: ${order.product_name}
-Mã nội bộ: ${order.internal_product_code}
-Khách hàng: ${order.customer_name}
-Loại giấy: ${order.paper_type} - ${order.paper_weight} gsm
-Số lượng kế hoạch: ${formatNumber(order.xa_input_quantity)}
-Số lượng đạt: ${formatNumber(order.xa_good_quantity)}
-Số lượng NG: ${formatNumber(order.xa_ng_quantity)}
-Máy sản xuất: ${order.xa_machine_name || 'Chưa gán'}
-Thợ phụ trách: ${order.xa_worker_name || 'Chưa gán'}
-Trạng thái: ${getStatusText(order.xa_status)}
-Ghi chú: ${order.xa_note || 'Không có'}
-        `.trim();
-        
-        alert('CHI TIẾT LỆNH SẢN XUẤT\n\n' + details);
-    }
 
-    /**
-     * Hiển thị modal hoàn thành công đoạn - Wizard Form
-     */
-    function showCompleteModal(orderId) {
-        const order = ordersData.find(o => o.id === orderId);
-        if (!order) {
-            showNotification('Không tìm thấy lệnh sản xuất', 'error');
-            return;
-        }
-        
-        currentEditingOrder = order;
-        
-        // Cập nhật thông tin về stage tiếp theo
-        const nextStage = order.next_stage;
-        const nextStageName = nextStage ? getStageDisplayName(nextStage) : 'HOÀN THÀNH WORKFLOW';
-        
-        // Cập nhật mã lệnh trong header modal
-        updateElementText('modalOrderCode', order.production_order);
-        
-        // Populate wizard form với thông tin lệnh (cho confirmation step)
-        setElementValue('wizardOrderCode', order.production_order);
-        setElementValue('wizardProductCode', order.internal_product_code || '');
-        setElementValue('wizardProductName', order.product_name);
-        setElementValue('wizardPaperType', order.paper_type || 'Chưa xác định');
-        setElementValue('wizardPaperWeight', (order.paper_weight || 0) + ' gsm');
-        setElementValue('wizardQuantity', formatNumber(order.xa_input_quantity));
-        
-        // Cập nhật thông tin công đoạn tiếp theo
-        updateElementText('wizardNextStage', nextStageName);
-        updateElementText('confirmNextStage', nextStageName);
-        
-        // Cập nhật text trong checkbox xác nhận
-        const confirmLabel = document.querySelector('label[for="wizardConfirmHandover"]');
-        if (confirmLabel && nextStage) {
-            const newConfirmText = `Tôi xác nhận đã bàn giao đủ số lượng và chất lượng cho công đoạn ${nextStageName}`;
-            confirmLabel.textContent = newConfirmText;
-        }
-        
-        // Populate form values với dữ liệu hiện tại
-        setElementValue('wizardGoodQty', order.xa_good_quantity || 0);
-        setElementValue('wizardNgQty', order.xa_ng_quantity || 0);
-        setElementValue('wizardNgStartEndQty', 0);
-        setElementValue('wizardReturnQty', 0);
-        setElementValue('wizardMachine', order.xa_machine_name || 'Xả 1');
-        setElementValue('wizardShift', order.production_shift || 'Ca 1');
-        setElementValue('wizardWorker', order.xa_worker_name || '');
-        setElementValue('wizardNote', order.xa_note || '');
-        
-        // Populate form values - Phần bàn giao
-        setElementValue('wizardHandoverDate', formatDate(new Date()));
-        setElementValue('wizardHandoverPerson', order.xa_worker_name || '');
-        setElementValue('wizardReceiverPerson', '');
-        setElementValue('wizardHandoverNotes', '');
-        setElementValue('wizardConfirmHandover', false);
-        
-        // Cập nhật số lượng bàn giao (tự động = số lượng OK)
-        updateWizardHandoverQuantity();
-        
-        // Reset wizard về bước 1
-        resetWizard();
-        
-        // Hiển thị modal
-        const modal = new bootstrap.Modal(document.getElementById('completeModal'));
-        modal.show();
-    }
 
-    /**
-     * Hiển thị modal bàn giao đơn lẻ (cho các đơn đã hoàn thành)
-     */
-    function showHandoverModal(orderId) {
-        const order = ordersData.find(o => o.id === orderId);
-        if (!order) {
-            showNotification('Không tìm thấy lệnh sản xuất', 'error');
-            return;
-        }
         
-        currentEditingOrder = order;
-        
-        // Lấy thông tin stage tiếp theo
-        const nextStage = order.next_stage;
-        const nextStageName = nextStage ? getStageDisplayName(nextStage) : 'HOÀN THÀNH';
-        
-        if (!nextStage) {
-            showNotification('Đây là công đoạn cuối cùng trong workflow', 'info');
-            return;
-        }
-        
-        // Cập nhật thông tin về stage tiếp theo
-        const handoverAlert = document.querySelector('#handover-tab-pane .alert-warning p');
-        if (handoverAlert) {
-            handoverAlert.innerHTML = `Sau khi hoàn thành, sản phẩm OK sẽ được chuyển sang công đoạn <strong>${nextStageName}</strong>`;
-        }
-        
-        // Cập nhật label cho tab bàn giao
-        const handoverTabLabel = document.getElementById('handover-tab');
-        if (handoverTabLabel) {
-            handoverTabLabel.innerHTML = `<i class="bi bi-arrow-right-circle me-1"></i>Bàn giao công đoạn ${nextStageName}`;
-        }
-        
-        // Cập nhật text trong checkbox xác nhận
-        const confirmLabel = document.querySelector('label[for="confirmHandover"]');
-        if (confirmLabel) {
-            confirmLabel.textContent = `Tôi xác nhận đã bàn giao đủ số lượng và chất lượng cho công đoạn ${nextStageName}`;
-        }
-        
-        // Populate thông tin bàn giao
-        updateElementText('handoverOrderCode', order.production_order);
-        updateElementText('handoverProductName', order.product_name);
-        setElementValue('handoverQty', order.xa_good_quantity || 0);
-        setElementValue('handoverDate', formatDate(new Date()));
-        setElementValue('handoverPerson', order.xa_worker_name || '');
-        setElementValue('receiverPerson', '');
-        setElementValue('handoverNotes', '');
-        setElementValue('confirmHandover', false);
-        
-        // Chuyển sang tab bàn giao
-        const handoverTab = document.getElementById('handover-tab');
-        if (handoverTab) handoverTab.click();
-        
-        // Hiển thị modal
-        const modal = new bootstrap.Modal(document.getElementById('completeModal'));
-        modal.show();
-    }
+
+
+
 
     /**
      * Xử lý bàn giao đơn lẻ từ XẢ sang XÉN
@@ -2322,11 +1949,11 @@ Ghi chú: ${order.xa_note || 'Không có'}
             // Xử lý hoàn thành và bàn giao
             await handleCompleteAndHandover(completionData);
             
-            // Refresh dữ liệu và đóng modal
+            // Refresh dữ liệu và đóng sidebar
             await refreshData();
             
-            const modal = bootstrap.Modal.getInstance(document.getElementById('completeModal'));
-            modal.hide();
+            // Close the sidebar
+            closeDetailsPanel();
             
             showNotification('🎉 Hoàn thành! Dữ liệu đã được lưu thành công.', 'success');
             
@@ -2526,6 +2153,9 @@ Ghi chú: ${order.xa_note || 'Không có'}
             return;
         }
 
+        // Update current editing order
+        currentEditingOrder = order;
+
         // Remove previous selection
         const previousSelected = document.querySelector('.table tbody tr.selected');
         if (previousSelected) {
@@ -2541,83 +2171,218 @@ Ghi chú: ${order.xa_note || 'Không có'}
         // Show details panel
         const detailsPanel = document.getElementById('detailsPanel');
         const contentArea = document.querySelector('.content-area');
+        const detailsContent = document.getElementById('detailsContent');
         
         detailsPanel.classList.add('show');
         contentArea.classList.add('details-open');
 
-        // Populate details content
-        const detailsContent = document.getElementById('detailsContent');
+                // Populate details content with handover form
+        const nextStage = order.next_stage;
+        const nextStageName = nextStage ? getStageDisplayName(nextStage) : 'HOÀN THÀNH';
+        
         detailsContent.innerHTML = `
-            <div class="detail-section">
-                <h6><i class="bi bi-clipboard-data me-2"></i>Thông tin cơ bản</h6>
-                <div class="detail-item">
-                    <div class="detail-label">Mã lệnh</div>
-                    <div class="detail-value">${order.order_code || 'N/A'}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Khách hàng</div>
-                    <div class="detail-value">${order.customer_name || 'N/A'}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Sản phẩm</div>
-                    <div class="detail-value">${order.product_name || 'N/A'}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Kích thước</div>
-                    <div class="detail-value">${order.size || 'N/A'}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Số lượng KH</div>
-                    <div class="detail-value">${order.plan_quantity || 'N/A'}</div>
-                </div>
-            </div>
-
-            <div class="detail-section">
-                <h6><i class="bi bi-gear me-2"></i>Trạng thái sản xuất</h6>
-                <div class="detail-item">
-                    <div class="detail-label">Trạng thái</div>
-                    <div class="detail-value">
-                        <span class="badge ${getStatusBadgeClass(order.status)}">${getStatusText(order.status)}</span>
+            <!-- Action Buttons -->
+            <div class="detail-section mb-4">
+                <div class="row g-2">
+                    <div class="col-6">
+                        <button class="btn btn-primary btn-lg w-100" onclick="startProduction()" ${order.xa_status === 'completed' ? 'disabled' : ''}>
+                            <i class="bi bi-play-circle me-2"></i>Bắt đầu
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-danger btn-lg w-100" onclick="endProduction()" ${order.xa_status === 'not_started' ? 'disabled' : ''}>
+                            <i class="bi bi-stop-circle me-2"></i>Kết thúc
+                        </button>
                     </div>
                 </div>
-                <div class="detail-item">
-                    <div class="detail-label">SL Đạt</div>
-                    <div class="detail-value">${order.good_quantity || '0'}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">SL NG</div>
-                    <div class="detail-value">${order.ng_quantity || '0'}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">SL Bàn giao</div>
-                    <div class="detail-value">${order.handover_quantity || '0'}</div>
+            </div>
+
+            <!-- Production Time Display -->
+            <div class="detail-section mb-3">
+                <h6><i class="bi bi-clock me-2"></i>Thời gian sản xuất</h6>
+                <div class="alert alert-light">
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Bắt đầu:</strong><br>
+                            <span class="text-primary">${order.xa_start_time ? formatDateTime(order.xa_start_time) : 'Chưa bắt đầu'}</span>
+                        </div>
+                        <div class="col-6">
+                            <strong>Kết thúc:</strong><br>
+                            <span class="text-primary">${order.xa_end_time ? formatDateTime(order.xa_end_time) : 'Chưa kết thúc'}</span>
+                        </div>
+                    </div>
+                    ${order.xa_start_time && order.xa_end_time ? `
+                        <hr class="my-2">
+                        <div class="text-center">
+                            <strong>Thời gian làm việc:</strong><br>
+                            <span class="text-success">${calculateWorkTime(order.xa_start_time, order.xa_end_time)}</span>
+                        </div>
+                    ` : ''}
                 </div>
             </div>
 
+    
+            <!-- Input Information Alert -->
+            <div class="alert alert-info mb-3">
+                <h6><i class="bi bi-info-circle me-2"></i>Thông tin đầu vào</h6>
+                <div>
+                    <strong>Số lượng cần triển khai:</strong> <span class="text-primary">${formatNumber(order.sheet_count) || 0}</span>
+                 tờ</div>
+            </div>
+
+
+
+            <!-- Production Results Form -->
             <div class="detail-section">
-                <h6><i class="bi bi-calendar me-2"></i>Thông tin thời gian</h6>
-                <div class="detail-item">
-                    <div class="detail-label">Ngày tạo</div>
-                    <div class="detail-value">${formatDate(order.created_at)}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Ngày cập nhật</div>
-                    <div class="detail-value">${formatDate(order.updated_at)}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Ngày hoàn thành</div>
-                    <div class="detail-value">${order.completed_at ? formatDate(order.completed_at) : 'Chưa hoàn thành'}</div>
+                <h6><i class="bi bi-clipboard-check me-2"></i>Kết quả sản xuất</h6>
+                
+                <div class="form-card">
+                    <div class="form-group">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <label class="detail-label fw-bold text-success mb-0">
+                                <i class="bi bi-check-circle me-1"></i>Số lượng đạt (OK) <span class="text-danger">*</span>
+                            </label>
+                            <input type="number" class="form-control" id="goodQty" value="${order.xa_good_quantity || 0}" min="0">
+                        </div>
+
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <label class="detail-label fw-bold text-danger mb-0">
+                                <i class="bi bi-x-circle me-1"></i>Số lượng NG <span class="text-danger">*</span>
+                            </label>
+                            <input type="number" class="form-control" id="ngQty" value="${order.xa_ng_quantity || 0}" min="0">
+                        </div>
+
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <label class="detail-label fw-bold mb-0">
+                                <i class="bi bi-exclamation-triangle me-1"></i>NG Đầu/Cuối
+                            </label>
+                            <input type="number" class="form-control" id="ngStartEndQty" value="0" min="0">
+                        </div>
+
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <label class="detail-label fw-bold  mb-0">
+                                <i class="bi bi-arrow-return-left me-1"></i>Hàng trả
+                            </label>
+                            <input type="number" class="form-control" id="returnQty" value="0" min="0">
+                        </div>
+
+                    </div>
+                    
+
                 </div>
             </div>
 
+            <!-- Production Information Form -->
             <div class="detail-section">
-                <h6><i class="bi bi-chat-text me-2"></i>Ghi chú</h6>
-                <div class="detail-item">
-                    <div class="detail-label">Ghi chú</div>
-                    <div class="detail-value">${order.notes || 'Không có ghi chú'}</div>
+                <h6><i class="bi bi-person-gear me-2"></i>Thông tin sản xuất</h6>
+                
+                <div class="form-card">
+                    <div class="form-group">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <label class="detail-label mb-0">
+                                <i class="bi bi-gear me-1"></i>Máy sản xuất
+                            </label>
+                            <select class="form-select" id="machine">
+                                <option value="Xả 1" ${order.xa_machine_name === 'Xả 1' ? 'selected' : ''}>Xả 1</option>
+                                <option value="Xả 2" ${order.xa_machine_name === 'Xả 2' ? 'selected' : ''}>Xả 2</option>
+                                <option value="Xả 3" ${order.xa_machine_name === 'Xả 3' ? 'selected' : ''}>Xả 3</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <label class="detail-label mb-0">
+                                <i class="bi bi-clock me-1"></i>Ca sản xuất
+                            </label>
+                            <select class="form-select" id="shift">
+                                <option value="Ca 1" ${order.production_shift === 'Ca 1' ? 'selected' : ''}>Ca 1 (6:00-14:00)</option>
+                                <option value="Ca 2" ${order.production_shift === 'Ca 2' ? 'selected' : ''}>Ca 2 (14:00-22:00)</option>
+                                <option value="Ca 3" ${order.production_shift === 'Ca 3' ? 'selected' : ''}>Ca 3 (22:00-6:00)</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <label class="detail-label mb-0">
+                                <i class="bi bi-person me-1"></i>Thợ phụ trách
+                            </label>
+                            <input type="text" class="form-control" id="worker" placeholder="Nhập tên thợ..." value="${order.xa_worker_name || ''}">
+                        </div>
+
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="detail-label">
+                            <i class="bi bi-chat-text me-1"></i>Ghi chú sản xuất
+                        </label>
+                        <textarea class="form-control" id="note" rows="2" placeholder="Ghi chú về quá trình sản xuất, vấn đề kỹ thuật, chất lượng...">${order.xa_note || ''}</textarea>
+
+                    </div>
                 </div>
+            </div>
+
+
+
+            <!-- Handover Form -->
+            <div class="detail-section">
+                <h6><i class="bi bi-arrow-right-circle me-2"></i>Chuyển giao công đoạn</h6>
+                
+                ${nextStage ? `
+                    <div class="alert alert-warning border-warning">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle-fill me-3 fs-4 text-warning"></i>
+                            <div>
+                                <h6 class="mb-1 fw-bold">Công đoạn tiếp theo: <span class="text-primary">${nextStageName}</span></h6>
+                                <p class="mb-0 small">Sản phẩm OK sẽ được chuyển sang công đoạn tiếp theo để tiếp tục xử lý</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <label class="detail-label fw-bold text-warning mb-0">
+                                    <i class="bi bi-box-arrow-right me-1"></i>Số lượng chuyển giao <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" class="form-control" id="handoverQty" value="${order.xa_good_quantity || 0}" min="0" max="${order.xa_good_quantity || 0}">
+                            </div>
+
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button class="btn btn-success btn-lg" onclick="executeHandover()">
+                                <i class="bi bi-check-circle me-2"></i>Cập nhật & Chuyển giao
+                            </button>
+                        </div>
+                    </div>
+                ` : `
+                    <div class="alert alert-info border-info">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-flag-checkered me-3 fs-4 text-info"></i>
+                            <div>
+                                <h6 class="mb-1 fw-bold">Đây là công đoạn cuối cùng</h6>
+                                <p class="mb-0 small">Không có công đoạn tiếp theo để chuyển giao</p>
+                            </div>
+                        </div>
+                    </div>
+                `}
             </div>
         `;
+        
+
     }
 
     function closeDetailsPanel() {
@@ -2627,10 +2392,129 @@ Ghi chú: ${order.xa_note || 'Không có'}
         detailsPanel.classList.remove('show');
         contentArea.classList.remove('details-open');
         
+
+        
         // Remove selection from table row
         const selectedRow = document.querySelector('.table tbody tr.selected');
         if (selectedRow) {
             selectedRow.classList.remove('selected');
+        }
+    }
+
+
+
+    async function executeHandover() {
+        const order = currentEditingOrder;
+        if (!order) {
+            showNotification('Lỗi: Không xác định được lệnh sản xuất', 'error');
+            return;
+        }
+        
+        try {
+            // Lấy dữ liệu kết quả sản xuất từ sidebar
+            const productionData = {
+                goodQuantity: parseInt(getElementValue('goodQty')) || 0,
+                ngQuantity: parseInt(getElementValue('ngQty')) || 0,
+                ngStartEndQuantity: parseInt(getElementValue('ngStartEndQty')) || 0,
+                returnQuantity: parseInt(getElementValue('returnQty')) || 0,
+                machine: getElementValue('machine') || '',
+                shift: getElementValue('shift') || '',
+                workerName: getElementValue('worker') || '',
+                notes: getElementValue('note') || ''
+            };
+            
+            // Log để debug
+            console.log('🔍 Lấy giá trị từ sidebar (handover):');
+            console.log('  productionData:', productionData);
+            
+            // Validation cơ bản
+            if (!productionData.workerName.trim()) {
+                showNotification('⚠️ Vui lòng nhập tên thợ phụ trách trong phần "Thông tin sản xuất"', 'warning');
+                return;
+            }
+            
+
+            
+            // Lấy dữ liệu chuyển giao
+            const handoverData = {
+                handoverQuantity: parseInt(getElementValue('handoverQty')) || 0
+            };
+            
+            // Validate kết quả sản xuất
+            if (productionData.goodQuantity + productionData.ngQuantity === 0) {
+                showNotification('Tổng số lượng phải lớn hơn 0', 'error');
+                return;
+            }
+            
+            // Validate chuyển giao
+            if (handoverData.handoverQuantity <= 0) {
+                showNotification('Số lượng chuyển giao phải lớn hơn 0', 'error');
+                return;
+            }
+            
+            if (handoverData.handoverQuantity > productionData.goodQuantity) {
+                showNotification('Số lượng chuyển giao không thể lớn hơn số lượng OK', 'error');
+                return;
+            }
+            
+            showLoading('Đang cập nhật và chuyển giao...');
+            
+            // Lấy thông tin stage tiếp theo từ workflow
+            const nextStage = order.next_stage;
+            if (!nextStage) {
+                showNotification('Không xác định được công đoạn tiếp theo', 'error');
+                return;
+            }
+            
+            // Chuẩn bị dữ liệu gửi lên API
+            const completeData = {
+                stage: 'xa',
+                output_quantity: productionData.goodQuantity + productionData.ngQuantity,
+                good_quantity: productionData.goodQuantity,
+                ng_quantity: productionData.ngQuantity,
+                worker_name: productionData.workerName,
+                machine_name: productionData.machine,
+                shift: productionData.shift,
+                notes: productionData.notes,
+                handover_quantity: handoverData.handoverQuantity,
+                next_stage: nextStage
+            };
+            
+            console.log('📤 Gửi dữ liệu complete and handover:', completeData);
+            
+            // Gửi request đến API complete_production
+            const response = await fetch(`${API_BASE_URL}/data/production_orders/${order.id}/complete_production`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(completeData)
+            });
+            
+            const result = await response.json();
+            
+            console.log('📥 Response status:', response.status);
+            console.log('📥 Response data:', result);
+            
+            if (response.ok) {
+                const nextStageName = getStageDisplayName(nextStage);
+                showNotification(
+                    `✅ Đã cập nhật kết quả sản xuất và chuyển giao ${formatNumber(handoverData.handoverQuantity)} sản phẩm cho công đoạn ${nextStageName} thành công!`,
+                    'success'
+                );
+                
+                // Refresh dữ liệu và đóng sidebar
+                await refreshData();
+                closeDetailsPanel();
+            } else {
+                throw new Error(`API error: ${response.status} - ${result.message || result.error || 'Unknown error'}`);
+            }
+            
+        } catch (error) {
+            console.error('Error executing handover:', error);
+            showNotification('Lỗi khi cập nhật và chuyển giao: ' + error.message, 'error');
+        } finally {
+            hideLoading();
         }
     }
 
@@ -2660,16 +2544,210 @@ Ghi chú: ${order.xa_note || 'Không có'}
         }
     }
 
+    // Production control functions
+    async function startProduction() {
+        const order = currentEditingOrder;
+        if (!order) {
+            showNotification('Lỗi: Không xác định được lệnh sản xuất', 'error');
+            return;
+        }
+        
+        try {
+            showLoading('Đang bắt đầu sản xuất...');
+            
+            // Lấy thông tin từ form trong sidebar
+            const machine = getElementValue('machine') || '';
+            const shift = getElementValue('shift') || '';
+            const worker = getElementValue('worker') || '';
+            const notes = getElementValue('note') || '';
+            
+            // Log để debug
+            console.log('🔍 Lấy giá trị từ sidebar:');
+            console.log('  machine:', machine);
+            console.log('  shift:', shift);
+            console.log('  worker:', worker);
+            console.log('  notes:', notes);
+            
+            // Validation cơ bản
+            if (!worker.trim()) {
+                showNotification('⚠️ Vui lòng nhập tên thợ phụ trách trong phần "Thông tin sản xuất"', 'warning');
+                return;
+            }
+            
+            // Chuẩn bị dữ liệu gửi lên API
+            const startData = {
+                stage: 'xa',
+                worker_name: worker,
+                machine_name: machine,
+                shift: shift,
+                notes: notes || 'Bắt đầu sản xuất từ giao diện XẢ'
+            };
+            
+            console.log('📤 Gửi dữ liệu start production:', startData);
+            
+            // Gửi request đến API start_production
+            const response = await fetch(`${API_BASE_URL}/data/production_orders/${order.id}/start_production`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(startData)
+            });
+            
+            const result = await response.json();
+            
+            console.log('📥 Response status:', response.status);
+            console.log('📥 Response data:', result);
+            
+            if (response.ok) {
+                showNotification('✅ Đã bắt đầu sản xuất thành công!', 'success');
+                await refreshData();
+                // Refresh sidebar content
+                showOrderDetails(order.id);
+            } else {
+                throw new Error(`API error: ${response.status} - ${result.message || result.error || 'Unknown error'}`);
+            }
+            
+        } catch (error) {
+            console.error('Error starting production:', error);
+            showNotification('Lỗi khi bắt đầu sản xuất: ' + error.message, 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+    
+    async function endProduction() {
+        const order = currentEditingOrder;
+        if (!order) {
+            showNotification('Lỗi: Không xác định được lệnh sản xuất', 'error');
+            return;
+        }
+        
+        try {
+            showLoading('Đang kết thúc sản xuất...');
+            
+            // Lấy thông tin từ form trong sidebar
+            const goodQty = parseInt(getElementValue('goodQty')) || 0;
+            const ngQty = parseInt(getElementValue('ngQty')) || 0;
+            const machine = getElementValue('machine') || '';
+            const shift = getElementValue('shift') || '';
+            const worker = getElementValue('worker') || '';
+            const notes = getElementValue('note') || '';
+            
+            // Log để debug
+            console.log('🔍 Lấy giá trị từ sidebar (end production):');
+            console.log('  goodQty:', goodQty);
+            console.log('  ngQty:', ngQty);
+            console.log('  machine:', machine);
+            console.log('  shift:', shift);
+            console.log('  worker:', worker);
+            console.log('  notes:', notes);
+            
+            // Validation cơ bản
+            if (!worker.trim()) {
+                showNotification('⚠️ Vui lòng nhập tên thợ phụ trách trong phần "Thông tin sản xuất"', 'warning');
+                return;
+            }
+            
+            // Chuẩn bị dữ liệu gửi lên API
+            const endData = {
+                stage: 'xa',
+                output_quantity: goodQty + ngQty,
+                good_quantity: goodQty,
+                ng_quantity: ngQty,
+                worker_name: worker,
+                machine_name: machine,
+                shift: shift,
+                notes: notes || 'Kết thúc sản xuất từ giao diện XẢ'
+            };
+            
+            console.log('📤 Gửi dữ liệu end production:', endData);
+            
+            // Gửi request đến API complete_production
+            const response = await fetch(`${API_BASE_URL}/data/production_orders/${order.id}/complete_production`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(endData)
+            });
+            
+            const result = await response.json();
+            
+            console.log('📥 Response status:', response.status);
+            console.log('📥 Response data:', result);
+            
+            if (response.ok) {
+                showNotification('✅ Đã kết thúc sản xuất thành công!', 'success');
+                await refreshData();
+                // Refresh sidebar content
+                showOrderDetails(order.id);
+            } else {
+                throw new Error(`API error: ${response.status} - ${result.message || result.error || 'Unknown error'}`);
+            }
+            
+        } catch (error) {
+            console.error('Error ending production:', error);
+            showNotification('Lỗi khi kết thúc sản xuất: ' + error.message, 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Utility functions for time display
+    function formatDateTime(dateString) {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleString('vi-VN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    }
+    
+
+    
+
+    
+    function formatDateTimeForInput(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+    
+    function calculateWorkTime(startTime, endTime) {
+        if (!startTime || !endTime) return 'N/A';
+        
+        const start = new Date(startTime);
+        const end = new Date(endTime);
+        const diffMs = end - start;
+        
+        const hours = Math.floor(diffMs / (1000 * 60 * 60));
+        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+        
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
     // Export functions for global access
     window.refreshData = refreshData;
-    window.loadOrdersDataFast = loadOrdersDataFast;
     window.showPerformanceMetrics = showPerformanceMetrics;
-    window.viewOrderDetails = viewOrderDetails;
-    window.showCompleteModal = showCompleteModal;
-    window.showHandoverModal = showHandoverModal;
+    
     window.executeHandoverOnly = executeHandoverOnly;
     window.completeOrder = completeOrder;
     window.updateHandoverQuantity = updateHandoverQuantity;
+    
+    // Filter functions
+    window.applyFilters = applyFilters;
+    window.clearFilters = clearFilters;
     
     // Wizard functions
     window.wizardNextStep = wizardNextStep;
@@ -2680,6 +2758,15 @@ Ghi chú: ${order.xa_note || 'Không có'}
     // Details panel functions
     window.showOrderDetails = showOrderDetails;
     window.closeDetailsPanel = closeDetailsPanel;
+    window.executeHandover = executeHandover;
+    window.startProduction = startProduction;
+    window.endProduction = endProduction;
+
+    
+
+
+
+
 
     // Add click outside listener to close details panel
     document.addEventListener('click', function(e) {
@@ -2700,6 +2787,177 @@ Ghi chú: ${order.xa_note || 'Không có'}
             closeDetailsPanel();
         }
     });
+
+    /**
+     * =================================================================
+     * FILTER FUNCTIONS - HÀM LỌC DỮ LIỆU
+     * =================================================================
+     */
+
+    // Biến lưu trữ dữ liệu gốc và dữ liệu đã lọc
+    let originalOrdersData = [];
+    let filteredOrdersData = [];
+
+    /**
+     * Áp dụng các bộ lọc
+     */
+    function applyFilters() {
+        const dateFilter = document.getElementById('dateFilter').value;
+        const shiftFilter = document.getElementById('shiftFilter').value;
+        const machineFilter = document.getElementById('machineFilter').value;
+        const searchInput = document.getElementById('searchInput').value.toLowerCase();
+
+        console.log('🔍 Applying filters:', {
+            date: dateFilter,
+            shift: shiftFilter,
+            machine: machineFilter,
+            search: searchInput
+        });
+
+        // Lọc dữ liệu
+        filteredOrdersData = originalOrdersData.filter(order => {
+            // Lọc theo ngày sản xuất
+            if (dateFilter) {
+                const orderDate = order.xa_production_date;
+                if (!orderDate || orderDate !== dateFilter) {
+                    return false;
+                }
+            }
+
+            // Lọc theo ca
+            if (shiftFilter) {
+                const orderShift = order.xa_shift;
+                if (!orderShift || orderShift !== shiftFilter) {
+                    return false;
+                }
+            }
+
+            // Lọc theo máy
+            if (machineFilter) {
+                const orderMachine = order.xa_machine_name;
+                if (!orderMachine || orderMachine !== machineFilter) {
+                    return false;
+                }
+            }
+
+            // Lọc theo tìm kiếm
+            if (searchInput) {
+                const searchFields = [
+                    order.order_type,
+                    order.production_order,
+                    order.internal_product_code,
+                    order.paper_type,
+                    order.xa_machine_name,
+                    order.xa_worker_name
+                ].map(field => (field || '').toLowerCase());
+
+                const hasMatch = searchFields.some(field => field.includes(searchInput));
+                if (!hasMatch) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        console.log(`📊 Filtered data: ${filteredOrdersData.length} / ${originalOrdersData.length} orders`);
+
+        // Cập nhật dữ liệu hiển thị
+        ordersData = filteredOrdersData;
+        
+        // Render lại bảng
+        renderOrdersTable();
+        updateStatistics();
+        
+        // Hiển thị thông báo
+        if (filteredOrdersData.length === 0) {
+            showNotification('Không tìm thấy dữ liệu phù hợp với bộ lọc', 'warning');
+        } else {
+            showNotification(`Đã lọc: ${filteredOrdersData.length} lệnh sản xuất`, 'info');
+        }
+    }
+
+    /**
+     * Xóa tất cả bộ lọc
+     */
+    function clearFilters() {
+        document.getElementById('dateFilter').value = '';
+        document.getElementById('shiftFilter').value = '';
+        document.getElementById('machineFilter').value = '';
+        document.getElementById('searchInput').value = '';
+
+        // Khôi phục dữ liệu gốc
+        ordersData = [...originalOrdersData];
+        
+        // Render lại bảng
+        renderOrdersTable();
+        updateStatistics();
+        
+        showNotification('Đã xóa tất cả bộ lọc', 'info');
+    }
+
+    /**
+     * Tự động lọc khi nhập tìm kiếm (debounce)
+     */
+    let searchTimeout;
+    function setupSearchDebounce() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    applyFilters();
+                }, 300); // Delay 300ms
+            });
+        }
+    }
+
+    /**
+     * Tự động lọc khi thay đổi bộ lọc
+     */
+    function setupFilterChangeListeners() {
+        const dateFilter = document.getElementById('dateFilter');
+        const shiftFilter = document.getElementById('shiftFilter');
+        const machineFilter = document.getElementById('machineFilter');
+
+        if (dateFilter) {
+            dateFilter.addEventListener('change', applyFilters);
+        }
+        if (shiftFilter) {
+            shiftFilter.addEventListener('change', applyFilters);
+        }
+        if (machineFilter) {
+            machineFilter.addEventListener('change', applyFilters);
+        }
+    }
+
+    /**
+     * Cập nhật danh sách máy từ dữ liệu thực tế
+     */
+    function updateMachineFilterOptions() {
+        const machineFilter = document.getElementById('machineFilter');
+        if (!machineFilter) return;
+
+        // Lấy danh sách máy từ dữ liệu
+        const machines = [...new Set(originalOrdersData
+            .map(order => order.xa_machine_name)
+            .filter(machine => machine && machine.trim() !== ''))];
+
+        // Xóa options cũ (giữ lại option "Tất cả")
+        machineFilter.innerHTML = '<option value="">Tất cả</option>';
+
+        // Thêm options mới
+        machines.sort().forEach(machine => {
+            const option = document.createElement('option');
+            option.value = machine;
+            option.textContent = machine;
+            machineFilter.appendChild(option);
+        });
+
+        console.log('🔄 Updated machine filter options:', machines);
+    }
+
+
   </script>
   
   <!-- Performance Metrics Modal -->
@@ -2740,8 +2998,10 @@ Ghi chú: ${order.xa_note || 'Không có'}
     <div class="details-content" id="detailsContent">
       <!-- Details will be loaded here -->
     </div>
-  </div>
+    
 
+  </div>
+  
   <!-- Loading Overlay -->
   <div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
     <div class="text-center text-white">

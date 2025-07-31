@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Check Columns</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 4px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Test Check Columns</h1>
+        <p>Kiểm tra cấu trúc cột của bảng production_orders</p>
+        
+        <button onclick="checkColumnTypes()">🔍 Kiểm tra kiểu dữ liệu</button>
+        <button onclick="checkAllColumns()">🔍 Kiểm tra tất cả cột XA</button>
+        
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://autoslp.duckdns.org/api';
+        
+        async function checkColumnTypes() {
+            showResult('⏳ Đang kiểm tra kiểu dữ liệu...', 'loading');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/data/check-column-types`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    let html = '<h3>Kiểu dữ liệu các cột:</h3>';
+                    html += '<table>';
+                    html += '<tr><th>Cột</th><th>Kiểu dữ liệu</th><th>Độ dài</th><th>NULL</th><th>Mặc định</th><th>Ghi chú</th></tr>';
+                    
+                    result.columns.forEach(col => {
+                        html += `<tr>
+                            <td>${col.COLUMN_NAME}</td>
+                            <td>${col.DATA_TYPE}</td>
+                            <td>${col.CHARACTER_MAXIMUM_LENGTH || '-'}</td>
+                            <td>${col.IS_NULLABLE}</td>
+                            <td>${col.COLUMN_DEFAULT || '-'}</td>
+                            <td>${col.COLUMN_COMMENT || '-'}</td>
+                        </tr>`;
+                    });
+                    
+                    html += '</table>';
+                    showResult(html, 'success');
+                } else {
+                    showResult(`❌ Lỗi: ${JSON.stringify(result, null, 2)}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('❌ Lỗi:', error);
+                showResult(`❌ Lỗi kết nối:\n${error.message}`, 'error');
+            }
+        }
+        
+        async function checkAllColumns() {
+            showResult('⏳ Đang kiểm tra tất cả cột XA...', 'loading');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/data/check-all-columns`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    let html = '<h3>Tất cả cột liên quan đến XA:</h3>';
+                    html += '<table>';
+                    html += '<tr><th>Cột</th><th>Kiểu dữ liệu</th><th>Độ dài</th><th>NULL</th><th>Mặc định</th><th>Ghi chú</th></tr>';
+                    
+                    result.columns.forEach(col => {
+                        html += `<tr>
+                            <td>${col.COLUMN_NAME}</td>
+                            <td>${col.DATA_TYPE}</td>
+                            <td>${col.CHARACTER_MAXIMUM_LENGTH || '-'}</td>
+                            <td>${col.IS_NULLABLE}</td>
+                            <td>${col.COLUMN_DEFAULT || '-'}</td>
+                            <td>${col.COLUMN_COMMENT || '-'}</td>
+                        </tr>`;
+                    });
+                    
+                    html += '</table>';
+                    showResult(html, 'success');
+                } else {
+                    showResult(`❌ Lỗi: ${JSON.stringify(result, null, 2)}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('❌ Lỗi:', error);
+                showResult(`❌ Lỗi kết nối:\n${error.message}`, 'error');
+            }
+        }
+        
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = message;
+            resultDiv.className = `result ${type}`;
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html> 

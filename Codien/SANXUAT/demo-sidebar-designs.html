@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Sidebar Designs - Carton Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .demo-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .demo-preview {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            position: relative;
+        }
+
+        .demo-info {
+            padding: 1.5rem;
+        }
+
+        .demo-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .demo-description {
+            color: #6c757d;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .demo-features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .demo-features li {
+            padding: 0.25rem 0;
+            color: #495057;
+            font-size: 0.9rem;
+        }
+
+        .demo-features li:before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .select-btn {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        /* Demo 1: Modern Minimal */
+        .demo-1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .demo-1 .section-header {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Demo 2: Material Design */
+        .demo-2 {
+            background: #fafafa;
+        }
+
+        .demo-2 .form-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Demo 3: Dark Theme */
+        .demo-3 {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .demo-3 .form-card {
+            background: #34495e;
+            border: 1px solid #4a5f7a;
+            color: white;
+        }
+
+        /* Demo 4: Colorful */
+        .demo-4 .section-header {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        /* Demo 5: Professional */
+        .demo-5 {
+            background: #f8f9fa;
+        }
+
+        .demo-5 .form-card {
+            border-left: 4px solid #007bff;
+            background: white;
+        }
+
+        /* Demo 6: Rounded */
+        .demo-6 .form-card {
+            border-radius: 20px;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Demo 7: Flat */
+        .demo-7 {
+            background: white;
+        }
+
+        .demo-7 .form-card {
+            border: 2px solid #e9ecef;
+            background: #f8f9fa;
+        }
+
+        /* Demo 8: Gradient Cards */
+        .demo-8 .form-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* Demo 9: Bordered */
+        .demo-9 .form-card {
+            border: 3px solid #dee2e6;
+            background: white;
+        }
+
+        /* Demo 10: Shadow */
+        .demo-10 .form-card {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            background: white;
+            border-radius: 12px;
+        }
+
+        /* Common styles for all demos */
+        .demo-preview {
+            padding: 1rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+        }
+
+        .section-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .form-card {
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+        }
+
+        .btn {
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .alert {
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1 class="mb-3">
+                <i class="bi bi-palette me-2"></i>
+                Demo Sidebar Designs
+            </h1>
+            <p class="lead mb-0">Chọn 1 trong 10 thiết kế sidebar để áp dụng cho hệ thống Carton Manager</p>
+        </div>
+
+        <div class="demo-grid">
+            <!-- Demo 1: Modern Minimal -->
+            <div class="demo-card">
+                <div class="demo-preview demo-1">
+                    <div class="section-header">
+                        <h6><i class="bi bi-clipboard-check me-2"></i>Kết quả sản xuất</h6>
+                        <div class="section-badge bg-white text-dark">Bước 1</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-check-circle me-1"></i>Số lượng đạt (OK)
+                            </label>
+                            <input type="number" class="form-control" value="150" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-x-circle me-1"></i>Số lượng NG
+                            </label>
+                            <input type="number" class="form-control" value="5" readonly>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <h6><i class="bi bi-person-gear me-2"></i>Thông tin sản xuất</h6>
+                        <div class="section-badge bg-white text-dark">Bước 2</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-gear me-1"></i>Máy sản xuất
+                            </label>
+                            <select class="form-select" readonly>
+                                <option selected>Xả 1</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <div class="demo-title">Modern Minimal</div>
+                    <div class="demo-description">Thiết kế tối giản với gradient màu tím xanh, giao diện sạch sẽ và hiện đại.</div>
+                    <ul class="demo-features">
+                        <li>Gradient background đẹp mắt</li>
+                        <li>Typography rõ ràng</li>
+                        <li>Spacing cân đối</li>
+                        <li>Phù hợp cho ứng dụng hiện đại</li>
+                    </ul>
+                    <button class="btn btn-primary select-btn" onclick="selectDesign(1)">Chọn thiết kế này</button>
+                </div>
+            </div>
+
+            <!-- Demo 2: Material Design -->
+            <div class="demo-card">
+                <div class="demo-preview demo-2">
+                    <div class="section-header">
+                        <h6><i class="bi bi-clipboard-check me-2"></i>Kết quả sản xuất</h6>
+                        <div class="section-badge bg-success text-white">Bước 1</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label text-success">
+                                <i class="bi bi-check-circle me-1"></i>Số lượng đạt (OK)
+                            </label>
+                            <input type="number" class="form-control form-control-lg" value="150" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-danger">
+                                <i class="bi bi-x-circle me-1"></i>Số lượng NG
+                            </label>
+                            <input type="number" class="form-control form-control-lg" value="5" readonly>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <h6><i class="bi bi-person-gear me-2"></i>Thông tin sản xuất</h6>
+                        <div class="section-badge bg-primary text-white">Bước 2</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label text-primary">
+                                <i class="bi bi-gear me-1"></i>Máy sản xuất
+                            </label>
+                            <select class="form-select form-select-lg" readonly>
+                                <option selected>Xả 1</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <div class="demo-title">Material Design</div>
+                    <div class="demo-description">Theo phong cách Google Material Design với elevation và color coding.</div>
+                    <ul class="demo-features">
+                        <li>Elevation shadows</li>
+                        <li>Color-coded sections</li>
+                        <li>Large form controls</li>
+                        <li>Material icons</li>
+                    </ul>
+                    <button class="btn btn-primary select-btn" onclick="selectDesign(2)">Chọn thiết kế này</button>
+                </div>
+            </div>
+
+            <!-- Demo 3: Dark Theme -->
+            <div class="demo-card">
+                <div class="demo-preview demo-3">
+                    <div class="section-header">
+                        <h6><i class="bi bi-clipboard-check me-2"></i>Kết quả sản xuất</h6>
+                        <div class="section-badge bg-success text-white">Bước 1</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label text-success">
+                                <i class="bi bi-check-circle me-1"></i>Số lượng đạt (OK)
+                            </label>
+                            <input type="number" class="form-control bg-dark text-white" value="150" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-danger">
+                                <i class="bi bi-x-circle me-1"></i>Số lượng NG
+                            </label>
+                            <input type="number" class="form-control bg-dark text-white" value="5" readonly>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <h6><i class="bi bi-person-gear me-2"></i>Thông tin sản xuất</h6>
+                        <div class="section-badge bg-primary text-white">Bước 2</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label text-primary">
+                                <i class="bi bi-gear me-1"></i>Máy sản xuất
+                            </label>
+                            <select class="form-select bg-dark text-white" readonly>
+                                <option selected>Xả 1</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <div class="demo-title">Dark Theme</div>
+                    <div class="demo-description">Giao diện tối với màu sắc tương phản cao, dễ chịu cho mắt.</div>
+                    <ul class="demo-features">
+                        <li>Dark background</li>
+                        <li>High contrast</li>
+                        <li>Eye-friendly</li>
+                        <li>Modern appearance</li>
+                    </ul>
+                    <button class="btn btn-primary select-btn" onclick="selectDesign(3)">Chọn thiết kế này</button>
+                </div>
+            </div>
+
+            <!-- Demo 4: Colorful -->
+            <div class="demo-card">
+                <div class="demo-preview demo-4">
+                    <div class="section-header">
+                        <h6><i class="bi bi-clipboard-check me-2"></i>Kết quả sản xuất</h6>
+                        <div class="section-badge bg-success text-white">Bước 1</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label text-success">
+                                <i class="bi bi-check-circle me-1"></i>Số lượng đạt (OK)
+                            </label>
+                            <input type="number" class="form-control" value="150" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-danger">
+                                <i class="bi bi-x-circle me-1"></i>Số lượng NG
+                            </label>
+                            <input type="number" class="form-control" value="5" readonly>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <h6><i class="bi bi-person-gear me-2"></i>Thông tin sản xuất</h6>
+                        <div class="section-badge bg-primary text-white">Bước 2</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label text-primary">
+                                <i class="bi bi-gear me-1"></i>Máy sản xuất
+                            </label>
+                            <select class="form-select" readonly>
+                                <option selected>Xả 1</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <div class="demo-title">Colorful</div>
+                    <div class="demo-description">Thiết kế đầy màu sắc với gradient headers và color coding rõ ràng.</div>
+                    <ul class="demo-features">
+                        <li>Gradient headers</li>
+                        <li>Vibrant colors</li>
+                        <li>Color-coded sections</li>
+                        <li>Eye-catching design</li>
+                    </ul>
+                    <button class="btn btn-primary select-btn" onclick="selectDesign(4)">Chọn thiết kế này</button>
+                </div>
+            </div>
+
+            <!-- Demo 5: Professional -->
+            <div class="demo-card">
+                <div class="demo-preview demo-5">
+                    <div class="section-header">
+                        <h6><i class="bi bi-clipboard-check me-2"></i>Kết quả sản xuất</h6>
+                        <div class="section-badge bg-success text-white">Bước 1</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-check-circle me-1"></i>Số lượng đạt (OK)
+                            </label>
+                            <input type="number" class="form-control" value="150" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-x-circle me-1"></i>Số lượng NG
+                            </label>
+                            <input type="number" class="form-control" value="5" readonly>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <h6><i class="bi bi-person-gear me-2"></i>Thông tin sản xuất</h6>
+                        <div class="section-badge bg-primary text-white">Bước 2</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-gear me-1"></i>Máy sản xuất
+                            </label>
+                            <select class="form-select" readonly>
+                                <option selected>Xả 1</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <div class="demo-title">Professional</div>
+                    <div class="demo-description">Thiết kế chuyên nghiệp với accent border và typography rõ ràng.</div>
+                    <ul class="demo-features">
+                        <li>Accent borders</li>
+                        <li>Clean typography</li>
+                        <li>Professional look</li>
+                        <li>Business-friendly</li>
+                    </ul>
+                    <button class="btn btn-primary select-btn" onclick="selectDesign(5)">Chọn thiết kế này</button>
+                </div>
+            </div>
+
+            <!-- Demo 6: Rounded -->
+            <div class="demo-card">
+                <div class="demo-preview demo-6">
+                    <div class="section-header">
+                        <h6><i class="bi bi-clipboard-check me-2"></i>Kết quả sản xuất</h6>
+                        <div class="section-badge bg-success text-white">Bước 1</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-check-circle me-1"></i>Số lượng đạt (OK)
+                            </label>
+                            <input type="number" class="form-control" value="150" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-x-circle me-1"></i>Số lượng NG
+                            </label>
+                            <input type="number" class="form-control" value="5" readonly>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <h6><i class="bi bi-person-gear me-2"></i>Thông tin sản xuất</h6>
+                        <div class="section-badge bg-primary text-white">Bước 2</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-gear me-1"></i>Máy sản xuất
+                            </label>
+                            <select class="form-select" readonly>
+                                <option selected>Xả 1</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <div class="demo-title">Rounded</div>
+                    <div class="demo-description">Thiết kế với các góc bo tròn lớn, tạo cảm giác mềm mại và thân thiện.</div>
+                    <ul class="demo-features">
+                        <li>Large border radius</li>
+                        <li>Soft appearance</li>
+                        <li>Friendly design</li>
+                        <li>Modern rounded style</li>
+                    </ul>
+                    <button class="btn btn-primary select-btn" onclick="selectDesign(6)">Chọn thiết kế này</button>
+                </div>
+            </div>
+
+            <!-- Demo 7: Flat -->
+            <div class="demo-card">
+                <div class="demo-preview demo-7">
+                    <div class="section-header">
+                        <h6><i class="bi bi-clipboard-check me-2"></i>Kết quả sản xuất</h6>
+                        <div class="section-badge bg-success text-white">Bước 1</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-check-circle me-1"></i>Số lượng đạt (OK)
+                            </label>
+                            <input type="number" class="form-control" value="150" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-x-circle me-1"></i>Số lượng NG
+                            </label>
+                            <input type="number" class="form-control" value="5" readonly>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <h6><i class="bi bi-person-gear me-2"></i>Thông tin sản xuất</h6>
+                        <div class="section-badge bg-primary text-white">Bước 2</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-gear me-1"></i>Máy sản xuất
+                            </label>
+                            <select class="form-select" readonly>
+                                <option selected>Xả 1</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <div class="demo-title">Flat Design</div>
+                    <div class="demo-description">Thiết kế phẳng với ít shadow, tập trung vào màu sắc và typography.</div>
+                    <ul class="demo-features">
+                        <li>Minimal shadows</li>
+                        <li>Flat appearance</li>
+                        <li>Clean borders</li>
+                        <li>Simple design</li>
+                    </ul>
+                    <button class="btn btn-primary select-btn" onclick="selectDesign(7)">Chọn thiết kế này</button>
+                </div>
+            </div>
+
+            <!-- Demo 8: Gradient Cards -->
+            <div class="demo-card">
+                <div class="demo-preview demo-8">
+                    <div class="section-header">
+                        <h6><i class="bi bi-clipboard-check me-2"></i>Kết quả sản xuất</h6>
+                        <div class="section-badge bg-white text-dark">Bước 1</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-check-circle me-1"></i>Số lượng đạt (OK)
+                            </label>
+                            <input type="number" class="form-control bg-white text-dark" value="150" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-x-circle me-1"></i>Số lượng NG
+                            </label>
+                            <input type="number" class="form-control bg-white text-dark" value="5" readonly>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <h6><i class="bi bi-person-gear me-2"></i>Thông tin sản xuất</h6>
+                        <div class="section-badge bg-white text-dark">Bước 2</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-gear me-1"></i>Máy sản xuất
+                            </label>
+                            <select class="form-select bg-white text-dark" readonly>
+                                <option selected>Xả 1</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <div class="demo-title">Gradient Cards</div>
+                    <div class="demo-description">Thiết kế với gradient background cho các card, tạo hiệu ứng đẹp mắt.</div>
+                    <ul class="demo-features">
+                        <li>Gradient backgrounds</li>
+                        <li>Colorful cards</li>
+                        <li>Modern gradients</li>
+                        <li>Eye-catching design</li>
+                    </ul>
+                    <button class="btn btn-primary select-btn" onclick="selectDesign(8)">Chọn thiết kế này</button>
+                </div>
+            </div>
+
+            <!-- Demo 9: Bordered -->
+            <div class="demo-card">
+                <div class="demo-preview demo-9">
+                    <div class="section-header">
+                        <h6><i class="bi bi-clipboard-check me-2"></i>Kết quả sản xuất</h6>
+                        <div class="section-badge bg-success text-white">Bước 1</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-check-circle me-1"></i>Số lượng đạt (OK)
+                            </label>
+                            <input type="number" class="form-control" value="150" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-x-circle me-1"></i>Số lượng NG
+                            </label>
+                            <input type="number" class="form-control" value="5" readonly>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <h6><i class="bi bi-person-gear me-2"></i>Thông tin sản xuất</h6>
+                        <div class="section-badge bg-primary text-white">Bước 2</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-gear me-1"></i>Máy sản xuất
+                            </label>
+                            <select class="form-select" readonly>
+                                <option selected>Xả 1</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <div class="demo-title">Bordered</div>
+                    <div class="demo-description">Thiết kế với border dày và rõ ràng, tạo cấu trúc phân chia rõ ràng.</div>
+                    <ul class="demo-features">
+                        <li>Thick borders</li>
+                        <li>Clear separation</li>
+                        <li>Structured layout</li>
+                        <li>Defined sections</li>
+                    </ul>
+                    <button class="btn btn-primary select-btn" onclick="selectDesign(9)">Chọn thiết kế này</button>
+                </div>
+            </div>
+
+            <!-- Demo 10: Shadow -->
+            <div class="demo-card">
+                <div class="demo-preview demo-10">
+                    <div class="section-header">
+                        <h6><i class="bi bi-clipboard-check me-2"></i>Kết quả sản xuất</h6>
+                        <div class="section-badge bg-success text-white">Bước 1</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-check-circle me-1"></i>Số lượng đạt (OK)
+                            </label>
+                            <input type="number" class="form-control" value="150" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-x-circle me-1"></i>Số lượng NG
+                            </label>
+                            <input type="number" class="form-control" value="5" readonly>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <h6><i class="bi bi-person-gear me-2"></i>Thông tin sản xuất</h6>
+                        <div class="section-badge bg-primary text-white">Bước 2</div>
+                    </div>
+                    
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-gear me-1"></i>Máy sản xuất
+                            </label>
+                            <select class="form-select" readonly>
+                                <option selected>Xả 1</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="demo-info">
+                    <div class="demo-title">Shadow</div>
+                    <div class="demo-description">Thiết kế với shadow sâu, tạo hiệu ứng nổi 3D và depth.</div>
+                    <ul class="demo-features">
+                        <li>Deep shadows</li>
+                        <li>3D effect</li>
+                        <li>Depth perception</li>
+                        <li>Modern appearance</li>
+                    </ul>
+                    <button class="btn btn-primary select-btn" onclick="selectDesign(10)">Chọn thiết kế này</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <div class="alert alert-info">
+                <h5><i class="bi bi-info-circle me-2"></i>Hướng dẫn</h5>
+                <p class="mb-0">Click vào nút "Chọn thiết kế này" để xem chi tiết và áp dụng thiết kế cho hệ thống Carton Manager.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectDesign(designNumber) {
+            const designs = {
+                1: "Modern Minimal - Gradient tím xanh, giao diện tối giản",
+                2: "Material Design - Theo phong cách Google với elevation",
+                3: "Dark Theme - Giao diện tối với contrast cao",
+                4: "Colorful - Đầy màu sắc với gradient headers",
+                5: "Professional - Chuyên nghiệp với accent borders",
+                6: "Rounded - Góc bo tròn lớn, mềm mại",
+                7: "Flat Design - Thiết kế phẳng, đơn giản",
+                8: "Gradient Cards - Card với gradient background",
+                9: "Bordered - Border dày, cấu trúc rõ ràng",
+                10: "Shadow - Shadow sâu, hiệu ứng 3D"
+            };
+
+            const selectedDesign = designs[designNumber];
+            
+            // Hiển thị thông báo
+            alert(`Bạn đã chọn: ${selectedDesign}\n\nThiết kế này sẽ được áp dụng cho sidebar của hệ thống Carton Manager.`);
+            
+            // Có thể thêm logic để lưu lựa chọn hoặc chuyển hướng
+            console.log(`Selected design: ${designNumber} - ${selectedDesign}`);
+        }
+
+        // Thêm hiệu ứng hover cho các card
+        document.querySelectorAll('.demo-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html> 

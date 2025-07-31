@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Expandable Row Designs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; padding: 20px; }
+        .demo-container { max-width: 1200px; margin: 0 auto; }
+        .demo-section { background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .demo-header { background: #495057; color: white; padding: 15px 20px; font-weight: 600; }
+        .demo-content { padding: 20px; }
+        .order-row { cursor: pointer; transition: background-color 0.2s; }
+        .order-row:hover { background-color: #f8f9fa; }
+        .order-row.selected { background-color: #e3f2fd; border-left: 4px solid #2196f3; }
+        .expandable-row { background-color: #f8f9fa; border-left: 4px solid #007bff; }
+        .expandable-content { animation: slideDown 0.3s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Design 1: Simple Table */
+        .design-1 .expandable-table { margin-bottom: 0; border: 1px solid #e9ecef; }
+        .design-1 .expandable-table thead th { background-color: #f8f9fa; border-bottom: 2px solid #e9ecef; font-weight: 600; text-align: center; padding: 0.5rem 0.25rem; font-size: 0.8rem; color: #495057; }
+        .design-1 .expandable-table tbody td { padding: 0.75rem 0.25rem; vertical-align: middle; border: 1px solid #e9ecef; text-align: center; font-size: 0.85rem; color: #212529; }
+        
+        /* Design 2: Cards Layout */
+        .design-2 .expandable-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; padding: 20px; }
+        .design-2 .info-card { background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .design-2 .card-title { font-size: 0.9rem; font-weight: 600; color: #495057; margin-bottom: 10px; border-bottom: 1px solid #e9ecef; padding-bottom: 5px; }
+        .design-2 .card-value { font-size: 0.85rem; color: #212529; font-weight: 500; }
+        
+        /* Design 3: List Layout */
+        .design-3 .expandable-list { padding: 20px; }
+        .design-3 .list-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f3f4; }
+        .design-3 .list-item:last-child { border-bottom: none; }
+        .design-3 .list-label { font-weight: 600; color: #495057; font-size: 0.85rem; }
+        .design-3 .list-value { color: #212529; font-size: 0.85rem; }
+        
+        /* Design 4: Grid Layout */
+        .design-4 .expandable-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 20px; }
+        .design-4 .grid-item { text-align: center; padding: 15px; background: white; border-radius: 6px; border: 1px solid #e9ecef; }
+        .design-4 .grid-label { font-size: 0.75rem; color: #6c757d; margin-bottom: 5px; }
+        .design-4 .grid-value { font-size: 1rem; font-weight: 600; color: #212529; }
+        
+        /* Design 5: Minimal Table */
+        .design-5 .expandable-table { margin-bottom: 0; border: none; }
+        .design-5 .expandable-table thead th { background-color: transparent; border-bottom: 1px solid #dee2e6; font-weight: 500; text-align: left; padding: 0.5rem 0; font-size: 0.8rem; color: #6c757d; }
+        .design-5 .expandable-table tbody td { padding: 0.5rem 0; border: none; text-align: left; font-size: 0.85rem; color: #212529; }
+        
+        /* Design 6: Compact Cards */
+        .design-6 .expandable-cards { display: flex; flex-wrap: wrap; gap: 10px; padding: 15px; }
+        .design-6 .info-card { flex: 1; min-width: 150px; background: white; border: 1px solid #e9ecef; border-radius: 4px; padding: 10px; }
+        .design-6 .card-title { font-size: 0.75rem; color: #6c757d; margin-bottom: 5px; }
+        .design-6 .card-value { font-size: 0.9rem; font-weight: 600; color: #212529; }
+        
+        /* Design 7: Horizontal Layout */
+        .design-7 .expandable-horizontal { display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; }
+        .design-7 .horizontal-item { display: flex; align-items: center; gap: 10px; padding: 8px 15px; background: white; border-radius: 20px; border: 1px solid #e9ecef; }
+        .design-7 .item-label { font-size: 0.8rem; color: #6c757d; font-weight: 500; }
+        .design-7 .item-value { font-size: 0.85rem; font-weight: 600; color: #212529; }
+        
+        /* Design 8: Statistics Cards */
+        .design-8 .expandable-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; padding: 20px; }
+        .design-8 .stat-card { text-align: center; padding: 15px 10px; background: white; border-radius: 8px; border: 1px solid #e9ecef; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .design-8 .stat-number { font-size: 1.2rem; font-weight: 700; color: #212529; margin-bottom: 5px; }
+        .design-8 .stat-label { font-size: 0.75rem; color: #6c757d; }
+        
+        /* Design 9: Timeline Layout */
+        .design-9 .expandable-timeline { padding: 20px; }
+        .design-9 .timeline-item { display: flex; align-items: center; margin-bottom: 15px; padding: 10px; background: white; border-radius: 6px; border-left: 3px solid #007bff; }
+        .design-9 .timeline-icon { width: 30px; height: 30px; background: #007bff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; margin-right: 15px; }
+        .design-9 .timeline-content { flex: 1; }
+        .design-9 .timeline-label { font-size: 0.8rem; color: #6c757d; margin-bottom: 2px; }
+        .design-9 .timeline-value { font-size: 0.9rem; font-weight: 600; color: #212529; }
+        
+        /* Design 10: Modern Dashboard */
+        .design-10 .expandable-dashboard { padding: 20px; }
+        .design-10 .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e9ecef; }
+        .design-10 .dashboard-title { font-size: 1.1rem; font-weight: 600; color: #212529; }
+        .design-10 .dashboard-stats { display: flex; gap: 20px; }
+        .design-10 .stat-item { text-align: center; }
+        .design-10 .stat-number { font-size: 1.5rem; font-weight: 700; color: #007bff; }
+        .design-10 .stat-label { font-size: 0.75rem; color: #6c757d; }
+        .design-10 .dashboard-content { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .design-10 .main-info, .design-10 .side-info { background: white; border-radius: 8px; padding: 15px; border: 1px solid #e9ecef; }
+        .design-10 .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .design-10 .info-label { font-size: 0.8rem; color: #6c757d; }
+        .design-10 .info-value { font-size: 0.85rem; font-weight: 600; color: #212529; }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="text-center mb-4">
+            <h2><i class="bi bi-grid-3x3-gap me-2"></i>Demo Expandable Row Designs</h2>
+            <p class="text-muted">Click vào dòng để xem 10 mẫu thiết kế khác nhau</p>
+        </div>
+
+        <!-- Design 1: Simple Table -->
+        <div class="demo-section">
+            <div class="demo-header"><i class="bi bi-table me-2"></i>Design 1: Simple Table</div>
+            <div class="demo-content">
+                <table class="table table-sm">
+                    <thead><tr><th>STT</th><th>Lệnh sản xuất</th><th>Sản phẩm</th><th>Trạng thái</th></tr></thead>
+                    <tbody>
+                        <tr class="order-row design-1" onclick="toggleDesign(1)">
+                            <td>1</td><td>PO-2024-001</td><td>Hộp giấy A4</td><td><span class="badge bg-warning">Đang xử lý</span></td>
+                        </tr>
+                        <tr class="expandable-row design-1" id="expand-1" style="display: none;">
+                            <td colspan="4">
+                                <div class="expandable-content">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm expandable-table">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th class="text-secondary"><i class="bi bi-info-circle me-1"></i>Khách hàng</th>
+                                                    <th class="text-secondary"><i class="bi bi-box me-1"></i>Sản phẩm</th>
+                                                    <th class="text-secondary"><i class="bi bi-gear me-1"></i>Máy sản xuất</th>
+                                                    <th class="text-secondary"><i class="bi bi-clock me-1"></i>Bắt đầu</th>
+                                                    <th class="text-secondary"><i class="bi bi-check-circle me-1"></i>Sản phẩm OK</th>
+                                                    <th class="text-secondary"><i class="bi bi-flag me-1"></i>Trạng thái</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="fw-bold">Công ty ABC</td>
+                                                    <td class="fw-bold">Hộp giấy A4</td>
+                                                    <td class="fw-bold">Xả 1</td>
+                                                    <td class="fw-bold">08:00 15/01/2024</td>
+                                                    <td class="fw-bold">1,500</td>
+                                                    <td><span class="badge bg-secondary">Đang xử lý</span></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Design 2: Cards Layout -->
+        <div class="demo-section">
+            <div class="demo-header"><i class="bi bi-grid me-2"></i>Design 2: Cards Layout</div>
+            <div class="demo-content">
+                <table class="table table-sm">
+                    <thead><tr><th>STT</th><th>Lệnh sản xuất</th><th>Sản phẩm</th><th>Trạng thái</th></tr></thead>
+                    <tbody>
+                        <tr class="order-row design-2" onclick="toggleDesign(2)">
+                            <td>2</td><td>PO-2024-002</td><td>Bao bì carton</td><td><span class="badge bg-success">Hoàn thành</span></td>
+                        </tr>
+                        <tr class="expandable-row design-2" id="expand-2" style="display: none;">
+                            <td colspan="4">
+                                <div class="expandable-content">
+                                    <div class="expandable-cards">
+                                        <div class="info-card"><div class="card-title">Khách hàng</div><div class="card-value">Công ty XYZ</div></div>
+                                        <div class="info-card"><div class="card-title">Sản phẩm</div><div class="card-value">Bao bì carton</div></div>
+                                        <div class="info-card"><div class="card-title">Máy sản xuất</div><div class="card-value">Xả 2</div></div>
+                                        <div class="info-card"><div class="card-title">Thợ phụ trách</div><div class="card-value">Nguyễn Văn A</div></div>
+                                        <div class="info-card"><div class="card-title">Bắt đầu</div><div class="card-value">08:00 15/01/2024</div></div>
+                                        <div class="info-card"><div class="card-title">Kết thúc</div><div class="card-value">16:00 15/01/2024</div></div>
+                                        <div class="info-card"><div class="card-title">Sản phẩm OK</div><div class="card-value">2,000</div></div>
+                                        <div class="info-card"><div class="card-title">Sản phẩm NG</div><div class="card-value">50</div></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Design 3: List Layout -->
+        <div class="demo-section">
+            <div class="demo-header"><i class="bi bi-list me-2"></i>Design 3: List Layout</div>
+            <div class="demo-content">
+                <table class="table table-sm">
+                    <thead><tr><th>STT</th><th>Lệnh sản xuất</th><th>Sản phẩm</th><th>Trạng thái</th></tr></thead>
+                    <tbody>
+                        <tr class="order-row design-3" onclick="toggleDesign(3)">
+                            <td>3</td><td>PO-2024-003</td><td>Giấy in</td><td><span class="badge bg-primary">Chờ xử lý</span></td>
+                        </tr>
+                        <tr class="expandable-row design-3" id="expand-3" style="display: none;">
+                            <td colspan="4">
+                                <div class="expandable-content">
+                                    <div class="expandable-list">
+                                        <div class="list-item"><span class="list-label">Khách hàng:</span><span class="list-value">Công ty DEF</span></div>
+                                        <div class="list-item"><span class="list-label">Sản phẩm:</span><span class="list-value">Giấy in A4</span></div>
+                                        <div class="list-item"><span class="list-label">Kích thước:</span><span class="list-value">210 x 297 mm</span></div>
+                                        <div class="list-item"><span class="list-label">Máy sản xuất:</span><span class="list-value">Xả 3</span></div>
+                                        <div class="list-item"><span class="list-label">Thợ phụ trách:</span><span class="list-value">Trần Thị B</span></div>
+                                        <div class="list-item"><span class="list-label">Ca sản xuất:</span><span class="list-value">Ca 1 (6:00-14:00)</span></div>
+                                        <div class="list-item"><span class="list-label">Số lượng kế hoạch:</span><span class="list-value">3,000</span></div>
+                                        <div class="list-item"><span class="list-label">Trạng thái:</span><span class="list-value"><span class="badge bg-secondary">Chờ xử lý</span></span></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Design 4: Grid Layout -->
+        <div class="demo-section">
+            <div class="demo-header"><i class="bi bi-grid-3x3 me-2"></i>Design 4: Grid Layout</div>
+            <div class="demo-content">
+                <table class="table table-sm">
+                    <thead><tr><th>STT</th><th>Lệnh sản xuất</th><th>Sản phẩm</th><th>Trạng thái</th></tr></thead>
+                    <tbody>
+                        <tr class="order-row design-4" onclick="toggleDesign(4)">
+                            <td>4</td><td>PO-2024-004</td><td>Bìa cứng</td><td><span class="badge bg-info">Tạm dừng</span></td>
+                        </tr>
+                        <tr class="expandable-row design-4" id="expand-4" style="display: none;">
+                            <td colspan="4">
+                                <div class="expandable-content">
+                                    <div class="expandable-grid">
+                                        <div class="grid-item"><div class="grid-label">Khách hàng</div><div class="grid-value">Công ty GHI</div></div>
+                                        <div class="grid-item"><div class="grid-label">Sản phẩm</div><div class="grid-value">Bìa cứng</div></div>
+                                        <div class="grid-item"><div class="grid-label">Máy sản xuất</div><div class="grid-value">Xả 1</div></div>
+                                        <div class="grid-item"><div class="grid-label">Thợ phụ trách</div><div class="grid-value">Lê Văn C</div></div>
+                                        <div class="grid-item"><div class="grid-label">Bắt đầu</div><div class="grid-value">08:00</div></div>
+                                        <div class="grid-item"><div class="grid-label">Kết thúc</div><div class="grid-value">12:00</div></div>
+                                        <div class="grid-item"><div class="grid-label">Sản phẩm OK</div><div class="grid-value">800</div></div>
+                                        <div class="grid-item"><div class="grid-label">Hiệu suất</div><div class="grid-value">80%</div></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Design 5: Minimal Table -->
+        <div class="demo-section">
+            <div class="demo-header"><i class="bi bi-table me-2"></i>Design 5: Minimal Table</div>
+            <div class="demo-content">
+                <table class="table table-sm">
+                    <thead><tr><th>STT</th><th>Lệnh sản xuất</th><th>Sản phẩm</th><th>Trạng thái</th></tr></thead>
+                    <tbody>
+                        <tr class="order-row design-5" onclick="toggleDesign(5)">
+                            <td>5</td><td>PO-2024-005</td><td>Giấy kraft</td><td><span class="badge bg-warning">Đang xử lý</span></td>
+                        </tr>
+                        <tr class="expandable-row design-5" id="expand-5" style="display: none;">
+                            <td colspan="4">
+                                <div class="expandable-content">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm expandable-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Khách hàng</th><th>Sản phẩm</th><th>Máy sản xuất</th><th>Thợ phụ trách</th><th>Bắt đầu</th><th>Sản phẩm OK</th><th>Trạng thái</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Công ty JKL</td><td>Giấy kraft</td><td>Xả 2</td><td>Phạm Thị D</td><td>08:00 15/01/2024</td><td>1,200</td><td><span class="badge bg-secondary">Đang xử lý</span></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Design 6: Compact Cards -->
+        <div class="demo-section">
+            <div class="demo-header"><i class="bi bi-grid-1x2 me-2"></i>Design 6: Compact Cards</div>
+            <div class="demo-content">
+                <table class="table table-sm">
+                    <thead><tr><th>STT</th><th>Lệnh sản xuất</th><th>Sản phẩm</th><th>Trạng thái</th></tr></thead>
+                    <tbody>
+                        <tr class="order-row design-6" onclick="toggleDesign(6)">
+                            <td>6</td><td>PO-2024-006</td><td>Bao bì nhựa</td><td><span class="badge bg-success">Hoàn thành</span></td>
+                        </tr>
+                        <tr class="expandable-row design-6" id="expand-6" style="display: none;">
+                            <td colspan="4">
+                                <div class="expandable-content">
+                                    <div class="expandable-cards">
+                                        <div class="info-card"><div class="card-title">Khách hàng</div><div class="card-value">Công ty MNO</div></div>
+                                        <div class="info-card"><div class="card-title">Sản phẩm</div><div class="card-value">Bao bì nhựa</div></div>
+                                        <div class="info-card"><div class="card-title">Máy sản xuất</div><div class="card-value">Xả 3</div></div>
+                                        <div class="info-card"><div class="card-title">Thợ phụ trách</div><div class="card-value">Hoàng Văn E</div></div>
+                                        <div class="info-card"><div class="card-title">Bắt đầu</div><div class="card-value">08:00</div></div>
+                                        <div class="info-card"><div class="card-title">Kết thúc</div><div class="card-value">16:00</div></div>
+                                        <div class="info-card"><div class="card-title">Sản phẩm OK</div><div class="card-value">2,500</div></div>
+                                        <div class="info-card"><div class="card-title">Sản phẩm NG</div><div class="card-value">25</div></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Design 7: Horizontal Layout -->
+        <div class="demo-section">
+            <div class="demo-header"><i class="bi bi-arrow-right me-2"></i>Design 7: Horizontal Layout</div>
+            <div class="demo-content">
+                <table class="table table-sm">
+                    <thead><tr><th>STT</th><th>Lệnh sản xuất</th><th>Sản phẩm</th><th>Trạng thái</th></tr></thead>
+                    <tbody>
+                        <tr class="order-row design-7" onclick="toggleDesign(7)">
+                            <td>7</td><td>PO-2024-007</td><td>Giấy bóng kính</td><td><span class="badge bg-primary">Chờ xử lý</span></td>
+                        </tr>
+                        <tr class="expandable-row design-7" id="expand-7" style="display: none;">
+                            <td colspan="4">
+                                <div class="expandable-content">
+                                    <div class="expandable-horizontal">
+                                        <div class="horizontal-item"><span class="item-label">Khách hàng:</span><span class="item-value">Công ty PQR</span></div>
+                                        <div class="horizontal-item"><span class="item-label">Sản phẩm:</span><span class="item-value">Giấy bóng kính</span></div>
+                                        <div class="horizontal-item"><span class="item-label">Máy sản xuất:</span><span class="item-value">Xả 1</span></div>
+                                        <div class="horizontal-item"><span class="item-label">Thợ phụ trách:</span><span class="item-value">Nguyễn Thị F</span></div>
+                                        <div class="horizontal-item"><span class="item-label">Ca sản xuất:</span><span class="item-value">Ca 2</span></div>
+                                        <div class="horizontal-item"><span class="item-label">Số lượng:</span><span class="item-value">1,800</span></div>
+                                        <div class="horizontal-item"><span class="item-label">Trạng thái:</span><span class="item-value"><span class="badge bg-secondary">Chờ xử lý</span></span></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Design 8: Statistics Cards -->
+        <div class="demo-section">
+            <div class="demo-header"><i class="bi bi-bar-chart me-2"></i>Design 8: Statistics Cards</div>
+            <div class="demo-content">
+                <table class="table table-sm">
+                    <thead><tr><th>STT</th><th>Lệnh sản xuất</th><th>Sản phẩm</th><th>Trạng thái</th></tr></thead>
+                    <tbody>
+                        <tr class="order-row design-8" onclick="toggleDesign(8)">
+                            <td>8</td><td>PO-2024-008</td><td>Bìa mềm</td><td><span class="badge bg-success">Hoàn thành</span></td>
+                        </tr>
+                        <tr class="expandable-row design-8" id="expand-8" style="display: none;">
+                            <td colspan="4">
+                                <div class="expandable-content">
+                                    <div class="expandable-stats">
+                                        <div class="stat-card"><div class="stat-number">Công ty STU</div><div class="stat-label">Khách hàng</div></div>
+                                        <div class="stat-card"><div class="stat-number">Bìa mềm</div><div class="stat-label">Sản phẩm</div></div>
+                                        <div class="stat-card"><div class="stat-number">Xả 2</div><div class="stat-label">Máy sản xuất</div></div>
+                                        <div class="stat-card"><div class="stat-number">Trần Văn G</div><div class="stat-label">Thợ phụ trách</div></div>
+                                        <div class="stat-card"><div class="stat-number">08:00</div><div class="stat-label">Bắt đầu</div></div>
+                                        <div class="stat-card"><div class="stat-number">16:00</div><div class="stat-label">Kết thúc</div></div>
+                                        <div class="stat-card"><div class="stat-number">2,200</div><div class="stat-label">Sản phẩm OK</div></div>
+                                        <div class="stat-card"><div class="stat-number">30</div><div class="stat-label">Sản phẩm NG</div></div>
+                                        <div class="stat-card"><div class="stat-number">98.6%</div><div class="stat-label">Hiệu suất</div></div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Design 9: Timeline Layout -->
+        <div class="demo-section">
+            <div class="demo-header"><i class="bi bi-clock-history me-2"></i>Design 9: Timeline Layout</div>
+            <div class="demo-content">
+                <table class="table table-sm">
+                    <thead><tr><th>STT</th><th>Lệnh sản xuất</th><th>Sản phẩm</th><th>Trạng thái</th></tr></thead>
+                    <tbody>
+                        <tr class="order-row design-9" onclick="toggleDesign(9)">
+                            <td>9</td><td>PO-2024-009</td><td>Giấy in màu</td><td><span class="badge bg-warning">Đang xử lý</span></td>
+                        </tr>
+                        <tr class="expandable-row design-9" id="expand-9" style="display: none;">
+                            <td colspan="4">
+                                <div class="expandable-content">
+                                    <div class="expandable-timeline">
+                                        <div class="timeline-item">
+                                            <div class="timeline-icon"><i class="bi bi-building"></i></div>
+                                            <div class="timeline-content">
+                                                <div class="timeline-label">Khách hàng</div>
+                                                <div class="timeline-value">Công ty VWX</div>
+                                            </div>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <div class="timeline-icon"><i class="bi bi-box"></i></div>
+                                            <div class="timeline-content">
+                                                <div class="timeline-label">Sản phẩm</div>
+                                                <div class="timeline-value">Giấy in màu</div>
+                                            </div>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <div class="timeline-icon"><i class="bi bi-gear"></i></div>
+                                            <div class="timeline-content">
+                                                <div class="timeline-label">Máy sản xuất</div>
+                                                <div class="timeline-value">Xả 3</div>
+                                            </div>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <div class="timeline-icon"><i class="bi bi-person"></i></div>
+                                            <div class="timeline-content">
+                                                <div class="timeline-label">Thợ phụ trách</div>
+                                                <div class="timeline-value">Lê Thị H</div>
+                                            </div>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <div class="timeline-icon"><i class="bi bi-play-circle"></i></div>
+                                            <div class="timeline-content">
+                                                <div class="timeline-label">Bắt đầu</div>
+                                                <div class="timeline-value">08:00 15/01/2024</div>
+                                            </div>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <div class="timeline-icon"><i class="bi bi-check-circle"></i></div>
+                                            <div class="timeline-content">
+                                                <div class="timeline-label">Sản phẩm OK</div>
+                                                <div class="timeline-value">1,800</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Design 10: Modern Dashboard -->
+        <div class="demo-section">
+            <div class="demo-header"><i class="bi bi-speedometer2 me-2"></i>Design 10: Modern Dashboard</div>
+            <div class="demo-content">
+                <table class="table table-sm">
+                    <thead><tr><th>STT</th><th>Lệnh sản xuất</th><th>Sản phẩm</th><th>Trạng thái</th></tr></thead>
+                    <tbody>
+                        <tr class="order-row design-10" onclick="toggleDesign(10)">
+                            <td>10</td><td>PO-2024-010</td><td>Bao bì cao cấp</td><td><span class="badge bg-success">Hoàn thành</span></td>
+                        </tr>
+                        <tr class="expandable-row design-10" id="expand-10" style="display: none;">
+                            <td colspan="4">
+                                <div class="expandable-content">
+                                    <div class="expandable-dashboard">
+                                        <div class="dashboard-header">
+                                            <div class="dashboard-title">Thông tin chi tiết lệnh sản xuất</div>
+                                            <div class="dashboard-stats">
+                                                <div class="stat-item"><div class="stat-number">2,500</div><div class="stat-label">Sản phẩm OK</div></div>
+                                                <div class="stat-item"><div class="stat-number">25</div><div class="stat-label">Sản phẩm NG</div></div>
+                                                <div class="stat-item"><div class="stat-number">99%</div><div class="stat-label">Hiệu suất</div></div>
+                                            </div>
+                                        </div>
+                                        <div class="dashboard-content">
+                                            <div class="main-info">
+                                                <div class="info-row"><span class="info-label">Khách hàng:</span><span class="info-value">Công ty YZ</span></div>
+                                                <div class="info-row"><span class="info-label">Sản phẩm:</span><span class="info-value">Bao bì cao cấp</span></div>
+                                                <div class="info-row"><span class="info-label">Kích thước:</span><span class="info-value">300 x 400 mm</span></div>
+                                                <div class="info-row"><span class="info-label">Máy sản xuất:</span><span class="info-value">Xả 1</span></div>
+                                                <div class="info-row"><span class="info-label">Thợ phụ trách:</span><span class="info-value">Vũ Văn I</span></div>
+                                                <div class="info-row"><span class="info-label">Ca sản xuất:</span><span class="info-value">Ca 1 (6:00-14:00)</span></div>
+                                            </div>
+                                            <div class="side-info">
+                                                <div class="info-row"><span class="info-label">Bắt đầu:</span><span class="info-value">08:00 15/01/2024</span></div>
+                                                <div class="info-row"><span class="info-label">Kết thúc:</span><span class="info-value">16:00 15/01/2024</span></div>
+                                                <div class="info-row"><span class="info-label">Thời gian làm:</span><span class="info-value">8 giờ</span></div>
+                                                <div class="info-row"><span class="info-label">Ghi chú:</span><span class="info-value">Chất lượng tốt</span></div>
+                                                <div class="info-row"><span class="info-label">Trạng thái:</span><span class="info-value"><span class="badge bg-secondary">Hoàn thành</span></span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDesign(designNumber) {
+            const expandRow = document.getElementById(`expand-${designNumber}`);
+            const isVisible = expandRow.style.display !== 'none';
+            
+            // Đóng tất cả expandable rows
+            for (let i = 1; i <= 10; i++) {
+                const row = document.getElementById(`expand-${i}`);
+                if (row) {
+                    row.style.display = 'none';
+                }
+            }
+            
+            // Bỏ highlight tất cả rows
+            const allRows = document.querySelectorAll('.order-row');
+            allRows.forEach(row => {
+                row.classList.remove('selected');
+            });
+            
+            // Nếu row hiện tại chưa mở thì mở
+            if (!isVisible) {
+                expandRow.style.display = 'table-row';
+                
+                // Highlight row hiện tại
+                const currentRow = expandRow.previousElementSibling;
+                if (currentRow) {
+                    currentRow.classList.add('selected');
+                }
+            }
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo 10 Mẫu Bảng Thông Tin Lệnh Sản Xuất</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    body { background: #f8f9fa; }
+    .demo-card { background: white; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.07); margin-bottom: 32px; }
+    .demo-title { font-size: 1.3rem; font-weight: bold; color: #667eea; margin-bottom: 12px; }
+    .demo-desc { color: #6c757d; margin-bottom: 16px; }
+    .table-demo { margin-bottom: 0; }
+    .demo-header { background: linear-gradient(90deg,#667eea,#764ba2); color: white; border-radius: 12px 12px 0 0; padding: 16px; }
+    .badge-demo { font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+<div class="container py-4">
+
+  <h1 class="mb-4 text-center text-primary">Demo 10 Mẫu Bảng Thông Tin Lệnh Sản Xuất</h1>
+
+  <!-- Mẫu 1: Bảng cơ bản chi tiết, có nhiều dòng -->
+  <div class="demo-card">
+    <div class="demo-header">Mẫu 1: Bảng cơ bản chi tiết</div>
+    <div class="p-3">
+      <table class="table table-bordered table-demo align-middle">
+        <thead>
+          <tr>
+            <th>Mã lệnh</th>
+            <th>Khách hàng</th>
+            <th>Sản phẩm</th>
+            <th>Ngày SX</th>
+            <th>Máy</th>
+            <th>Thợ</th>
+            <th>OK</th>
+            <th>NG</th>
+            <th>Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge bg-primary">LX001</span></td>
+            <td>Lavie</td>
+            <td>Hộp 500ml</td>
+            <td>30/07/2025</td>
+            <td>Xả 1</td>
+            <td><img src="https://i.pravatar.cc/32?u=1" class="rounded-circle me-1" alt="avatar">Nguyễn Văn A</td>
+            <td>1000</td>
+            <td>0</td>
+            <td><span class="badge bg-success badge-demo">Hoàn thành</span></td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-primary">LX002</span></td>
+            <td>Pepsi</td>
+            <td>Thùng 24 lon</td>
+            <td>30/07/2025</td>
+            <td>Xả 2</td>
+            <td><img src="https://i.pravatar.cc/32?u=2" class="rounded-circle me-1" alt="avatar">Trần Văn B</td>
+            <td>800</td>
+            <td>5</td>
+            <td><span class="badge bg-warning badge-demo">Đang sản xuất</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Mẫu 2: Bảng có icon, badge, tooltip, nhiều dòng -->
+  <div class="demo-card">
+    <div class="demo-header">Mẫu 2: Bảng có icon, badge, tooltip</div>
+    <div class="p-3">
+      <table class="table table-striped table-demo align-middle">
+        <thead>
+          <tr>
+            <th><i class="bi bi-hash"></i> Mã lệnh</th>
+            <th><i class="bi bi-person"></i> Khách hàng</th>
+            <th><i class="bi bi-box"></i> Sản phẩm</th>
+            <th><i class="bi bi-calendar"></i> Ngày SX</th>
+            <th><i class="bi bi-check-circle"></i> OK</th>
+            <th><i class="bi bi-x-circle"></i> NG</th>
+            <th><i class="bi bi-flag"></i> Trạng thái</th>
+            <th><i class="bi bi-info-circle"></i> Ghi chú</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge bg-primary">LX001</span></td>
+            <td>Lavie</td>
+            <td>Hộp 500ml</td>
+            <td>30/07/2025</td>
+            <td>1000</td>
+            <td>0</td>
+            <td><span class="badge bg-success badge-demo">Hoàn thành</span></td>
+            <td><span data-bs-toggle="tooltip" title="Đã kiểm tra chất lượng"><i class="bi bi-check2-circle text-success"></i></span></td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-primary">LX002</span></td>
+            <td>Pepsi</td>
+            <td>Thùng 24 lon</td>
+            <td>30/07/2025</td>
+            <td>800</td>
+            <td>5</td>
+            <td><span class="badge bg-warning badge-demo">Đang sản xuất</span></td>
+            <td><span data-bs-toggle="tooltip" title="Có lỗi nhỏ"><i class="bi bi-exclamation-circle text-warning"></i></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Mẫu 3: Bảng dọc -->
+  <div class="demo-card">
+    <div class="demo-header">Mẫu 3: Bảng dọc chi tiết, avatar, badge, tooltip</div>
+    <div class="p-3">
+      <table class="table table-bordered w-auto table-demo align-middle">
+        <tbody>
+          <tr><th><i class="bi bi-person-circle"></i> Khách hàng</th><td><img src="https://i.pravatar.cc/32?u=lavie" class="rounded-circle me-2"> Lavie <span class="badge bg-info ms-2">VIP</span></td></tr>
+          <tr><th><i class="bi bi-box"></i> Sản phẩm</th><td>Hộp 500ml <span class="badge bg-primary ms-2">Carton</span></td></tr>
+          <tr><th><i class="bi bi-calendar"></i> Ngày SX</th><td>30/7/2025</td></tr>
+          <tr><th><i class="bi bi-gear"></i> Máy</th><td>Xả 1</td></tr>
+          <tr><th><i class="bi bi-person-badge"></i> Thợ</th><td><img src="https://i.pravatar.cc/32?u=nguyenvana" class="rounded-circle me-2"> Nguyễn Văn A</td></tr>
+          <tr><th><i class="bi bi-check-circle"></i> OK</th><td>1000</td></tr>
+          <tr><th><i class="bi bi-x-circle"></i> NG</th><td>0</td></tr>
+          <tr><th><i class="bi bi-flag"></i> Trạng thái</th><td><span class="badge bg-success badge-demo">Hoàn thành</span></td></tr>
+          <tr><th><i class="bi bi-chat-dots"></i> Ghi chú</th><td><span data-bs-toggle="tooltip" title="Đã kiểm tra chất lượng, đạt chuẩn">Đạt chuẩn</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Mẫu 4: Bảng có màu dòng -->
+  <div class="demo-card">
+    <div class="demo-header">Mẫu 4: Bảng màu dòng, trạng thái, badge, nhiều dòng</div>
+    <div class="p-3">
+      <table class="table table-hover table-demo align-middle">
+        <thead><tr><th>Khách hàng</th><th>Sản phẩm</th><th>OK</th><th>NG</th><th>Trạng thái</th><th>Ghi chú</th></tr></thead>
+        <tbody>
+          <tr class="table-success">
+            <td><img src="https://i.pravatar.cc/32?u=lavie" class="rounded-circle me-2"> Lavie</td>
+            <td>Hộp 500ml</td>
+            <td>1000</td>
+            <td>0</td>
+            <td><span class="badge bg-success">Hoàn thành</span></td>
+            <td><span data-bs-toggle="tooltip" title="Đã kiểm tra chất lượng">Đạt chuẩn</span></td>
+          </tr>
+          <tr class="table-warning">
+            <td><img src="https://i.pravatar.cc/32?u=pepsi" class="rounded-circle me-2"> Pepsi</td>
+            <td>Hộp 330ml</td>
+            <td>800</td>
+            <td>10</td>
+            <td><span class="badge bg-warning text-dark">Đang sản xuất</span></td>
+            <td><span data-bs-toggle="tooltip" title="Cần kiểm tra lại">Chờ QC</span></td>
+          </tr>
+          <tr class="table-danger">
+            <td><img src="https://i.pravatar.cc/32?u=dasani" class="rounded-circle me-2"> Dasani</td>
+            <td>Hộp 1L</td>
+            <td>500</td>
+            <td>50</td>
+            <td><span class="badge bg-danger">Lỗi</span></td>
+            <td><span data-bs-toggle="tooltip" title="Có lỗi sản xuất">Lỗi sản xuất</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Mẫu 5: Bảng có ảnh sản phẩm -->
+  <div class="demo-card">
+    <div class="demo-header">Mẫu 5: Bảng có ảnh sản phẩm, avatar, badge, nhiều dòng</div>
+    <div class="p-3">
+      <table class="table table-bordered table-demo align-middle">
+        <thead><tr><th>Khách hàng</th><th>Sản phẩm</th><th>Ảnh</th><th>OK</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><img src="https://i.pravatar.cc/32?u=lavie" class="rounded-circle me-2"> Lavie</td>
+            <td>Hộp 500ml</td>
+            <td><img src="https://via.placeholder.com/40x40/667eea/fff?text=500ml" alt="sp" class="rounded"></td>
+            <td>1000</td>
+            <td><span class="badge bg-success">Hoàn thành</span></td>
+            <td>
+              <button class="btn btn-primary btn-sm" data-bs-toggle="tooltip" title="Xem chi tiết"><i class="bi bi-eye"></i></button>
+              <button class="btn btn-success btn-sm" data-bs-toggle="tooltip" title="Bắt đầu sản xuất"><i class="bi bi-play-circle"></i></button>
+            </td>
+          </tr>
+          <tr>
+            <td><img src="https://i.pravatar.cc/32?u=pepsi" class="rounded-circle me-2"> Pepsi</td>
+            <td>Hộp 330ml</td>
+            <td><img src="https://via.placeholder.com/40x40/764ba2/fff?text=330ml" alt="sp" class="rounded"></td>
+            <td>800</td>
+            <td><span class="badge bg-warning text-dark">Đang sản xuất</span></td>
+            <td>
+              <button class="btn btn-primary btn-sm" data-bs-toggle="tooltip" title="Xem chi tiết"><i class="bi bi-eye"></i></button>
+              <button class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Tạm dừng"><i class="bi bi-stop-circle"></i></button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Mẫu 6: Bảng có trạng thái màu sắc -->
+  <div class="demo-card">
+    <div class="demo-header">Mẫu 6: Bảng trạng thái màu sắc, badge, icon, nhiều dòng</div>
+    <div class="p-3">
+      <table class="table table-bordered table-demo align-middle">
+        <thead><tr><th>Khách hàng</th><th>Sản phẩm</th><th>OK</th><th>NG</th><th>Trạng thái</th><th>Ghi chú</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><img src="https://i.pravatar.cc/32?u=lavie" class="rounded-circle me-2"> Lavie</td>
+            <td>Hộp 500ml</td>
+            <td>1000</td>
+            <td>0</td>
+            <td><span class="badge bg-success"><i class="bi bi-check-circle"></i> Hoàn thành</span></td>
+            <td><span data-bs-toggle="tooltip" title="Đã kiểm tra chất lượng">Đạt chuẩn</span></td>
+          </tr>
+          <tr>
+            <td><img src="https://i.pravatar.cc/32?u=pepsi" class="rounded-circle me-2"> Pepsi</td>
+            <td>Hộp 330ml</td>
+            <td>800</td>
+            <td>10</td>
+            <td><span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Đang sản xuất</span></td>
+            <td><span data-bs-toggle="tooltip" title="Cần kiểm tra lại">Chờ QC</span></td>
+          </tr>
+          <tr>
+            <td><img src="https://i.pravatar.cc/32?u=dasani" class="rounded-circle me-2"> Dasani</td>
+            <td>Hộp 1L</td>
+            <td>500</td>
+            <td>50</td>
+            <td><span class="badge bg-danger"><i class="bi bi-exclamation-triangle"></i> Lỗi</span></td>
+            <td><span data-bs-toggle="tooltip" title="Có lỗi sản xuất">Lỗi sản xuất</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Mẫu 7: Bảng có nút thao tác -->
+  <div class="demo-card">
+    <div class="demo-header">Mẫu 7: Bảng có nút thao tác, badge, icon, nhiều dòng</div>
+    <div class="p-3">
+      <table class="table table-bordered table-demo align-middle">
+        <thead><tr><th>Khách hàng</th><th>Sản phẩm</th><th>OK</th><th>Thao tác</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><img src="https://i.pravatar.cc/32?u=lavie" class="rounded-circle me-2"> Lavie</td>
+            <td>Hộp 500ml</td>
+            <td>1000</td>
+            <td>
+              <button class="btn btn-primary btn-sm" data-bs-toggle="tooltip" title="Xem chi tiết"><i class="bi bi-eye"></i></button>
+              <button class="btn btn-success btn-sm" data-bs-toggle="tooltip" title="Bắt đầu sản xuất"><i class="bi bi-play-circle"></i></button>
+              <button class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Tạm dừng"><i class="bi bi-stop-circle"></i></button>
+            </td>
+            <td><span class="badge bg-success">Hoàn thành</span></td>
+          </tr>
+          <tr>
+            <td><img src="https://i.pravatar.cc/32?u=pepsi" class="rounded-circle me-2"> Pepsi</td>
+            <td>Hộp 330ml</td>
+            <td>800</td>
+            <td>
+              <button class="btn btn-primary btn-sm" data-bs-toggle="tooltip" title="Xem chi tiết"><i class="bi bi-eye"></i></button>
+              <button class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Tạm dừng"><i class="bi bi-stop-circle"></i></button>
+            </td>
+            <td><span class="badge bg-warning text-dark">Đang sản xuất</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Mẫu 8: Bảng responsive nhỏ -->
+  <div class="demo-card">
+    <div class="demo-header">Mẫu 8: Bảng responsive nhỏ, badge, nhiều dòng</div>
+    <div class="p-3">
+      <div class="table-responsive">
+        <table class="table table-sm table-demo align-middle">
+          <thead><tr><th>Khách hàng</th><th>Sản phẩm</th><th>OK</th><th>NG</th><th>Trạng thái</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><img src="https://i.pravatar.cc/24?u=lavie" class="rounded-circle me-2"> Lavie</td>
+              <td>Hộp 500ml</td>
+              <td>1000</td>
+              <td>0</td>
+              <td><span class="badge bg-success">Hoàn thành</span></td>
+            </tr>
+            <tr>
+              <td><img src="https://i.pravatar.cc/24?u=pepsi" class="rounded-circle me-2"> Pepsi</td>
+              <td>Hộp 330ml</td>
+              <td>800</td>
+              <td>10</td>
+              <td><span class="badge bg-warning text-dark">Đang sản xuất</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mẫu 9: Bảng có tooltip -->
+  <div class="demo-card">
+    <div class="demo-header">Mẫu 9: Bảng có tooltip, badge, icon, nhiều dòng</div>
+    <div class="p-3">
+      <table class="table table-bordered table-demo align-middle">
+        <thead><tr><th>Khách hàng</th><th>Sản phẩm</th><th>OK</th><th>Ghi chú</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><img src="https://i.pravatar.cc/32?u=lavie" class="rounded-circle me-2"> Lavie</td>
+            <td>Hộp 500ml</td>
+            <td>1000</td>
+            <td><span data-bs-toggle="tooltip" title="Đã kiểm tra chất lượng"><i class="bi bi-check-circle text-success"></i> Đạt chuẩn</span></td>
+            <td><span class="badge bg-success">Hoàn thành</span></td>
+          </tr>
+          <tr>
+            <td><img src="https://i.pravatar.cc/32?u=pepsi" class="rounded-circle me-2"> Pepsi</td>
+            <td>Hộp 330ml</td>
+            <td>800</td>
+            <td><span data-bs-toggle="tooltip" title="Cần kiểm tra lại"><i class="bi bi-exclamation-triangle text-warning"></i> Chờ QC</span></td>
+            <td><span class="badge bg-warning text-dark">Đang sản xuất</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Mẫu 10: Bảng expandable -->
+  <div class="demo-card">
+    <div class="demo-header">Mẫu 10: Bảng expandable, chi tiết, avatar, badge, nhiều dòng</div>
+    <div class="p-3">
+      <table class="table table-bordered table-demo align-middle">
+        <thead><tr><th>Khách hàng</th><th>Sản phẩm</th><th>OK</th><th>Chi tiết</th><th>Trạng thái</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><img src="https://i.pravatar.cc/32?u=lavie" class="rounded-circle me-2"> Lavie</td>
+            <td>Hộp 500ml</td>
+            <td>1000</td>
+            <td><button class="btn btn-info btn-sm" data-bs-toggle="collapse" data-bs-target="#rowDetail1">Xem</button></td>
+            <td><span class="badge bg-success">Hoàn thành</span></td>
+          </tr>
+          <tr class="collapse" id="rowDetail1">
+            <td colspan="5">
+              <div class="p-2 bg-light border rounded">
+                <strong>Chi tiết:</strong> Sản xuất ngày 30/7/2025, máy Xả 1, thợ <img src="https://i.pravatar.cc/24?u=nguyenvana" class="rounded-circle me-2"> Nguyễn Văn A, ghi chú: <span data-bs-toggle="tooltip" title="Đã kiểm tra chất lượng">Đạt chuẩn</span>.
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td><img src="https://i.pravatar.cc/32?u=pepsi" class="rounded-circle me-2"> Pepsi</td>
+            <td>Hộp 330ml</td>
+            <td>800</td>
+            <td><button class="btn btn-info btn-sm" data-bs-toggle="collapse" data-bs-target="#rowDetail2">Xem</button></td>
+            <td><span class="badge bg-warning text-dark">Đang sản xuất</span></td>
+          </tr>
+          <tr class="collapse" id="rowDetail2">
+            <td colspan="5">
+              <div class="p-2 bg-light border rounded">
+                <strong>Chi tiết:</strong> Sản xuất ngày 31/7/2025, máy Xả 2, thợ <img src="https://i.pravatar.cc/24?u=tranthib" class="rounded-circle me-2"> Trần Thị B, ghi chú: <span data-bs-toggle="tooltip" title="Cần kiểm tra lại">Chờ QC</span>.
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+  });
+</script>
+</body>
+</html>

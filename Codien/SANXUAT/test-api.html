@@ -3,148 +3,293 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Production Orders API</title>
+    <title>Test API - Production Orders</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 50px auto;
+        }
+        .form-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        .result-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .success {
+            border-left: 4px solid #28a745;
+        }
+        .error {
+            border-left: 4px solid #dc3545;
+        }
+        .loading {
+            display: none;
+        }
+        .btn-test {
+            min-width: 120px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container py-4">
-        <h1 class="mb-4">Test Production Orders API</h1>
-        
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>API Test Functions</h5>
+    <div class="container test-container">
+        <div class="text-center mb-4">
+            <h1><i class="bi bi-gear me-2"></i>Test API Production Orders</h1>
+            <p class="text-muted">Trang test để gửi dữ liệu vào database thông qua API</p>
+        </div>
+
+        <!-- Form Test API -->
+        <div class="form-card">
+            <h4 class="mb-4"><i class="bi bi-send me-2"></i>Test API Start Production</h4>
+            
+            <form id="testForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="orderId" class="form-label fw-bold">
+                            <i class="bi bi-hash me-1"></i>Order ID <span class="text-danger">*</span>
+                        </label>
+                        <input type="number" class="form-control" id="orderId" required 
+                               placeholder="Nhập ID lệnh sản xuất">
                     </div>
-                    <div class="card-body">
-                        <button class="btn btn-primary me-2" onclick="testGetOrders()">Get Orders</button>
-                        <button class="btn btn-success me-2" onclick="testGetStats()">Get Stats</button>
-                        <button class="btn btn-info me-2" onclick="testGetCustomers()">Get Customers</button>
-                        <button class="btn btn-warning" onclick="testCreateOrder()">Create Test Order</button>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="stage" class="form-label fw-bold">
+                            <i class="bi bi-layers me-1"></i>Công đoạn
+                        </label>
+                        <select class="form-select" id="stage">
+                            <option value="xa" selected>XẢ</option>
+                            <option value="in">IN</option>
+                            <option value="boi">BỘI</option>
+                            <option value="xen">XẾN</option>
+                        </select>
                     </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="workerName" class="form-label fw-bold">
+                            <i class="bi bi-person me-1"></i>Tên công nhân
+                        </label>
+                        <input type="text" class="form-control" id="workerName" 
+                               placeholder="Nhập tên công nhân">
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="machineName" class="form-label fw-bold">
+                            <i class="bi bi-cpu me-1"></i>Tên máy
+                        </label>
+                        <input type="text" class="form-control" id="machineName" 
+                               placeholder="Nhập tên máy">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="shift" class="form-label fw-bold">
+                            <i class="bi bi-clock me-1"></i>Ca làm việc
+                        </label>
+                        <select class="form-select" id="shift">
+                            <option value="Ca 1" selected>Ca 1 (6:00-14:00)</option>
+                            <option value="Ca 2">Ca 2 (14:00-22:00)</option>
+                            <option value="Ca 3">Ca 3 (22:00-6:00)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="notes" class="form-label fw-bold">
+                            <i class="bi bi-chat-text me-1"></i>Ghi chú
+                        </label>
+                        <textarea class="form-control" id="notes" rows="1" 
+                                  placeholder="Ghi chú (tùy chọn)"></textarea>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="button" class="btn btn-secondary btn-test" onclick="clearForm()">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Xóa form
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-test">
+                        <i class="bi bi-send me-1"></i>Gửi API
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading text-center mt-4" id="loading">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Đang gửi request...</p>
+        </div>
+
+        <!-- Result Display -->
+        <div class="result-card" id="resultCard" style="display: none;">
+            <h5 class="mb-3"><i class="bi bi-info-circle me-2"></i>Kết quả API</h5>
+            <div id="resultContent"></div>
+        </div>
+
+        <!-- API Info -->
+        <div class="form-card mt-4">
+            <h5 class="mb-3"><i class="bi bi-info-circle me-2"></i>Thông tin API</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Endpoint:</h6>
+                    <code class="bg-light p-2 rounded d-block">POST /data/production_orders/:id/start_production</code>
+                </div>
+                <div class="col-md-6">
+                    <h6>Base URL:</h6>
+                    <code class="bg-light p-2 rounded d-block">https://autoslp.duckdns.org</code>
                 </div>
             </div>
             
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>API Status</h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="apiStatus">Ready to test...</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>API Response</h5>
-                    </div>
-                    <div class="card-body">
-                        <pre id="apiResponse" style="max-height: 400px; overflow-y: auto;"></pre>
-                    </div>
-                </div>
+            <div class="mt-3">
+                <h6>Request Body:</h6>
+                <pre class="bg-light p-3 rounded"><code>{
+  "stage": "xa",
+  "worker_name": "Nguyễn Văn A",
+  "machine_name": "Xả 1",
+  "shift": "Ca 1",
+  "notes": "Ghi chú test"
+}</code></pre>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="production-orders-api.js"></script>
-    
     <script>
-        function updateStatus(message, type = 'info') {
-            const statusDiv = document.getElementById('apiStatus');
-            statusDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
-        }
+        // API Configuration
+        const API_BASE_URL = 'https://autoslp.duckdns.org/api';
         
-        function showResponse(data) {
-            const responseDiv = document.getElementById('apiResponse');
-            responseDiv.textContent = JSON.stringify(data, null, 2);
-        }
-        
-        async function testGetOrders() {
-            try {
-                updateStatus('Testing Get Orders...', 'info');
-                const orders = await ProductionAPI.getOrders();
-                updateStatus(`✅ Success: Retrieved ${orders.length} orders`, 'success');
-                showResponse(orders);
-            } catch (error) {
-                updateStatus(`❌ Error: ${error.message}`, 'danger');
-                showResponse({ error: error.message });
-            }
-        }
-        
-        async function testGetStats() {
-            try {
-                updateStatus('Testing Get Stats...', 'info');
-                const stats = await ProductionAPI.getStats();
-                updateStatus('✅ Success: Retrieved statistics', 'success');
-                showResponse(stats);
-            } catch (error) {
-                updateStatus(`❌ Error: ${error.message}`, 'danger');
-                showResponse({ error: error.message });
-            }
-        }
-        
-        async function testGetCustomers() {
-            try {
-                updateStatus('Testing Get Customers...', 'info');
-                const customers = await ProductionAPI.getCustomers();
-                updateStatus(`✅ Success: Retrieved ${customers.length} customers`, 'success');
-                showResponse(customers);
-            } catch (error) {
-                updateStatus(`❌ Error: ${error.message}`, 'danger');
-                showResponse({ error: error.message });
-            }
-        }
-        
-        async function testCreateOrder() {
-            try {
-                updateStatus('Testing Create Order...', 'info');
-                
-                const testOrder = {
-                    deployment_date: ProductionAPI.getToday(),
-                    production_order: 'TEST-' + Date.now(),
-                    po_number: 'PO-TEST-' + Date.now(),
-                    sales_order_code: 'SO-TEST',
-                    order_date: ProductionAPI.getToday(),
-                    delivery_date: ProductionAPI.getToday(),
-                    internal_product_code: 'PROD-TEST',
-                    order_type: 'Thường',
-                    customer_code: 'CUST-TEST',
-                    customer_name: 'Khách hàng Test',
-                    product_name: 'Sản phẩm Test',
-                    version: '1.0',
-                    order_quantity: 100,
-                    inventory: 0,
-                    required_quantity: 100,
-                    deployed_quantity: 0,
-                    status: 'Chờ triển khai'
-                };
-                
-                const result = await ProductionAPI.saveOrder(testOrder, false);
-                updateStatus('✅ Success: Created test order', 'success');
-                showResponse(result);
-            } catch (error) {
-                updateStatus(`❌ Error: ${error.message}`, 'danger');
-                showResponse({ error: error.message });
-            }
-        }
-        
-        // Test API on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            updateStatus('API initialized. Ready for testing.', 'success');
+        // Form elements
+        const form = document.getElementById('testForm');
+        const loading = document.getElementById('loading');
+        const resultCard = document.getElementById('resultCard');
+        const resultContent = document.getElementById('resultContent');
+
+        // Handle form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            // Test basic connectivity
-            if (window.ProductionAPI) {
-                updateStatus('✅ Production API loaded successfully', 'success');
-            } else {
-                updateStatus('❌ Production API failed to load', 'danger');
+            const orderId = document.getElementById('orderId').value;
+            const stage = document.getElementById('stage').value;
+            const workerName = document.getElementById('workerName').value;
+            const machineName = document.getElementById('machineName').value;
+            const shift = document.getElementById('shift').value;
+            const notes = document.getElementById('notes').value;
+
+            // Validate required fields
+            if (!orderId) {
+                showResult('error', 'Vui lòng nhập Order ID');
+                return;
+            }
+
+            // Prepare request data
+            const requestData = {
+                stage: stage,
+                worker_name: workerName,
+                machine_name: machineName,
+                shift: shift,
+                notes: notes
+            };
+
+            // Show loading
+            showLoading(true);
+            hideResult();
+
+            try {
+                // Send API request
+                const response = await fetch(`${API_BASE_URL}/data/production_orders/${orderId}/start_production`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showResult('success', 'API call thành công!', result);
+                } else {
+                    showResult('error', 'API call thất bại!', result);
+                }
+
+            } catch (error) {
+                console.error('Error calling API:', error);
+                showResult('error', 'Lỗi kết nối: ' + error.message);
+            } finally {
+                showLoading(false);
             }
         });
+
+        // Show loading
+        function showLoading(show) {
+            loading.style.display = show ? 'block' : 'none';
+        }
+
+        // Show result
+        function showResult(type, message, data = null) {
+            resultCard.style.display = 'block';
+            resultCard.className = `result-card ${type}`;
+            
+            let html = `
+                <div class="alert alert-${type === 'success' ? 'success' : 'danger'}">
+                    <h6><i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>${message}</h6>
+                </div>
+            `;
+
+            if (data) {
+                html += `
+                    <h6>Response Data:</h6>
+                    <pre class="bg-light p-3 rounded"><code>${JSON.stringify(data, null, 2)}</code></pre>
+                `;
+            }
+
+            resultContent.innerHTML = html;
+        }
+
+        // Hide result
+        function hideResult() {
+            resultCard.style.display = 'none';
+        }
+
+        // Clear form
+        function clearForm() {
+            form.reset();
+            hideResult();
+        }
+
+        // Auto-fill test data
+        function fillTestData() {
+            document.getElementById('orderId').value = '1';
+            document.getElementById('workerName').value = 'Nguyễn Văn Test';
+            document.getElementById('machineName').value = 'Xả 1';
+            document.getElementById('notes').value = 'Test API từ trang web';
+        }
+
+        // Add test data button
+        document.addEventListener('DOMContentLoaded', function() {
+            const testButton = document.createElement('button');
+            testButton.type = 'button';
+            testButton.className = 'btn btn-outline-info btn-test me-2';
+            testButton.innerHTML = '<i class="bi bi-magic me-1"></i>Test Data';
+            testButton.onclick = fillTestData;
+            
+            const clearButton = document.querySelector('button[onclick="clearForm()"]');
+            clearButton.parentNode.insertBefore(testButton, clearButton);
+        });
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

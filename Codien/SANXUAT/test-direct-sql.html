@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test SQL trực tiếp</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .loading {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test SQL trực tiếp</h1>
+        
+        <div class="test-section">
+            <h3>Test 1: Cập nhật xa_note với giá trị chuỗi</h3>
+            <p>Kiểm tra xem cột xa_note có chấp nhận giá trị chuỗi không:</p>
+            <button class="btn" onclick="testXaNoteUpdate()">Test cập nhật xa_note</button>
+            <div id="result1" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 2: Kiểm tra dữ liệu hiện tại</h3>
+            <p>Xem dữ liệu hiện tại của record ID 1:</p>
+            <button class="btn" onclick="checkCurrentData()">Kiểm tra dữ liệu hiện tại</button>
+            <div id="result2" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 3: SQL tùy chỉnh</h3>
+            <p>Chạy SQL tùy chỉnh:</p>
+            <textarea id="customSql" placeholder="Nhập SQL query...">SELECT * FROM production_orders WHERE id = 1</textarea>
+            <button class="btn" onclick="runCustomSql()">Chạy SQL</button>
+            <div id="result3" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 4: Kiểm tra kiểu dữ liệu cột</h3>
+            <p>Kiểm tra chi tiết kiểu dữ liệu của các cột:</p>
+            <button class="btn" onclick="checkColumnTypes()">Kiểm tra kiểu dữ liệu</button>
+            <div id="result4" class="result" style="display: none;"></div>
+        </div>
+
+        <button class="btn btn-danger" onclick="clearAllResults()">Xóa tất cả kết quả</button>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://autoslp.duckdns.org/api';
+
+        async function testXaNoteUpdate() {
+            const resultDiv = document.getElementById('result1');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result loading';
+            resultDiv.textContent = '🔄 Đang test cập nhật xa_note...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/data/test-xa-note`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        orderId: 1,
+                        note: 'Test note từ trang web - ' + new Date().toISOString()
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Thành công!\n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Lỗi: ${data.error}\n\nChi tiết: ${data.details}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Lỗi kết nối: ${error.message}`;
+            }
+        }
+
+        async function checkCurrentData() {
+            const resultDiv = document.getElementById('result2');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result loading';
+            resultDiv.textContent = '🔄 Đang kiểm tra dữ liệu hiện tại...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/data/check-current-data/1`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Dữ liệu hiện tại:\n\n${JSON.stringify(data.data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Lỗi: ${data.error}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Lỗi kết nối: ${error.message}`;
+            }
+        }
+
+        async function runCustomSql() {
+            const sql = document.getElementById('customSql').value.trim();
+            if (!sql) {
+                alert('Vui lòng nhập SQL query!');
+                return;
+            }
+
+            const resultDiv = document.getElementById('result3');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result loading';
+            resultDiv.textContent = '🔄 Đang chạy SQL...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/data/run-custom-sql`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ sql: sql })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Kết quả SQL:\n\n${JSON.stringify(data.result, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Lỗi SQL: ${data.error}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Lỗi kết nối: ${error.message}`;
+            }
+        }
+
+        async function checkColumnTypes() {
+            const resultDiv = document.getElementById('result4');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result loading';
+            resultDiv.textContent = '🔄 Đang kiểm tra kiểu dữ liệu...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/data/check-column-types`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Kiểu dữ liệu các cột:\n\n${JSON.stringify(data.columns, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Lỗi: ${data.error}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Lỗi kết nối: ${error.message}`;
+            }
+        }
+
+        function clearAllResults() {
+            const results = document.querySelectorAll('.result');
+            results.forEach(result => {
+                result.style.display = 'none';
+            });
+        }
+
+        window.onload = function() {
+            console.log('🚀 Trang test SQL trực tiếp đã sẵn sàng');
+        };
+    </script>
+</body>
+</html> 

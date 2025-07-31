@@ -634,7 +634,7 @@ body {
   padding-right: 0.25rem !important;
 }
 
-/* Column width optimizations */
+/* Column width optimizations
 .table th:nth-child(1), .table td:nth-child(1) { width: 50px; }
 .table th:nth-child(2), .table td:nth-child(2) { width: 110px; }
 .table th:nth-child(3), .table td:nth-child(3) { width: 130px; }
@@ -644,7 +644,7 @@ body {
 .table th:nth-child(7), .table td:nth-child(7) { width: 90px; }
 .table th:nth-child(8), .table td:nth-child(8) { width: 100px; }
 .table th:nth-child(9), .table td:nth-child(9) { width: 80px; }
-.table th:nth-child(10), .table td:nth-child(10) { width: 100px; }
+.table th:nth-child(10), .table td:nth-child(10) { width: 100px; } */
 
 /* Details panel styling */
 .details-header {

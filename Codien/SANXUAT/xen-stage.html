@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
   <link rel="stylesheet" href="universal-stage.css">
   <script src="sidebar-generator.js"></script>
+  <script src="stage-columns-config.js"></script>
   <style>
     /* Đảm bảo modal hiển thị đúng và ở giữa màn hình */
     .modal {
@@ -92,7 +93,7 @@
   <!-- Main Content -->
   <div class="main-content sidebar-collapsed" id="mainContent">
     <div class="content-area">
-      <div class="container-fluid p-4">
+    <div class="container-fluid p-4">
       
       <!-- Stage Header -->
       <div class="stage-header">
@@ -186,17 +187,17 @@
             <table class="table table-striped table-hover">
               <thead>
                 <tr>
-                  <th width="50">#</th>
-                  <th width="150">Lệnh SX</th>
-                  <th width="200">Sản phẩm</th>
-                  <th width="120">Kích thước (mm)</th>
-                  <th width="100">KH</th>
-                  <th width="100">Đầu vào</th>
-                  <th width="100">OK</th>
-                  <th width="100">NG</th>
-                  <th width="120">Tiến độ</th>
-                  <th width="120">Máy/Thợ</th>
-                  <th width="150">Thao tác</th>
+                  <th width="50" class="text-center">#</th>
+                  <th width="150" class="text-center">Lệnh SX</th>
+                  <th width="200" class="text-center">Sản phẩm</th>
+                  <th width="120" class="text-center">Kích thước (mm)</th>
+                  <th width="100" class="text-center">KH</th>
+                  <th width="100" class="text-center">Đầu vào</th>
+                  <th width="100" class="text-center">OK</th>
+                  <th width="100" class="text-center">NG</th>
+                  <th width="120" class="text-center">Tiến độ</th>
+                  <th width="120" class="text-center">Máy/Thợ</th>
+                  <th width="150" class="text-center">Thao tác</th>
                 </tr>
               </thead>
               <tbody id="stageTableBody">
@@ -216,9 +217,9 @@
             <i class="bi bi-inbox display-1 text-muted"></i>
             <p class="mt-2 text-muted">Không có lệnh sản xuất nào cho công đoạn Xén</p>
           </div>
+          </div>
         </div>
       </div>
-    </div>
     </div>
   </div>
 
@@ -229,7 +230,7 @@
         <div class="modal-header bg-success text-white">
           <h5 class="modal-title">
             <i class="bi bi-check-circle me-2"></i>
-            Hoàn thành công đoạn Xén
+            Hoàn thành công đoạn XÉN
           </h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -584,7 +585,7 @@
             console.log('Loading orders data for stage:', STAGE_CONFIG.KEY);
             
             // Gọi API để lấy danh sách lệnh sản xuất từ bảng production_orders
-            const response = await fetch(`${API_BASE_URL}/data/production_orders`);
+            const response = await fetch(`${API_BASE_URL}/data/production_orders/optimized?stage=xen&days_back=300`);
             
             if (!response.ok) {
                 throw new Error(`API response: ${response.status}`);
@@ -1288,6 +1289,8 @@ Ghi chú: ${order.notes || 'Không có'}
         return `${day}/${month}/${year}`;
     }
 
+
+
     // Export functions for global access
     window.showOrderDetails = showOrderDetails;
     window.closeDetailsPanel = closeDetailsPanel;
@@ -1309,7 +1312,7 @@ Ghi chú: ${order.notes || 'Không có'}
       <!-- Details will be loaded here -->
     </div>
   </div>
-
+  
   <!-- Loading Overlay -->
   <div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
     <div class="text-center text-white">

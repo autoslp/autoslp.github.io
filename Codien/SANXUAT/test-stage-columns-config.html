@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Stage Columns Config</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .code-block {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Test Stage Columns Config</h1>
+        <p class="text-muted">Kiểm tra file cấu hình cột cho các công đoạn sản xuất</p>
+
+        <div class="test-section">
+            <h3>1. Test các công đoạn có sẵn</h3>
+            <div id="availableStages"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Test cột cho từng công đoạn</h3>
+            <div id="stageColumns"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Test validation công đoạn</h3>
+            <div id="stageValidation"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. Test tất cả cột có sẵn</h3>
+            <div id="allColumns"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>5. Test API endpoints</h3>
+            <div id="apiEndpoints"></div>
+        </div>
+    </div>
+
+    <script src="stage-columns-config.js"></script>
+    <script>
+        // Test 1: Các công đoạn có sẵn
+        function testAvailableStages() {
+            const stages = StageColumnsConfig.getAvailableStages();
+            const html = `
+                <p><strong>Số lượng công đoạn:</strong> ${stages.length}</p>
+                <p><strong>Danh sách:</strong></p>
+                <div class="code-block">${stages.join(', ')}</div>
+            `;
+            document.getElementById('availableStages').innerHTML = html;
+        }
+
+        // Test 2: Cột cho từng công đoạn
+        function testStageColumns() {
+            const stages = StageColumnsConfig.getAvailableStages();
+            let html = '';
+            
+            stages.forEach(stage => {
+                const columns = StageColumnsConfig.getColumnsForStage(stage);
+                html += `
+                    <div class="mb-3">
+                        <h5>Công đoạn: <code>${stage}</code></h5>
+                        <p><strong>Số lượng cột:</strong> ${columns.length}</p>
+                        <div class="code-block">${columns.join(', ')}</div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('stageColumns').innerHTML = html;
+        }
+
+        // Test 3: Validation công đoạn
+        function testStageValidation() {
+            const testStages = ['xa', 'xen', 'invalid_stage', 'in_offset', 'unknown'];
+            let html = '<div class="code-block">';
+            
+            testStages.forEach(stage => {
+                const isValid = StageColumnsConfig.isValidStage(stage);
+                html += `${stage}: ${isValid ? '✅ Hợp lệ' : '❌ Không hợp lệ'}\n`;
+            });
+            
+            html += '</div>';
+            document.getElementById('stageValidation').innerHTML = html;
+        }
+
+        // Test 4: Tất cả cột có sẵn
+        function testAllColumns() {
+            const allColumns = StageColumnsConfig.getAllAvailableColumns();
+            const html = `
+                <p><strong>Tổng số cột:</strong> ${allColumns.length}</p>
+                <div class="code-block">${allColumns.join(', ')}</div>
+            `;
+            document.getElementById('allColumns').innerHTML = html;
+        }
+
+        // Test 5: API endpoints
+        function testApiEndpoints() {
+            const stages = StageColumnsConfig.getAvailableStages();
+            let html = '<h5>API Endpoints mẫu:</h5><div class="code-block">';
+            
+            stages.forEach(stage => {
+                html += `GET /data/production_orders/optimized?stage=${stage}&days_back=300\n`;
+            });
+            
+            html += '\nAPI với cột tùy chỉnh:\n';
+            html += 'GET /data/production_orders/optimized?stage=xa&columns=custom_field1,custom_field2\n';
+            html += '</div>';
+            
+            document.getElementById('apiEndpoints').innerHTML = html;
+        }
+
+        // Chạy tất cả tests
+        document.addEventListener('DOMContentLoaded', function() {
+            testAvailableStages();
+            testStageColumns();
+            testStageValidation();
+            testAllColumns();
+            testApiEndpoints();
+        });
+    </script>
+</body>
+</html> 
