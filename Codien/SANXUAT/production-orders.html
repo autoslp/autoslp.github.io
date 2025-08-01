@@ -162,7 +162,7 @@
     /* Content area and details panel */
     .content-area {
       flex: 1;
-      padding: 2rem;
+      padding: 0.5rem;
       transition: all 0.3s ease;
       overflow: hidden; /* Prevent content overflow */
     }
@@ -917,18 +917,18 @@
 
   <script>
     // Sử dụng Production Orders API
-    const API = window.ProductionAPI;
+    const ProductionAPI = window.API;
     
     // App utility functions - sử dụng từ API
     const App = {
       // API request helper
-      apiRequest: API.getOrders,
+      apiRequest: ProductionAPI.getOrders,
       
       // Format số
-      formatNumber: API.formatNumber,
+      formatNumber: ProductionAPI.formatNumber,
       
       // Hiển thị thông báo
-      notify: API.showNotification,
+      notify: ProductionAPI.showNotification,
       
       // Xác nhận hành động
       confirm: function(message, callback) {
@@ -938,16 +938,16 @@
       },
       
       // Hiển thị loading
-      showLoading: API.showLoading,
+      showLoading: ProductionAPI.showLoading,
       
       // Ẩn loading
-      hideLoading: API.hideLoading
+      hideLoading: ProductionAPI.hideLoading
     };
 
     // Date utilities - sử dụng từ API
     const DateUtils = {
-      today: API.getToday,
-      format: API.formatDate
+      today: ProductionAPI.getToday,
+      format: ProductionAPI.formatDate
     };
 
     // Khởi tạo dữ liệu
@@ -955,105 +955,35 @@
     let editingOrderId = null;
     let allCustomers = [];
     
-    // Tạo dữ liệu mẫu cho testing
-    function createSampleData() {
-      console.log('Creating sample data...');
-      return [
-        {
-          id: '1',
-          deployment_date: '2025-01-15',
-          production_order: 'LSX-2025-001',
-          po_number: 'PO-001-2025',
-          sales_order_code: 'SO-001',
-          order_date: '2025-01-10',
-          delivery_date: '2025-01-20',
-          internal_product_code: 'SP-001',
-          order_type: 'Thường',
-          customer_code: 'KH-001',
-          customer_name: 'Công ty ABC',
-          product_name: 'Hộp carton A4',
-          version: 'V1.0',
-          not_deployed_reason: '',
-          sales_note: 'Ghi chú từ bộ phận kinh doanh',
-          customer_production_note: 'Yêu cầu đặc biệt từ khách hàng',
-          order_quantity: 1000,
-          inventory: 100,
-          required_quantity: 900,
-          deployed_quantity: 900,
-          offset_waste: 50,
-          waste: 20,
-          sheet_count: 100,
-          product_length: 210,
-          product_width: 297,
-          product_height: 50,
-          paper_length: 420,
-          paper_width: 594,
-          part_count: 2,
-          color_count: 4,
-          customer_group: 'VIP',
-          paper_type: 'BC',
-          paper_weight: 250,
-          work_stage: 'IN',
-          status: 'Đang sản xuất'
-        },
-        {
-          id: '2',
-          deployment_date: '2025-01-16',
-          production_order: 'LSX-2025-002',
-          po_number: 'PO-002-2025',
-          sales_order_code: 'SO-002',
-          order_date: '2025-01-11',
-          delivery_date: '2025-01-21',
-          internal_product_code: 'SP-002',
-          order_type: 'Khẩn',
-          customer_code: 'KH-002',
-          customer_name: 'Công ty XYZ',
-          product_name: 'Thùng carton B5',
-          version: 'V2.0',
-          not_deployed_reason: '',
-          sales_note: 'Đơn hàng ưu tiên',
-          customer_production_note: 'In 2 mặt',
-          order_quantity: 2000,
-          inventory: 200,
-          required_quantity: 1800,
-          deployed_quantity: 1800,
-          offset_waste: 100,
-          waste: 50,
-          sheet_count: 200,
-          product_length: 250,
-          product_width: 176,
-          product_height: 70,
-          paper_length: 500,
-          paper_width: 352,
-          part_count: 1,
-          color_count: 2,
-          customer_group: 'Thường',
-          paper_type: 'BC',
-          paper_weight: 300,
-          work_stage: 'BE',
-          status: 'Hoàn thành'
-        }
-      ];
-    }
-
     // Tải dữ liệu từ API
     async function initData() {
       console.log('=== INIT DATA START ===');
       try {
         App.showLoading();
         
-        console.log('Calling API.getOrders()...');
+        console.log('Calling API to get production orders...');
         // Tải dữ liệu lệnh sản xuất từ API
-        orders = await API.getOrders();
-        console.log('API.getOrders() result:', orders);
+        const response = await fetch(`${ProductionAPI.baseUrl}/data/production_orders`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        orders = await response.json();
+        console.log('API response:', orders);
         console.log('Orders type:', typeof orders);
         console.log('Orders length:', orders ? orders.length : 'null/undefined');
         
-        // Tải danh sách khách hàng từ API
-        console.log('Calling API.getCustomers()...');
-        allCustomers = await API.getCustomers();
-        console.log('API.getCustomers() result:', allCustomers);
-        console.log('Customers type:', typeof allCustomers);
+        // Tạo danh sách khách hàng từ dữ liệu orders
+        console.log('Extracting customers from orders...');
+        const customerSet = new Set();
+        if (orders && Array.isArray(orders)) {
+          orders.forEach(order => {
+            if (order.customer_name) {
+              customerSet.add(order.customer_name);
+            }
+          });
+        }
+        allCustomers = Array.from(customerSet).map(name => ({ customer_name: name }));
+        console.log('Extracted customers:', allCustomers);
         console.log('Customers length:', allCustomers ? allCustomers.length : 'null/undefined');
         
         populateFilters();
@@ -1095,6 +1025,7 @@
     }
     
     async function refreshData() {
+      console.log('Refreshing data from API...');
       await initData();
     }
     
@@ -1275,8 +1206,8 @@
       document.getElementById('productHeight').value = order.product_height || '';
       document.getElementById('paperLength').value = order.paper_length || '';
       document.getElementById('paperWidth').value = order.paper_width || '';
-      document.getElementById('partCount').value = order.part_count || '';
-      document.getElementById('colorCount').value = order.color_count || '';
+      document.getElementById('partCount').value = order.part_count || 0;
+      document.getElementById('colorCount').value = order.color_count || 0;
       document.getElementById('customerGroup').value = order.customer_group || '';
       document.getElementById('paperType').value = order.paper_type || '';
       document.getElementById('paperWeight').value = order.paper_weight || '';
@@ -1326,30 +1257,54 @@
           status: editingOrderId ? undefined : 'Chờ triển khai' // Chỉ set status mặc định khi tạo mới
         };
         
-        // Validate dữ liệu
-        const validation = API.validateOrder(orderData);
-        if (!validation.isValid) {
-          App.notify('Lỗi dữ liệu: ' + validation.errors.join(', '), 'error');
+        // Validate dữ liệu cơ bản
+        const errors = [];
+        if (!orderData.production_order) errors.push('Lệnh sản xuất không được để trống');
+        if (!orderData.po_number) errors.push('Số PO không được để trống');
+        if (!orderData.internal_product_code) errors.push('Mã code SP nội bộ không được để trống');
+        if (!orderData.customer_code) errors.push('Mã code khách hàng không được để trống');
+        if (!orderData.customer_name) errors.push('Tên khách hàng không được để trống');
+        if (!orderData.product_name) errors.push('Tên sản phẩm không được để trống');
+        
+        if (errors.length > 0) {
+          App.notify('Lỗi dữ liệu: ' + errors.join(', '), 'error');
           return;
         }
         
         App.showLoading();
         
         // Gọi API để lưu
-        const result = await API.saveOrder(orderData, !!editingOrderId, editingOrderId);
+        const url = editingOrderId 
+          ? `${ProductionAPI.baseUrl}/data/production_orders/${editingOrderId}`
+          : `${ProductionAPI.baseUrl}/data/production_orders`;
         
-        if (result.success !== false) {
-          App.notify(
-            editingOrderId ? 'Cập nhật lệnh sản xuất thành công!' : 'Tạo lệnh sản xuất thành công!', 
-            'success'
-          );
-          
-          // Đóng modal
-          bootstrap.Modal.getInstance(document.getElementById('orderModal')).hide();
-          
-          // Refresh dữ liệu
-          await refreshData();
+        const method = editingOrderId ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(orderData)
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
+        
+        const result = await response.json();
+        console.log('API save result:', result);
+        
+        App.notify(
+          editingOrderId ? 'Cập nhật lệnh sản xuất thành công!' : 'Tạo lệnh sản xuất thành công!', 
+          'success'
+        );
+        
+        // Đóng modal
+        bootstrap.Modal.getInstance(document.getElementById('orderModal')).hide();
+        
+        // Refresh dữ liệu
+        await refreshData();
         
       } catch (error) {
         console.error('Lỗi lưu lệnh sản xuất:', error);
@@ -1366,7 +1321,17 @@
       try {
         App.showLoading();
         
-        await API.deleteOrder(orderId);
+        // Gọi API để xóa
+        const response = await fetch(`${ProductionAPI.baseUrl}/data/production_orders/${orderId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         
         App.notify('Xóa lệnh sản xuất thành công!', 'success');
         await refreshData();

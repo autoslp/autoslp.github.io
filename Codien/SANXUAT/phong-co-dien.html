@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phòng Cơ Điện - Quản lý hệ thống</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #0dcaf0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+            color: white;
+            padding: 4rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .hero-section h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .hero-section p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stats-label {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .equipment-list {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .equipment-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            transition: background-color 0.2s ease;
+        }
+
+        .equipment-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .equipment-item:last-child {
+            border-bottom: none;
+        }
+
+        .equipment-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-right: 1rem;
+            width: 50px;
+            text-align: center;
+        }
+
+        .equipment-info h5 {
+            margin-bottom: 0.25rem;
+            color: #212529;
+        }
+
+        .equipment-info p {
+            margin-bottom: 0;
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-maintenance {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-offline {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .contact-section {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-top: 3rem;
+        }
+
+        .contact-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .contact-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            width: 30px;
+            text-align: center;
+        }
+
+        .footer {
+            background-color: #212529;
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+            
+            .hero-section p {
+                font-size: 1rem;
+            }
+            
+            .feature-card {
+                padding: 1.5rem;
+            }
+            
+            .stats-number {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-lightning-charge me-2"></i>
+                Phòng Cơ Điện
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#home">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#equipment">Thiết bị</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#maintenance">Bảo trì</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Liên hệ</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="home">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1>Phòng Cơ Điện</h1>
+                    <p>Quản lý và vận hành hệ thống cơ điện toàn diện, đảm bảo an toàn và hiệu quả cho toàn bộ nhà máy.</p>
+                    <button class="btn btn-light btn-lg me-3">
+                        <i class="bi bi-gear me-2"></i>Quản lý thiết bị
+                    </button>
+                    <button class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-clipboard-data me-2"></i>Báo cáo
+                    </button>
+                </div>
+                <div class="col-lg-4 text-center">
+                    <i class="bi bi-lightning-charge" style="font-size: 8rem; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics -->
+    <section class="container mb-5">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number">24/7</div>
+                    <div class="stats-label">Vận hành</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number">150+</div>
+                    <div class="stats-label">Thiết bị</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number">99.8%</div>
+                    <div class="stats-label">Uptime</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="stats-number">15</div>
+                    <div class="stats-label">Kỹ sư</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="container mb-5">
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h4>An toàn tuyệt đối</h4>
+                    <p>Đảm bảo an toàn cho người lao động và thiết bị với các quy trình kiểm tra nghiêm ngặt và hệ thống cảnh báo thông minh.</p>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
+                    <h4>Hiệu suất cao</h4>
+                    <p>Tối ưu hóa hiệu suất vận hành với công nghệ tiên tiến, giám sát thời gian thực và bảo trì dự đoán.</p>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <h4>Tiết kiệm năng lượng</h4>
+                    <p>Giảm thiểu chi phí vận hành thông qua việc sử dụng năng lượng hiệu quả và các giải pháp tiết kiệm thông minh.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Equipment List -->
+    <section class="container mb-5" id="equipment">
+        <h2 class="text-center mb-4">
+            <i class="bi bi-gear me-2"></i>Danh sách thiết bị chính
+        </h2>
+        <div class="equipment-list">
+            <div class="equipment-item">
+                <div class="equipment-icon">
+                    <i class="bi bi-lightning-charge"></i>
+                </div>
+                <div class="equipment-info flex-grow-1">
+                    <h5>Máy phát điện chính</h5>
+                    <p>Công suất: 500kW | Model: CAT C32 | Năm sản xuất: 2020</p>
+                </div>
+                <span class="status-badge status-active">Hoạt động</span>
+            </div>
+            
+            <div class="equipment-item">
+                <div class="equipment-icon">
+                    <i class="bi bi-droplet"></i>
+                </div>
+                <div class="equipment-info flex-grow-1">
+                    <h5>Hệ thống làm mát</h5>
+                    <p>Công suất: 200kW | Model: Carrier 30RB | Năm sản xuất: 2019</p>
+                </div>
+                <span class="status-badge status-active">Hoạt động</span>
+            </div>
+            
+            <div class="equipment-item">
+                <div class="equipment-icon">
+                    <i class="bi bi-wind"></i>
+                </div>
+                <div class="equipment-info flex-grow-1">
+                    <h5>Hệ thống thông gió</h5>
+                    <p>Công suất: 50kW | Model: Greenheck VG | Năm sản xuất: 2021</p>
+                </div>
+                <span class="status-badge status-maintenance">Bảo trì</span>
+            </div>
+            
+            <div class="equipment-item">
+                <div class="equipment-icon">
+                    <i class="bi bi-battery-charging"></i>
+                </div>
+                <div class="equipment-info flex-grow-1">
+                    <h5>Hệ thống UPS</h5>
+                    <p>Công suất: 100kVA | Model: APC Symmetra | Năm sản xuất: 2022</p>
+                </div>
+                <span class="status-badge status-active">Hoạt động</span>
+            </div>
+            
+            <div class="equipment-item">
+                <div class="equipment-icon">
+                    <i class="bi bi-tools"></i>
+                </div>
+                <div class="equipment-info flex-grow-1">
+                    <h5>Máy nén khí</h5>
+                    <p>Công suất: 75kW | Model: Atlas Copco | Năm sản xuất: 2018</p>
+                </div>
+                <span class="status-badge status-offline">Tạm dừng</span>
+            </div>
+            
+            <div class="equipment-item">
+                <div class="equipment-icon">
+                    <i class="bi bi-water"></i>
+                </div>
+                <div class="equipment-info flex-grow-1">
+                    <h5>Hệ thống cấp nước</h5>
+                    <p>Công suất: 30kW | Model: Grundfos | Năm sản xuất: 2020</p>
+                </div>
+                <span class="status-badge status-active">Hoạt động</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Maintenance Schedule -->
+    <section class="container mb-5" id="maintenance">
+        <h2 class="text-center mb-4">
+            <i class="bi bi-calendar-check me-2"></i>Lịch bảo trì
+        </h2>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-clock me-2"></i>Bảo trì định kỳ
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Máy phát điện</strong>
+                                    <br><small class="text-muted">Kiểm tra dầu, lọc gió</small>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">Hàng tuần</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Hệ thống làm mát</strong>
+                                    <br><small class="text-muted">Vệ sinh bộ trao đổi nhiệt</small>
+                                </div>
+                                <span class="badge bg-warning rounded-pill">Hàng tháng</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Hệ thống UPS</strong>
+                                    <br><small class="text-muted">Kiểm tra pin, test load</small>
+                                </div>
+                                <span class="badge bg-info rounded-pill">Hàng quý</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-exclamation-triangle me-2"></i>Bảo trì khẩn cấp
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Hệ thống thông gió</strong>
+                            <br>Đang bảo trì - Dự kiến hoàn thành: 15/01/2025
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Máy nén khí</strong>
+                            <br>Kiểm tra rò rỉ - Dự kiến: 20/01/2025
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section" id="contact">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <h3>Liên hệ phòng cơ điện</h3>
+                    <p>Đội ngũ kỹ sư giàu kinh nghiệm sẵn sàng hỗ trợ 24/7</p>
+                    
+                    <div class="contact-info">
+                        <div class="contact-icon">
+                            <i class="bi bi-telephone"></i>
+                        </div>
+                        <div>
+                            <strong>Điện thoại:</strong><br>
+                            +84 123 456 789
+                        </div>
+                    </div>
+                    
+                    <div class="contact-info">
+                        <div class="contact-icon">
+                            <i class="bi bi-envelope"></i>
+                        </div>
+                        <div>
+                            <strong>Email:</strong><br>
+                            codien@company.com
+                        </div>
+                    </div>
+                    
+                    <div class="contact-info">
+                        <div class="contact-icon">
+                            <i class="bi bi-geo-alt"></i>
+                        </div>
+                        <div>
+                            <strong>Địa chỉ:</strong><br>
+                            Tầng 1, Tòa nhà A, Khu công nghiệp ABC
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <h4>Giờ làm việc</h4>
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Thứ 2 - Thứ 6:</strong><br>
+                            7:00 - 17:00
+                        </div>
+                        <div class="col-6">
+                            <strong>Thứ 7:</strong><br>
+                            7:00 - 12:00
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="alert alert-light">
+                        <i class="bi bi-clock me-2"></i>
+                        <strong>Hỗ trợ khẩn cấp:</strong> 24/7
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Phòng Cơ Điện</h5>
+                    <p>Đảm bảo vận hành an toàn và hiệu quả cho toàn bộ hệ thống cơ điện của nhà máy.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>&copy; 2025 Phòng Cơ Điện. All rights reserved.</p>
+                    <p>Được phát triển bởi đội ngũ IT</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add active class to navigation items
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Add some interactivity to equipment items
+        document.querySelectorAll('.equipment-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const status = this.querySelector('.status-badge');
+                const equipmentName = this.querySelector('h5').textContent;
+                
+                console.log(`Clicked on: ${equipmentName} - Status: ${status.textContent}`);
+                
+                // You can add more functionality here like showing a modal with details
+            });
+        });
+
+        // Simple animation for stats cards
+        const observerOptions = {
+            threshold: 0.5,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.stats-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html> 

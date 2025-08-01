@@ -45,7 +45,7 @@
     
     /* Cải thiện hiển thị của form */
     .form-control, .form-select {
-      margin-bottom: 0.5rem;
+      /* margin-bottom: 0.5rem; */
       border-radius: 6px;
     }
     
@@ -358,6 +358,19 @@
       color: #6c757d;
     }
 
+    /* Cập nhật chỉ phần details-header để cố định khi cuộn */
+    .details-header {
+        position: sticky;
+        top: 0;
+        z-index: 1050;
+        /* background: #f8f9fa; */
+        padding: 15px;
+        border-bottom: 1px solid #dee2e6;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+
   </style>
 </head>
 <body data-stage="xa">
@@ -481,7 +494,7 @@
                       <i class="bi bi-search"></i>
                     </button>
                   </div>
-                  <small class="text-muted">Tự động tìm kiếm khi nhập (300ms delay)</small>
+                  <!-- <small class="text-muted">Tự động tìm kiếm khi nhập (300ms delay)</small> -->
                 </div>
               </div>
             </div>
@@ -494,17 +507,18 @@
                 <tr>
                   <th style="width: 40px!important; min-width: 40px!important;" class="text-center">#</th>
                   <th style="width: 150px!important; min-width: 120px!important;" class="text-center">Lệnh SX</th>
-                    <th style="width: 70px!important; min-width: 50px!important;" class="text-center">Loại LSX</th>
-                    <th style="width: 260px!important; min-width: 150px!important;" class="text-center">Sản phẩm</th>
+                <th style="width: 70px!important; min-width: 50px!important;" class="text-center">Loại LSX</th>
+                <th style="width: 260px!important; min-width: 150px!important;" class="text-center">Sản phẩm</th>
                   <th style="width: 130px!important; min-width: 130px!important;" class="text-center">Loại giấy</th>
                   <th style="width: 90px!important; min-width: 90px!important;" class="text-center">Định lượng</th>
                   <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Kế hoạch</th>
                   <th style="width: 150px!important; min-width: 150px!important;" class="text-center">Triển khai</th>
                   <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT xả</th>
+                  <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT xả</th>
+
                   <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Số phôi</th>
                   <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Tiến độ</th>
                   <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Máy/Thợ</th>
-                  <th style="width: auto!important; min-width: auto!important;" class="text-center">Thao tác</th>
 
                 </tr>
               </thead>
@@ -662,9 +676,9 @@
             console.log(`✅ [${operation}] Hoàn thành: ${duration.toFixed(2)}ms ${additionalInfo}`);
             
             // Hiển thị thông báo nếu load quá chậm
-            if (duration > 3000) {
-                showNotification(`⚠️ ${operation} chậm: ${duration.toFixed(0)}ms`, 'warning');
-            }
+            // if (duration > 3000) {
+            //     // showNotification(`⚠️ ${operation} chậm: ${duration.toFixed(0)}ms`, 'warning');
+            // }
             
             return duration;
         }
@@ -674,19 +688,19 @@
     /**
      * Log tổng thời gian load
      */
-    function logTotalLoadTime() {
-        const totalTime = performance.now() - loadingStartTime;
-        console.log(`🚀 TỔNG THỜI GIAN LOAD: ${totalTime.toFixed(2)}ms`);
+    // function logTotalLoadTime() {
+    //     const totalTime = performance.now() - loadingStartTime;
+    //     console.log(`🚀 TỔNG THỜI GIAN LOAD: ${totalTime.toFixed(2)}ms`);
         
-        // Log chi tiết từng bước
-        Object.keys(performanceMetrics).forEach(operation => {
-            const metric = performanceMetrics[operation];
-            if (metric.duration) {
-                const percentage = ((metric.duration / totalTime) * 100).toFixed(1);
-                console.log(`  📊 ${operation}: ${metric.duration.toFixed(2)}ms (${percentage}%)`);
-            }
-        });
-    }
+    //     // Log chi tiết từng bước
+    //     Object.keys(performanceMetrics).forEach(operation => {
+    //         const metric = performanceMetrics[operation];
+    //         if (metric.duration) {
+    //             const percentage = ((metric.duration / totalTime) * 100).toFixed(1);
+    //             console.log(`  📊 ${operation}: ${metric.duration.toFixed(2)}ms (${percentage}%)`);
+    //         }
+    //     });
+    // }
 
     /**
      * Hiển thị performance metrics trong modal
@@ -846,6 +860,23 @@
                 const response = await fetchWithRetry(url, {}, fastOptions.maxRetries);
                 const apiData = await response.json();
                 
+                // Kiểm tra dữ liệu raw từ API
+                console.log(`📊 API returned ${apiData.length} records`);
+                if (apiData.length > 0) {
+                    // Log các mẫu để kiểm tra xa_start_time
+                    apiData.slice(0, 3).forEach((record, idx) => {
+                        console.log(`🔍 Sample API data ${idx + 1}:`, {
+                            id: record.id,
+                            xa_start_time: record.xa_start_time,
+                            production_order: record.production_order || record.order_code
+                        });
+                    });
+                    
+                    // Đếm số bản ghi có xa_start_time
+                    const recordsWithStartTime = apiData.filter(r => r.xa_start_time).length;
+                    console.log(`🔢 Found ${recordsWithStartTime}/${apiData.length} records with xa_start_time`);
+                }
+                
                 if (!Array.isArray(apiData) || apiData.length === 0) {
                     hasMore = false;
                     break;
@@ -880,6 +911,22 @@
                 ordersData = transformApiData(allData);
                 const transformTime = performance.now() - transformStart;
                 console.log(`🔄 Data transformation: ${transformTime.toFixed(2)}ms`);
+            }
+            
+            // Kiểm tra dữ liệu sau khi transform
+            if (ordersData.length > 0) {
+                // Log các mẫu để kiểm tra xa_start_time
+                ordersData.slice(0, 3).forEach((record, idx) => {
+                    console.log(`✅ Sample transformed data ${idx + 1}:`, {
+                        id: record.id,
+                        xa_start_time: record.xa_start_time,
+                        production_order: record.production_order
+                    });
+                });
+                
+                // Đếm số bản ghi có xa_start_time
+                const recordsWithStartTime = ordersData.filter(r => r.xa_start_time).length;
+                console.log(`🔢 After transform: Found ${recordsWithStartTime}/${ordersData.length} records with xa_start_time`);
             }
             
             // Lưu dữ liệu gốc cho filtering
@@ -968,21 +1015,15 @@
     function transformOrder(order) {
         let workflowDef = order.workflow_definition;
         
-        // // TEMPORARY FALLBACK: Nếu workflow_definition là null, tạo workflow test dựa trên work_stage hoặc ID
-        // if (workflowDef === null || workflowDef === undefined || workflowDef === '') {
-        //     // Tạo workflow test dựa trên ID để demo
-        //     if (order.id % 3 === 0) {
-        //         workflowDef = "xa,in_offset,boi,kho"; // Test với in_offset
-        //     } else if (order.id % 3 === 1) {
-        //         workflowDef = "xa,xen,be,dan,kho"; // Test với xen
-        //     } else {
-        //         workflowDef = "xa,boi,kho"; // Test workflow ngắn
-        //     }
-        // }
+        // Log dữ liệu thô từ API để debug
+        if (order.xa_start_time) {
+            console.log(`🔍 API Data (ID ${order.id}): xa_start_time=${order.xa_start_time}`);
+        }
         
         const nextStage = getNextStageFromWorkflow(workflowDef, STAGE_CONFIG.KEY);
         
-        return {
+        // Tạo đối tượng kết quả
+        const transformedOrder = {
             id: order.id,
             production_order: order.order_code || order.production_order,
             order_type: order.order_type || '', // Thêm trường loại LSX
@@ -1000,6 +1041,8 @@
             xa_machine_name: order.xa_machine_name || '',
             xa_worker_name: order.xa_worker_name || '',
             xa_note: order.xa_note || order.notes || '',
+            xa_start_time: order.xa_start_time || null,
+            xa_end_time: order.xa_end_time || null,
             paper_type: order.paper_type || '',
             paper_weight: order.paper_weight || 0,
             paper_length: order.paper_length  || 0,
@@ -1013,6 +1056,13 @@
             created_at: order.created_at,
             updated_at: order.updated_at
         };
+        
+        // Log dữ liệu sau khi transform để debug
+        if (transformedOrder.xa_start_time) {
+            console.log(`✅ Transformed (ID ${transformedOrder.id}): xa_start_time=${transformedOrder.xa_start_time}`);
+        }
+        
+        return transformedOrder;
     }
 
     /**
@@ -1220,9 +1270,9 @@
             endTiming('setupFilters');
             
             // Log tổng thời gian
-            logTotalLoadTime();
+            // logTotalLoadTime();
             
-            showNotification('Đã tải dữ liệu thành công', 'success');
+            // showNotification('Đã tải dữ liệu thành công', 'success');
             
         } catch (error) {
             console.error('❌ Error initializing page:', error);
@@ -2155,6 +2205,30 @@
 
         // Update current editing order
         currentEditingOrder = order;
+        
+        // Chi tiết log để debug thông tin thời gian
+        console.log('🔍 showOrderDetails - Order time info:', {
+            orderId: order.id,
+            production_order: order.production_order,
+            xa_start_time: order.xa_start_time,
+            xa_end_time: order.xa_end_time,
+            xa_status: order.xa_status,
+            formatted_start: order.xa_start_time ? formatDateTime(order.xa_start_time) : null
+        });
+
+        // Cập nhật mã lệnh trong tiêu đề
+        const orderCodeBadge = document.getElementById('detailOrderCode');
+        if (orderCodeBadge) {
+            orderCodeBadge.textContent = order.production_order || `#${order.id}`;
+        }
+
+        // Add logging to debug start time
+        console.log('📅 Order Details - Start Time:', {
+            order_id: orderId,
+            xa_start_time: order.xa_start_time,
+            formatted_time: order.xa_start_time ? formatDateTime(order.xa_start_time) : null,
+            xa_end_time: order.xa_end_time
+        });
 
         // Remove previous selection
         const previousSelected = document.querySelector('.table tbody tr.selected');
@@ -2176,7 +2250,7 @@
         detailsPanel.classList.add('show');
         contentArea.classList.add('details-open');
 
-                // Populate details content with handover form
+        // Populate details content with handover form
         const nextStage = order.next_stage;
         const nextStageName = nextStage ? getStageDisplayName(nextStage) : 'HOÀN THÀNH';
         
@@ -2200,22 +2274,25 @@
             <!-- Production Time Display -->
             <div class="detail-section mb-3">
                 <h6><i class="bi bi-clock me-2"></i>Thời gian sản xuất</h6>
-                <div class="alert alert-light">
+                <div style="border-top: 6px solid #495057!important;border-left: unset!important;" class="alert alert-light">
                     <div class="row">
-                        <div class="col-6">
+                        <div style="text-align: center;" class="col-6">
                             <strong>Bắt đầu:</strong><br>
                             <span class="text-primary">${order.xa_start_time ? formatDateTime(order.xa_start_time) : 'Chưa bắt đầu'}</span>
+                        
                         </div>
-                        <div class="col-6">
+                        <div style="text-align: center;" class="col-6">
                             <strong>Kết thúc:</strong><br>
                             <span class="text-primary">${order.xa_end_time ? formatDateTime(order.xa_end_time) : 'Chưa kết thúc'}</span>
                         </div>
                     </div>
-                    ${order.xa_start_time && order.xa_end_time ? `
+                    ${order.xa_start_time ? `
                         <hr class="my-2">
                         <div class="text-center">
-                            <strong>Thời gian làm việc:</strong><br>
-                            <span class="text-success">${calculateWorkTime(order.xa_start_time, order.xa_end_time)}</span>
+                            <strong>Thời gian ${order.xa_end_time ? 'làm việc' : 'đang chạy'}:</strong><br>
+                            <h1 class="${order.xa_end_time ? 'text-success' : 'text-warning'}" id="productionRunningTime">
+                                ${order.xa_end_time ? calculateWorkTime(order.xa_start_time, order.xa_end_time) : 'Đang tính...'}
+                            </h1>
                         </div>
                     ` : ''}
                 </div>
@@ -2223,12 +2300,12 @@
 
     
             <!-- Input Information Alert -->
-            <div class="alert alert-info mb-3">
+                <!-- <div class="alert alert-info mb-3">
                 <h6><i class="bi bi-info-circle me-2"></i>Thông tin đầu vào</h6>
                 <div>
                     <strong>Số lượng cần triển khai:</strong> <span class="text-primary">${formatNumber(order.sheet_count) || 0}</span>
                  tờ</div>
-            </div>
+            </div> -->
 
 
 
@@ -2363,7 +2440,7 @@
                         </div>
 
                         <div class="d-grid gap-2 mt-4">
-                            <button class="btn btn-success btn-lg" onclick="executeHandover()">
+                            <button class="btn btn-success btn-lg" onclick="sendXaHandoverWebhook()">
                                 <i class="bi bi-check-circle me-2"></i>Cập nhật & Chuyển giao
                             </button>
                         </div>
@@ -2382,7 +2459,33 @@
             </div>
         `;
         
-
+        // Bắt đầu timer nếu đã có thời gian bắt đầu
+        if (order.xa_start_time) {
+            console.log('🔔 Order has start time, setting up timer');
+            
+            // Đợi một chút để đảm bảo DOM đã được render
+            setTimeout(() => {
+                const timerElement = document.getElementById('productionRunningTime');
+                console.log('🔔 Timer element after DOM ready:', timerElement);
+                
+                if (order.xa_end_time) {
+                    console.log('🔔 Order has end time, showing fixed time');
+                    // Nếu đã có thời gian kết thúc, chỉ hiển thị thời gian cố định
+                    if (timerElement) {
+                        const fixedTime = calculateWorkTime(order.xa_start_time, order.xa_end_time);
+                        console.log('🔔 Setting fixed time:', fixedTime);
+                        timerElement.textContent = fixedTime;
+                    }
+                } else {
+                    console.log('🔔 Order has NO end time, starting running timer');
+                    // Nếu chưa có thời gian kết thúc, bắt đầu timer chạy
+                    startProductionTimer();
+                }
+            }, 100);
+        } else {
+            console.log('🔔 Order has NO start time, stopping any existing timer');
+            stopProductionTimer();
+        }
     }
 
     function closeDetailsPanel() {
@@ -2392,7 +2495,8 @@
         detailsPanel.classList.remove('show');
         contentArea.classList.remove('details-open');
         
-
+        // Dừng timer khi đóng panel
+        stopProductionTimer();
         
         // Remove selection from table row
         const selectedRow = document.querySelector('.table tbody tr.selected');
@@ -2601,7 +2705,58 @@
             
             if (response.ok) {
                 showNotification('✅ Đã bắt đầu sản xuất thành công!', 'success');
+                
+                // Nếu API trả về thông tin thời gian bắt đầu, cập nhật vào đối tượng hiện tại
+                if (result.start_time || result.xa_start_time) {
+                    console.log('🔄 Updating current order with start time from API:', result.start_time || result.xa_start_time);
+                    currentEditingOrder.xa_start_time = result.start_time || result.xa_start_time;
+                } else {
+                    // Nếu API không trả về thời gian bắt đầu, dùng thời gian hiện tại
+                    console.log('🔄 API did not return start time, using current time');
+                    currentEditingOrder.xa_start_time = new Date().toISOString();
+                }
+                
+                // Log để debug
+                console.log('🔄 Updated currentEditingOrder:', {
+                    id: currentEditingOrder.id,
+                    xa_start_time: currentEditingOrder.xa_start_time
+                });
+                
+                // Cập nhật UI ngay lập tức để hiển thị thời gian bắt đầu
+                const startTimeElement = document.querySelector('.detail-section .alert .row .col-6:first-child span');
+                if (startTimeElement) {
+                    console.log('🔄 Updating start time display in UI');
+                    startTimeElement.textContent = formatDateTime(currentEditingOrder.xa_start_time);
+                    startTimeElement.classList.add('text-primary');
+                }
+                
+                // Hiển thị đồng hồ thời gian
+                const timeDisplayContainer = document.querySelector('.detail-section .alert');
+                if (timeDisplayContainer) {
+                    // Kiểm tra xem đã có phần hiển thị thời gian chạy chưa
+                    let timerSection = timeDisplayContainer.querySelector('.text-center');
+                    
+                    if (!timerSection) {
+                        console.log('🔄 Creating new timer section in UI');
+                        // Tạo phần hiển thị thời gian chạy nếu chưa có
+                        const timerHtml = `
+                            <hr class="my-2">
+                            <div class="text-center">
+                                <strong>Thời gian đang chạy:</strong><br>
+                                <span class="text-warning" id="productionRunningTime">Đang tính...</span>
+                            </div>
+                        `;
+                        timeDisplayContainer.insertAdjacentHTML('beforeend', timerHtml);
+                    }
+                    
+                    // Bắt đầu timer ngay lập tức
+                    console.log('🔄 Starting timer immediately');
+                    startProductionTimer();
+                }
+                
+                // Refresh dữ liệu từ API
                 await refreshData();
+                
                 // Refresh sidebar content
                 showOrderDetails(order.id);
             } else {
@@ -2678,6 +2833,9 @@
             console.log('📥 Response data:', result);
             
             if (response.ok) {
+                // Dừng timer khi kết thúc sản xuất
+                stopProductionTimer();
+                
                 showNotification('✅ Đã kết thúc sản xuất thành công!', 'success');
                 await refreshData();
                 // Refresh sidebar content
@@ -2735,6 +2893,75 @@
         const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
         
         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // Biến để lưu trữ ID của timer
+    let productionTimerId = null;
+    
+    // Hàm tính thời gian đang chạy (từ thời điểm bắt đầu đến hiện tại)
+    function calculateRunningTime(startTime, endTime) {
+        if (!startTime) return 'N/A';
+        
+        const start = new Date(startTime);
+        const end = endTime ? new Date(endTime) : new Date();
+        const diffMs = end - start;
+        
+        const hours = Math.floor(diffMs / (1000 * 60 * 60));
+        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+        
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    // Hàm cập nhật thời gian chạy trong giao diện
+    function updateRunningTimer() {
+        const timerElement = document.getElementById('productionRunningTime');
+        console.log('⏱️ updateRunningTimer - Timer element:', timerElement);
+        
+        if (timerElement && currentEditingOrder && currentEditingOrder.xa_start_time) {
+            const time = calculateRunningTime(currentEditingOrder.xa_start_time, currentEditingOrder.xa_end_time);
+            console.log('⏱️ Updating timer with time:', time);
+            timerElement.textContent = time;
+        } else {
+            console.log('⏱️ Cannot update timer - missing element or data:', {
+                timerElement: !!timerElement,
+                currentEditingOrder: !!currentEditingOrder,
+                start_time: currentEditingOrder ? currentEditingOrder.xa_start_time : null
+            });
+        }
+    }
+    
+    // Hàm bắt đầu timer
+    function startProductionTimer() {
+        console.log('⏱️ startProductionTimer called');
+        
+        // Xóa timer cũ nếu có
+        stopProductionTimer();
+        
+        // Log order information for debugging
+        if (currentEditingOrder) {
+            console.log('⏱️ Current order timing info:', {
+                id: currentEditingOrder.id,
+                start_time: currentEditingOrder.xa_start_time,
+                end_time: currentEditingOrder.xa_end_time
+            });
+        }
+        
+        // Bắt đầu timer mới, cập nhật mỗi giây
+        updateRunningTimer();
+        console.log('⏱️ Timer element before starting interval:', document.getElementById('productionRunningTime'));
+        productionTimerId = setInterval(updateRunningTimer, 1000);
+        console.log('⏱️ Timer started with ID:', productionTimerId);
+    }
+    
+    // Hàm dừng timer
+    function stopProductionTimer() {
+        console.log('⏱️ stopProductionTimer called, current timer ID:', productionTimerId);
+        if (productionTimerId) {
+            clearInterval(productionTimerId);
+            productionTimerId = null;
+            console.log('⏱️ Timer stopped');
+        }
     }
 
     // Export functions for global access
@@ -2957,6 +3184,98 @@
         console.log('🔄 Updated machine filter options:', machines);
     }
 
+    // Thêm hàm mới để gửi dữ liệu chuyển giao qua webhook n8n
+    async function sendXaHandoverWebhook() {
+        const order = currentEditingOrder;
+        if (!order) {
+            showNotification('Lỗi: Không xác định được lệnh sản xuất', 'error');
+            return;
+        }
+        
+        try {
+            // Lấy dữ liệu đầu vào
+            const goodQuantity = parseInt(getElementValue('goodQty')) || 0;
+            const ngQuantity = parseInt(getElementValue('ngQty')) || 0;
+            const handoverQuantity = parseInt(getElementValue('handoverQty')) || 0;
+            
+            // Validation cơ bản
+            if (goodQuantity + ngQuantity <= 0) {
+                showNotification('Tổng số lượng phải lớn hơn 0', 'error');
+                return;
+            }
+            
+            if (handoverQuantity <= 0) {
+                showNotification('Số lượng chuyển giao phải lớn hơn 0', 'error');
+                return;
+            }
+            
+            if (handoverQuantity > goodQuantity) {
+                showNotification('Số lượng chuyển giao không thể lớn hơn số lượng OK', 'error');
+                return;
+            }
+            
+            const nextStage = order.next_stage;
+            if (!nextStage) {
+                showNotification('Không xác định được công đoạn tiếp theo', 'error');
+                return;
+            }
+            
+            // Hiển thị loading
+            showLoading('Đang gửi dữ liệu qua webhook n8n...');
+            
+            // Tạo dữ liệu webhook
+            const webhookData = {
+                order_id: order.id,
+                production_order: order.production_order,
+                stage: 'xa',
+                next_stage: nextStage,
+                workflow_definition: order.workflow_definition,
+                good_quantity: goodQuantity,
+                ng_quantity: ngQuantity,
+                handover_quantity: handoverQuantity,
+                timestamp: new Date().toISOString()
+            };
+            
+            console.log('📤 Gửi dữ liệu XA Handover qua webhook n8n:', webhookData);
+            
+            // Gửi webhook
+            const response = await fetch(`${WEBHOOK_BASE_URL}/production`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'xa_handover',
+                    data: webhookData,
+                    source: 'xa_stage_frontend',
+                    timestamp: new Date().toISOString()
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Webhook failed with status: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            console.log('📥 Webhook response:', result);
+            
+            // Thông báo thành công
+            const nextStageName = getStageDisplayName(nextStage);
+            showNotification(`✅ Đã chuyển giao ${formatNumber(handoverQuantity)} sản phẩm sang công đoạn ${nextStageName}!`, 'success');
+            
+            // Refresh dữ liệu
+            await refreshData();
+            
+            // Đóng sidebar
+            closeDetailsPanel();
+            
+        } catch (error) {
+            console.error('❌ Error sending XA handover webhook:', error);
+            showNotification('Lỗi khi gửi dữ liệu: ' + error.message, 'error');
+        } finally {
+            hideLoading();
+        }
+    }
 
   </script>
   
@@ -2989,7 +3308,7 @@
     <div class="details-header">
       <h5 class="mb-0">
         <i class="bi bi-info-circle me-2"></i>
-        Chi tiết lệnh sản xuất
+        Báo cáo lệnh: <span id="detailOrderCode"></span>
       </h5>
       <button type="button" class="detail-close" onclick="closeDetailsPanel()">
         <i class="bi bi-x-lg"></i>
@@ -2998,8 +3317,6 @@
     <div class="details-content" id="detailsContent">
       <!-- Details will be loaded here -->
     </div>
-    
-
   </div>
   
   <!-- Loading Overlay -->
