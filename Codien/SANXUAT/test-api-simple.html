@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Đơn giản</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .endpoint-test {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+        .loading { background-color: #fff3cd; }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">🧪 Test API Đơn giản</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>🔌 API Endpoints</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="api-tests">
+                            <!-- API tests sẽ được thêm ở đây -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>📊 Kết quả</h5>
+                    </div>
+                    <div class="card-body">
+                        <pre id="result" style="background: #f8f9fa; padding: 10px; border-radius: 5px; max-height: 400px; overflow-y: auto;"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="api-config.js"></script>
+    <script>
+        const API_TESTS = [
+            {
+                name: 'Lấy danh sách máy rảnh',
+                method: 'GET',
+                url: API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.AVAILABLE_MACHINES),
+                description: 'GET /api/data/available_machines'
+            },
+            {
+                name: 'Lấy trạng thái máy',
+                method: 'GET',
+                url: API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.MACHINE_STATUS),
+                description: 'GET /api/data/machine_status'
+            },
+            {
+                name: 'Lấy danh sách lệnh sản xuất',
+                method: 'GET',
+                url: API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.PRODUCTION_ORDERS),
+                description: 'GET /api/data/production_orders'
+            },
+            {
+                name: 'Kiểm tra máy XA001',
+                method: 'GET',
+                url: API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.CHECK_MACHINE) + '/XA001',
+                description: 'GET /api/data/check_machine/XA001'
+            }
+        ];
+
+        // Hiển thị danh sách API tests
+        function displayApiTests() {
+            const container = document.getElementById('api-tests');
+            
+            const html = API_TESTS.map((test, index) => `
+                <div class="endpoint-test" id="test-${index}">
+                    <h6>${test.name}</h6>
+                    <small class="text-muted">${test.description}</small>
+                    <br>
+                    <code class="bg-light p-2 rounded d-block mt-2">${test.url}</code>
+                    <button class="btn btn-primary btn-sm mt-2" onclick="testApi(${index})">
+                        🚀 Test
+                    </button>
+                    <div class="mt-2" id="result-${index}"></div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+        }
+
+        // Test API
+        async function testApi(index) {
+            const test = API_TESTS[index];
+            const resultDiv = document.getElementById(`result-${index}`);
+            const testDiv = document.getElementById(`test-${index}`);
+            
+            // Reset UI
+            testDiv.className = 'endpoint-test loading';
+            resultDiv.innerHTML = '<span class="text-warning">⏳ Đang test...</span>';
+            
+            try {
+                const response = await fetch(test.url);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    testDiv.className = 'endpoint-test success';
+                    resultDiv.innerHTML = `
+                        <span class="text-success">✅ Thành công (${response.status})</span>
+                        <br>
+                        <small class="text-muted">Response:</small>
+                        <pre class="bg-light p-2 rounded mt-1" style="font-size: 12px;">${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    testDiv.className = 'endpoint-test error';
+                    resultDiv.innerHTML = `
+                        <span class="text-danger">❌ Lỗi (${response.status})</span>
+                        <br>
+                        <small class="text-muted">Error:</small>
+                        <pre class="bg-light p-2 rounded mt-1" style="font-size: 12px;">${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+                
+                // Hiển thị kết quả chi tiết
+                document.getElementById('result').textContent = JSON.stringify({
+                    test: test.name,
+                    url: test.url,
+                    status: response.status,
+                    data: data
+                }, null, 2);
+                
+            } catch (error) {
+                testDiv.className = 'endpoint-test error';
+                resultDiv.innerHTML = `
+                    <span class="text-danger">❌ Lỗi kết nối</span>
+                    <br>
+                    <small class="text-muted">Error:</small>
+                    <pre class="bg-light p-2 rounded mt-1" style="font-size: 12px;">${error.message}</pre>
+                `;
+                
+                document.getElementById('result').textContent = JSON.stringify({
+                    test: test.name,
+                    url: test.url,
+                    error: error.message
+                }, null, 2);
+            }
+        }
+
+        // Test tất cả API
+        async function testAllApis() {
+            for (let i = 0; i < API_TESTS.length; i++) {
+                await testApi(i);
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Delay 1 giây
+            }
+        }
+
+        // Khởi tạo
+        document.addEventListener('DOMContentLoaded', function() {
+            displayApiTests();
+            
+            // Thêm nút test tất cả
+            const container = document.getElementById('api-tests');
+            const testAllButton = document.createElement('div');
+            testAllButton.className = 'endpoint-test';
+            testAllButton.innerHTML = `
+                <h6>🧪 Test Tất cả API</h6>
+                <button class="btn btn-success btn-sm" onclick="testAllApis()">
+                    🚀 Test Tất cả
+                </button>
+            `;
+            container.appendChild(testAllButton);
+        });
+    </script>
+</body>
+</html> 

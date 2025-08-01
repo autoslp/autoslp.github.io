@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Hệ thống Máy Đơn giản</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .machine-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .machine-available {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .machine-busy {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .order-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .order-running {
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+        }
+        .order-completed {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">🧪 Test Hệ thống Máy Đơn giản</h1>
+        
+        <!-- Thông báo -->
+        <div id="notification" class="alert" style="display: none;"></div>
+        
+        <!-- Bảng điều khiển -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>🎛️ Điều khiển</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-primary" onclick="loadMachineStatus()">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh Trạng thái Máy
+                        </button>
+                        <button class="btn btn-success" onclick="loadAvailableMachines()">
+                            <i class="bi bi-list-check"></i> Xem Máy Rảnh
+                        </button>
+                        <button class="btn btn-info" onclick="loadOrders()">
+                            <i class="bi bi-list-ul"></i> Xem Lệnh Sản xuất
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>📊 Thống kê</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="stats">
+                            <p>Máy rảnh: <span id="available-count">-</span></p>
+                            <p>Máy bận: <span id="busy-count">-</span></p>
+                            <p>Lệnh đang chạy: <span id="running-count">-</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Trạng thái máy -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>🏭 Trạng thái Máy</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="machine-status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Lệnh sản xuất -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>📋 Lệnh Sản xuất</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="orders-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>🧪 Test Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Bắt đầu lệnh:</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Máy:</label>
+                                    <select id="test-machine" class="form-select">
+                                        <option value="">Chọn máy...</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Lệnh:</label>
+                                    <select id="test-order" class="form-select">
+                                        <option value="">Chọn lệnh...</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-success" onclick="testStartOrder()">
+                                    <i class="bi bi-play-circle"></i> Bắt đầu
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Kết thúc lệnh:</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Máy đang chạy:</label>
+                                    <select id="test-busy-machine" class="form-select">
+                                        <option value="">Chọn máy...</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-danger" onclick="testEndOrder()">
+                                    <i class="bi bi-stop-circle"></i> Kết thúc
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="api-config.js"></script>
+    <script src="simple-machine-ui.js"></script>
+    <script>
+        // Khởi tạo
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSimpleMachine();
+            loadMachineStatus();
+            loadOrders();
+        });
+
+        // Hiển thị thông báo
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.className = `alert alert-${type}`;
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // Load trạng thái máy
+        async function loadMachineStatus() {
+            try {
+                const response = await fetch(API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.MACHINE_STATUS));
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayMachineStatus(data.machines);
+                    updateStats(data.machines);
+                } else {
+                    showNotification(`❌ ${data.error}`, 'danger');
+                }
+            } catch (error) {
+                console.error('❌ Error loading machine status:', error);
+                showNotification('❌ Lỗi kết nối server', 'danger');
+            }
+        }
+
+        // Hiển thị trạng thái máy
+        function displayMachineStatus(machines) {
+            const container = document.getElementById('machine-status');
+            
+            if (machines.length === 0) {
+                container.innerHTML = '<p class="text-muted">Không có máy nào</p>';
+                return;
+            }
+
+            const html = machines.map(machine => `
+                <div class="machine-item ${machine.status === 'available' ? 'machine-available' : 'machine-busy'}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">${machine.machine_name}</h6>
+                            <small class="text-muted">ID: ${machine.machine_id}</small>
+                            <br>
+                            <span class="badge ${machine.status === 'available' ? 'bg-success' : 'bg-warning'}">
+                                ${machine.status === 'available' ? 'Rảnh' : 'Bận'}
+                            </span>
+                        </div>
+                        <div class="text-end">
+                            ${machine.current_order_code ? `
+                                <small class="text-muted">Đang chạy:</small><br>
+                                <strong>${machine.current_order_code}</strong>
+                            ` : '<small class="text-muted">Không có lệnh</small>'}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+        }
+
+        // Cập nhật thống kê
+        function updateStats(machines) {
+            const availableCount = machines.filter(m => m.status === 'available').length;
+            const busyCount = machines.filter(m => m.status === 'busy').length;
+            const runningCount = machines.filter(m => m.current_order_id !== null).length;
+            
+            document.getElementById('available-count').textContent = availableCount;
+            document.getElementById('busy-count').textContent = busyCount;
+            document.getElementById('running-count').textContent = runningCount;
+        }
+
+        // Load máy rảnh
+        async function loadAvailableMachines() {
+            try {
+                const response = await fetch(API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.AVAILABLE_MACHINES));
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showNotification(`✅ Có ${data.available_machines.length} máy rảnh`, 'success');
+                    updateMachineSelect(data.available_machines);
+                } else {
+                    showNotification(`❌ ${data.error}`, 'danger');
+                }
+            } catch (error) {
+                console.error('❌ Error loading available machines:', error);
+                showNotification('❌ Lỗi kết nối server', 'danger');
+            }
+        }
+
+        // Cập nhật dropdown máy
+        function updateMachineSelect(machines) {
+            const select = document.getElementById('test-machine');
+            select.innerHTML = '<option value="">Chọn máy...</option>';
+            
+            machines.forEach(machine => {
+                const option = document.createElement('option');
+                option.value = machine.machine_id;
+                option.textContent = `${machine.machine_name} (${machine.machine_id})`;
+                select.appendChild(option);
+            });
+        }
+
+        // Load lệnh sản xuất
+        async function loadOrders() {
+            try {
+                const response = await fetch(API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.PRODUCTION_ORDERS));
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayOrders(data);
+                    updateOrderSelect(data);
+                } else {
+                    showNotification(`❌ ${data.error}`, 'danger');
+                }
+            } catch (error) {
+                console.error('❌ Error loading orders:', error);
+                showNotification('❌ Lỗi kết nối server', 'danger');
+            }
+        }
+
+        // Hiển thị lệnh sản xuất
+        function displayOrders(orders) {
+            const container = document.getElementById('orders-list');
+            
+            if (orders.length === 0) {
+                container.innerHTML = '<p class="text-muted">Không có lệnh sản xuất</p>';
+                return;
+            }
+
+            const html = orders.slice(0, 10).map(order => `
+                <div class="order-item ${order.xa_status === 'in_progress' ? 'order-running' : order.xa_status === 'completed' ? 'order-completed' : ''}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">${order.production_order}</h6>
+                            <small class="text-muted">ID: ${order.id}</small>
+                            <br>
+                            <span class="badge ${order.xa_status === 'completed' ? 'bg-success' : order.xa_status === 'in_progress' ? 'bg-warning' : 'bg-secondary'}">
+                                ${order.xa_status || 'Chưa bắt đầu'}
+                            </span>
+                        </div>
+                        <div class="text-end">
+                            ${order.xa_machine_id ? `
+                                <small class="text-muted">Máy:</small><br>
+                                <strong>${order.xa_machine_id}</strong>
+                            ` : '<small class="text-muted">Chưa gán máy</small>'}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+        }
+
+        // Cập nhật dropdown lệnh
+        function updateOrderSelect(orders) {
+            const select = document.getElementById('test-order');
+            select.innerHTML = '<option value="">Chọn lệnh...</option>';
+            
+            orders.filter(order => !order.xa_status || order.xa_status !== 'completed').forEach(order => {
+                const option = document.createElement('option');
+                option.value = order.id;
+                option.textContent = `${order.production_order} (ID: ${order.id})`;
+                select.appendChild(option);
+            });
+        }
+
+        // Test bắt đầu lệnh
+        async function testStartOrder() {
+            const machineId = document.getElementById('test-machine').value;
+            const orderId = document.getElementById('test-order').value;
+            
+            if (!machineId || !orderId) {
+                showNotification('❌ Vui lòng chọn máy và lệnh', 'warning');
+                return;
+            }
+
+            const order = await getOrderById(orderId);
+            if (!order) {
+                showNotification('❌ Không tìm thấy lệnh', 'danger');
+                return;
+            }
+
+                         try {
+                 const response = await fetch(API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.START_ORDER_ON_MACHINE), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        machine_id: machineId,
+                        order_id: orderId,
+                        order_code: order.production_order
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showNotification(`✅ ${result.message}`, 'success');
+                    loadMachineStatus();
+                    loadOrders();
+                } else {
+                    showNotification(`❌ ${result.error}`, 'danger');
+                }
+            } catch (error) {
+                console.error('❌ Error starting order:', error);
+                showNotification('❌ Lỗi kết nối server', 'danger');
+            }
+        }
+
+        // Test kết thúc lệnh
+        async function testEndOrder() {
+            const machineId = document.getElementById('test-busy-machine').value;
+            
+            if (!machineId) {
+                showNotification('❌ Vui lòng chọn máy', 'warning');
+                return;
+            }
+
+            // Lấy thông tin máy để biết order_id
+            const machineStatus = await getMachineStatus();
+            const machine = machineStatus.find(m => m.machine_id === machineId);
+            
+            if (!machine || !machine.current_order_id) {
+                showNotification('❌ Máy không đang chạy lệnh nào', 'warning');
+                return;
+            }
+
+                         try {
+                 const response = await fetch(API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.END_ORDER_ON_MACHINE), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        machine_id: machineId,
+                        order_id: machine.current_order_id
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showNotification(`✅ ${result.message}`, 'success');
+                    loadMachineStatus();
+                    loadOrders();
+                } else {
+                    showNotification(`❌ ${result.error}`, 'danger');
+                }
+            } catch (error) {
+                console.error('❌ Error ending order:', error);
+                showNotification('❌ Lỗi kết nối server', 'danger');
+            }
+        }
+
+        // Helper functions
+        async function getOrderById(orderId) {
+            try {
+                const response = await fetch(API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.PRODUCTION_ORDER_BY_ID) + `/${orderId}`);
+                const data = await response.json();
+                return response.ok ? data : null;
+            } catch (error) {
+                console.error('❌ Error getting order:', error);
+                return null;
+            }
+        }
+
+                 async function getMachineStatus() {
+             try {
+                 const response = await fetch(API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.MACHINE_STATUS));
+                const data = await response.json();
+                return response.ok ? data.machines : [];
+            } catch (error) {
+                console.error('❌ Error getting machine status:', error);
+                return [];
+            }
+        }
+
+        // Cập nhật dropdown máy bận
+        async function updateBusyMachineSelect() {
+            const machineStatus = await getMachineStatus();
+            const busyMachines = machineStatus.filter(m => m.status === 'busy');
+            
+            const select = document.getElementById('test-busy-machine');
+            select.innerHTML = '<option value="">Chọn máy...</option>';
+            
+            busyMachines.forEach(machine => {
+                const option = document.createElement('option');
+                option.value = machine.machine_id;
+                option.textContent = `${machine.machine_name} - ${machine.current_order_code}`;
+                select.appendChild(option);
+            });
+        }
+
+        // Auto refresh
+        setInterval(() => {
+            loadMachineStatus();
+            updateBusyMachineSelect();
+        }, 5000);
+    </script>
+</body>
+</html> 

@@ -398,14 +398,14 @@ body {
 }
 
 .table tbody tr.selected {
-  background-color: #e3f2fd !important;
+  /* background-color: #e3f2fd !important; */
   border-left: 4px solid #2196f3;
-  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+  /* box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2); */
 }
 
-.table tbody tr.selected:hover {
+/* .table tbody tr.selected:hover {
   background-color: #e3f2fd !important;
-}
+} */
 
 .quantity-display {
   font-weight: 600;
