@@ -96,6 +96,14 @@
                   </select>
                 </div>
               </div>
+              <div class="row mb-3">
+                <div class="col-md-12">
+                  <label for="vitriloi" class="form-label">Vị trí lỗi:</label>
+                  <select class="form-select" id="vitriloi" name="vitriloi" required>
+                    <option value="">-- Chọn vị trí lỗi --</option>
+                  </select>
+                </div>
+              </div>
 
               <!-- Hiện trạng lỗi -->
               <div class="mb-3">
@@ -366,53 +374,84 @@
         }
       }
 
-      // Hàm load khu vực và máy từ API n8n (dạng trường khu_vuc, ten_may)
-      async function loadKhuVucAndMay() {
-        try {
-          // Endpoint n8n trả về: [{ id, khu_vuc, ten_may }, ...]
-          const url = "https://autoslp.duckdns.org/api/data/may";
-          const response = await fetch(url);
-          const data = await response.json();
-          if (!Array.isArray(data) || data.length === 0) return;
+             // Hàm load khu vực và máy từ API n8n (dạng trường khu_vuc, ten_may)
+       async function loadKhuVucAndMay() {
+         try {
+           // Endpoint n8n trả về: [{ id, khu_vuc, ten_may, vi_tri_loi }, ...]
+           const url = "https://autoslp.duckdns.org/api/data/may";
+           const response = await fetch(url);
+           const data = await response.json();
+           if (!Array.isArray(data) || data.length === 0) return;
 
-          // Gom nhóm máy theo khu vực
-          const khuVucMap = {};
-          data.forEach(item => {
-            const kv = (item.khu_vuc || '').trim();
-            const may = (item.ten_may || '').trim();
-            if (!kv || !may) return;
-            if (!khuVucMap[kv]) khuVucMap[kv] = [];
-            if (!khuVucMap[kv].includes(may)) khuVucMap[kv].push(may);
-          });
+           // Gom nhóm máy theo khu vực và lưu thông tin vị trí lỗi
+           const khuVucMap = {};
+           const mayInfoMap = {}; // Lưu thông tin chi tiết của máy
+           data.forEach(item => {
+             const kv = (item.khu_vuc || '').trim();
+             const may = (item.ten_may || '').trim();
+             if (!kv || !may) return;
+             if (!khuVucMap[kv]) khuVucMap[kv] = [];
+             if (!khuVucMap[kv].includes(may)) khuVucMap[kv].push(may);
+             
+             // Lưu thông tin chi tiết của máy
+             mayInfoMap[may] = {
+               vi_tri_loi: item.vi_tri_loi || ''
+             };
+           });
 
-          // Đổ khu vực vào select
-          const khuvucSelect = document.getElementById("khuvuc");
-          khuvucSelect.innerHTML = '<option value="">-- Chọn khu vực --</option>';
-          Object.keys(khuVucMap).forEach(kv => {
-            const option = document.createElement("option");
-            option.value = kv;
-            option.textContent = kv;
-            khuvucSelect.appendChild(option);
-          });
+           // Đổ khu vực vào select
+           const khuvucSelect = document.getElementById("khuvuc");
+           khuvucSelect.innerHTML = '<option value="">-- Chọn khu vực --</option>';
+           Object.keys(khuVucMap).forEach(kv => {
+             const option = document.createElement("option");
+             option.value = kv;
+             option.textContent = kv;
+             khuvucSelect.appendChild(option);
+           });
 
-          // Khi chọn khu vực thì load máy tương ứng
-          khuvucSelect.onchange = function () {
-            const selected = khuvucSelect.value;
-            const maySelect = document.getElementById("may");
-            maySelect.innerHTML = '<option value="">-- Chọn máy --</option>';
-            if (khuVucMap[selected]) {
-              khuVucMap[selected].forEach(may => {
-                const option = document.createElement("option");
-                option.value = may;
-                option.textContent = may;
-                maySelect.appendChild(option);
-              });
-            }
-          };
-        } catch (e) {
-          console.error("Lỗi load khu vực/máy (n8n):", e);
-        }
-      }
+           // Khi chọn khu vực thì load máy tương ứng
+           khuvucSelect.onchange = function () {
+             const selected = khuvucSelect.value;
+             const maySelect = document.getElementById("may");
+             maySelect.innerHTML = '<option value="">-- Chọn máy --</option>';
+             if (khuVucMap[selected]) {
+               khuVucMap[selected].forEach(may => {
+                 const option = document.createElement("option");
+                 option.value = may;
+                 option.textContent = may;
+                 maySelect.appendChild(option);
+               });
+             }
+             // Reset vị trí lỗi khi đổi khu vực
+             const vitriloiSelect = document.getElementById("vitriloi");
+             vitriloiSelect.innerHTML = '<option value="">-- Chọn vị trí lỗi --</option>';
+           };
+
+           // Khi chọn máy thì load vị trí lỗi tương ứng
+           const maySelect = document.getElementById("may");
+           maySelect.onchange = function () {
+             const selectedMay = maySelect.value;
+             const vitriloiSelect = document.getElementById("vitriloi");
+             vitriloiSelect.innerHTML = '<option value="">-- Chọn vị trí lỗi --</option>';
+             
+             if (selectedMay && mayInfoMap[selectedMay]) {
+               const viTriLoi = mayInfoMap[selectedMay].vi_tri_loi;
+               if (viTriLoi && viTriLoi.trim()) {
+                 // Tách các vị trí lỗi bằng dấu phẩy
+                 const viTriList = viTriLoi.split(',').map(item => item.trim()).filter(item => item);
+                 viTriList.forEach(viTri => {
+                   const option = document.createElement("option");
+                   option.value = viTri;
+                   option.textContent = viTri;
+                   vitriloiSelect.appendChild(option);
+                 });
+               }
+             }
+           };
+         } catch (e) {
+           console.error("Lỗi load khu vực/máy (n8n):", e);
+         }
+       }
 
       // Upload ảnh lên Cloudinary NGAY KHI CHỌN hoặc DÁN, lưu link vào imageUrls
       let imageUrls = [];
@@ -562,6 +601,7 @@
             stt: formData.get("stt"),
             khuvuc: formData.get("khuvuc"),
             may: formData.get("may"),
+            vitriloi: formData.get("vitriloi"), // Thêm trường vị trí lỗi
             thoigianyeucau: formData.get("thoigianyeucau"),
             hientrangloi: formData.get("hientrangloi"),
             nguoiyeucau: formData.get("nguoiyeucau"),
