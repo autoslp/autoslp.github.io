@@ -678,6 +678,154 @@
           </table>
         </div>
       </div>
+
+      <!-- New Reports Section -->
+      <div class="row mt-4">
+        <div class="col-12">
+          <h3 class="mb-4"><i class="bi bi-graph-up me-2"></i>Báo Cáo Chi Tiết</h3>
+        </div>
+      </div>
+
+      <!-- Department Report -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <div class="table-container">
+            <div class="table-header">
+              <i class="bi bi-building me-2"></i>Báo Cáo Theo Bộ Phận
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Bộ Phận</th>
+                    <th>Tổng Công Việc</th>
+                    <th>Hoàn Thành</th>
+                    <th>Tỷ Lệ</th>
+                  </tr>
+                </thead>
+                <tbody id="departmentReportTable">
+                  <!-- Data will be loaded here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="table-container">
+            <div class="table-header">
+              <i class="bi bi-person-badge me-2"></i>Báo Cáo Theo Chức Vụ
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Chức Vụ</th>
+                    <th>Số Nhân Viên</th>
+                    <th>Công Việc TB</th>
+                    <th>Hiệu Suất</th>
+                  </tr>
+                </thead>
+                <tbody id="positionReportTable">
+                  <!-- Data will be loaded here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manager Report -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="table-container">
+            <div class="table-header">
+              <i class="bi bi-person-gear me-2"></i>Báo Cáo Quản Lý
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Người Quản Lý</th>
+                    <th>Bộ Phận</th>
+                    <th>Số Nhân Viên</th>
+                    <th>Tổng Công Việc</th>
+                    <th>Hoàn Thành</th>
+                    <th>Tỷ Lệ</th>
+                  </tr>
+                </thead>
+                <tbody id="managerReportTable">
+                  <!-- Data will be loaded here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employee Performance Report -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="table-container">
+            <div class="table-header">
+              <i class="bi bi-trophy me-2"></i>Báo Cáo Hiệu Suất Nhân Viên
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Mã NV</th>
+                    <th>Tên Nhân Viên</th>
+                    <th>Bộ Phận</th>
+                    <th>Chức Vụ</th>
+                    <th>Tổng Công Việc</th>
+                    <th>Hoàn Thành</th>
+                    <th>Tỷ Lệ</th>
+                    <th>Đánh Giá</th>
+                  </tr>
+                </thead>
+                <tbody id="employeePerformanceTable">
+                  <!-- Data will be loaded here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Processing Time Report -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <div class="chart-container">
+            <div class="chart-title">Thời Gian Xử Lý Trung Bình (Giờ)</div>
+            <div style="position: relative; height: 300px;">
+              <canvas id="processingTimeChart"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="table-container">
+            <div class="table-header">
+              <i class="bi bi-stopwatch me-2"></i>Thống Kê Thời Gian Xử Lý
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Khoảng Thời Gian</th>
+                    <th>Số Công Việc</th>
+                    <th>Tỷ Lệ</th>
+                  </tr>
+                </thead>
+                <tbody id="processingTimeTable">
+                  <!-- Data will be loaded here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -685,12 +833,13 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   
   <script>
-    // Google Sheets API configuration
-    const SHEET_ID = '1JKDZD9EctJQn8oP5O9b2gsfDW_rHCLzVHOh5ggpGItI';
-    const API_KEY = 'AIzaSyC1Rsi6v-NoDqTFVDzB_YVCP0g1aHyvMME';
+    // API configuration
+    const API_URL = 'https://autoslp.duckdns.org/api/data/congviec';
+    const USER_API_URL = 'https://autoslp.duckdns.org/api/data/user';
     
     let allWorks = [];
     let filteredWorks = [];
+    let allUsers = [];
     let statusChart, trendChart;
 
     // Load statistics when page loads
@@ -711,48 +860,66 @@
         document.getElementById('loadingSection').style.display = 'block';
         document.getElementById('statsSection').style.display = 'none';
 
-        // Fetch data from Google Sheets
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Tonghop!A:W?key=${API_KEY}`;
-        const response = await fetch(url);
+        // Fetch data from both APIs
+        const [worksResponse, usersResponse] = await Promise.all([
+          fetch(API_URL),
+          fetch(USER_API_URL)
+        ]);
         
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        if (!worksResponse.ok) {
+          throw new Error(`HTTP error! status: ${worksResponse.status}`);
         }
         
-        const data = await response.json();
+        if (!usersResponse.ok) {
+          throw new Error(`HTTP error! status: ${usersResponse.status}`);
+        }
         
-        if (data.values && data.values.length > 1) {
-          // Skip header row
-          const rows = data.values.slice(1);
-          allWorks = rows.map(row => ({
-            stt: row[0] || '',
-            may: row[1] || '',
-            thoigianyeucau: row[2] || '',
-            hientrangloi: row[3] || '',
-            nguoiyeucau: row[4] || '',
-            quanlyxacnhan: row[5] || '',
-            quanlyxacnhan2: row[6] || '',
-            hinhanh: row[7] || '',
-            hangmuc: row[8] || '',
-            phanloai: row[9] || '',
-            vitri: row[10] || '',
-            hientrang: row[11] || 'Chờ xử lý',
-            nguyennhan: row[12] || '',
-            phuonganhxuly: row[13] || '',
-            vattuthaythe: row[14] || '',
-            thoigianbangiao: row[15] || '',
-            losstime: row[16] || '',
-            ketqua: row[17] || '',
-            sxxacnhan: row[18] || '',
-            thuchienboy1: row[19] || '',
-            thuchienboy2: row[20] || '',
-            qlxacnhan: row[21] || '',
-            ghichu: row[22] || ''
+        const worksData = await worksResponse.json();
+        const usersData = await usersResponse.json();
+        
+        if (worksData && Array.isArray(worksData)) {
+          // Map API data to our structure
+          allWorks = worksData.map(item => ({
+            stt: item.stt || '',
+            may: item.may || '',
+            thoigianyeucau: item.thoi_gian_yeu_cau || '',
+            hientrangloi: item.hien_trang_loi || '',
+            nguoiyeucau: item.nguoi_yeu_cau || '',
+            quanlyxacnhan: item.ql_xac_nhan || '',
+            quanlyxacnhan2: item.ql_duyet || '',
+            hinhanh: item.hinh_anh || '',
+            hangmuc: item.hang_muc || '',
+            phanloai: item.phan_loai || '',
+            vitri: item.vi_tri || '',
+            hientrang: item.hien_trang || 'Chờ xử lý',
+            nguyennhan: item.nguyen_nhan || '',
+            phuonganhxuly: item.phuong_an_xu_ly || '',
+            vattuthaythe: item.vat_tu_thay_the || '',
+            thoigianbangiao: item.thoi_gian_ban_giao || '',
+            losstime: item.losstime || '',
+            ketqua: item.ket_qua || '',
+            sxxacnhan: item.san_xuat_xac_nhan || '',
+            thuchienboy1: item.nguoi_lam_chinh || '',
+            thuchienboy2: item.nguoi_lam_phu_1 || '',
+            qlxacnhan: item.ql_xac_nhan_lai || '',
+            ghichu: item.ghi_chu || ''
           }));
           
           filteredWorks = [...allWorks];
-          displayStatistics();
         }
+        
+        if (usersData && Array.isArray(usersData)) {
+          allUsers = usersData.map(user => ({
+            ma_nhan_vien: user.ma_nhan_vien || '',
+            ten_nhan_vien: user.ten_nhan_vien || '',
+            nguoi_quan_ly: user.nguoi_quan_ly || '',
+            bo_phan: user.bo_phan || '',
+            chuc_vu: user.chuc_vu || '',
+            mat_khau: user.mat_khau || ''
+          }));
+        }
+        
+        displayStatistics();
         
       } catch (error) {
         console.error('Error loading statistics:', error);
@@ -770,7 +937,29 @@
       
       if (fromDate && toDate) {
         filteredWorks = allWorks.filter(work => {
-          const workDate = new Date(work.thoigianyeucau);
+          // Parse date from API format (e.g., "10:36:09 28/07/2025")
+          let workDate;
+          if (work.thoigianyeucau) {
+            const dateParts = work.thoigianyeucau.split(' ');
+            if (dateParts.length >= 2) {
+              const timePart = dateParts[0];
+              const datePart = dateParts[1];
+              const dateComponents = datePart.split('/');
+              if (dateComponents.length === 3) {
+                const day = parseInt(dateComponents[0]);
+                const month = parseInt(dateComponents[1]) - 1; // Month is 0-indexed
+                const year = parseInt(dateComponents[2]);
+                workDate = new Date(year, month, day);
+              } else {
+                workDate = new Date(work.thoigianyeucau);
+              }
+            } else {
+              workDate = new Date(work.thoigianyeucau);
+            }
+          } else {
+            workDate = new Date(0); // Invalid date
+          }
+          
           return workDate >= fromDate && workDate <= toDate;
         });
       } else {
@@ -784,9 +973,9 @@
     function displayStatistics() {
       // Calculate basic stats
       const total = filteredWorks.length;
-      const pending = filteredWorks.filter(w => w.hientrang === 'Chờ xử lý').length;
+      const pending = filteredWorks.filter(w => !w.hientrang || w.hientrang === '' || w.hientrang === 'Chờ xử lý').length;
       const inProgress = filteredWorks.filter(w => w.hientrang === 'Đang xử lý').length;
-      const completed = filteredWorks.filter(w => w.hientrang === 'Hoàn thành').length;
+      const completed = filteredWorks.filter(w => w.hientrang === 'Hoàn thành' || w.hientrang === 'OK').length;
       
       // Update stat cards
       document.getElementById('totalWorks').textContent = total;
@@ -815,6 +1004,13 @@
       updateTopPerformersTable();
       updateTopMachinesTable();
       updateRecentActivitiesTable();
+      
+      // Update new reports
+      updateDepartmentReport();
+      updatePositionReport();
+      updateManagerReport();
+      updateEmployeePerformanceReport();
+      updateProcessingTimeReport();
     }
 
     // Update status chart
@@ -879,12 +1075,21 @@
       filteredWorks.forEach(work => {
         if (work.thoigianyeucau) {
           try {
-            // Extract month from date string
-            const dateParts = work.thoigianyeucau.split('/');
+            // Extract month from date string (format: "10:36:09 28/07/2025")
+            const dateParts = work.thoigianyeucau.split(' ');
             let month = '';
             
             if (dateParts.length >= 2) {
-              month = `${dateParts[1]}/${dateParts[2] ? dateParts[2].split(' ')[0] : new Date().getFullYear()}`;
+              const datePart = dateParts[1];
+              const dateComponents = datePart.split('/');
+              if (dateComponents.length === 3) {
+                const day = dateComponents[0];
+                const monthNum = dateComponents[1];
+                const year = dateComponents[2];
+                month = `${monthNum}/${year}`;
+              } else {
+                month = 'Khác';
+              }
             } else {
               month = 'Khác';
             }
@@ -893,9 +1098,13 @@
               monthlyData[month] = { pending: 0, inProgress: 0, completed: 0 };
             }
             
-            if (work.hientrang === 'Chờ xử lý') monthlyData[month].pending++;
-            else if (work.hientrang === 'Đang xử lý') monthlyData[month].inProgress++;
-            else if (work.hientrang === 'Hoàn thành') monthlyData[month].completed++;
+            if (!work.hientrang || work.hientrang === '' || work.hientrang === 'Chờ xử lý') {
+              monthlyData[month].pending++;
+            } else if (work.hientrang === 'Đang xử lý') {
+              monthlyData[month].inProgress++;
+            } else if (work.hientrang === 'Hoàn thành' || work.hientrang === 'OK') {
+              monthlyData[month].completed++;
+            }
           } catch (e) {
             console.log('Error parsing date:', work.thoigianyeucau);
           }
@@ -968,7 +1177,7 @@
             performers[work.thuchienboy1] = { total: 0, completed: 0 };
           }
           performers[work.thuchienboy1].total++;
-          if (work.hientrang === 'Hoàn thành') {
+          if (work.hientrang === 'Hoàn thành' || work.hientrang === 'OK') {
             performers[work.thuchienboy1].completed++;
           }
         }
@@ -1041,7 +1250,12 @@
     // Update recent activities table
     function updateRecentActivitiesTable() {
       const recentWorks = [...filteredWorks]
-        .sort((a, b) => new Date(b.thoigianyeucau) - new Date(a.thoigianyeucau))
+        .sort((a, b) => {
+          // Parse dates for sorting
+          const dateA = parseDateFromAPI(a.thoigianyeucau);
+          const dateB = parseDateFromAPI(b.thoigianyeucau);
+          return dateB - dateA;
+        })
         .slice(0, 10);
       
       const tableBody = document.getElementById('recentActivitiesTable');
@@ -1051,21 +1265,381 @@
           <td>${work.may}</td>
           <td>
             <span class="badge ${getStatusBadgeClass(work.hientrang)}">
-              ${work.hientrang}
+              ${work.hientrang || 'Chờ xử lý'}
             </span>
           </td>
           <td>${work.thuchienboy1 || 'Chưa phân công'}</td>
-          <td>${work.thoigianyeucau.split(' ')[0]}</td>
+          <td>${work.thoigianyeucau ? work.thoigianyeucau.split(' ')[1] : ''}</td>
         </tr>
       `).join('');
     }
 
+    // Helper function to parse date from API format
+    function parseDateFromAPI(dateString) {
+      if (!dateString) return new Date(0);
+      
+      const dateParts = dateString.split(' ');
+      if (dateParts.length >= 2) {
+        const datePart = dateParts[1];
+        const dateComponents = datePart.split('/');
+        if (dateComponents.length === 3) {
+          const day = parseInt(dateComponents[0]);
+          const month = parseInt(dateComponents[1]) - 1; // Month is 0-indexed
+          const year = parseInt(dateComponents[2]);
+          return new Date(year, month, day);
+        }
+      }
+      return new Date(dateString);
+    }
+
+    // Update department report
+    function updateDepartmentReport() {
+      const departments = {};
+      
+      // Tạo map từ mã nhân viên đến bộ phận
+      const employeeDepartmentMap = {};
+      allUsers.forEach(user => {
+        employeeDepartmentMap[user.ma_nhan_vien] = user.bo_phan;
+      });
+      
+      filteredWorks.forEach(work => {
+        if (work.thuchienboy1) {
+          const department = employeeDepartmentMap[work.thuchienboy1] || 'Không xác định';
+          if (!departments[department]) {
+            departments[department] = { total: 0, completed: 0 };
+          }
+          departments[department].total++;
+          if (work.hientrang === 'Hoàn thành' || work.hientrang === 'OK') {
+            departments[department].completed++;
+          }
+        }
+      });
+      
+      const sortedDepartments = Object.entries(departments)
+        .map(([dept, stats]) => ({
+          department: dept,
+          total: stats.total,
+          completed: stats.completed,
+          rate: stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0
+        }))
+        .sort((a, b) => b.total - a.total);
+      
+      const tableBody = document.getElementById('departmentReportTable');
+      tableBody.innerHTML = sortedDepartments.map(dept => `
+        <tr>
+          <td>${dept.department}</td>
+          <td>${dept.total}</td>
+          <td>${dept.completed}</td>
+          <td>
+            <span class="badge ${dept.rate >= 80 ? 'bg-success' : dept.rate >= 60 ? 'bg-warning' : 'bg-danger'}">
+              ${dept.rate}%
+            </span>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Update position report
+    function updatePositionReport() {
+      const positions = {};
+      
+      // Thống kê theo chức vụ
+      allUsers.forEach(user => {
+        const position = user.chuc_vu || 'Không xác định';
+        if (!positions[position]) {
+          positions[position] = { 
+            employeeCount: 0, 
+            totalWorks: 0, 
+            completedWorks: 0 
+          };
+        }
+        positions[position].employeeCount++;
+      });
+      
+      // Đếm công việc theo chức vụ
+      const employeePositionMap = {};
+      allUsers.forEach(user => {
+        employeePositionMap[user.ma_nhan_vien] = user.chuc_vu;
+      });
+      
+      filteredWorks.forEach(work => {
+        if (work.thuchienboy1) {
+          const position = employeePositionMap[work.thuchienboy1] || 'Không xác định';
+          if (positions[position]) {
+            positions[position].totalWorks++;
+            if (work.hientrang === 'Hoàn thành' || work.hientrang === 'OK') {
+              positions[position].completedWorks++;
+            }
+          }
+        }
+      });
+      
+      const sortedPositions = Object.entries(positions)
+        .map(([position, stats]) => ({
+          position,
+          employeeCount: stats.employeeCount,
+          avgWorks: stats.employeeCount > 0 ? Math.round(stats.totalWorks / stats.employeeCount) : 0,
+          efficiency: stats.totalWorks > 0 ? Math.round((stats.completedWorks / stats.totalWorks) * 100) : 0
+        }))
+        .sort((a, b) => b.avgWorks - a.avgWorks);
+      
+      const tableBody = document.getElementById('positionReportTable');
+      tableBody.innerHTML = sortedPositions.map(pos => `
+        <tr>
+          <td>${pos.position}</td>
+          <td>${pos.employeeCount}</td>
+          <td>${pos.avgWorks}</td>
+          <td>
+            <span class="badge ${pos.efficiency >= 80 ? 'bg-success' : pos.efficiency >= 60 ? 'bg-warning' : 'bg-danger'}">
+              ${pos.efficiency}%
+            </span>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Update manager report
+    function updateManagerReport() {
+      const managers = {};
+      
+      // Tạo map từ nhân viên đến quản lý
+      const employeeManagerMap = {};
+      allUsers.forEach(user => {
+        employeeManagerMap[user.ma_nhan_vien] = user.nguoi_quan_ly;
+      });
+      
+      // Thống kê theo quản lý
+      filteredWorks.forEach(work => {
+        if (work.thuchienboy1) {
+          const manager = employeeManagerMap[work.thuchienboy1] || 'Không xác định';
+          if (!managers[manager]) {
+            managers[manager] = { 
+              department: '', 
+              employeeCount: 0, 
+              totalWorks: 0, 
+              completedWorks: 0 
+            };
+          }
+          managers[manager].totalWorks++;
+          if (work.hientrang === 'Hoàn thành' || work.hientrang === 'OK') {
+            managers[manager].completedWorks++;
+          }
+        }
+      });
+      
+      // Đếm số nhân viên dưới quyền mỗi quản lý
+      allUsers.forEach(user => {
+        const manager = user.nguoi_quan_ly;
+        if (managers[manager]) {
+          managers[manager].employeeCount++;
+          managers[manager].department = user.bo_phan;
+        }
+      });
+      
+      const sortedManagers = Object.entries(managers)
+        .map(([manager, stats]) => ({
+          manager,
+          department: stats.department,
+          employeeCount: stats.employeeCount,
+          totalWorks: stats.totalWorks,
+          completedWorks: stats.completedWorks,
+          rate: stats.totalWorks > 0 ? Math.round((stats.completedWorks / stats.totalWorks) * 100) : 0
+        }))
+        .sort((a, b) => b.totalWorks - a.totalWorks);
+      
+      const tableBody = document.getElementById('managerReportTable');
+      tableBody.innerHTML = sortedManagers.map(mgr => `
+        <tr>
+          <td>${mgr.manager}</td>
+          <td>${mgr.department}</td>
+          <td>${mgr.employeeCount}</td>
+          <td>${mgr.totalWorks}</td>
+          <td>${mgr.completedWorks}</td>
+          <td>
+            <span class="badge ${mgr.rate >= 80 ? 'bg-success' : mgr.rate >= 60 ? 'bg-warning' : 'bg-danger'}">
+              ${mgr.rate}%
+            </span>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Update employee performance report
+    function updateEmployeePerformanceReport() {
+      const employees = {};
+      
+      // Khởi tạo dữ liệu nhân viên
+      allUsers.forEach(user => {
+        employees[user.ma_nhan_vien] = {
+          name: user.ten_nhan_vien,
+          department: user.bo_phan,
+          position: user.chuc_vu,
+          totalWorks: 0,
+          completedWorks: 0
+        };
+      });
+      
+      // Đếm công việc của từng nhân viên
+      filteredWorks.forEach(work => {
+        if (work.thuchienboy1 && employees[work.thuchienboy1]) {
+          employees[work.thuchienboy1].totalWorks++;
+          if (work.hientrang === 'Hoàn thành' || work.hientrang === 'OK') {
+            employees[work.thuchienboy1].completedWorks++;
+          }
+        }
+      });
+      
+      const sortedEmployees = Object.entries(employees)
+        .map(([code, emp]) => ({
+          code,
+          name: emp.name,
+          department: emp.department,
+          position: emp.position,
+          totalWorks: emp.totalWorks,
+          completedWorks: emp.completedWorks,
+          rate: emp.totalWorks > 0 ? Math.round((emp.completedWorks / emp.totalWorks) * 100) : 0
+        }))
+        .filter(emp => emp.totalWorks > 0) // Chỉ hiển thị nhân viên có công việc
+        .sort((a, b) => b.completedWorks - a.completedWorks);
+      
+      const tableBody = document.getElementById('employeePerformanceTable');
+      tableBody.innerHTML = sortedEmployees.map(emp => `
+        <tr>
+          <td>${emp.code}</td>
+          <td>${emp.name}</td>
+          <td>${emp.department}</td>
+          <td>${emp.position}</td>
+          <td>${emp.totalWorks}</td>
+          <td>${emp.completedWorks}</td>
+          <td>
+            <span class="badge ${emp.rate >= 80 ? 'bg-success' : emp.rate >= 60 ? 'bg-warning' : 'bg-danger'}">
+              ${emp.rate}%
+            </span>
+          </td>
+          <td>
+            ${getPerformanceRating(emp.rate)}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Update processing time report
+    function updateProcessingTimeReport() {
+      const timeRanges = {
+        '0-2 giờ': 0,
+        '2-4 giờ': 0,
+        '4-8 giờ': 0,
+        '8-24 giờ': 0,
+        '>24 giờ': 0
+      };
+      
+      const completedWorks = filteredWorks.filter(work => 
+        work.hientrang === 'Hoàn thành' || work.hientrang === 'OK'
+      );
+      
+      completedWorks.forEach(work => {
+        const processingTime = calculateProcessingTime(work.thoigianyeucau, work.thoigianbangiao);
+        if (processingTime <= 2) timeRanges['0-2 giờ']++;
+        else if (processingTime <= 4) timeRanges['2-4 giờ']++;
+        else if (processingTime <= 8) timeRanges['4-8 giờ']++;
+        else if (processingTime <= 24) timeRanges['8-24 giờ']++;
+        else timeRanges['>24 giờ']++;
+      });
+      
+      const total = completedWorks.length;
+      const tableBody = document.getElementById('processingTimeTable');
+      tableBody.innerHTML = Object.entries(timeRanges).map(([range, count]) => `
+        <tr>
+          <td>${range}</td>
+          <td>${count}</td>
+          <td>${total > 0 ? Math.round((count / total) * 100) : 0}%</td>
+        </tr>
+      `).join('');
+      
+      // Update processing time chart
+      updateProcessingTimeChart(timeRanges);
+    }
+
+    // Helper function to calculate processing time in hours
+    function calculateProcessingTime(startTime, endTime) {
+      if (!startTime || !endTime) return 0;
+      
+      try {
+        const start = parseDateFromAPI(startTime);
+        const end = parseDateFromAPI(endTime);
+        const diffMs = end - start;
+        return Math.max(0, diffMs / (1000 * 60 * 60)); // Convert to hours
+      } catch (e) {
+        return 0;
+      }
+    }
+
+    // Helper function to get performance rating
+    function getPerformanceRating(rate) {
+      if (rate >= 90) return '<span class="badge bg-success">Xuất sắc</span>';
+      if (rate >= 80) return '<span class="badge bg-primary">Tốt</span>';
+      if (rate >= 70) return '<span class="badge bg-info">Khá</span>';
+      if (rate >= 60) return '<span class="badge bg-warning">Trung bình</span>';
+      return '<span class="badge bg-danger">Cần cải thiện</span>';
+    }
+
+    // Update processing time chart
+    function updateProcessingTimeChart(timeRanges) {
+      const ctx = document.getElementById('processingTimeChart').getContext('2d');
+      
+      if (window.processingTimeChart && window.processingTimeChart instanceof Chart) {
+        window.processingTimeChart.destroy();
+      }
+      
+      const labels = Object.keys(timeRanges);
+      const data = Object.values(timeRanges);
+      
+      window.processingTimeChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Số công việc',
+            data: data,
+            backgroundColor: [
+              '#28a745', // 0-2 giờ: xanh lá
+              '#17a2b8', // 2-4 giờ: xanh dương
+              '#ffc107', // 4-8 giờ: vàng
+              '#fd7e14', // 8-24 giờ: cam
+              '#dc3545'  // >24 giờ: đỏ
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1
+              }
+            }
+          }
+        }
+      });
+    }
+
     // Get status badge class
     function getStatusBadgeClass(status) {
+      if (!status || status === '') return 'bg-warning';
+      
       switch(status) {
         case 'Chờ xử lý': return 'bg-warning';
         case 'Đang xử lý': return 'bg-info';
-        case 'Hoàn thành': return 'bg-success';
+        case 'Hoàn thành': 
+        case 'OK': return 'bg-success';
         default: return 'bg-secondary';
       }
     }
