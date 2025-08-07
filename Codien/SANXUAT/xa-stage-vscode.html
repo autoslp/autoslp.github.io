@@ -571,7 +571,7 @@
           <!-- Tabs Navigation -->
           <ul class="nav nav-tabs mb-3" id="machineTabs" role="tablist">
             <li class="nav-item" role="presentation">
-              <button class="nav-link" id="xa1-tab" data-bs-toggle="tab" data-bs-target="#xa1-content" type="button" role="tab" aria-controls="xa1-content" aria-selected="true">
+              <button class="nav-link active" id="xa1-tab" data-bs-toggle="tab" data-bs-target="#xa1-content" type="button" role="tab" aria-controls="xa1-content" aria-selected="true">
                 <i class="bi bi-gear me-1"></i>Xả 1
                 <span class="badge bg-primary ms-1" id="xa1-count">0</span>
               </button>
@@ -589,7 +589,7 @@
               </button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-content" type="button" role="tab" aria-controls="all-content" aria-selected="false">
+              <button class="nav-link" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-content" type="button" role="tab" aria-controls="all-content" aria-selected="false">
                 <i class="bi bi-list-ul me-1"></i>Tất cả
                 <span class="badge bg-secondary ms-1" id="all-count">0</span>
               </button>
@@ -599,7 +599,7 @@
           <!-- Tab Content -->
           <div class="tab-content" id="machineTabContent">
             <!-- Xả 1 Tab -->
-            <div class="tab-pane fade " id="xa1-content" role="tabpanel" aria-labelledby="xa1-tab">
+            <div class="tab-pane fade show active" id="xa1-content" role="tabpanel" aria-labelledby="xa1-tab">
               <div class="table-container">
                 <table class="table table-striped table-hover">
                   <thead>
@@ -680,7 +680,7 @@
             </div>
             
             <!-- All Tab -->
-            <div class="tab-pane fade show active" id="all-content" role="tabpanel" aria-labelledby="all-tab">
+            <div class="tab-pane fade" id="all-content" role="tabpanel" aria-labelledby="all-tab">
               <div class="table-container">
                 <table class="table table-striped table-hover">
                   <thead>
@@ -1113,15 +1113,6 @@
             originalOrdersData = [...ordersData];
             filteredOrdersData = [...ordersData];
             
-            // Log sample data để debug
-            if (ordersData.length > 0) {
-                console.log('📊 Sample orders data:', ordersData.slice(0, 3).map(o => ({
-                    id: o.id,
-                    production_order: o.production_order,
-                    assigned_machine: o.assigned_machine
-                })));
-            }
-            
             endTiming(timingKey, `(API hit, ${ordersData.length} orders)`);
             
         } catch (error) {
@@ -1205,14 +1196,6 @@
         let workflowDef = order.workflow_definition;
         
         // Log dữ liệu thô từ API để debug
-        console.log(`🔍 Raw API order data:`, {
-            id: order.id,
-            order_id: order.order_id,
-            production_order: order.production_order,
-            order_code: order.order_code,
-            assigned_machine: order.assigned_machine
-        });
-        
         if (order.xa_start_time) {
             console.log(`🔍 API Data (ID ${order.id}): xa_start_time=${order.xa_start_time}`);
         }
@@ -1221,7 +1204,7 @@
         
         // Tạo đối tượng kết quả
         const transformedOrder = {
-            id: order.id || order.order_id || order.production_order_id,
+            id: order.id,
             production_order: order.order_code || order.production_order,
             order_type: order.order_type || '', // Thêm trường loại LSX
             product_name: order.product_name,
@@ -1553,8 +1536,6 @@
         console.log(`📊 Rendered orders in tabs: Xả 1 (${xa1Orders.length}), Xả 2 (${xa2Orders.length}), Xả 3 (${xa3Orders.length}), All (${ordersData.length})`);
     }
     
-
-    
     /**
      * Render bảng cho một tab cụ thể
      */
@@ -1844,12 +1825,9 @@
 
         `;
         
-        // Add data attribute for order ID
-        row.setAttribute('data-order-id', order.id);
+        // Add click event to show order details
         row.style.cursor = 'pointer';
         row.onclick = (e) => {
-            // Ngăn chặn event bubbling để tránh đóng panel
-            e.stopPropagation();
             showOrderDetails(order.id);
         };
         
@@ -2594,32 +2572,10 @@
      */
 
     function showOrderDetails(orderId) {
-        // Tìm order trong cả ordersData và originalOrdersData
-        let order = ordersData.find(o => o.id == orderId); // Sử dụng == để so sánh loose
-        
+        const order = ordersData.find(o => o.id === orderId);
         if (!order) {
-            order = originalOrdersData.find(o => o.id == orderId);
-        }
-        
-        if (!order) {
-            console.error('Order not found by ID:', orderId);
-            
-            // Thử tìm bằng production_order nếu orderId có thể là production_order
-            const orderByProductionOrder = ordersData.find(o => o.production_order == orderId);
-            if (orderByProductionOrder) {
-                console.log('🔍 Found order by production_order:', orderByProductionOrder);
-                order = orderByProductionOrder;
-            } else {
-                const orderByProductionOrderOriginal = originalOrdersData.find(o => o.production_order == orderId);
-                if (orderByProductionOrderOriginal) {
-                    console.log('🔍 Found order by production_order in originalOrdersData:', orderByProductionOrderOriginal);
-                    order = orderByProductionOrderOriginal;
-                } else {
-                    console.log('🔍 First 5 orders in ordersData:', ordersData.slice(0, 5).map(o => ({ id: o.id, type: typeof o.id, production_order: o.production_order })));
-                    console.log('🔍 First 5 orders in originalOrdersData:', originalOrdersData.slice(0, 5).map(o => ({ id: o.id, type: typeof o.id, production_order: o.production_order })));
-                    return;
-                }
-            }
+            console.error('Order not found:', orderId);
+            return;
         }
 
         // Update current editing order
@@ -3114,7 +3070,6 @@
             // Chuẩn bị dữ liệu gửi lên API
             const startData = {
                 stage: 'xa',
-                production_order: order.production_order,
                 worker_name: worker,
                 machine_name: machine,
                 shift: shift,
@@ -3432,44 +3387,18 @@
     // Add click outside listener to close details panel
     document.addEventListener('click', function(e) {
         const detailsPanel = document.getElementById('detailsPanel');
-        
-        // Kiểm tra xem click có phải vào table row không
-        const clickedRow = e.target.closest('tr.order-row');
-        if (clickedRow) {
-            // Nếu click vào table row, không đóng panel
-            return;
-        }
-        
-        // Kiểm tra xem click có phải vào tab content không
-        const clickedTabContent = e.target.closest('.tab-content');
-        if (clickedTabContent) {
-            // Nếu click vào tab content, không đóng panel
-            return;
-        }
-        
-        // Kiểm tra xem click có phải vào tab navigation không
-        const clickedTabNav = e.target.closest('#machineTabs');
-        if (clickedTabNav) {
-            // Nếu click vào tab navigation, không đóng panel
-            return;
-        }
-        
-        // Kiểm tra xem click có phải vào table container không
         const tableContainer = document.querySelector('.table-container');
-        const tabContent = document.querySelector('.tab-content');
         
-        // Debug: Log click events (chỉ khi cần thiết)
-        // console.log('Click detected:', e.target);
-        // console.log('Details panel open:', detailsPanel.classList.contains('show'));
-        // console.log('Clicked inside details panel:', detailsPanel.contains(e.target));
-        // console.log('Clicked inside table container:', tableContainer && tableContainer.contains(e.target));
-        // console.log('Clicked inside tab content:', tabContent && tabContent.contains(e.target));
+        // Debug: Log click events
+        console.log('Click detected:', e.target);
+        console.log('Details panel open:', detailsPanel.classList.contains('show'));
+        console.log('Clicked inside details panel:', detailsPanel.contains(e.target));
+        console.log('Clicked inside table container:', tableContainer.contains(e.target));
         
         // If details panel is open and click is outside table and details panel
         if (detailsPanel.classList.contains('show') && 
             !detailsPanel.contains(e.target) && 
-            !(tableContainer && tableContainer.contains(e.target)) &&
-            !(tabContent && tabContent.contains(e.target))) {
+            !tableContainer.contains(e.target)) {
             console.log('Closing details panel due to outside click');
             closeDetailsPanel();
         }
