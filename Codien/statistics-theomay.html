@@ -826,6 +826,58 @@
           </div>
         </div>
       </div>
+
+      <!-- Area and Machine Report -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="table-container">
+            <div class="table-header">
+              <i class="bi bi-geo-alt-fill me-2"></i>Báo Cáo Theo Khu Vực và Máy
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Khu Vực</th>
+                    <th>Máy</th>
+                    <th>Tổng Công Việc</th>
+                    <th>Chờ Xử Lý</th>
+                    <th>Đang Xử Lý</th>
+                    <th>Hoàn Thành</th>
+                    <th>Tỷ Lệ Hoàn Thành</th>
+                    <th>Thời Gian TB (Giờ)</th>
+                    <th>Người Thực Hiện Chính</th>
+                  </tr>
+                </thead>
+                <tbody id="areaMachineTable">
+                  <!-- Data will be loaded here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Area Summary Chart -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <div class="chart-container">
+            <div class="chart-title">Thống Kê Theo Khu Vực</div>
+            <div style="position: relative; height: 300px;">
+              <canvas id="areaChart"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="chart-container">
+            <div class="chart-title">Top 10 Máy Có Nhiều Sự Cố Nhất</div>
+            <div style="position: relative; height: 300px;">
+              <canvas id="topMachinesChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1011,6 +1063,9 @@
       updateManagerReport();
       updateEmployeePerformanceReport();
       updateProcessingTimeReport();
+      updateAreaMachineReport();
+      updateAreaChart();
+      updateTopMachinesChart();
     }
 
     // Update status chart
@@ -1642,6 +1697,259 @@
         case 'OK': return 'bg-success';
         default: return 'bg-secondary';
       }
+    }
+
+    // Update area and machine report
+    function updateAreaMachineReport() {
+      const areaMachineData = {};
+      
+      filteredWorks.forEach(work => {
+        const area = extractAreaFromMachine(work.may) || 'Không xác định';
+        const machine = work.may || 'Không xác định';
+        const key = `${area}|${machine}`;
+        
+        if (!areaMachineData[key]) {
+          areaMachineData[key] = {
+            area: area,
+            machine: machine,
+            total: 0,
+            pending: 0,
+            inProgress: 0,
+            completed: 0,
+            totalProcessingTime: 0,
+            completedCount: 0,
+            mainWorker: work.thuchienboy1 || 'Chưa phân công'
+          };
+        }
+        
+        areaMachineData[key].total++;
+        
+        if (!work.hientrang || work.hientrang === '' || work.hientrang === 'Chờ xử lý') {
+          areaMachineData[key].pending++;
+        } else if (work.hientrang === 'Đang xử lý') {
+          areaMachineData[key].inProgress++;
+        } else if (work.hientrang === 'Hoàn thành' || work.hientrang === 'OK') {
+          areaMachineData[key].completed++;
+          
+          // Tính thời gian xử lý cho công việc hoàn thành
+          const processingTime = calculateProcessingTime(work.thoigianyeucau, work.thoigianbangiao);
+          areaMachineData[key].totalProcessingTime += processingTime;
+          areaMachineData[key].completedCount++;
+        }
+      });
+      
+      const sortedData = Object.values(areaMachineData)
+        .map(item => ({
+          ...item,
+          completionRate: item.total > 0 ? Math.round((item.completed / item.total) * 100) : 0,
+          avgProcessingTime: item.completedCount > 0 ? Math.round(item.totalProcessingTime / item.completedCount * 10) / 10 : 0
+        }))
+        .sort((a, b) => b.total - a.total);
+      
+      const tableBody = document.getElementById('areaMachineTable');
+      tableBody.innerHTML = sortedData.map(item => `
+        <tr>
+          <td>
+            <span class="badge bg-primary">${item.area}</span>
+          </td>
+          <td>
+            <strong>${item.machine}</strong>
+          </td>
+          <td>
+            <span class="badge bg-secondary">${item.total}</span>
+          </td>
+          <td>
+            <span class="badge bg-warning">${item.pending}</span>
+          </td>
+          <td>
+            <span class="badge bg-info">${item.inProgress}</span>
+          </td>
+          <td>
+            <span class="badge bg-success">${item.completed}</span>
+          </td>
+          <td>
+            <span class="badge ${item.completionRate >= 80 ? 'bg-success' : item.completionRate >= 60 ? 'bg-warning' : 'bg-danger'}">
+              ${item.completionRate}%
+            </span>
+          </td>
+          <td>
+            <span class="text-muted">${item.avgProcessingTime}h</span>
+          </td>
+          <td>
+            <small>${item.mainWorker}</small>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Extract area from machine name
+    function extractAreaFromMachine(machineName) {
+      if (!machineName) return 'Không xác định';
+      
+      const machine = machineName.toLowerCase();
+      
+      // Định nghĩa các khu vực dựa trên tên máy
+      if (machine.includes('may') || machine.includes('máy')) {
+        if (machine.includes('in') || machine.includes('offset')) return 'In Ấn';
+        if (machine.includes('cat') || machine.includes('cắt')) return 'Cắt';
+        if (machine.includes('dong') || machine.includes('đóng')) return 'Đóng Gói';
+        if (machine.includes('nghien') || machine.includes('nghiền')) return 'Nghiền';
+        if (machine.includes('say') || machine.includes('sấy')) return 'Sấy';
+        if (machine.includes('loc') || machine.includes('lọc')) return 'Lọc';
+        if (machine.includes('bom') || machine.includes('bơm')) return 'Bơm';
+        if (machine.includes('quat') || machine.includes('quạt')) return 'Quạt';
+        if (machine.includes('dieu') || machine.includes('điều')) return 'Điều Hòa';
+        if (machine.includes('dien') || machine.includes('điện')) return 'Điện';
+        if (machine.includes('nuoc') || machine.includes('nước')) return 'Nước';
+        if (machine.includes('kho') || machine.includes('khô')) return 'Kho';
+        if (machine.includes('san') || machine.includes('sản')) return 'Sản Xuất';
+        if (machine.includes('bao') || machine.includes('bảo')) return 'Bảo Trì';
+      }
+      
+      // Phân loại theo số hiệu máy
+      if (machine.match(/\d+/)) {
+        const number = parseInt(machine.match(/\d+/)[0]);
+        if (number >= 1 && number <= 10) return 'Khu Vực A';
+        if (number >= 11 && number <= 20) return 'Khu Vực B';
+        if (number >= 21 && number <= 30) return 'Khu Vực C';
+        if (number >= 31 && number <= 40) return 'Khu Vực D';
+        if (number >= 41 && number <= 50) return 'Khu Vực E';
+      }
+      
+      return 'Khu Vực Chung';
+    }
+
+    // Update area chart
+    function updateAreaChart() {
+      const ctx = document.getElementById('areaChart').getContext('2d');
+      
+      if (window.areaChart && window.areaChart instanceof Chart) {
+        window.areaChart.destroy();
+      }
+      
+      const areaStats = {};
+      
+      filteredWorks.forEach(work => {
+        const area = extractAreaFromMachine(work.may);
+        if (!areaStats[area]) {
+          areaStats[area] = { total: 0, completed: 0, pending: 0, inProgress: 0 };
+        }
+        
+        areaStats[area].total++;
+        
+        if (!work.hientrang || work.hientrang === '' || work.hientrang === 'Chờ xử lý') {
+          areaStats[area].pending++;
+        } else if (work.hientrang === 'Đang xử lý') {
+          areaStats[area].inProgress++;
+        } else if (work.hientrang === 'Hoàn thành' || work.hientrang === 'OK') {
+          areaStats[area].completed++;
+        }
+      });
+      
+      const areas = Object.keys(areaStats);
+      const totalData = areas.map(area => areaStats[area].total);
+      const completedData = areas.map(area => areaStats[area].completed);
+      
+      window.areaChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: areas,
+          datasets: [
+            {
+              label: 'Tổng công việc',
+              data: totalData,
+              backgroundColor: '#6c757d',
+              borderColor: '#495057',
+              borderWidth: 1
+            },
+            {
+              label: 'Hoàn thành',
+              data: completedData,
+              backgroundColor: '#28a745',
+              borderColor: '#1e7e34',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Update top machines chart
+    function updateTopMachinesChart() {
+      const ctx = document.getElementById('topMachinesChart').getContext('2d');
+      
+      if (window.topMachinesChart && window.topMachinesChart instanceof Chart) {
+        window.topMachinesChart.destroy();
+      }
+      
+      const machineStats = {};
+      
+      filteredWorks.forEach(work => {
+        const machine = work.may || 'Không xác định';
+        if (!machineStats[machine]) {
+          machineStats[machine] = 0;
+        }
+        machineStats[machine]++;
+      });
+      
+      const sortedMachines = Object.entries(machineStats)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
+      
+      const machineNames = sortedMachines.map(([name, count]) => name);
+      const machineCounts = sortedMachines.map(([name, count]) => count);
+      
+      window.topMachinesChart = new Chart(ctx, {
+        type: 'horizontalBar',
+        data: {
+          labels: machineNames,
+          datasets: [{
+            label: 'Số lần sự cố',
+            data: machineCounts,
+            backgroundColor: machineCounts.map(count => 
+              count >= 10 ? '#dc3545' : 
+              count >= 5 ? '#fd7e14' : 
+              count >= 3 ? '#ffc107' : '#17a2b8'
+            ),
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1
+              }
+            }
+          }
+        }
+      });
     }
   </script>
 </body>
