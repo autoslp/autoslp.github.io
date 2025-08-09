@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Sidebar 15 - Voice Input Optimized</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --voice-primary: #8b5cf6;
+            --voice-secondary: #06b6d4;
+            --voice-accent: #f59e0b;
+            --voice-success: #10b981;
+            --voice-danger: #ef4444;
+            --voice-bg: #fafbfc;
+            --voice-card: #ffffff;
+            --voice-text: #1f2937;
+            --voice-text-light: #6b7280;
+            --voice-border: #e5e7eb;
+            --voice-active: #ddd6fe;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+            color: var(--voice-text);
+            overflow: hidden;
+        }
+
+        .demo-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-demo {
+            width: 450px;
+            background: var(--voice-bg);
+            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Voice Header */
+        .voice-header {
+            background: linear-gradient(135deg, var(--voice-primary), var(--voice-secondary));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .voice-header h1 {
+            margin: 0 0 1rem 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .voice-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .voice-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--voice-success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        /* Voice Controls */
+        .voice-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .voice-btn {
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .voice-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .voice-btn.active {
+            background: var(--voice-danger);
+            animation: recording 1.5s infinite;
+        }
+
+        @keyframes recording {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+
+        /* Voice Content */
+        .voice-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .voice-section {
+            background: var(--voice-card);
+            border: 1px solid var(--voice-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .voice-section:hover {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .voice-section.listening {
+            border-color: var(--voice-primary);
+            background: var(--voice-active);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .section-title-voice {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--voice-text);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .voice-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--voice-primary), var(--voice-secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .mic-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 24px;
+            height: 24px;
+            background: var(--voice-danger);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            animation: micPulse 1s infinite;
+        }
+
+        .listening .mic-indicator {
+            display: flex;
+        }
+
+        @keyframes micPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Voice Input Fields */
+        .voice-field {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .voice-field:last-child {
+            margin-bottom: 0;
+        }
+
+        .voice-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--voice-text);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .voice-input {
+            width: 100%;
+            padding: 0.875rem 3rem 0.875rem 1rem;
+            border: 2px solid var(--voice-border);
+            border-radius: 12px;
+            color: var(--voice-text);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: var(--voice-card);
+            position: relative;
+        }
+
+        .voice-input:focus {
+            outline: none;
+            border-color: var(--voice-primary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .voice-input.listening {
+            border-color: var(--voice-danger);
+            background: rgba(239, 68, 68, 0.05);
+            animation: voiceGlow 2s infinite;
+        }
+
+        @keyframes voiceGlow {
+            0%, 100% { box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2); }
+            50% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.1); }
+        }
+
+        .field-mic-btn {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 50%;
+            background: var(--voice-primary);
+            color: white;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .field-mic-btn:hover {
+            background: #7c3aed;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .field-mic-btn.active {
+            background: var(--voice-danger);
+            animation: fieldRecording 1s infinite;
+        }
+
+        @keyframes fieldRecording {
+            0%, 100% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.2); }
+        }
+
+        .voice-select {
+            width: 100%;
+            padding: 0.875rem 3rem 0.875rem 1rem;
+            border: 2px solid var(--voice-border);
+            border-radius: 12px;
+            color: var(--voice-text);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--voice-card);
+        }
+
+        .voice-select:focus {
+            outline: none;
+            border-color: var(--voice-primary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .voice-textarea {
+            width: 100%;
+            padding: 0.875rem 3rem 0.875rem 1rem;
+            border: 2px solid var(--voice-border);
+            border-radius: 12px;
+            color: var(--voice-text);
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            transition: all 0.3s ease;
+            background: var(--voice-card);
+        }
+
+        .voice-textarea:focus {
+            outline: none;
+            border-color: var(--voice-primary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .voice-textarea.listening {
+            border-color: var(--voice-danger);
+            background: rgba(239, 68, 68, 0.05);
+            animation: voiceGlow 2s infinite;
+        }
+
+        /* Voice Commands Display */
+        .voice-commands {
+            background: #f3f4f6;
+            border: 1px solid var(--voice-border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .commands-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--voice-text-light);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .command-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .command-item {
+            padding: 0.25rem 0.75rem;
+            background: white;
+            border: 1px solid var(--voice-border);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--voice-text-light);
+        }
+
+        /* Quantity Grid with Voice */
+        .quantity-grid-voice {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .quantity-card-voice {
+            background: var(--voice-card);
+            border: 2px solid var(--voice-border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .quantity-card-voice:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .quantity-card-voice.success {
+            border-color: var(--voice-success);
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+        }
+
+        .quantity-card-voice.danger {
+            border-color: var(--voice-danger);
+            background: linear-gradient(135deg, #fef2f2, #fecaca);
+        }
+
+        .quantity-card-voice.warning {
+            border-color: var(--voice-accent);
+            background: linear-gradient(135deg, #fffbeb, #fed7aa);
+        }
+
+        .quantity-card-voice.info {
+            border-color: var(--voice-secondary);
+            background: linear-gradient(135deg, #f0f9ff, #bae6fd);
+        }
+
+        .quantity-label-voice {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--voice-text-light);
+            margin-bottom: 0.75rem;
+        }
+
+        .quantity-input-voice {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            color: inherit;
+            position: relative;
+        }
+
+        .quantity-input-voice:focus {
+            outline: none;
+        }
+
+        .success .quantity-input-voice { color: var(--voice-success); }
+        .danger .quantity-input-voice { color: var(--voice-danger); }
+        .warning .quantity-input-voice { color: var(--voice-accent); }
+        .info .quantity-input-voice { color: var(--voice-secondary); }
+
+        .quantity-mic {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 24px;
+            height: 24px;
+            border: none;
+            border-radius: 50%;
+            background: var(--voice-primary);
+            color: white;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quantity-mic:hover {
+            background: #7c3aed;
+            transform: scale(1.1);
+        }
+
+        .quantity-mic.active {
+            background: var(--voice-danger);
+            animation: quantityRecording 1s infinite;
+        }
+
+        @keyframes quantityRecording {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        /* Voice Feedback */
+        .voice-feedback {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--voice-text);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 1000;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .voice-feedback.show {
+            display: flex;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+
+        .feedback-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--voice-danger);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Action Buttons */
+        .action-area-voice {
+            padding: 2rem;
+            background: var(--voice-card);
+            border-top: 1px solid var(--voice-border);
+        }
+
+        .btn-voice {
+            width: 100%;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .btn-voice:last-child {
+            margin-bottom: 0;
+        }
+
+        .btn-primary-voice {
+            background: linear-gradient(135deg, var(--voice-primary), var(--voice-secondary));
+            color: white;
+        }
+
+        .btn-primary-voice:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-secondary-voice {
+            background: transparent;
+            color: var(--voice-text);
+            border: 2px solid var(--voice-border);
+        }
+
+        .btn-secondary-voice:hover {
+            background: var(--voice-bg);
+            border-color: var(--voice-primary);
+            color: var(--voice-primary);
+        }
+
+        /* Scrollbar styling */
+        .voice-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .voice-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .voice-content::-webkit-scrollbar-thumb {
+            background: var(--voice-primary);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="main-content">
+            <div class="demo-title">
+                <i class="bi bi-mic-fill me-3"></i>
+                Demo Sidebar 15: Voice Input Optimized
+            </div>
+        </div>
+        
+        <div class="sidebar-demo">
+            <!-- Voice Header -->
+            <div class="voice-header">
+                <h1><i class="bi bi-mic-fill me-2"></i>Báo cáo lệnh bằng giọng nói</h1>
+                <div class="voice-status">
+                    <div class="status-badge">
+                        <i class="bi bi-tag-fill"></i>
+                        LSX001234
+                    </div>
+                    <div class="status-badge">
+                        <div class="voice-indicator"></div>
+                        Sẵn sàng nghe
+                    </div>
+                </div>
+                <div class="voice-controls">
+                    <button class="voice-btn" id="globalMicBtn" title="Bắt đầu/Dừng ghi âm">
+                        <i class="bi bi-mic-fill"></i>
+                    </button>
+                    <button class="voice-btn" id="playbackBtn" title="Phát lại">
+                        <i class="bi bi-play-fill"></i>
+                    </button>
+                    <button class="voice-btn" id="clearBtn" title="Xóa tất cả">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="voice-content">
+                <!-- Voice Commands Guide -->
+                <div class="voice-commands">
+                    <div class="commands-title">Lệnh giọng nói có thể sử dụng:</div>
+                    <div class="command-list">
+                        <span class="command-item">"Tên thợ [tên]"</span>
+                        <span class="command-item">"Ca một/hai/ba"</span>
+                        <span class="command-item">"Máy XẢ [số]"</span>
+                        <span class="command-item">"OK [số]"</span>
+                        <span class="command-item">"NG [số]"</span>
+                        <span class="command-item">"Chuyển giao [số]"</span>
+                        <span class="command-item">"Ghi chú [nội dung]"</span>
+                    </div>
+                </div>
+
+                <!-- Production Information -->
+                <div class="voice-section" id="productionSection">
+                    <div class="mic-indicator">
+                        <i class="bi bi-mic-fill"></i>
+                    </div>
+                    <div class="section-title-voice">
+                        <div class="voice-icon">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        Thông tin sản xuất
+                    </div>
+                    
+                    <div class="voice-field">
+                        <label class="voice-label">
+                            <i class="bi bi-person-badge"></i>
+                            Tên thợ phụ trách
+                        </label>
+                        <div style="position: relative;">
+                            <input type="text" class="voice-input" id="workerName" value="Nguyễn Văn A" placeholder="Nói: 'Tên thợ [tên]'">
+                            <button class="field-mic-btn" data-field="workerName">
+                                <i class="bi bi-mic-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="voice-field">
+                        <label class="voice-label">
+                            <i class="bi bi-clock"></i>
+                            Ca làm việc
+                        </label>
+                        <div style="position: relative;">
+                            <select class="voice-select" id="shift">
+                                <option value="ca1" selected>Ca 1 (6:00 - 14:00)</option>
+                                <option value="ca2">Ca 2 (14:00 - 22:00)</option>
+                                <option value="ca3">Ca 3 (22:00 - 6:00)</option>
+                            </select>
+                            <button class="field-mic-btn" data-field="shift">
+                                <i class="bi bi-mic-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="voice-field">
+                        <label class="voice-label">
+                            <i class="bi bi-gear-fill"></i>
+                            Máy sản xuất
+                        </label>
+                        <div style="position: relative;">
+                            <input type="text" class="voice-input" id="machine" value="Máy XẢ 001" placeholder="Nói: 'Máy XẢ [số]'">
+                            <button class="field-mic-btn" data-field="machine">
+                                <i class="bi bi-mic-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quantity Results -->
+                <div class="voice-section" id="quantitySection">
+                    <div class="mic-indicator">
+                        <i class="bi bi-mic-fill"></i>
+                    </div>
+                    <div class="section-title-voice">
+                        <div class="voice-icon">
+                            <i class="bi bi-calculator-fill"></i>
+                        </div>
+                        Kết quả sản xuất
+                    </div>
+                    
+                    <div class="quantity-grid-voice">
+                        <div class="quantity-card-voice success">
+                            <button class="quantity-mic" data-quantity="ok">
+                                <i class="bi bi-mic-fill"></i>
+                            </button>
+                            <div class="quantity-label-voice">OK</div>
+                            <input type="number" class="quantity-input-voice" id="okQty" value="950">
+                        </div>
+                        <div class="quantity-card-voice danger">
+                            <button class="quantity-mic" data-quantity="ng">
+                                <i class="bi bi-mic-fill"></i>
+                            </button>
+                            <div class="quantity-label-voice">NG</div>
+                            <input type="number" class="quantity-input-voice" id="ngQty" value="50">
+                        </div>
+                        <div class="quantity-card-voice warning">
+                            <button class="quantity-mic" data-quantity="ngStartEnd">
+                                <i class="bi bi-mic-fill"></i>
+                            </button>
+                            <div class="quantity-label-voice">NG đầu/cuối</div>
+                            <input type="number" class="quantity-input-voice" id="ngStartEndQty" value="20">
+                        </div>
+                        <div class="quantity-card-voice info">
+                            <button class="quantity-mic" data-quantity="return">
+                                <i class="bi bi-mic-fill"></i>
+                            </button>
+                            <div class="quantity-label-voice">Trả</div>
+                            <input type="number" class="quantity-input-voice" id="returnQty" value="10">
+                        </div>
+                    </div>
+
+                    <div class="voice-field" style="margin-top: 1.5rem;">
+                        <label class="voice-label">
+                            <i class="bi bi-arrow-right-circle"></i>
+                            Số lượng chuyển giao
+                        </label>
+                        <div style="position: relative;">
+                            <input type="number" class="voice-input" id="handoverQty" value="900" placeholder="Nói: 'Chuyển giao [số]'" style="font-size: 1.2rem; font-weight: 600; text-align: center; color: var(--voice-primary);">
+                            <button class="field-mic-btn" data-field="handoverQty">
+                                <i class="bi bi-mic-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="voice-section" id="notesSection">
+                    <div class="mic-indicator">
+                        <i class="bi bi-mic-fill"></i>
+                    </div>
+                    <div class="section-title-voice">
+                        <div class="voice-icon">
+                            <i class="bi bi-chat-text-fill"></i>
+                        </div>
+                        Ghi chú & Nhận xét
+                    </div>
+                    
+                    <div class="voice-field">
+                        <label class="voice-label">
+                            <i class="bi bi-journal-text"></i>
+                            Ghi chú sản xuất
+                        </label>
+                        <div style="position: relative;">
+                            <textarea class="voice-textarea" id="notes" placeholder="Nói: 'Ghi chú [nội dung]' hoặc nhấn mic để ghi âm">Sản xuất diễn ra bình thường. Máy hoạt động ổn định, chất lượng sản phẩm đạt yêu cầu.</textarea>
+                            <button class="field-mic-btn" data-field="notes" style="top: 1rem;">
+                                <i class="bi bi-mic-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="voice-field">
+                        <label class="voice-label">
+                            <i class="bi bi-lightbulb"></i>
+                            Đề xuất cải tiến
+                        </label>
+                        <div style="position: relative;">
+                            <textarea class="voice-textarea" id="suggestions" placeholder="Nói đề xuất cải tiến...">Cần kiểm tra chất lượng nguyên liệu đầu vào kỹ hơn để giảm tỷ lệ NG.</textarea>
+                            <button class="field-mic-btn" data-field="suggestions" style="top: 1rem;">
+                                <i class="bi bi-mic-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Area -->
+            <div class="action-area-voice">
+                <button class="btn-voice btn-primary-voice">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Xác nhận báo cáo
+                </button>
+                <button class="btn-voice btn-secondary-voice">
+                    <i class="bi bi-download"></i>
+                    Xuất file âm thanh
+                </button>
+            </div>
+        </div>
+
+        <!-- Voice Feedback -->
+        <div class="voice-feedback" id="voiceFeedback">
+            <div class="feedback-icon">
+                <i class="bi bi-mic-fill"></i>
+            </div>
+            <span id="feedbackText">Đang nghe...</span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let isRecording = false;
+        let recognition = null;
+        let currentField = null;
+
+        // Initialize Speech Recognition
+        function initSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window) {
+                recognition = new webkitSpeechRecognition();
+                recognition.lang = 'vi-VN';
+                recognition.continuous = false;
+                recognition.interimResults = true;
+                
+                recognition.onstart = function() {
+                    showVoiceFeedback('Đang nghe...');
+                    if (currentField) {
+                        document.getElementById(currentField).classList.add('listening');
+                        document.querySelector(`[data-field="${currentField}"]`).classList.add('active');
+                    }
+                };
+                
+                recognition.onresult = function(event) {
+                    let transcript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        if (event.results[i].isFinal) {
+                            transcript += event.results[i][0].transcript;
+                        }
+                    }
+                    
+                    if (transcript) {
+                        processVoiceCommand(transcript.trim(), currentField);
+                    }
+                };
+                
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error:', event.error);
+                    showVoiceFeedback('Lỗi nhận dạng giọng nói');
+                    stopRecording();
+                };
+                
+                recognition.onend = function() {
+                    stopRecording();
+                };
+            } else {
+                alert('Trình duyệt không hỗ trợ nhận dạng giọng nói');
+            }
+        }
+
+        // Process voice commands
+        function processVoiceCommand(transcript, fieldId) {
+            const text = transcript.toLowerCase();
+            
+            // Process different types of commands
+            if (text.includes('tên thợ')) {
+                const name = transcript.replace(/tên thợ/i, '').trim();
+                if (name) document.getElementById('workerName').value = name;
+            }
+            else if (text.includes('ca một') || text.includes('ca 1')) {
+                document.getElementById('shift').value = 'ca1';
+            }
+            else if (text.includes('ca hai') || text.includes('ca 2')) {
+                document.getElementById('shift').value = 'ca2';
+            }
+            else if (text.includes('ca ba') || text.includes('ca 3')) {
+                document.getElementById('shift').value = 'ca3';
+            }
+            else if (text.includes('máy xả')) {
+                const machineMatch = text.match(/máy xả\s*(\d+)/);
+                if (machineMatch) {
+                    document.getElementById('machine').value = `Máy XẢ ${machineMatch[1].padStart(3, '0')}`;
+                }
+            }
+            else if (text.includes('ok ')) {
+                const numberMatch = text.match(/ok\s*(\d+)/);
+                if (numberMatch) {
+                    document.getElementById('okQty').value = numberMatch[1];
+                }
+            }
+            else if (text.includes('ng ')) {
+                const numberMatch = text.match(/ng\s*(\d+)/);
+                if (numberMatch) {
+                    document.getElementById('ngQty').value = numberMatch[1];
+                }
+            }
+            else if (text.includes('chuyển giao')) {
+                const numberMatch = text.match(/chuyển giao\s*(\d+)/);
+                if (numberMatch) {
+                    document.getElementById('handoverQty').value = numberMatch[1];
+                }
+            }
+            else if (fieldId && (text.includes('ghi chú') || fieldId === 'notes' || fieldId === 'suggestions')) {
+                // For notes and suggestions, use the full transcript
+                const element = document.getElementById(fieldId);
+                if (element) {
+                    element.value = transcript;
+                }
+            }
+            else if (fieldId) {
+                // For other fields, use the transcript directly
+                const element = document.getElementById(fieldId);
+                if (element) {
+                    element.value = transcript;
+                }
+            }
+
+            showVoiceFeedback(`Đã nhập: "${transcript}"`);
+            
+            // Visual feedback
+            if (fieldId) {
+                const element = document.getElementById(fieldId);
+                if (element) {
+                    element.style.borderColor = 'var(--voice-success)';
+                    setTimeout(() => {
+                        element.style.borderColor = '';
+                    }, 2000);
+                }
+            }
+        }
+
+        // Start recording
+        function startRecording(fieldId = null) {
+            if (!recognition) {
+                initSpeechRecognition();
+            }
+            
+            if (recognition && !isRecording) {
+                currentField = fieldId;
+                isRecording = true;
+                recognition.start();
+                
+                // Visual feedback
+                document.getElementById('globalMicBtn').classList.add('active');
+                if (fieldId) {
+                    const section = document.getElementById(fieldId).closest('.voice-section');
+                    if (section) section.classList.add('listening');
+                }
+            }
+        }
+
+        // Stop recording
+        function stopRecording() {
+            if (recognition && isRecording) {
+                recognition.stop();
+                isRecording = false;
+                currentField = null;
+                
+                // Remove visual feedback
+                document.getElementById('globalMicBtn').classList.remove('active');
+                document.querySelectorAll('.voice-section').forEach(section => {
+                    section.classList.remove('listening');
+                });
+                document.querySelectorAll('.voice-input, .voice-textarea').forEach(input => {
+                    input.classList.remove('listening');
+                });
+                document.querySelectorAll('.field-mic-btn, .quantity-mic').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                hideVoiceFeedback();
+            }
+        }
+
+        // Show voice feedback
+        function showVoiceFeedback(text) {
+            const feedback = document.getElementById('voiceFeedback');
+            const feedbackText = document.getElementById('feedbackText');
+            feedbackText.textContent = text;
+            feedback.classList.add('show');
+            
+            // Auto hide after 3 seconds
+            setTimeout(() => {
+                hideVoiceFeedback();
+            }, 3000);
+        }
+
+        // Hide voice feedback
+        function hideVoiceFeedback() {
+            document.getElementById('voiceFeedback').classList.remove('show');
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initSpeechRecognition();
+            
+            // Global mic button
+            document.getElementById('globalMicBtn').addEventListener('click', function() {
+                if (isRecording) {
+                    stopRecording();
+                } else {
+                    startRecording();
+                }
+            });
+            
+            // Field mic buttons
+            document.querySelectorAll('.field-mic-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const fieldId = this.getAttribute('data-field');
+                    if (isRecording) {
+                        stopRecording();
+                    } else {
+                        startRecording(fieldId);
+                    }
+                });
+            });
+            
+            // Quantity mic buttons
+            document.querySelectorAll('.quantity-mic').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const quantityType = this.getAttribute('data-quantity');
+                    let fieldId = '';
+                    
+                    switch(quantityType) {
+                        case 'ok': fieldId = 'okQty'; break;
+                        case 'ng': fieldId = 'ngQty'; break;
+                        case 'ngStartEnd': fieldId = 'ngStartEndQty'; break;
+                        case 'return': fieldId = 'returnQty'; break;
+                    }
+                    
+                    if (isRecording) {
+                        stopRecording();
+                    } else {
+                        startRecording(fieldId);
+                    }
+                });
+            });
+            
+            // Clear button
+            document.getElementById('clearBtn').addEventListener('click', function() {
+                if (confirm('Bạn có chắc muốn xóa tất cả dữ liệu?')) {
+                    document.querySelectorAll('.voice-input, .voice-textarea, .quantity-input-voice').forEach(input => {
+                        if (input.type !== 'number' || input.id === 'handoverQty') {
+                            input.value = '';
+                        } else {
+                            input.value = '0';
+                        }
+                    });
+                    showVoiceFeedback('Đã xóa tất cả dữ liệu');
+                }
+            });
+            
+            // Playback button (demo)
+            document.getElementById('playbackBtn').addEventListener('click', function() {
+                showVoiceFeedback('Tính năng phát lại đang được phát triển');
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Space bar for quick record
+            if (e.code === 'Space' && e.ctrlKey) {
+                e.preventDefault();
+                if (isRecording) {
+                    stopRecording();
+                } else {
+                    startRecording();
+                }
+            }
+            
+            // Escape to stop recording
+            if (e.code === 'Escape' && isRecording) {
+                stopRecording();
+            }
+        });
+    </script>
+</body>
+</html>

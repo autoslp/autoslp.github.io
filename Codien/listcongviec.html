@@ -1035,7 +1035,7 @@
       document.getElementById('workTableBody').innerHTML = '<tr><td colspan="6">Đang tải dữ liệu...</td></tr>';
       try {
         // Thay đổi endpoint n8n phù hợp với hệ thống của bạn
-        const url = 'https://autoslp.duckdns.org/api/data/congviec';
+        const url = 'https://api.autoslp.com/api/data/congviec';
         const res = await fetch(url);
         const data = await res.json();
         // Nếu data là mảng object (SQL), map về mảng mảng cho tương thích code cũ
@@ -1311,7 +1311,7 @@
         }
         
         // Gọi API xóa công việc qua n8n/SQL
-        fetch('https://autoslp.duckdns.org:5678/webhook/delete-listcongviec', {
+        fetch('https://api.autoslp.com:5678/webhook/delete-listcongviec', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ stt: sttToDelete })
@@ -1381,7 +1381,7 @@
           timestamp: new Date().toISOString(),
         };
 
-        fetch("https://autoslp.duckdns.org:5678/webhook/my-zalo-webhook", {
+        fetch("https://api.autoslp.com:5678/webhook/my-zalo-webhook", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

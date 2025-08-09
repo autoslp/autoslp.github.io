@@ -23,13 +23,13 @@
 <body>
     <div class="container">
         <h1>🧪 Test Corrected Endpoints Structure</h1>
-        <p><strong>Base URL:</strong> https://autoslp.duckdns.org</p>
+        <p><strong>Base URL:</strong> https://api.autoslp.com</p>
         <p><strong>Mục đích:</strong> Kiểm tra cấu trúc endpoint đã được sửa theo server.js</p>
 
         <!-- Test 1: GET /data/production_orders -->
         <div class="test-section">
             <h3>📥 Test 1: GET Orders by Stage (XẢ)</h3>
-            <div class="endpoint">GET https://autoslp.duckdns.org/data/production_orders?current_stage=xa</div>
+            <div class="endpoint">GET https://api.autoslp.com/data/production_orders?current_stage=xa</div>
             <button class="test-btn" onclick="testGetOrdersByStage()">Test GET Orders</button>
             <div id="result1" class="result"></div>
             <pre id="response1"></pre>
@@ -38,7 +38,7 @@
         <!-- Test 2: PUT /data/production_orders/{id}/stage_output -->
         <div class="test-section">
             <h3>📤 Test 2: PUT Stage Output Update</h3>
-            <div class="endpoint">PUT https://autoslp.duckdns.org/data/production_orders/ORDER123/stage_output</div>
+            <div class="endpoint">PUT https://api.autoslp.com/data/production_orders/ORDER123/stage_output</div>
             <button class="test-btn" onclick="testUpdateStageOutput()">Test PUT Stage Output</button>
             <div id="result2" class="result"></div>
             <pre id="response2"></pre>
@@ -47,7 +47,7 @@
         <!-- Test 3: POST /api/handover_to_next_stage -->
         <div class="test-section">
             <h3>🔄 Test 3: POST Handover to Next Stage</h3>
-            <div class="endpoint">POST https://autoslp.duckdns.org/api/handover_to_next_stage</div>
+            <div class="endpoint">POST https://api.autoslp.com/api/handover_to_next_stage</div>
             <button class="test-btn" onclick="testHandoverToNextStage()">Test POST Handover</button>
             <div id="result3" class="result"></div>
             <pre id="response3"></pre>

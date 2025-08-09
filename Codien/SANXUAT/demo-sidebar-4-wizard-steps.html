@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Sidebar 4 - Wizard Steps</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --wizard-primary: #4f46e5;
+            --wizard-secondary: #06b6d4;
+            --wizard-success: #10b981;
+            --wizard-warning: #f59e0b;
+            --wizard-danger: #ef4444;
+            --step-bg: #f8fafc;
+            --step-border: #e2e8f0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+        }
+
+        .demo-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-demo {
+            width: 450px;
+            background: white;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, var(--wizard-primary), var(--wizard-secondary));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .sidebar-header h5 {
+            margin: 0 0 0.5rem 0;
+            font-weight: 600;
+        }
+
+        .order-info {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .wizard-progress {
+            background: white;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            height: 2px;
+            background: #e5e7eb;
+            z-index: 1;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--wizard-primary), var(--wizard-secondary));
+            transition: width 0.5s ease;
+            z-index: 2;
+        }
+
+        .step-indicator {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 3;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .step-indicator.active {
+            background: var(--wizard-primary);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .step-indicator.completed {
+            background: var(--wizard-success);
+            color: white;
+        }
+
+        .step-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+        }
+
+        .step-label {
+            flex: 1;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .step-label.active {
+            color: var(--wizard-primary);
+            font-weight: 600;
+        }
+
+        .step-label.completed {
+            color: var(--wizard-success);
+        }
+
+        .wizard-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .step-panel {
+            display: none;
+            animation: slideIn 0.4s ease;
+        }
+
+        .step-panel.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .step-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .step-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--wizard-primary), var(--wizard-secondary));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label-wizard {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-control-wizard {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control-wizard:focus {
+            outline: none;
+            border-color: var(--wizard-primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            z-index: 2;
+        }
+
+        .input-with-icon input {
+            padding-left: 2.75rem;
+        }
+
+        .quantity-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .quantity-card {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .quantity-card.success {
+            border-color: var(--wizard-success);
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+        }
+
+        .quantity-card.danger {
+            border-color: var(--wizard-danger);
+            background: linear-gradient(135deg, #fef2f2, #fecaca);
+        }
+
+        .quantity-card.warning {
+            border-color: var(--wizard-warning);
+            background: linear-gradient(135deg, #fffbeb, #fed7aa);
+        }
+
+        .quantity-card.info {
+            border-color: var(--wizard-secondary);
+            background: linear-gradient(135deg, #f0f9ff, #bae6fd);
+        }
+
+        .quantity-card-icon {
+            width: 24px;
+            height: 24px;
+            margin: 0 auto 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .success .quantity-card-icon { color: var(--wizard-success); }
+        .danger .quantity-card-icon { color: var(--wizard-danger); }
+        .warning .quantity-card-icon { color: var(--wizard-warning); }
+        .info .quantity-card-icon { color: var(--wizard-secondary); }
+
+        .quantity-card-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .quantity-card-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            color: inherit;
+        }
+
+        .quantity-card-input:focus {
+            outline: none;
+        }
+
+        .success .quantity-card-input { color: var(--wizard-success); }
+        .danger .quantity-card-input { color: var(--wizard-danger); }
+        .warning .quantity-card-input { color: var(--wizard-warning); }
+        .info .quantity-card-input { color: var(--wizard-secondary); }
+
+        .summary-section {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--wizard-primary);
+        }
+
+        .summary-label {
+            color: #6b7280;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .wizard-navigation {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid #e5e7eb;
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .btn-wizard {
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-wizard:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-prev {
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-prev:hover:not(:disabled) {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, var(--wizard-primary), var(--wizard-secondary));
+            color: white;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-finish {
+            background: linear-gradient(135deg, var(--wizard-success), #059669);
+            color: white;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-finish:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .validation-message {
+            font-size: 0.8rem;
+            color: var(--wizard-danger);
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .form-group.error .form-control-wizard {
+            border-color: var(--wizard-danger);
+        }
+
+        .form-group.error .validation-message {
+            display: block;
+        }
+
+        /* Scrollbar styling */
+        .wizard-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .wizard-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .wizard-content::-webkit-scrollbar-thumb {
+            background: var(--wizard-primary);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="main-content">
+            <div class="demo-title">
+                <i class="bi bi-list-check me-3"></i>
+                Demo Sidebar 4: Wizard Steps
+            </div>
+        </div>
+        
+        <div class="sidebar-demo">
+            <div class="sidebar-header">
+                <h5><i class="bi bi-magic me-2"></i>Báo cáo lệnh</h5>
+                <div class="order-info"><strong>LSX001234</strong> - Carton A4</div>
+            </div>
+
+            <!-- Progress Indicator -->
+            <div class="wizard-progress">
+                <div class="progress-steps">
+                    <div class="progress-line" style="width: 33%;"></div>
+                    <div class="step-indicator active" data-step="1">1</div>
+                    <div class="step-indicator" data-step="2">2</div>
+                    <div class="step-indicator" data-step="3">3</div>
+                    <div class="step-indicator" data-step="4">4</div>
+                </div>
+                <div class="step-labels">
+                    <div class="step-label active">Thông tin</div>
+                    <div class="step-label">Số lượng</div>
+                    <div class="step-label">Chất lượng</div>
+                    <div class="step-label">Xác nhận</div>
+                </div>
+            </div>
+
+            <!-- Wizard Content -->
+            <div class="wizard-content">
+                <!-- Step 1: Production Info -->
+                <div id="step-1" class="step-panel active">
+                    <div class="step-title">
+                        <div class="step-icon">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        Thông tin sản xuất
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label-wizard">Tên thợ phụ trách</label>
+                        <div class="input-with-icon">
+                            <i class="bi bi-person-badge"></i>
+                            <input type="text" class="form-control-wizard" id="worker" value="Nguyễn Văn A" required>
+                        </div>
+                        <div class="validation-message">Vui lòng nhập tên thợ phụ trách</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label-wizard">Ca làm việc</label>
+                        <div class="input-with-icon">
+                            <i class="bi bi-clock"></i>
+                            <select class="form-control-wizard" id="shift" required>
+                                <option value="">Chọn ca làm việc</option>
+                                <option value="ca1" selected>Ca 1 (6:00 - 14:00)</option>
+                                <option value="ca2">Ca 2 (14:00 - 22:00)</option>
+                                <option value="ca3">Ca 3 (22:00 - 6:00)</option>
+                            </select>
+                        </div>
+                        <div class="validation-message">Vui lòng chọn ca làm việc</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label-wizard">Máy sản xuất</label>
+                        <div class="input-with-icon">
+                            <i class="bi bi-gear-fill"></i>
+                            <select class="form-control-wizard" id="machine" required>
+                                <option value="">Chọn máy sản xuất</option>
+                                <option value="M001" selected>Máy XẢ 001</option>
+                                <option value="M002">Máy XẢ 002</option>
+                                <option value="M003">Máy XẢ 003</option>
+                            </select>
+                        </div>
+                        <div class="validation-message">Vui lòng chọn máy sản xuất</div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Quantities -->
+                <div id="step-2" class="step-panel">
+                    <div class="step-title">
+                        <div class="step-icon">
+                            <i class="bi bi-calculator-fill"></i>
+                        </div>
+                        Kết quả sản xuất
+                    </div>
+
+                    <div class="quantity-cards">
+                        <div class="quantity-card success">
+                            <div class="quantity-card-icon">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                            <div class="quantity-card-label">Số lượng OK</div>
+                            <input type="number" class="quantity-card-input" id="goodQty" value="950">
+                        </div>
+                        <div class="quantity-card danger">
+                            <div class="quantity-card-icon">
+                                <i class="bi bi-x-circle-fill"></i>
+                            </div>
+                            <div class="quantity-card-label">Số lượng NG</div>
+                            <input type="number" class="quantity-card-input" id="ngQty" value="50">
+                        </div>
+                    </div>
+
+                    <div class="quantity-cards">
+                        <div class="quantity-card warning">
+                            <div class="quantity-card-icon">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                            </div>
+                            <div class="quantity-card-label">NG đầu/cuối</div>
+                            <input type="number" class="quantity-card-input" id="ngStartEndQty" value="20">
+                        </div>
+                        <div class="quantity-card info">
+                            <div class="quantity-card-icon">
+                                <i class="bi bi-arrow-return-left"></i>
+                            </div>
+                            <div class="quantity-card-label">Số lượng trả</div>
+                            <input type="number" class="quantity-card-input" id="returnQty" value="10">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label-wizard">Số lượng chuyển giao</label>
+                        <div class="input-with-icon">
+                            <i class="bi bi-arrow-right-circle"></i>
+                            <input type="number" class="form-control-wizard" id="handoverQty" value="900" style="font-size: 1.1rem; font-weight: 600; color: var(--wizard-primary);">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Quality -->
+                <div id="step-3" class="step-panel">
+                    <div class="step-title">
+                        <div class="step-icon">
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                        Đánh giá chất lượng
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label-wizard">Mức chất lượng</label>
+                        <div class="input-with-icon">
+                            <i class="bi bi-star"></i>
+                            <select class="form-control-wizard" id="quality">
+                                <option value="excellent" selected>Xuất sắc (A+)</option>
+                                <option value="good">Tốt (A)</option>
+                                <option value="fair">Khá (B+)</option>
+                                <option value="average">Trung bình (B)</option>
+                                <option value="poor">Yếu (C)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label-wizard">Ghi chú sản xuất</label>
+                        <textarea class="form-control-wizard" id="notes" rows="4" placeholder="Nhập ghi chú về quá trình sản xuất...">Sản xuất diễn ra bình thường. Máy hoạt động ổn định, chất lượng sản phẩm đạt yêu cầu.</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label-wizard">Đề xuất cải tiến</label>
+                        <textarea class="form-control-wizard" id="suggestions" rows="3" placeholder="Nhập đề xuất cải tiến (nếu có)...">Cần kiểm tra chất lượng nguyên liệu đầu vào kỹ hơn.</textarea>
+                    </div>
+                </div>
+
+                <!-- Step 4: Confirmation -->
+                <div id="step-4" class="step-panel">
+                    <div class="step-title">
+                        <div class="step-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        Xác nhận thông tin
+                    </div>
+
+                    <div class="summary-section">
+                        <div class="summary-row">
+                            <span class="summary-label">Thợ phụ trách:</span>
+                            <span class="summary-value" id="summary-worker">Nguyễn Văn A</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Ca làm việc:</span>
+                            <span class="summary-value" id="summary-shift">Ca 1 (6:00 - 14:00)</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Máy sản xuất:</span>
+                            <span class="summary-value" id="summary-machine">Máy XẢ 001</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Số lượng OK:</span>
+                            <span class="summary-value text-success" id="summary-good">950</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Số lượng NG:</span>
+                            <span class="summary-value text-danger" id="summary-ng">50</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Chất lượng:</span>
+                            <span class="summary-value" id="summary-quality">Xuất sắc (A+)</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Số lượng chuyển giao:</span>
+                            <span class="summary-value" id="summary-handover">900 sản phẩm</span>
+                        </div>
+                    </div>
+
+                    <div style="background: #ecfdf5; border: 1px solid #bbf7d0; border-radius: 10px; padding: 1rem; text-align: center;">
+                        <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+                        <div style="margin-top: 0.5rem; font-weight: 600; color: #059669;">
+                            Sẵn sàng xác nhận báo cáo
+                        </div>
+                        <div style="font-size: 0.9rem; color: #065f46; margin-top: 0.25rem;">
+                            Vui lòng kiểm tra lại thông tin trước khi xác nhận
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="wizard-navigation">
+                <button class="btn-wizard btn-prev" id="prevBtn" onclick="changeStep(-1)" disabled>
+                    <i class="bi bi-chevron-left"></i>
+                    Trước
+                </button>
+                <button class="btn-wizard btn-next" id="nextBtn" onclick="changeStep(1)">
+                    Tiếp theo
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+                <button class="btn-wizard btn-finish" id="finishBtn" onclick="finishWizard()" style="display: none;">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Hoàn thành
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        function updateProgressBar() {
+            const progressLine = document.querySelector('.progress-line');
+            const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
+            progressLine.style.width = progressPercentage + '%';
+        }
+
+        function updateStepIndicators() {
+            document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
+                const stepNumber = index + 1;
+                indicator.classList.remove('active', 'completed');
+                
+                if (stepNumber < currentStep) {
+                    indicator.classList.add('completed');
+                    indicator.innerHTML = '<i class="bi bi-check"></i>';
+                } else if (stepNumber === currentStep) {
+                    indicator.classList.add('active');
+                    indicator.innerHTML = stepNumber;
+                } else {
+                    indicator.innerHTML = stepNumber;
+                }
+            });
+
+            document.querySelectorAll('.step-label').forEach((label, index) => {
+                const stepNumber = index + 1;
+                label.classList.remove('active', 'completed');
+                
+                if (stepNumber < currentStep) {
+                    label.classList.add('completed');
+                } else if (stepNumber === currentStep) {
+                    label.classList.add('active');
+                }
+            });
+        }
+
+        function showStep(step) {
+            document.querySelectorAll('.step-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            document.getElementById(`step-${step}`).classList.add('active');
+        }
+
+        function updateNavigation() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const finishBtn = document.getElementById('finishBtn');
+
+            prevBtn.disabled = currentStep === 1;
+
+            if (currentStep === totalSteps) {
+                nextBtn.style.display = 'none';
+                finishBtn.style.display = 'flex';
+            } else {
+                nextBtn.style.display = 'flex';
+                finishBtn.style.display = 'none';
+            }
+        }
+
+        function validateStep(step) {
+            let isValid = true;
+            const currentPanel = document.getElementById(`step-${step}`);
+            
+            // Remove previous error states
+            currentPanel.querySelectorAll('.form-group').forEach(group => {
+                group.classList.remove('error');
+            });
+
+            if (step === 1) {
+                const worker = document.getElementById('worker');
+                const shift = document.getElementById('shift');
+                const machine = document.getElementById('machine');
+
+                if (!worker.value.trim()) {
+                    worker.closest('.form-group').classList.add('error');
+                    isValid = false;
+                }
+                if (!shift.value) {
+                    shift.closest('.form-group').classList.add('error');
+                    isValid = false;
+                }
+                if (!machine.value) {
+                    machine.closest('.form-group').classList.add('error');
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        }
+
+        function updateSummary() {
+            if (currentStep === 4) {
+                document.getElementById('summary-worker').textContent = document.getElementById('worker').value;
+                document.getElementById('summary-shift').textContent = document.getElementById('shift').selectedOptions[0].text;
+                document.getElementById('summary-machine').textContent = document.getElementById('machine').selectedOptions[0].text;
+                document.getElementById('summary-good').textContent = document.getElementById('goodQty').value;
+                document.getElementById('summary-ng').textContent = document.getElementById('ngQty').value;
+                document.getElementById('summary-quality').textContent = document.getElementById('quality').selectedOptions[0].text;
+                document.getElementById('summary-handover').textContent = document.getElementById('handoverQty').value + ' sản phẩm';
+            }
+        }
+
+        function changeStep(direction) {
+            if (direction === 1 && !validateStep(currentStep)) {
+                return;
+            }
+
+            const newStep = currentStep + direction;
+            if (newStep >= 1 && newStep <= totalSteps) {
+                currentStep = newStep;
+                showStep(currentStep);
+                updateProgressBar();
+                updateStepIndicators();
+                updateNavigation();
+                updateSummary();
+            }
+        }
+
+        function finishWizard() {
+            alert('✅ Báo cáo đã được xác nhận thành công!\n\nThông tin đã được lưu vào hệ thống.');
+        }
+
+        // Initialize wizard
+        updateProgressBar();
+        updateStepIndicators();
+        updateNavigation();
+
+        // Add click handlers to step indicators
+        document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
+            indicator.addEventListener('click', () => {
+                const targetStep = index + 1;
+                if (targetStep <= currentStep || validateStep(currentStep)) {
+                    currentStep = targetStep;
+                    showStep(currentStep);
+                    updateProgressBar();
+                    updateStepIndicators();
+                    updateNavigation();
+                    updateSummary();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

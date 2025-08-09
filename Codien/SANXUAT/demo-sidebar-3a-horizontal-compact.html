@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Sidebar 3A - Horizontal Compact</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #10b981;
+            --accent-color: #f59e0b;
+            --danger-color: #ef4444;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body {
+            background: var(--bg-gradient);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+        }
+
+        .demo-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-demo {
+            width: 450px;
+            background: white;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Compact Header */
+        .compact-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .order-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .order-code {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .order-status {
+            padding: 0.25rem 0.75rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .live-timer {
+            font-size: 0.9rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+        }
+
+        /* Mini Tabs */
+        .mini-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            overflow-x: auto;
+        }
+
+        .mini-tab {
+            flex: 1;
+            min-width: 80px;
+            padding: 0.75rem 0.5rem;
+            border: none;
+            background: transparent;
+            color: #6c757d;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            border-bottom: 3px solid transparent;
+        }
+
+        .mini-tab:hover {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary-color);
+        }
+
+        .mini-tab.active {
+            color: var(--primary-color);
+            background: white;
+            border-bottom-color: var(--primary-color);
+        }
+
+        .mini-tab-icon {
+            display: block;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Compact Content */
+        .compact-content {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .content-panel {
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .content-panel.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Inline Form Groups */
+        .inline-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: end;
+        }
+
+        .form-field {
+            flex: 1;
+        }
+
+        .field-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .field-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .stat-card.success {
+            border-color: var(--secondary-color);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .stat-card.danger {
+            border-color: var(--danger-color);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .stat-card.warning {
+            border-color: var(--accent-color);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .stat-card.info {
+            border-color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value.success { color: var(--secondary-color); }
+        .stat-value.danger { color: var(--danger-color); }
+        .stat-value.warning { color: var(--accent-color); }
+        .stat-value.info { color: var(--primary-color); }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Progress Indicators */
+        .progress-section {
+            margin-bottom: 1rem;
+        }
+
+        .progress-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .progress-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            min-width: 60px;
+        }
+
+        .progress-bar-custom {
+            flex: 1;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-value {
+            font-size: 0.8rem;
+            font-weight: 600;
+            min-width: 40px;
+            text-align: right;
+        }
+
+        /* Compact Notes */
+        .note-compact {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .note-input {
+            width: 100%;
+            min-height: 60px;
+            border: none;
+            background: transparent;
+            resize: vertical;
+            font-size: 0.85rem;
+        }
+
+        .note-input:focus {
+            outline: none;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary-action {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary-action:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .btn-success-action {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-success-action:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger-action {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger-action:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        /* Tags */
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            padding: 0.25rem 0.75rem;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .tag.quality { background: var(--secondary-color); }
+        .tag.issue { background: var(--danger-color); }
+        .tag.note { background: var(--accent-color); }
+
+        /* Scrollbar */
+        .compact-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .compact-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .compact-content::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="main-content">
+            <div class="demo-title">
+                <i class="bi bi-layout-text-window me-3"></i>
+                Demo Sidebar 3A: Horizontal Compact
+            </div>
+        </div>
+        
+        <div class="sidebar-demo">
+            <!-- Compact Header -->
+            <div class="compact-header">
+                <div class="order-info">
+                    <div class="order-code">LSX001234</div>
+                    <div class="order-status">
+                        <i class="bi bi-play-circle-fill"></i>
+                        ACTIVE
+                    </div>
+                </div>
+                <div class="live-timer" id="liveTimer">02:30:45</div>
+            </div>
+
+            <!-- Mini Tabs -->
+            <div class="mini-tabs">
+                <button class="mini-tab active" onclick="switchPanel('info')">
+                    <i class="bi bi-person-fill mini-tab-icon"></i>
+                    Info
+                </button>
+                <button class="mini-tab" onclick="switchPanel('quantity')">
+                    <i class="bi bi-calculator-fill mini-tab-icon"></i>
+                    Qty
+                </button>
+                <button class="mini-tab" onclick="switchPanel('quality')">
+                    <i class="bi bi-star-fill mini-tab-icon"></i>
+                    Quality
+                </button>
+                <button class="mini-tab" onclick="switchPanel('notes')">
+                    <i class="bi bi-chat-text-fill mini-tab-icon"></i>
+                    Notes
+                </button>
+                <button class="mini-tab" onclick="switchPanel('summary')">
+                    <i class="bi bi-graph-up mini-tab-icon"></i>
+                    Summary
+                </button>
+            </div>
+
+            <!-- Compact Content -->
+            <div class="compact-content">
+                <!-- Info Panel -->
+                <div id="info-panel" class="content-panel active">
+                    <div class="inline-group">
+                        <div class="form-field">
+                            <label class="field-label">Worker</label>
+                            <input type="text" class="field-input" value="Nguyễn Văn A">
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label">Shift</label>
+                            <select class="field-input">
+                                <option>Ca 1</option>
+                                <option>Ca 2</option>
+                                <option>Ca 3</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="inline-group">
+                        <div class="form-field">
+                            <label class="field-label">Machine</label>
+                            <select class="field-input">
+                                <option>XẢ-001</option>
+                                <option>XẢ-002</option>
+                                <option>XẢ-003</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label">Speed</label>
+                            <input type="number" class="field-input" value="1200" placeholder="m/min">
+                        </div>
+                    </div>
+
+                    <div class="tag-list">
+                        <span class="tag">Carton A4</span>
+                        <span class="tag quality">High Quality</span>
+                        <span class="tag">Batch #045</span>
+                    </div>
+                </div>
+
+                <!-- Quantity Panel -->
+                <div id="quantity-panel" class="content-panel">
+                    <div class="quick-stats">
+                        <div class="stat-card success">
+                            <div class="stat-value success">950</div>
+                            <div class="stat-label">OK</div>
+                        </div>
+                        <div class="stat-card danger">
+                            <div class="stat-value danger">50</div>
+                            <div class="stat-label">NG</div>
+                        </div>
+                        <div class="stat-card warning">
+                            <div class="stat-value warning">20</div>
+                            <div class="stat-label">Waste</div>
+                        </div>
+                        <div class="stat-card info">
+                            <div class="stat-value info">900</div>
+                            <div class="stat-label">Transfer</div>
+                        </div>
+                    </div>
+
+                    <div class="inline-group">
+                        <div class="form-field">
+                            <label class="field-label">Target</label>
+                            <input type="number" class="field-input" value="1000">
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label">Actual</label>
+                            <input type="number" class="field-input" value="1000">
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label">Efficiency</label>
+                            <input type="text" class="field-input" value="95%" readonly style="background: #e9ecef;">
+                        </div>
+                    </div>
+
+                    <div class="progress-section">
+                        <div class="progress-item">
+                            <span class="progress-label">OK Rate</span>
+                            <div class="progress-bar-custom">
+                                <div class="progress-fill" style="width: 95%; background: var(--secondary-color);"></div>
+                            </div>
+                            <span class="progress-value">95%</span>
+                        </div>
+                        <div class="progress-item">
+                            <span class="progress-label">Target</span>
+                            <div class="progress-bar-custom">
+                                <div class="progress-fill" style="width: 100%; background: var(--primary-color);"></div>
+                            </div>
+                            <span class="progress-value">100%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quality Panel -->
+                <div id="quality-panel" class="content-panel">
+                    <div class="inline-group">
+                        <div class="form-field">
+                            <label class="field-label">Grade</label>
+                            <select class="field-input">
+                                <option>A+ (Excellent)</option>
+                                <option>A (Good)</option>
+                                <option>B+ (Fair)</option>
+                                <option>B (Average)</option>
+                                <option>C (Poor)</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label">Rating</label>
+                            <div style="padding: 0.5rem 0;">
+                                ⭐⭐⭐⭐⭐
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label class="field-label">Issues Detected</label>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+                            <label style="font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox"> Material
+                            </label>
+                            <label style="font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" checked> Process
+                            </label>
+                            <label style="font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox"> Machine
+                            </label>
+                            <label style="font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox"> Other
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="tag-list">
+                        <span class="tag quality">Standard Met</span>
+                        <span class="tag issue">Minor Defects</span>
+                        <span class="tag">Inspected</span>
+                    </div>
+                </div>
+
+                <!-- Notes Panel -->
+                <div id="notes-panel" class="content-panel">
+                    <div class="form-field">
+                        <label class="field-label">Production Notes</label>
+                        <div class="note-compact">
+                            <textarea class="note-input" placeholder="Enter production notes...">Machine running smoothly. Minor surface defects noted in batch. Quality within acceptable range.</textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label class="field-label">Improvements</label>
+                        <div class="note-compact">
+                            <textarea class="note-input" placeholder="Suggestions for improvement...">Recommend material quality check. Consider speed adjustment.</textarea>
+                        </div>
+                    </div>
+
+                    <div class="tag-list">
+                        <span class="tag note">Material Issue</span>
+                        <span class="tag note">Speed Optimize</span>
+                        <span class="tag note">Quality Check</span>
+                    </div>
+                </div>
+
+                <!-- Summary Panel -->
+                <div id="summary-panel" class="content-panel">
+                    <div class="quick-stats">
+                        <div class="stat-card info">
+                            <div class="stat-value info">95%</div>
+                            <div class="stat-label">Efficiency</div>
+                        </div>
+                        <div class="stat-card success">
+                            <div class="stat-value success">A+</div>
+                            <div class="stat-label">Grade</div>
+                        </div>
+                        <div class="stat-card warning">
+                            <div class="stat-value warning">5%</div>
+                            <div class="stat-label">Defect Rate</div>
+                        </div>
+                        <div class="stat-card info">
+                            <div class="stat-value info">2.5h</div>
+                            <div class="stat-label">Runtime</div>
+                        </div>
+                    </div>
+
+                    <div class="progress-section">
+                        <div class="progress-item">
+                            <span class="progress-label">Overall</span>
+                            <div class="progress-bar-custom">
+                                <div class="progress-fill" style="width: 95%; background: var(--secondary-color);"></div>
+                            </div>
+                            <span class="progress-value">95%</span>
+                        </div>
+                        <div class="progress-item">
+                            <span class="progress-label">Quality</span>
+                            <div class="progress-bar-custom">
+                                <div class="progress-fill" style="width: 92%; background: var(--accent-color);"></div>
+                            </div>
+                            <span class="progress-value">92%</span>
+                        </div>
+                        <div class="progress-item">
+                            <span class="progress-label">Speed</span>
+                            <div class="progress-bar-custom">
+                                <div class="progress-fill" style="width: 98%; background: var(--primary-color);"></div>
+                            </div>
+                            <span class="progress-value">98%</span>
+                        </div>
+                    </div>
+
+                    <div class="tag-list">
+                        <span class="tag quality">Target Achieved</span>
+                        <span class="tag">On Schedule</span>
+                        <span class="tag quality">Quality OK</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Bar -->
+            <div class="action-bar">
+                <button class="action-btn btn-success-action">
+                    <i class="bi bi-play-fill"></i>
+                    Start
+                </button>
+                <button class="action-btn btn-danger-action">
+                    <i class="bi bi-stop-fill"></i>
+                    Stop
+                </button>
+                <button class="action-btn btn-primary-action">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function switchPanel(panelName) {
+            // Remove active from all tabs and panels
+            document.querySelectorAll('.mini-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.content-panel').forEach(panel => panel.classList.remove('active'));
+            
+            // Add active to clicked tab and corresponding panel
+            event.target.closest('.mini-tab').classList.add('active');
+            document.getElementById(panelName + '-panel').classList.add('active');
+        }
+
+        // Live timer
+        let startTime = new Date();
+        function updateTimer() {
+            const elapsed = new Date() - startTime;
+            const hours = Math.floor(elapsed / 3600000);
+            const minutes = Math.floor((elapsed % 3600000) / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            
+            const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('liveTimer').textContent = timeString;
+        }
+
+        setInterval(updateTimer, 1000);
+    </script>
+</body>
+</html>

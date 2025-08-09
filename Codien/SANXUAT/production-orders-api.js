@@ -6,8 +6,8 @@ class ProductionOrdersAPI {
         // API Configuration - có thể chuyển đổi giữa local và remote
         this.API_BASE_URL = window.location.hostname === 'localhost' ? 
             'http://localhost:3000' : 
-            'https://autoslp.duckdns.org/api';
-        this.WEBHOOK_BASE_URL = 'https://autoslp.duckdns.org:5678/webhook';
+            'https://api.autoslp.com/api';
+        this.WEBHOOK_BASE_URL = 'https://api.autoslp.com:5678/webhook';
     }
 
     // === PRODUCTION ORDERS API ===
@@ -490,7 +490,7 @@ window.ProductionAPI = {
     // API Configuration
     API_BASE_URL: window.location.hostname === 'localhost' ? 
         'http://localhost:3000' : 
-        'https://autoslp.duckdns.org/api',
+        'https://api.autoslp.com/api',
 
     // === PRODUCTION ORDERS CRUD ===
     getOrders: async function(filters = {}) {

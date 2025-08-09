@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Sidebar 12 - Neumorphism</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --neu-bg: #e6e7ee;
+            --neu-text: #31344b;
+            --neu-text-light: #9baacf;
+            --neu-primary: #6c5ce7;
+            --neu-secondary: #00b894;
+            --neu-accent: #fdcb6e;
+            --neu-danger: #e17055;
+            --neu-shadow-light: #ffffff;
+            --neu-shadow-dark: #a3b1c6;
+            --neu-inset-light: #ffffff;
+            --neu-inset-dark: #a3b1c6;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--neu-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+            color: var(--neu-text);
+            overflow: hidden;
+        }
+
+        .demo-container {
+            display: flex;
+            height: 100vh;
+            background: var(--neu-bg);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: var(--neu-text);
+            padding: 2rem 3rem;
+            border-radius: 30px;
+            background: var(--neu-bg);
+            box-shadow: 
+                20px 20px 40px var(--neu-shadow-dark),
+                -20px -20px 40px var(--neu-shadow-light);
+        }
+
+        .sidebar-demo {
+            width: 450px;
+            background: var(--neu-bg);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 
+                inset 5px 5px 10px var(--neu-inset-dark),
+                inset -5px -5px 10px var(--neu-inset-light);
+        }
+
+        .neu-header {
+            padding: 2rem;
+            text-align: center;
+            background: var(--neu-bg);
+            border-radius: 0 0 30px 30px;
+            margin: 1rem 1rem 0 1rem;
+            box-shadow: 
+                8px 8px 16px var(--neu-shadow-dark),
+                -8px -8px 16px var(--neu-shadow-light);
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--neu-text);
+            margin: 0 0 1rem 0;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .neu-badge {
+            padding: 0.75rem 1.25rem;
+            background: var(--neu-bg);
+            border-radius: 25px;
+            font-size: 0.85rem;
+            color: var(--neu-text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 
+                5px 5px 10px var(--neu-shadow-dark),
+                -5px -5px 10px var(--neu-shadow-light);
+        }
+
+        .status-neu {
+            padding: 0.75rem 1.25rem;
+            background: var(--neu-bg);
+            border-radius: 25px;
+            font-size: 0.85rem;
+            color: var(--neu-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 
+                inset 3px 3px 6px var(--neu-inset-dark),
+                inset -3px -3px 6px var(--neu-inset-light);
+        }
+
+        .neu-content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .neu-section {
+            background: var(--neu-bg);
+            border-radius: 25px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 
+                10px 10px 20px var(--neu-shadow-dark),
+                -10px -10px 20px var(--neu-shadow-light);
+            transition: all 0.3s ease;
+        }
+
+        .neu-section:hover {
+            box-shadow: 
+                15px 15px 30px var(--neu-shadow-dark),
+                -15px -15px 30px var(--neu-shadow-light);
+        }
+
+        .section-title-neu {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--neu-text);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .neu-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--neu-bg);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--neu-primary);
+            font-size: 1rem;
+            box-shadow: 
+                5px 5px 10px var(--neu-shadow-dark),
+                -5px -5px 10px var(--neu-shadow-light);
+        }
+
+        .form-group-neu {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group-neu:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label-neu {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--neu-text);
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .input-neu {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: var(--neu-bg);
+            border: none;
+            border-radius: 15px;
+            color: var(--neu-text);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: 
+                inset 5px 5px 10px var(--neu-inset-dark),
+                inset -5px -5px 10px var(--neu-inset-light);
+        }
+
+        .input-neu:focus {
+            outline: none;
+            box-shadow: 
+                inset 8px 8px 16px var(--neu-inset-dark),
+                inset -8px -8px 16px var(--neu-inset-light);
+        }
+
+        .input-neu::placeholder {
+            color: var(--neu-text-light);
+        }
+
+        .select-neu {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: var(--neu-bg);
+            border: none;
+            border-radius: 15px;
+            color: var(--neu-text);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                inset 5px 5px 10px var(--neu-inset-dark),
+                inset -5px -5px 10px var(--neu-inset-light);
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 1rem center;
+            background-repeat: no-repeat;
+            background-size: 1rem;
+            padding-right: 3rem;
+        }
+
+        .select-neu:focus {
+            outline: none;
+            box-shadow: 
+                inset 8px 8px 16px var(--neu-inset-dark),
+                inset -8px -8px 16px var(--neu-inset-light);
+        }
+
+        .textarea-neu {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: var(--neu-bg);
+            border: none;
+            border-radius: 15px;
+            color: var(--neu-text);
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            transition: all 0.3s ease;
+            box-shadow: 
+                inset 5px 5px 10px var(--neu-inset-dark),
+                inset -5px -5px 10px var(--neu-inset-light);
+        }
+
+        .textarea-neu:focus {
+            outline: none;
+            box-shadow: 
+                inset 8px 8px 16px var(--neu-inset-dark),
+                inset -8px -8px 16px var(--neu-inset-light);
+        }
+
+        .textarea-neu::placeholder {
+            color: var(--neu-text-light);
+        }
+
+        .quantity-grid-neu {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .quantity-card-neu {
+            background: var(--neu-bg);
+            border-radius: 20px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 
+                8px 8px 16px var(--neu-shadow-dark),
+                -8px -8px 16px var(--neu-shadow-light);
+        }
+
+        .quantity-card-neu:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                12px 12px 24px var(--neu-shadow-dark),
+                -12px -12px 24px var(--neu-shadow-light);
+        }
+
+        .quantity-card-neu.success .quantity-input-neu {
+            color: var(--neu-secondary);
+        }
+
+        .quantity-card-neu.danger .quantity-input-neu {
+            color: var(--neu-danger);
+        }
+
+        .quantity-card-neu.warning .quantity-input-neu {
+            color: var(--neu-accent);
+        }
+
+        .quantity-card-neu.info .quantity-input-neu {
+            color: var(--neu-primary);
+        }
+
+        .quantity-label-neu {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--neu-text-light);
+            margin-bottom: 1rem;
+        }
+
+        .quantity-input-neu {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            color: var(--neu-text);
+        }
+
+        .quantity-input-neu:focus {
+            outline: none;
+        }
+
+        .rating-neu {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .star-neu {
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            color: var(--neu-text-light);
+            transition: all 0.3s ease;
+            font-size: 1.3rem;
+            background: var(--neu-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                3px 3px 6px var(--neu-shadow-dark),
+                -3px -3px 6px var(--neu-shadow-light);
+        }
+
+        .star-neu.active {
+            color: var(--neu-accent);
+            box-shadow: 
+                inset 3px 3px 6px var(--neu-inset-dark),
+                inset -3px -3px 6px var(--neu-inset-light);
+        }
+
+        .star-neu:hover {
+            color: var(--neu-accent);
+            transform: scale(1.05);
+        }
+
+        .checkbox-list-neu {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .checkbox-neu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--neu-bg);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 
+                3px 3px 6px var(--neu-shadow-dark),
+                -3px -3px 6px var(--neu-shadow-light);
+        }
+
+        .checkbox-neu:hover {
+            box-shadow: 
+                5px 5px 10px var(--neu-shadow-dark),
+                -5px -5px 10px var(--neu-shadow-light);
+        }
+
+        .checkbox-neu input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            appearance: none;
+            background: var(--neu-bg);
+            border-radius: 5px;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 
+                inset 2px 2px 4px var(--neu-inset-dark),
+                inset -2px -2px 4px var(--neu-inset-light);
+        }
+
+        .checkbox-neu input[type="checkbox"]:checked {
+            box-shadow: 
+                2px 2px 4px var(--neu-shadow-dark),
+                -2px -2px 4px var(--neu-shadow-light);
+        }
+
+        .checkbox-neu input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--neu-primary);
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .checkbox-neu label {
+            font-size: 0.9rem;
+            color: var(--neu-text);
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .action-area-neu {
+            padding: 1.5rem;
+            background: var(--neu-bg);
+        }
+
+        .btn-neu {
+            width: 100%;
+            padding: 1.25rem 2rem;
+            background: var(--neu-bg);
+            border: none;
+            border-radius: 20px;
+            color: var(--neu-text);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            box-shadow: 
+                8px 8px 16px var(--neu-shadow-dark),
+                -8px -8px 16px var(--neu-shadow-light);
+        }
+
+        .btn-neu:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                12px 12px 24px var(--neu-shadow-dark),
+                -12px -12px 24px var(--neu-shadow-light);
+        }
+
+        .btn-neu:active {
+            transform: translateY(0);
+            box-shadow: 
+                inset 4px 4px 8px var(--neu-inset-dark),
+                inset -4px -4px 8px var(--neu-inset-light);
+        }
+
+        .btn-neu.primary {
+            color: var(--neu-primary);
+        }
+
+        .btn-neu.secondary {
+            color: var(--neu-text-light);
+            margin-bottom: 0;
+        }
+
+        /* Enhanced input focus states */
+        .input-group-neu {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .input-group-neu .input-neu {
+            flex: 1;
+        }
+
+        /* Progress indicator */
+        .progress-neu {
+            width: 100%;
+            height: 8px;
+            background: var(--neu-bg);
+            border-radius: 10px;
+            margin: 1rem 0;
+            box-shadow: 
+                inset 3px 3px 6px var(--neu-inset-dark),
+                inset -3px -3px 6px var(--neu-inset-light);
+        }
+
+        .progress-bar-neu {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neu-primary), var(--neu-secondary));
+            border-radius: 10px;
+            width: 75%;
+            box-shadow: 
+                2px 2px 4px var(--neu-shadow-dark),
+                -2px -2px 4px var(--neu-shadow-light);
+        }
+
+        /* Scrollbar styling - neumorphic */
+        .neu-content::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        .neu-content::-webkit-scrollbar-track {
+            background: var(--neu-bg);
+            border-radius: 10px;
+            box-shadow: 
+                inset 2px 2px 4px var(--neu-inset-dark),
+                inset -2px -2px 4px var(--neu-inset-light);
+        }
+
+        .neu-content::-webkit-scrollbar-thumb {
+            background: var(--neu-bg);
+            border-radius: 10px;
+            box-shadow: 
+                2px 2px 4px var(--neu-shadow-dark),
+                -2px -2px 4px var(--neu-shadow-light);
+        }
+
+        .neu-content::-webkit-scrollbar-thumb:hover {
+            box-shadow: 
+                3px 3px 6px var(--neu-shadow-dark),
+                -3px -3px 6px var(--neu-shadow-light);
+        }
+
+        /* Special effects */
+        .floating-element {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .pulse-element {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                box-shadow: 
+                    8px 8px 16px var(--neu-shadow-dark),
+                    -8px -8px 16px var(--neu-shadow-light);
+            }
+            50% { 
+                box-shadow: 
+                    12px 12px 24px var(--neu-shadow-dark),
+                    -12px -12px 24px var(--neu-shadow-light);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="main-content">
+            <div class="demo-title floating-element">
+                <i class="bi bi-circle-square me-3"></i>
+                Demo Sidebar 12: Neumorphism
+            </div>
+        </div>
+        
+        <div class="sidebar-demo">
+            <div class="neu-header pulse-element">
+                <h1 class="header-title">Báo cáo lệnh</h1>
+                <div class="header-info">
+                    <div class="neu-badge">
+                        <i class="bi bi-tag-fill"></i>
+                        LSX001234
+                    </div>
+                    <div class="status-neu">
+                        <i class="bi bi-play-circle-fill"></i>
+                        Đang sản xuất
+                    </div>
+                </div>
+                <div class="progress-neu">
+                    <div class="progress-bar-neu"></div>
+                </div>
+            </div>
+
+            <div class="neu-content">
+                <!-- Production Information -->
+                <div class="neu-section">
+                    <div class="section-title-neu">
+                        <div class="neu-icon">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        Thông tin sản xuất
+                    </div>
+                    
+                    <div class="form-group-neu">
+                        <label class="form-label-neu">Tên thợ phụ trách</label>
+                        <input type="text" class="input-neu" value="Nguyễn Văn A">
+                    </div>
+
+                    <div class="input-group-neu">
+                        <div class="form-group-neu" style="margin-bottom: 0;">
+                            <label class="form-label-neu">Ca làm việc</label>
+                            <select class="select-neu">
+                                <option>Ca 1 (6:00 - 14:00)</option>
+                                <option>Ca 2 (14:00 - 22:00)</option>
+                                <option>Ca 3 (22:00 - 6:00)</option>
+                            </select>
+                        </div>
+                        <div class="form-group-neu" style="margin-bottom: 0;">
+                            <label class="form-label-neu">Máy sản xuất</label>
+                            <select class="select-neu">
+                                <option>XẢ-001</option>
+                                <option>XẢ-002</option>
+                                <option>XẢ-003</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quantity Results -->
+                <div class="neu-section">
+                    <div class="section-title-neu">
+                        <div class="neu-icon" style="color: var(--neu-secondary);">
+                            <i class="bi bi-calculator-fill"></i>
+                        </div>
+                        Kết quả sản xuất
+                    </div>
+                    
+                    <div class="quantity-grid-neu">
+                        <div class="quantity-card-neu success">
+                            <div class="quantity-label-neu">OK</div>
+                            <input type="number" class="quantity-input-neu" value="950">
+                        </div>
+                        <div class="quantity-card-neu danger">
+                            <div class="quantity-label-neu">NG</div>
+                            <input type="number" class="quantity-input-neu" value="50">
+                        </div>
+                        <div class="quantity-card-neu warning">
+                            <div class="quantity-label-neu">NG đầu/cuối</div>
+                            <input type="number" class="quantity-input-neu" value="20">
+                        </div>
+                        <div class="quantity-card-neu info">
+                            <div class="quantity-label-neu">Trả</div>
+                            <input type="number" class="quantity-input-neu" value="10">
+                        </div>
+                    </div>
+
+                    <div class="form-group-neu" style="margin-top: 1.5rem;">
+                        <label class="form-label-neu">Số lượng chuyển giao</label>
+                        <input type="number" class="input-neu" value="900" style="font-size: 1.2rem; font-weight: 600; text-align: center; color: var(--neu-primary);">
+                    </div>
+                </div>
+
+                <!-- Quality Assessment -->
+                <div class="neu-section">
+                    <div class="section-title-neu">
+                        <div class="neu-icon" style="color: var(--neu-accent);">
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                        Đánh giá chất lượng
+                    </div>
+                    
+                    <div class="form-group-neu">
+                        <label class="form-label-neu">Mức chất lượng</label>
+                        <select class="select-neu">
+                            <option>Xuất sắc (A+)</option>
+                            <option>Tốt (A)</option>
+                            <option>Khá (B+)</option>
+                            <option>Trung bình (B)</option>
+                            <option>Yếu (C)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group-neu">
+                        <label class="form-label-neu">Đánh giá tổng thể</label>
+                        <div class="rating-neu">
+                            <i class="bi bi-star-fill star-neu active"></i>
+                            <i class="bi bi-star-fill star-neu active"></i>
+                            <i class="bi bi-star-fill star-neu active"></i>
+                            <i class="bi bi-star-fill star-neu active"></i>
+                            <i class="bi bi-star-fill star-neu active"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group-neu">
+                        <label class="form-label-neu">Vấn đề gặp phải</label>
+                        <div class="checkbox-list-neu">
+                            <div class="checkbox-neu">
+                                <input type="checkbox" id="issue1">
+                                <label for="issue1">Lỗi máy móc</label>
+                            </div>
+                            <div class="checkbox-neu">
+                                <input type="checkbox" id="issue2" checked>
+                                <label for="issue2">Nguyên liệu kém chất lượng</label>
+                            </div>
+                            <div class="checkbox-neu">
+                                <input type="checkbox" id="issue3">
+                                <label for="issue3">Lỗi quy trình</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="neu-section">
+                    <div class="section-title-neu">
+                        <div class="neu-icon" style="color: var(--neu-danger);">
+                            <i class="bi bi-chat-text-fill"></i>
+                        </div>
+                        Ghi chú & Nhận xét
+                    </div>
+                    
+                    <div class="form-group-neu">
+                        <label class="form-label-neu">Ghi chú sản xuất</label>
+                        <textarea class="textarea-neu" placeholder="Nhập ghi chú về quá trình sản xuất...">Sản xuất diễn ra bình thường. Máy hoạt động ổn định, chất lượng sản phẩm đạt yêu cầu.</textarea>
+                    </div>
+
+                    <div class="form-group-neu">
+                        <label class="form-label-neu">Đề xuất cải tiến</label>
+                        <textarea class="textarea-neu" placeholder="Nhập đề xuất cải tiến...">Cần kiểm tra chất lượng nguyên liệu đầu vào kỹ hơn để giảm tỷ lệ NG.</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Area -->
+            <div class="action-area-neu">
+                <button class="btn-neu primary">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Xác nhận báo cáo
+                </button>
+                <button class="btn-neu secondary">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    Reset dữ liệu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Star rating functionality
+        document.querySelectorAll('.star-neu').forEach((star, index) => {
+            star.addEventListener('click', () => {
+                const stars = star.parentElement.querySelectorAll('.star-neu');
+                stars.forEach((s, i) => {
+                    if (i <= index) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Enhanced button press effects
+        document.querySelectorAll('.btn-neu').forEach(btn => {
+            btn.addEventListener('mousedown', () => {
+                btn.style.boxShadow = `
+                    inset 6px 6px 12px var(--neu-inset-dark),
+                    inset -6px -6px 12px var(--neu-inset-light)
+                `;
+            });
+            
+            btn.addEventListener('mouseup', () => {
+                btn.style.boxShadow = `
+                    8px 8px 16px var(--neu-shadow-dark),
+                    -8px -8px 16px var(--neu-shadow-light)
+                `;
+            });
+            
+            btn.addEventListener('mouseleave', () => {
+                btn.style.boxShadow = `
+                    8px 8px 16px var(--neu-shadow-dark),
+                    -8px -8px 16px var(--neu-shadow-light)
+                `;
+            });
+        });
+
+        // Interactive quantity cards
+        document.querySelectorAll('.quantity-card-neu').forEach(card => {
+            card.addEventListener('mousedown', () => {
+                card.style.boxShadow = `
+                    inset 4px 4px 8px var(--neu-inset-dark),
+                    inset -4px -4px 8px var(--neu-inset-light)
+                `;
+            });
+            
+            card.addEventListener('mouseup', () => {
+                card.style.boxShadow = `
+                    8px 8px 16px var(--neu-shadow-dark),
+                    -8px -8px 16px var(--neu-shadow-light)
+                `;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.boxShadow = `
+                    8px 8px 16px var(--neu-shadow-dark),
+                    -8px -8px 16px var(--neu-shadow-light)
+                `;
+            });
+        });
+
+        // Animate progress bar on load
+        window.addEventListener('load', () => {
+            const progressBar = document.querySelector('.progress-bar-neu');
+            progressBar.style.width = '0%';
+            setTimeout(() => {
+                progressBar.style.transition = 'width 2s ease-in-out';
+                progressBar.style.width = '75%';
+            }, 500);
+        });
+
+        // Add subtle hover effects to inputs
+        document.querySelectorAll('.input-neu, .select-neu, .textarea-neu').forEach(input => {
+            input.addEventListener('mouseenter', () => {
+                input.style.boxShadow = `
+                    inset 6px 6px 12px var(--neu-inset-dark),
+                    inset -6px -6px 12px var(--neu-inset-light)
+                `;
+            });
+            
+            input.addEventListener('mouseleave', () => {
+                if (document.activeElement !== input) {
+                    input.style.boxShadow = `
+                        inset 5px 5px 10px var(--neu-inset-dark),
+                        inset -5px -5px 10px var(--neu-inset-light)
+                    `;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

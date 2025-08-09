@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Sidebar 3 - Tabbed Groups (Multi Layout)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-purple: #6f42c1;
+            --primary-blue: #0d6efd;
+            --primary-green: #198754;
+            --primary-orange: #fd7e14;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body {
+            background: var(--bg-gradient);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+        }
+
+        .demo-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-demo {
+            width: 420px;
+            background: white;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Layout Switcher */
+        .layout-switcher {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 1000;
+        }
+
+        .layout-btn {
+            padding: 0.5rem 1rem;
+            margin: 0.25rem;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid var(--primary-purple);
+            border-radius: 8px;
+            color: var(--primary-purple);
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .layout-btn:hover, .layout-btn.active {
+            background: var(--primary-purple);
+            color: white;
+        }
+
+        /* Vertical Tabs Layout */
+        .layout-vertical .tab-navigation {
+            flex-direction: column;
+            width: 120px;
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            border-bottom: none;
+        }
+
+        .layout-vertical .sidebar-content {
+            flex-direction: row;
+        }
+
+        .layout-vertical .tab-btn {
+            padding: 1rem;
+            text-align: left;
+            justify-content: flex-start;
+            flex-direction: row;
+            gap: 0.75rem;
+        }
+
+        .layout-vertical .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 30px;
+            background: var(--primary-purple);
+            border-radius: 2px;
+        }
+
+        /* Pills Layout */
+        .layout-pills .tab-navigation {
+            padding: 1rem;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .layout-pills .tab-btn {
+            border-radius: 25px;
+            padding: 0.75rem 1.25rem;
+            background: #f8f9fa;
+            border: 2px solid transparent;
+            flex: none;
+        }
+
+        .layout-pills .tab-btn.active {
+            background: var(--primary-purple);
+            color: white;
+            border-color: var(--primary-purple);
+        }
+
+        .layout-pills .tab-btn.active::after {
+            display: none;
+        }
+
+        /* Accordion Layout */
+        .layout-accordion .tab-navigation {
+            display: none;
+        }
+
+        .layout-accordion .tab-content {
+            padding: 0;
+        }
+
+        .accordion-item {
+            border: 1px solid #dee2e6;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 600;
+            color: #495057;
+            transition: all 0.3s ease;
+        }
+
+        .accordion-header:hover {
+            background: rgba(111, 66, 193, 0.1);
+            color: var(--primary-purple);
+        }
+
+        .accordion-header.active {
+            background: var(--primary-purple);
+            color: white;
+        }
+
+        .accordion-content {
+            padding: 1.5rem;
+            display: none;
+        }
+
+        .accordion-content.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .sidebar-header {
+            background: var(--primary-purple);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .sidebar-header h5 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .order-info {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tab-navigation {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 1rem 0.5rem;
+            border: none;
+            background: transparent;
+            color: #6c757d;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .tab-btn:hover {
+            background: rgba(111, 66, 193, 0.1);
+            color: var(--primary-purple);
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: var(--primary-purple);
+            font-weight: 600;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: var(--primary-purple);
+            border-radius: 2px;
+        }
+
+        .tab-icon {
+            font-size: 1.2rem;
+        }
+
+        .tab-content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-control-custom {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control-custom:focus {
+            outline: none;
+            border-color: var(--primary-purple);
+            box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.1);
+        }
+
+        .input-group-custom {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .input-group-custom .form-control-custom {
+            flex: 1;
+        }
+
+        .quantity-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .quantity-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-card.success {
+            border-color: var(--primary-green);
+            background: rgba(25, 135, 84, 0.05);
+        }
+
+        .quantity-card.danger {
+            border-color: #dc3545;
+            background: rgba(220, 53, 69, 0.05);
+        }
+
+        .quantity-card.warning {
+            border-color: var(--primary-orange);
+            background: rgba(253, 126, 20, 0.05);
+        }
+
+        .quantity-card.info {
+            border-color: var(--primary-blue);
+            background: rgba(13, 110, 253, 0.05);
+        }
+
+        .quantity-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            color: #6c757d;
+        }
+
+        .quantity-input {
+            border: none;
+            background: transparent;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            width: 100%;
+            color: inherit;
+        }
+
+        .quantity-input:focus {
+            outline: none;
+        }
+
+        .success .quantity-input { color: var(--primary-green); }
+        .danger .quantity-input { color: #dc3545; }
+        .warning .quantity-input { color: var(--primary-orange); }
+        .info .quantity-input { color: var(--primary-blue); }
+
+        .note-area {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .note-textarea {
+            width: 100%;
+            min-height: 80px;
+            border: none;
+            background: transparent;
+            resize: vertical;
+            font-size: 0.9rem;
+        }
+
+        .note-textarea:focus {
+            outline: none;
+        }
+
+        /* Production Control Buttons */
+        .production-controls {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #dee2e6;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .production-status {
+            text-align: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            margin-bottom: 1rem;
+        }
+
+        .production-status.running {
+            border-color: var(--primary-green);
+            background: rgba(25, 135, 84, 0.05);
+        }
+
+        .production-status.stopped {
+            border-color: #dc3545;
+            background: rgba(220, 53, 69, 0.05);
+        }
+
+        .production-status.paused {
+            border-color: var(--primary-orange);
+            background: rgba(253, 126, 20, 0.05);
+        }
+
+        .status-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-time {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-custom {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary-custom {
+            background: var(--primary-purple);
+            color: white;
+        }
+
+        .btn-primary-custom:hover {
+            background: #5a359a;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-custom {
+            background: transparent;
+            border: 2px solid var(--primary-purple);
+            color: var(--primary-purple);
+        }
+
+        .btn-outline-custom:hover {
+            background: var(--primary-purple);
+            color: white;
+        }
+
+        .btn-success-custom {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .btn-success-custom:hover {
+            background: #157347;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger-custom {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger-custom:hover {
+            background: #bb2d3b;
+            transform: translateY(-1px);
+        }
+
+        .btn-warning-custom {
+            background: var(--primary-orange);
+            color: white;
+        }
+
+        .btn-warning-custom:hover {
+            background: #e25d2d;
+            transform: translateY(-1px);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            background: linear-gradient(135deg, var(--primary-green), #20c997);
+            color: white;
+            margin-top: 0.5rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 0.9rem;
+            color: #495057;
+            font-weight: 600;
+        }
+
+        /* Scrollbar styling */
+        .tab-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .tab-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .tab-content::-webkit-scrollbar-thumb {
+            background: var(--primary-purple);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Layout Switcher -->
+    <div class="layout-switcher">
+        <div style="margin-bottom: 0.5rem; font-weight: 600; color: white;">Layout:</div>
+        <button class="layout-btn active" onclick="switchLayout('horizontal')">Horizontal</button>
+        <button class="layout-btn" onclick="switchLayout('vertical')">Vertical</button>
+        <button class="layout-btn" onclick="switchLayout('pills')">Pills</button>
+        <button class="layout-btn" onclick="switchLayout('accordion')">Accordion</button>
+    </div>
+
+    <div class="demo-container">
+        <div class="main-content">
+            <div class="demo-title">
+                <i class="bi bi-folder-fill me-3"></i>
+                Demo Sidebar 3: Multi-Layout Tabs
+            </div>
+        </div>
+        
+        <div class="sidebar-demo">
+            <div class="sidebar-header">
+                <h5><i class="bi bi-clipboard-data me-2"></i>Báo cáo lệnh</h5>
+                <div class="order-info"><strong>LSX001234</strong> - Carton A4</div>
+                <div class="status-badge">
+                    <i class="bi bi-play-circle-fill"></i>
+                    Đang sản xuất
+                </div>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- Tab Navigation -->
+                <div class="tab-navigation">
+                    <button class="tab-btn active" onclick="switchTab('info')">
+                        <div class="tab-icon"><i class="bi bi-person-fill"></i></div>
+                        <div>Thông tin</div>
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('quantity')">
+                        <div class="tab-icon"><i class="bi bi-calculator-fill"></i></div>
+                        <div>Số lượng</div>
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('quality')">
+                        <div class="tab-icon"><i class="bi bi-star-fill"></i></div>
+                        <div>Chất lượng</div>
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('notes')">
+                        <div class="tab-icon"><i class="bi bi-chat-text-fill"></i></div>
+                        <div>Ghi chú</div>
+                    </button>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <!-- Info Tab -->
+                    <div id="info-panel" class="tab-panel active">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-person-badge"></i>
+                                Tên thợ phụ trách
+                            </label>
+                            <input type="text" class="form-control-custom" value="Nguyễn Văn A">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-clock"></i>
+                                Ca làm việc
+                            </label>
+                            <select class="form-control-custom">
+                                <option>Ca 1 (6:00 - 14:00)</option>
+                                <option>Ca 2 (14:00 - 22:00)</option>
+                                <option>Ca 3 (22:00 - 6:00)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-gear-fill"></i>
+                                Máy sản xuất
+                            </label>
+                            <select class="form-control-custom">
+                                <option>Máy XẢ 001</option>
+                                <option>Máy XẢ 002</option>
+                                <option>Máy XẢ 003</option>
+                            </select>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Thời gian bắt đầu</span>
+                            <span class="info-value">08:00 - 15/01/2025</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Thời gian chạy</span>
+                            <span class="info-value">2 giờ 30 phút</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Trạng thái máy</span>
+                            <span class="info-value text-success">Hoạt động tốt</span>
+                        </div>
+                    </div>
+
+                    <!-- Quantity Tab -->
+                    <div id="quantity-panel" class="tab-panel">
+                        <div class="quantity-grid mb-3">
+                            <div class="quantity-card success">
+                                <div class="quantity-label">Số lượng OK</div>
+                                <input type="number" class="quantity-input" value="950">
+                            </div>
+                            <div class="quantity-card danger">
+                                <div class="quantity-label">Số lượng NG</div>
+                                <input type="number" class="quantity-input" value="50">
+                            </div>
+                        </div>
+
+                        <div class="quantity-grid mb-3">
+                            <div class="quantity-card warning">
+                                <div class="quantity-label">NG đầu/cuối</div>
+                                <input type="number" class="quantity-input" value="20">
+                            </div>
+                            <div class="quantity-card info">
+                                <div class="quantity-label">Số lượng trả</div>
+                                <input type="number" class="quantity-input" value="10">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-arrow-right-circle"></i>
+                                Số lượng chuyển giao
+                            </label>
+                            <input type="number" class="form-control-custom" value="900" style="font-size: 1.1rem; font-weight: 600; color: var(--primary-blue);">
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Tổng sản xuất</span>
+                            <span class="info-value">1000 sản phẩm</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Hiệu suất</span>
+                            <span class="info-value text-success">95%</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Tỷ lệ NG</span>
+                            <span class="info-value text-warning">5%</span>
+                        </div>
+                    </div>
+
+                    <!-- Quality Tab -->
+                    <div id="quality-panel" class="tab-panel">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-star"></i>
+                                Đánh giá chất lượng
+                            </label>
+                            <select class="form-control-custom">
+                                <option>Xuất sắc (A+)</option>
+                                <option>Tốt (A)</option>
+                                <option>Khá (B+)</option>
+                                <option>Trung bình (B)</option>
+                                <option>Yếu (C)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-shield-check"></i>
+                                Kiểm tra chất lượng
+                            </label>
+                            <div class="input-group-custom">
+                                <select class="form-control-custom">
+                                    <option>Đạt tiêu chuẩn</option>
+                                    <option>Cần cải thiện</option>
+                                    <option>Không đạt</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Vấn đề gặp phải
+                            </label>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox"> Lỗi máy móc
+                                </label>
+                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox" checked> Nguyên liệu kém chất lượng
+                                </label>
+                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox"> Lỗi quy trình
+                                </label>
+                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="checkbox"> Khác
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Tỷ lệ đạt chuẩn</span>
+                            <span class="info-value text-success">95%</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Mức độ hài lòng</span>
+                            <span class="info-value">⭐⭐⭐⭐⭐</span>
+                        </div>
+                    </div>
+
+                    <!-- Notes Tab -->
+                    <div id="notes-panel" class="tab-panel">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-journal-text"></i>
+                                Ghi chú sản xuất
+                            </label>
+                            <div class="note-area">
+                                <textarea class="note-textarea" placeholder="Nhập ghi chú về quá trình sản xuất...">Sản xuất diễn ra bình thường. Máy hoạt động ổn định. Chất lượng sản phẩm đạt yêu cầu. Có một số lỗi nhỏ do nguyên liệu đầu vào không đồng đều.</textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-lightbulb"></i>
+                                Đề xuất cải tiến
+                            </label>
+                            <div class="note-area">
+                                <textarea class="note-textarea" placeholder="Nhập đề xuất cải tiến...">Cần kiểm tra chất lượng nguyên liệu đầu vào kỹ hơn để giảm tỷ lệ NG.</textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-tag"></i>
+                                Tags
+                            </label>
+                            <input type="text" class="form-control-custom" placeholder="Nhập các tag, cách nhau bởi dấu phẩy" value="chất lượng tốt, máy ổn định, cần cải thiện nguyên liệu">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Production Controls -->
+                <div class="production-controls">
+                    <!-- Production Status -->
+                    <div class="production-status running" id="productionStatus">
+                        <div class="status-text">
+                            <i class="bi bi-play-circle-fill text-success"></i>
+                            Đang sản xuất
+                        </div>
+                        <div class="status-time" id="statusTime">Thời gian: 02:30:45</div>
+                    </div>
+
+                    <!-- Control Buttons -->
+                    <div class="control-row">
+                        <button class="btn-custom btn-success-custom" id="startBtn" onclick="startProduction()">
+                            <i class="bi bi-play-fill"></i>
+                            Bắt đầu
+                        </button>
+                        <button class="btn-custom btn-warning-custom" id="pauseBtn" onclick="pauseProduction()" style="display: none;">
+                            <i class="bi bi-pause-fill"></i>
+                            Tạm dừng
+                        </button>
+                        <button class="btn-custom btn-danger-custom" id="stopBtn" onclick="stopProduction()">
+                            <i class="bi bi-stop-fill"></i>
+                            Kết thúc
+                        </button>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button class="btn-custom btn-outline-custom">
+                            <i class="bi bi-arrow-clockwise"></i>
+                            Reset
+                        </button>
+                        <button class="btn-custom btn-primary-custom">
+                            <i class="bi bi-check-circle-fill"></i>
+                            Xác nhận
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Accordion Layout Content (Hidden by default) -->
+                <div class="accordion-layout" style="display: none;">
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion('info')">
+                            <i class="bi bi-person-fill"></i>
+                            <span>Thông tin sản xuất</span>
+                            <i class="bi bi-chevron-down ms-auto"></i>
+                        </div>
+                        <div class="accordion-content" id="info-accordion">
+                            <!-- Same content as info tab -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-person-badge"></i>
+                                    Tên thợ phụ trách
+                                </label>
+                                <input type="text" class="form-control-custom" value="Nguyễn Văn A">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-clock"></i>
+                                    Ca làm việc
+                                </label>
+                                <select class="form-control-custom">
+                                    <option>Ca 1 (6:00 - 14:00)</option>
+                                    <option>Ca 2 (14:00 - 22:00)</option>
+                                    <option>Ca 3 (22:00 - 6:00)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-gear-fill"></i>
+                                    Máy sản xuất
+                                </label>
+                                <select class="form-control-custom">
+                                    <option>Máy XẢ 001</option>
+                                    <option>Máy XẢ 002</option>
+                                    <option>Máy XẢ 003</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion('quantity')">
+                            <i class="bi bi-calculator-fill"></i>
+                            <span>Kết quả sản xuất</span>
+                            <i class="bi bi-chevron-down ms-auto"></i>
+                        </div>
+                        <div class="accordion-content" id="quantity-accordion">
+                            <div class="quantity-grid mb-3">
+                                <div class="quantity-card success">
+                                    <div class="quantity-label">Số lượng OK</div>
+                                    <input type="number" class="quantity-input" value="950">
+                                </div>
+                                <div class="quantity-card danger">
+                                    <div class="quantity-label">Số lượng NG</div>
+                                    <input type="number" class="quantity-input" value="50">
+                                </div>
+                            </div>
+
+                            <div class="quantity-grid mb-3">
+                                <div class="quantity-card warning">
+                                    <div class="quantity-label">NG đầu/cuối</div>
+                                    <input type="number" class="quantity-input" value="20">
+                                </div>
+                                <div class="quantity-card info">
+                                    <div class="quantity-label">Số lượng trả</div>
+                                    <input type="number" class="quantity-input" value="10">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-arrow-right-circle"></i>
+                                    Số lượng chuyển giao
+                                </label>
+                                <input type="number" class="form-control-custom" value="900" style="font-size: 1.1rem; font-weight: 600; color: var(--primary-blue);">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion('quality')">
+                            <i class="bi bi-star-fill"></i>
+                            <span>Đánh giá chất lượng</span>
+                            <i class="bi bi-chevron-down ms-auto"></i>
+                        </div>
+                        <div class="accordion-content" id="quality-accordion">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-star"></i>
+                                    Đánh giá chất lượng
+                                </label>
+                                <select class="form-control-custom">
+                                    <option>Xuất sắc (A+)</option>
+                                    <option>Tốt (A)</option>
+                                    <option>Khá (B+)</option>
+                                    <option>Trung bình (B)</option>
+                                    <option>Yếu (C)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion('notes')">
+                            <i class="bi bi-chat-text-fill"></i>
+                            <span>Ghi chú & Nhận xét</span>
+                            <i class="bi bi-chevron-down ms-auto"></i>
+                        </div>
+                        <div class="accordion-content" id="notes-accordion">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-journal-text"></i>
+                                    Ghi chú sản xuất
+                                </label>
+                                <div class="note-area">
+                                    <textarea class="note-textarea" placeholder="Nhập ghi chú về quá trình sản xuất...">Sản xuất diễn ra bình thường.</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let productionState = 'running'; // running, stopped, paused
+        let startTime = new Date();
+        let pausedTime = 0;
+        let timerInterval;
+
+        function switchTab(tabName) {
+            // Remove active class from all tabs and panels
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+            
+            // Add active class to clicked tab and corresponding panel
+            event.target.closest('.tab-btn').classList.add('active');
+            document.getElementById(tabName + '-panel').classList.add('active');
+        }
+
+        function switchLayout(layoutName) {
+            // Remove active class from all layout buttons
+            document.querySelectorAll('.layout-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const sidebar = document.querySelector('.sidebar-demo');
+            const tabContent = document.querySelector('.tab-content');
+            const accordionLayout = document.querySelector('.accordion-layout');
+
+            // Remove all layout classes
+            sidebar.classList.remove('layout-horizontal', 'layout-vertical', 'layout-pills', 'layout-accordion');
+
+            if (layoutName === 'accordion') {
+                // Hide tab navigation and show accordion
+                document.querySelector('.tab-navigation').style.display = 'none';
+                tabContent.style.display = 'none';
+                accordionLayout.style.display = 'block';
+                sidebar.classList.add('layout-accordion');
+            } else {
+                // Show tab navigation and hide accordion
+                document.querySelector('.tab-navigation').style.display = 'flex';
+                tabContent.style.display = 'block';
+                accordionLayout.style.display = 'none';
+                sidebar.classList.add('layout-' + layoutName);
+            }
+        }
+
+        function toggleAccordion(sectionName) {
+            const header = event.target.closest('.accordion-header');
+            const content = document.getElementById(sectionName + '-accordion');
+            const chevron = header.querySelector('.bi-chevron-down, .bi-chevron-up');
+
+            // Toggle active states
+            header.classList.toggle('active');
+            content.classList.toggle('active');
+
+            // Toggle chevron direction
+            if (chevron.classList.contains('bi-chevron-down')) {
+                chevron.classList.remove('bi-chevron-down');
+                chevron.classList.add('bi-chevron-up');
+            } else {
+                chevron.classList.remove('bi-chevron-up');
+                chevron.classList.add('bi-chevron-down');
+            }
+        }
+
+        function startProduction() {
+            productionState = 'running';
+            startTime = new Date();
+            pausedTime = 0;
+            
+            updateProductionStatus();
+            updateButtons();
+            startTimer();
+        }
+
+        function pauseProduction() {
+            if (productionState === 'running') {
+                productionState = 'paused';
+                pausedTime = new Date() - startTime;
+                clearInterval(timerInterval);
+            } else if (productionState === 'paused') {
+                productionState = 'running';
+                startTime = new Date() - pausedTime;
+                startTimer();
+            }
+            
+            updateProductionStatus();
+            updateButtons();
+        }
+
+        function stopProduction() {
+            productionState = 'stopped';
+            clearInterval(timerInterval);
+            
+            updateProductionStatus();
+            updateButtons();
+        }
+
+        function updateProductionStatus() {
+            const statusDiv = document.getElementById('productionStatus');
+            const statusText = statusDiv.querySelector('.status-text');
+            
+            statusDiv.className = 'production-status ' + productionState;
+            
+            switch(productionState) {
+                case 'running':
+                    statusText.innerHTML = '<i class="bi bi-play-circle-fill text-success"></i> Đang sản xuất';
+                    break;
+                case 'paused':
+                    statusText.innerHTML = '<i class="bi bi-pause-circle-fill text-warning"></i> Tạm dừng';
+                    break;
+                case 'stopped':
+                    statusText.innerHTML = '<i class="bi bi-stop-circle-fill text-danger"></i> Đã dừng';
+                    break;
+            }
+        }
+
+        function updateButtons() {
+            const startBtn = document.getElementById('startBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            
+            switch(productionState) {
+                case 'running':
+                    startBtn.style.display = 'none';
+                    pauseBtn.style.display = 'flex';
+                    pauseBtn.innerHTML = '<i class="bi bi-pause-fill"></i> Tạm dừng';
+                    stopBtn.style.display = 'flex';
+                    break;
+                case 'paused':
+                    startBtn.style.display = 'none';
+                    pauseBtn.style.display = 'flex';
+                    pauseBtn.innerHTML = '<i class="bi bi-play-fill"></i> Tiếp tục';
+                    stopBtn.style.display = 'flex';
+                    break;
+                case 'stopped':
+                    startBtn.style.display = 'flex';
+                    pauseBtn.style.display = 'none';
+                    stopBtn.style.display = 'none';
+                    break;
+            }
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (productionState === 'running') {
+                    const elapsed = new Date() - startTime;
+                    const hours = Math.floor(elapsed / 3600000);
+                    const minutes = Math.floor((elapsed % 3600000) / 60000);
+                    const seconds = Math.floor((elapsed % 60000) / 1000);
+                    
+                    const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    document.getElementById('statusTime').textContent = `Thời gian: ${timeString}`;
+                }
+            }, 1000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            startTimer();
+            updateButtons();
+        });
+    </script>
+</body>
+</html>

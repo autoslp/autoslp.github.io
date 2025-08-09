@@ -24,13 +24,13 @@
 <body>
     <div class="container">
         <h1>🔗 Test API/data/* Endpoint Structure</h1>
-        <p><strong>Base URL:</strong> <span class="highlight">https://autoslp.duckdns.org/API</span></p>
+        <p><strong>Base URL:</strong> <span class="highlight">https://api.autoslp.com/API</span></p>
         <p><strong>Endpoint Pattern:</strong> <span class="highlight">/API/data/*****</span></p>
 
         <!-- Test 1: GET /API/data/production_orders -->
         <div class="test-section">
             <h3>📥 Test 1: GET Orders by Stage (XẢ)</h3>
-            <div class="endpoint">GET https://autoslp.duckdns.org/API/data/production_orders?current_stage=xa</div>
+            <div class="endpoint">GET https://api.autoslp.com/API/data/production_orders?current_stage=xa</div>
             <button class="test-btn" onclick="testGetOrdersByStage()">Test GET Orders</button>
             <div id="result1" class="result"></div>
             <pre id="response1"></pre>
@@ -39,7 +39,7 @@
         <!-- Test 2: GET /API/data/production_orders/{id} -->
         <div class="test-section">
             <h3>📄 Test 2: GET Order Details</h3>
-            <div class="endpoint">GET https://autoslp.duckdns.org/API/data/production_orders/1</div>
+            <div class="endpoint">GET https://api.autoslp.com/API/data/production_orders/1</div>
             <button class="test-btn" onclick="testGetOrderDetails()">Test GET Order Details</button>
             <div id="result2" class="result"></div>
             <pre id="response2"></pre>
@@ -48,7 +48,7 @@
         <!-- Test 3: PUT /API/data/production_orders/{id}/stage_output -->
         <div class="test-section">
             <h3>📤 Test 3: PUT Stage Output Update</h3>
-            <div class="endpoint">PUT https://autoslp.duckdns.org/API/data/production_orders/1/stage_output</div>
+            <div class="endpoint">PUT https://api.autoslp.com/API/data/production_orders/1/stage_output</div>
             <button class="test-btn" onclick="testUpdateStageOutput()">Test PUT Stage Output</button>
             <div id="result3" class="result"></div>
             <pre id="response3"></pre>
@@ -57,7 +57,7 @@
         <!-- Test 4: POST /API/data/handover_to_next_stage -->
         <div class="test-section">
             <h3>🔄 Test 4: POST Handover to Next Stage</h3>
-            <div class="endpoint">POST https://autoslp.duckdns.org/API/data/handover_to_next_stage</div>
+            <div class="endpoint">POST https://api.autoslp.com/API/data/handover_to_next_stage</div>
             <button class="test-btn" onclick="testHandoverToNextStage()">Test POST Handover</button>
             <div id="result4" class="result"></div>
             <pre id="response4"></pre>

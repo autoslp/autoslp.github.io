@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Sidebar 3C - Horizontal Timeline</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --timeline-primary: #6366f1;
+            --timeline-secondary: #06b6d4;
+            --timeline-success: #10b981;
+            --timeline-warning: #f59e0b;
+            --timeline-danger: #ef4444;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body {
+            background: var(--bg-gradient);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+        }
+
+        .demo-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-demo {
+            width: 460px;
+            background: white;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Timeline Header */
+        .timeline-header {
+            background: linear-gradient(135deg, var(--timeline-primary), var(--timeline-secondary));
+            color: white;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .timeline-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                var(--timeline-success) 0% 30%, 
+                var(--timeline-warning) 30% 70%, 
+                var(--timeline-danger) 70% 100%);
+        }
+
+        .header-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .order-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .order-id {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .order-product {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .timeline-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .progress-overview {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+
+        .progress-item {
+            text-align: center;
+        }
+
+        .progress-number {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Process Timeline Tabs */
+        .process-timeline {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            overflow-x: auto;
+        }
+
+        .timeline-step {
+            flex: 1;
+            min-width: 120px;
+            padding: 1rem 0.75rem;
+            border: none;
+            background: transparent;
+            color: #6c757d;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            text-align: center;
+        }
+
+        .timeline-step:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--timeline-primary);
+        }
+
+        .timeline-step.active {
+            color: var(--timeline-primary);
+            background: white;
+            font-weight: 600;
+        }
+
+        .timeline-step.completed {
+            color: var(--timeline-success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .timeline-step.current {
+            color: var(--timeline-warning);
+            background: rgba(245, 158, 11, 0.1);
+            animation: pulse 2s infinite;
+        }
+
+        .step-icon {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-time {
+            font-size: 0.7rem;
+            opacity: 0.8;
+            margin-top: 0.25rem;
+        }
+
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background: currentColor;
+            transition: width 0.3s ease;
+        }
+
+        .timeline-step.active::before,
+        .timeline-step.completed::before,
+        .timeline-step.current::before {
+            width: 60%;
+        }
+
+        /* Timeline Content */
+        .timeline-content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .timeline-panel {
+            display: none;
+            animation: slideInRight 0.4s ease;
+        }
+
+        .timeline-panel.active {
+            display: block;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Step Cards */
+        .step-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .step-card.completed {
+            border-color: var(--timeline-success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .step-card.current {
+            border-color: var(--timeline-warning);
+            background: rgba(245, 158, 11, 0.05);
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+        }
+
+        .step-card.pending {
+            border-color: #dee2e6;
+            background: #f8f9fa;
+            opacity: 0.7;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .card-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-completed {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--timeline-success);
+        }
+
+        .status-current {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--timeline-warning);
+        }
+
+        .status-pending {
+            background: rgba(107, 114, 128, 0.2);
+            color: #6b7280;
+        }
+
+        /* Form Elements */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group-timeline {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label-timeline {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input-timeline {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input-timeline:focus {
+            outline: none;
+            border-color: var(--timeline-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Activity Log */
+        .activity-log {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .log-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .log-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .log-item:last-child {
+            border-bottom: none;
+        }
+
+        .log-time {
+            font-size: 0.75rem;
+            color: #6b7280;
+            min-width: 60px;
+        }
+
+        .log-content {
+            flex: 1;
+            font-size: 0.85rem;
+            color: #374151;
+        }
+
+        .log-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: white;
+        }
+
+        /* Action Buttons */
+        .action-section {
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 1.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .action-btn-timeline {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-next-step {
+            background: var(--timeline-primary);
+            color: white;
+        }
+
+        .btn-next-step:hover {
+            background: #5b21b6;
+            transform: translateY(-1px);
+        }
+
+        .btn-complete {
+            background: var(--timeline-success);
+            color: white;
+        }
+
+        .btn-complete:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .btn-pause {
+            background: var(--timeline-warning);
+            color: white;
+        }
+
+        .btn-pause:hover {
+            background: #d97706;
+            transform: translateY(-1px);
+        }
+
+        /* Scrollbar */
+        .timeline-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .timeline-content::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .timeline-content::-webkit-scrollbar-thumb {
+            background: var(--timeline-primary);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="main-content">
+            <div class="demo-title">
+                <i class="bi bi-clock-history me-3"></i>
+                Demo Sidebar 3C: Horizontal Timeline
+            </div>
+        </div>
+        
+        <div class="sidebar-demo">
+            <!-- Timeline Header -->
+            <div class="timeline-header">
+                <div class="header-main">
+                    <div class="order-info">
+                        <div class="order-id">LSX001234</div>
+                        <div class="order-product">Carton A4 - 1000 units</div>
+                    </div>
+                    <div class="timeline-status">
+                        <i class="bi bi-clock"></i>
+                        In Progress
+                    </div>
+                </div>
+                <div class="progress-overview">
+                    <div class="progress-item">
+                        <div class="progress-number">3/5</div>
+                        <div>Steps</div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-number">60%</div>
+                        <div>Complete</div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-number">2.5h</div>
+                        <div>Runtime</div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-number">1.5h</div>
+                        <div>Remaining</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Process Timeline -->
+            <div class="process-timeline">
+                <button class="timeline-step completed" onclick="switchTimelinePanel('setup')">
+                    <i class="bi bi-gear-fill step-icon"></i>
+                    <div>Setup</div>
+                    <div class="step-time">08:00</div>
+                </button>
+                <button class="timeline-step completed" onclick="switchTimelinePanel('preparation')">
+                    <i class="bi bi-tools step-icon"></i>
+                    <div>Preparation</div>
+                    <div class="step-time">08:30</div>
+                </button>
+                <button class="timeline-step current active" onclick="switchTimelinePanel('production')">
+                    <i class="bi bi-play-circle-fill step-icon"></i>
+                    <div>Production</div>
+                    <div class="step-time">09:00</div>
+                </button>
+                <button class="timeline-step" onclick="switchTimelinePanel('quality')">
+                    <i class="bi bi-shield-check step-icon"></i>
+                    <div>Quality Check</div>
+                    <div class="step-time">--:--</div>
+                </button>
+                <button class="timeline-step" onclick="switchTimelinePanel('completion')">
+                    <i class="bi bi-check-circle step-icon"></i>
+                    <div>Completion</div>
+                    <div class="step-time">--:--</div>
+                </button>
+            </div>
+
+            <!-- Timeline Content -->
+            <div class="timeline-content">
+                <!-- Setup Panel -->
+                <div id="setup-panel" class="timeline-panel">
+                    <div class="step-card completed">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-icon" style="background: var(--timeline-success);">
+                                    <i class="bi bi-gear-fill"></i>
+                                </div>
+                                Machine Setup
+                            </div>
+                            <div class="card-status status-completed">Completed</div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group-timeline">
+                                <label class="form-label-timeline">Machine</label>
+                                <input type="text" class="form-input-timeline" value="XẢ-001" readonly>
+                            </div>
+                            <div class="form-group-timeline">
+                                <label class="form-label-timeline">Operator</label>
+                                <input type="text" class="form-input-timeline" value="Nguyễn Văn A" readonly>
+                            </div>
+                        </div>
+                        <div class="activity-log">
+                            <div class="log-title">
+                                <i class="bi bi-clock-history"></i>
+                                Activity Log
+                            </div>
+                            <div class="log-item">
+                                <div class="log-time">08:00</div>
+                                <div class="log-icon" style="background: var(--timeline-success);">
+                                    <i class="bi bi-check"></i>
+                                </div>
+                                <div class="log-content">Machine calibration completed</div>
+                            </div>
+                            <div class="log-item">
+                                <div class="log-time">08:15</div>
+                                <div class="log-icon" style="background: var(--timeline-success);">
+                                    <i class="bi bi-check"></i>
+                                </div>
+                                <div class="log-content">Safety checks passed</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preparation Panel -->
+                <div id="preparation-panel" class="timeline-panel">
+                    <div class="step-card completed">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-icon" style="background: var(--timeline-success);">
+                                    <i class="bi bi-tools"></i>
+                                </div>
+                                Material Preparation
+                            </div>
+                            <div class="card-status status-completed">Completed</div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group-timeline">
+                                <label class="form-label-timeline">Material Type</label>
+                                <input type="text" class="form-input-timeline" value="Carton A4" readonly>
+                            </div>
+                            <div class="form-group-timeline">
+                                <label class="form-label-timeline">Batch No.</label>
+                                <input type="text" class="form-input-timeline" value="CT2025-045" readonly>
+                            </div>
+                        </div>
+                        <div class="activity-log">
+                            <div class="log-title">
+                                <i class="bi bi-clock-history"></i>
+                                Activity Log
+                            </div>
+                            <div class="log-item">
+                                <div class="log-time">08:30</div>
+                                <div class="log-icon" style="background: var(--timeline-success);">
+                                    <i class="bi bi-check"></i>
+                                </div>
+                                <div class="log-content">Raw materials loaded</div>
+                            </div>
+                            <div class="log-item">
+                                <div class="log-time">08:45</div>
+                                <div class="log-icon" style="background: var(--timeline-success);">
+                                    <i class="bi bi-check"></i>
+                                </div>
+                                <div class="log-content">Quality inspection passed</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Production Panel -->
+                <div id="production-panel" class="timeline-panel active">
+                    <div class="step-card current">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-icon" style="background: var(--timeline-warning);">
+                                    <i class="bi bi-play-circle-fill"></i>
+                                </div>
+                                Production Process
+                            </div>
+                            <div class="card-status status-current">In Progress</div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group-timeline">
+                                <label class="form-label-timeline">Target Quantity</label>
+                                <input type="number" class="form-input-timeline" value="1000">
+                            </div>
+                            <div class="form-group-timeline">
+                                <label class="form-label-timeline">Current Output</label>
+                                <input type="number" class="form-input-timeline" value="600">
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group-timeline">
+                                <label class="form-label-timeline">OK Units</label>
+                                <input type="number" class="form-input-timeline" value="570">
+                            </div>
+                            <div class="form-group-timeline">
+                                <label class="form-label-timeline">NG Units</label>
+                                <input type="number" class="form-input-timeline" value="30">
+                            </div>
+                        </div>
+                        <div class="activity-log">
+                            <div class="log-title">
+                                <i class="bi bi-clock-history"></i>
+                                Real-time Activity
+                            </div>
+                            <div class="log-item">
+                                <div class="log-time">11:30</div>
+                                <div class="log-icon" style="background: var(--timeline-warning);">
+                                    <i class="bi bi-play"></i>
+                                </div>
+                                <div class="log-content">Production running at 95% efficiency</div>
+                            </div>
+                            <div class="log-item">
+                                <div class="log-time">11:15</div>
+                                <div class="log-icon" style="background: var(--timeline-primary);">
+                                    <i class="bi bi-info"></i>
+                                </div>
+                                <div class="log-content">Quality check: 600 units completed</div>
+                            </div>
+                            <div class="log-item">
+                                <div class="log-time">09:00</div>
+                                <div class="log-icon" style="background: var(--timeline-success);">
+                                    <i class="bi bi-check"></i>
+                                </div>
+                                <div class="log-content">Production started successfully</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quality Panel -->
+                <div id="quality-panel" class="timeline-panel">
+                    <div class="step-card pending">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-icon" style="background: #6b7280;">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+                                Quality Control
+                            </div>
+                            <div class="card-status status-pending">Pending</div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group-timeline">
+                                <label class="form-label-timeline">Inspector</label>
+                                <input type="text" class="form-input-timeline" placeholder="Assign inspector">
+                            </div>
+                            <div class="form-group-timeline">
+                                <label class="form-label-timeline">Quality Grade</label>
+                                <select class="form-input-timeline">
+                                    <option>Select grade...</option>
+                                    <option>A+ (Excellent)</option>
+                                    <option>A (Good)</option>
+                                    <option>B+ (Fair)</option>
+                                    <option>B (Average)</option>
+                                    <option>C (Poor)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="activity-log">
+                            <div class="log-title">
+                                <i class="bi bi-clock-history"></i>
+                                Scheduled Activities
+                            </div>
+                            <div class="log-item">
+                                <div class="log-time">--:--</div>
+                                <div class="log-icon" style="background: #6b7280;">
+                                    <i class="bi bi-clock"></i>
+                                </div>
+                                <div class="log-content">Final quality inspection</div>
+                            </div>
+                            <div class="log-item">
+                                <div class="log-time">--:--</div>
+                                <div class="log-icon" style="background: #6b7280;">
+                                    <i class="bi bi-clock"></i>
+                                </div>
+                                <div class="log-content">Documentation and approval</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Completion Panel -->
+                <div id="completion-panel" class="timeline-panel">
+                    <div class="step-card pending">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-icon" style="background: #6b7280;">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
+                                Order Completion
+                            </div>
+                            <div class="card-status status-pending">Pending</div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group-timeline">
+                                <label class="form-label-timeline">Final Quantity</label>
+                                <input type="number" class="form-input-timeline" placeholder="Final count">
+                            </div>
+                            <div class="form-group-timeline">
+                                <label class="form-label-timeline">Handover To</label>
+                                <input type="text" class="form-input-timeline" placeholder="Next department">
+                            </div>
+                        </div>
+                        <div class="activity-log">
+                            <div class="log-title">
+                                <i class="bi bi-clock-history"></i>
+                                Completion Tasks
+                            </div>
+                            <div class="log-item">
+                                <div class="log-time">--:--</div>
+                                <div class="log-icon" style="background: #6b7280;">
+                                    <i class="bi bi-clock"></i>
+                                </div>
+                                <div class="log-content">Final count and packaging</div>
+                            </div>
+                            <div class="log-item">
+                                <div class="log-time">--:--</div>
+                                <div class="log-icon" style="background: #6b7280;">
+                                    <i class="bi bi-clock"></i>
+                                </div>
+                                <div class="log-content">Generate completion report</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Section -->
+            <div class="action-section">
+                <button class="action-btn-timeline btn-next-step">
+                    <i class="bi bi-arrow-right"></i>
+                    Next Step
+                </button>
+                <button class="action-btn-timeline btn-pause">
+                    <i class="bi bi-pause"></i>
+                    Pause
+                </button>
+                <button class="action-btn-timeline btn-complete">
+                    <i class="bi bi-check-circle"></i>
+                    Complete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function switchTimelinePanel(panelName) {
+            // Remove active from all tabs and panels
+            document.querySelectorAll('.timeline-step').forEach(step => step.classList.remove('active'));
+            document.querySelectorAll('.timeline-panel').forEach(panel => panel.classList.remove('active'));
+            
+            // Add active to clicked tab and corresponding panel
+            event.target.closest('.timeline-step').classList.add('active');
+            document.getElementById(panelName + '-panel').classList.add('active');
+        }
+
+        // Auto-update production numbers
+        setInterval(() => {
+            const currentOutput = document.querySelector('#production-panel input[value="600"]');
+            const okUnits = document.querySelector('#production-panel input[value="570"]');
+            
+            if (currentOutput && okUnits) {
+                const current = parseInt(currentOutput.value);
+                const ok = parseInt(okUnits.value);
+                
+                if (current < 1000) {
+                    currentOutput.value = current + Math.floor(Math.random() * 5) + 1;
+                    okUnits.value = ok + Math.floor(Math.random() * 4) + 1;
+                }
+            }
+        }, 5000);
+
+        // Add real-time log entries
+        function addLogEntry() {
+            const logContainer = document.querySelector('#production-panel .activity-log');
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'});
+            
+            const messages = [
+                'Quality check passed for batch #' + Math.floor(Math.random() * 100),
+                'Machine speed adjusted to optimal level',
+                'Material feed rate normalized',
+                'Temperature within acceptable range'
+            ];
+            
+            const newEntry = document.createElement('div');
+            newEntry.className = 'log-item';
+            newEntry.innerHTML = `
+                <div class="log-time">${timeString}</div>
+                <div class="log-icon" style="background: var(--timeline-primary);">
+                    <i class="bi bi-info"></i>
+                </div>
+                <div class="log-content">${messages[Math.floor(Math.random() * messages.length)]}</div>
+            `;
+            
+            logContainer.appendChild(newEntry);
+            
+            // Keep only last 5 entries
+            const entries = logContainer.querySelectorAll('.log-item');
+            if (entries.length > 5) {
+                entries[1].remove(); // Keep the title, remove oldest entry
+            }
+        }
+
+        setInterval(addLogEntry, 15000);
+    </script>
+</body>
+</html>

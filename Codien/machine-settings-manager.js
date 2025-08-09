@@ -10,8 +10,8 @@ class MachineSettingsManager {
             brands: []
         };
         
-        this.API_BASE_URL = 'https://autoslp.duckdns.org/api/data';
-        this.WEBHOOK_BASE_URL = 'https://autoslp.duckdns.org:5678/webhook';
+        this.API_BASE_URL = 'https://api.autoslp.com/api/data';
+        this.WEBHOOK_BASE_URL = 'https://api.autoslp.com:5678/webhook';
         
         // Khởi tạo dữ liệu
         this.loadFromLocalStorage();

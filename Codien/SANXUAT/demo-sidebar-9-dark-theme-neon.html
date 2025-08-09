@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Sidebar 9 - Dark Theme Neon</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --neon-cyan: #00ffff;
+            --neon-pink: #ff0080;
+            --neon-green: #39ff14;
+            --neon-yellow: #ffff00;
+            --neon-purple: #bf00ff;
+            --dark-bg: #0a0a0a;
+            --dark-secondary: #1a1a1a;
+            --dark-tertiary: #2a2a2a;
+            --dark-border: #333333;
+            --dark-text: #ffffff;
+            --dark-text-secondary: #cccccc;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(ellipse at center, #1a1a1a 0%, #000000 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+            color: var(--dark-text);
+            overflow: hidden;
+        }
+
+        .demo-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 0, 128, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(57, 255, 20, 0.05) 0%, transparent 50%);
+        }
+
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            text-shadow: 0 0 20px var(--neon-cyan);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px var(--neon-cyan); }
+            to { text-shadow: 0 0 30px var(--neon-cyan), 0 0 40px var(--neon-cyan); }
+        }
+
+        .sidebar-demo {
+            width: 450px;
+            background: var(--dark-bg);
+            border-left: 1px solid var(--dark-border);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-demo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+            animation: scanline 3s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, var(--dark-secondary), var(--dark-tertiary));
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--dark-border);
+            position: relative;
+        }
+
+        .sidebar-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-pink), transparent);
+        }
+
+        .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark-text);
+            margin: 0 0 1rem 0;
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .order-info-neon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .neon-badge {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--neon-cyan);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--neon-cyan);
+            background: rgba(0, 255, 255, 0.1);
+            text-shadow: 0 0 5px var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+            animation: neonPulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes neonPulse {
+            from { box-shadow: 0 0 10px rgba(0, 255, 255, 0.3); }
+            to { box-shadow: 0 0 20px rgba(0, 255, 255, 0.6), 0 0 30px rgba(0, 255, 255, 0.3); }
+        }
+
+        .status-neon {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--neon-green);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--neon-green);
+            background: rgba(57, 255, 20, 0.1);
+            text-shadow: 0 0 5px var(--neon-green);
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            background: var(--dark-bg);
+        }
+
+        .section-neon {
+            margin-bottom: 2.5rem;
+            padding: 1.5rem;
+            background: var(--dark-secondary);
+            border: 1px solid var(--dark-border);
+            border-radius: 10px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .section-neon:hover {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+        }
+
+        .section-neon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan), var(--neon-green));
+            border-radius: 10px 10px 0 0;
+        }
+
+        .section-title-neon {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--neon-cyan);
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            text-shadow: 0 0 5px var(--neon-cyan);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .neon-icon {
+            color: var(--neon-pink);
+            text-shadow: 0 0 5px var(--neon-pink);
+        }
+
+        .field-neon {
+            margin-bottom: 1.5rem;
+        }
+
+        .field-label-neon {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--dark-text-secondary);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .input-neon {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--dark-tertiary);
+            border: 1px solid var(--dark-border);
+            border-radius: 8px;
+            color: var(--dark-text);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-neon:focus {
+            outline: none;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+            background: rgba(0, 255, 255, 0.05);
+        }
+
+        .input-neon::placeholder {
+            color: #666;
+        }
+
+        .select-neon {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--dark-tertiary);
+            border: 1px solid var(--dark-border);
+            border-radius: 8px;
+            color: var(--dark-text);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .select-neon:focus {
+            outline: none;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        .select-neon option {
+            background: var(--dark-secondary);
+            color: var(--dark-text);
+        }
+
+        .textarea-neon {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--dark-tertiary);
+            border: 1px solid var(--dark-border);
+            border-radius: 8px;
+            color: var(--dark-text);
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+            transition: all 0.3s ease;
+        }
+
+        .textarea-neon:focus {
+            outline: none;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+            background: rgba(0, 255, 255, 0.05);
+        }
+
+        .quantity-grid-neon {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .quantity-card-neon {
+            background: var(--dark-tertiary);
+            border: 1px solid var(--dark-border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quantity-card-neon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .quantity-card-neon:hover::before {
+            left: 100%;
+        }
+
+        .quantity-card-neon:hover {
+            transform: translateY(-2px);
+        }
+
+        .quantity-card-neon.success {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+        }
+
+        .quantity-card-neon.danger {
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 10px rgba(255, 0, 128, 0.2);
+        }
+
+        .quantity-card-neon.warning {
+            border-color: var(--neon-yellow);
+            box-shadow: 0 0 10px rgba(255, 255, 0, 0.2);
+        }
+
+        .quantity-card-neon.info {
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 10px rgba(191, 0, 255, 0.2);
+        }
+
+        .quantity-value-neon {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            border: none;
+            background: transparent;
+            text-align: center;
+            width: 100%;
+            color: inherit;
+        }
+
+        .quantity-value-neon:focus {
+            outline: none;
+        }
+
+        .success .quantity-value-neon {
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .danger .quantity-value-neon {
+            color: var(--neon-pink);
+            text-shadow: 0 0 10px var(--neon-pink);
+        }
+
+        .warning .quantity-value-neon {
+            color: var(--neon-yellow);
+            text-shadow: 0 0 10px var(--neon-yellow);
+        }
+
+        .info .quantity-value-neon {
+            color: var(--neon-purple);
+            text-shadow: 0 0 10px var(--neon-purple);
+        }
+
+        .quantity-label-neon {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--dark-text-secondary);
+        }
+
+        .rating-neon {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .star-neon {
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            color: var(--dark-border);
+            transition: all 0.2s ease;
+            font-size: 1.2rem;
+        }
+
+        .star-neon.active {
+            color: var(--neon-yellow);
+            text-shadow: 0 0 10px var(--neon-yellow);
+            animation: starGlow 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes starGlow {
+            from { text-shadow: 0 0 10px var(--neon-yellow); }
+            to { text-shadow: 0 0 15px var(--neon-yellow), 0 0 20px var(--neon-yellow); }
+        }
+
+        .checkbox-list-neon {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .checkbox-neon {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--dark-tertiary);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-neon:hover {
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .checkbox-neon input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--neon-cyan);
+        }
+
+        .checkbox-neon label {
+            font-size: 0.9rem;
+            color: var(--dark-text-secondary);
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .action-area-neon {
+            padding: 2rem;
+            background: var(--dark-secondary);
+            border-top: 1px solid var(--dark-border);
+            position: relative;
+        }
+
+        .action-area-neon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+        }
+
+        .btn-neon {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--dark-tertiary), var(--dark-secondary));
+            border: 2px solid var(--neon-cyan);
+            border-radius: 10px;
+            color: var(--neon-cyan);
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-neon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-neon:hover::before {
+            left: 100%;
+        }
+
+        .btn-neon:hover {
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .btn-neon.secondary {
+            border-color: var(--neon-pink);
+            color: var(--neon-pink);
+            margin-bottom: 0;
+        }
+
+        .btn-neon.secondary:hover {
+            background: rgba(255, 0, 128, 0.1);
+            box-shadow: 0 0 20px rgba(255, 0, 128, 0.4);
+            text-shadow: 0 0 10px var(--neon-pink);
+        }
+
+        /* Scrollbar styling - neon */
+        .sidebar-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-track {
+            background: var(--dark-tertiary);
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--neon-cyan), var(--neon-pink));
+            border-radius: 4px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb:hover {
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        /* Glitch effect for special elements */
+        .glitch {
+            position: relative;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-bg);
+            clip: rect(0, 0, 0, 0);
+        }
+
+        .glitch::before {
+            animation: glitch-anim-1 2s infinite linear alternate-reverse;
+            color: var(--neon-pink);
+            z-index: -1;
+        }
+
+        .glitch::after {
+            animation: glitch-anim-2 1s infinite linear alternate-reverse;
+            color: var(--neon-cyan);
+            z-index: -2;
+        }
+
+        @keyframes glitch-anim-1 {
+            0% { clip: rect(42px, 9999px, 44px, 0); }
+            5% { clip: rect(12px, 9999px, 59px, 0); }
+            10% { clip: rect(48px, 9999px, 29px, 0); }
+            /* ... more keyframes for variety */
+            100% { clip: rect(25px, 9999px, 99px, 0); }
+        }
+
+        @keyframes glitch-anim-2 {
+            0% { clip: rect(65px, 9999px, 119px, 0); }
+            5% { clip: rect(52px, 9999px, 74px, 0); }
+            10% { clip: rect(79px, 9999px, 85px, 0); }
+            /* ... more keyframes for variety */
+            100% { clip: rect(15px, 9999px, 45px, 0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="main-content">
+            <div class="demo-title">
+                <i class="bi bi-lightning-charge-fill me-3"></i>
+                Demo Sidebar 9: Dark Theme Neon
+            </div>
+        </div>
+        
+        <div class="sidebar-demo">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title glitch" data-text="Báo cáo lệnh">Báo cáo lệnh</h1>
+                <div class="order-info-neon">
+                    <div class="neon-badge">
+                        <i class="bi bi-tag-fill me-2"></i>
+                        LSX001234
+                    </div>
+                    <div class="status-neon">
+                        <i class="bi bi-play-circle-fill me-2"></i>
+                        Đang sản xuất
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- Production Information -->
+                <div class="section-neon">
+                    <div class="section-title-neon">
+                        <i class="bi bi-person-fill neon-icon"></i>
+                        Thông tin sản xuất
+                    </div>
+                    
+                    <div class="field-neon">
+                        <label class="field-label-neon">Tên thợ phụ trách</label>
+                        <input type="text" class="input-neon" value="Nguyễn Văn A">
+                    </div>
+
+                    <div class="field-neon">
+                        <label class="field-label-neon">Ca làm việc</label>
+                        <select class="select-neon">
+                            <option>Ca 1 (6:00 - 14:00)</option>
+                            <option>Ca 2 (14:00 - 22:00)</option>
+                            <option>Ca 3 (22:00 - 6:00)</option>
+                        </select>
+                    </div>
+
+                    <div class="field-neon">
+                        <label class="field-label-neon">Máy sản xuất</label>
+                        <select class="select-neon">
+                            <option>Máy XẢ 001</option>
+                            <option>Máy XẢ 002</option>
+                            <option>Máy XẢ 003</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Quantity Results -->
+                <div class="section-neon">
+                    <div class="section-title-neon">
+                        <i class="bi bi-calculator-fill neon-icon"></i>
+                        Kết quả sản xuất
+                    </div>
+                    
+                    <div class="quantity-grid-neon">
+                        <div class="quantity-card-neon success">
+                            <input type="number" class="quantity-value-neon" value="950">
+                            <div class="quantity-label-neon">OK</div>
+                        </div>
+                        <div class="quantity-card-neon danger">
+                            <input type="number" class="quantity-value-neon" value="50">
+                            <div class="quantity-label-neon">NG</div>
+                        </div>
+                        <div class="quantity-card-neon warning">
+                            <input type="number" class="quantity-value-neon" value="20">
+                            <div class="quantity-label-neon">NG đầu/cuối</div>
+                        </div>
+                        <div class="quantity-card-neon info">
+                            <input type="number" class="quantity-value-neon" value="10">
+                            <div class="quantity-label-neon">Trả</div>
+                        </div>
+                    </div>
+
+                    <div class="field-neon" style="margin-top: 1.5rem;">
+                        <label class="field-label-neon">Số lượng chuyển giao</label>
+                        <input type="number" class="input-neon" value="900" style="font-size: 1.2rem; font-weight: 600; color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan);">
+                    </div>
+                </div>
+
+                <!-- Quality Assessment -->
+                <div class="section-neon">
+                    <div class="section-title-neon">
+                        <i class="bi bi-star-fill neon-icon"></i>
+                        Đánh giá chất lượng
+                    </div>
+                    
+                    <div class="field-neon">
+                        <label class="field-label-neon">Mức chất lượng</label>
+                        <select class="select-neon">
+                            <option>Xuất sắc (A+)</option>
+                            <option>Tốt (A)</option>
+                            <option>Khá (B+)</option>
+                            <option>Trung bình (B)</option>
+                            <option>Yếu (C)</option>
+                        </select>
+                    </div>
+
+                    <div class="field-neon">
+                        <label class="field-label-neon">Đánh giá tổng thể</label>
+                        <div class="rating-neon">
+                            <i class="bi bi-star-fill star-neon active"></i>
+                            <i class="bi bi-star-fill star-neon active"></i>
+                            <i class="bi bi-star-fill star-neon active"></i>
+                            <i class="bi bi-star-fill star-neon active"></i>
+                            <i class="bi bi-star-fill star-neon active"></i>
+                        </div>
+                    </div>
+
+                    <div class="field-neon">
+                        <label class="field-label-neon">Vấn đề gặp phải</label>
+                        <div class="checkbox-list-neon">
+                            <div class="checkbox-neon">
+                                <input type="checkbox" id="issue1">
+                                <label for="issue1">Lỗi máy móc</label>
+                            </div>
+                            <div class="checkbox-neon">
+                                <input type="checkbox" id="issue2" checked>
+                                <label for="issue2">Nguyên liệu kém chất lượng</label>
+                            </div>
+                            <div class="checkbox-neon">
+                                <input type="checkbox" id="issue3">
+                                <label for="issue3">Lỗi quy trình</label>
+                            </div>
+                            <div class="checkbox-neon">
+                                <input type="checkbox" id="issue4">
+                                <label for="issue4">Vấn đề khác</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="section-neon">
+                    <div class="section-title-neon">
+                        <i class="bi bi-chat-text-fill neon-icon"></i>
+                        Ghi chú & Nhận xét
+                    </div>
+                    
+                    <div class="field-neon">
+                        <label class="field-label-neon">Ghi chú sản xuất</label>
+                        <textarea class="textarea-neon" placeholder="Nhập ghi chú về quá trình sản xuất...">Sản xuất diễn ra bình thường. Máy hoạt động ổn định, chất lượng sản phẩm đạt yêu cầu.</textarea>
+                    </div>
+
+                    <div class="field-neon">
+                        <label class="field-label-neon">Đề xuất cải tiến</label>
+                        <textarea class="textarea-neon" placeholder="Nhập đề xuất cải tiến...">Cần kiểm tra chất lượng nguyên liệu đầu vào kỹ hơn để giảm tỷ lệ NG.</textarea>
+                    </div>
+
+                    <div class="field-neon">
+                        <label class="field-label-neon">Tags</label>
+                        <input type="text" class="input-neon" placeholder="Nhập các tag..." value="chất lượng tốt, máy ổn định, cần cải thiện">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Area -->
+            <div class="action-area-neon">
+                <button class="btn-neon">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    Xác nhận báo cáo
+                </button>
+                <button class="btn-neon secondary">
+                    <i class="bi bi-arrow-clockwise me-2"></i>
+                    Reset dữ liệu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Star rating functionality with neon effects
+        document.querySelectorAll('.star-neon').forEach((star, index) => {
+            star.addEventListener('click', () => {
+                const stars = star.parentElement.querySelectorAll('.star-neon');
+                stars.forEach((s, i) => {
+                    if (i <= index) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Add glitch effect to random elements occasionally
+        setInterval(() => {
+            const elements = document.querySelectorAll('.section-title-neon');
+            const randomElement = elements[Math.floor(Math.random() * elements.length)];
+            randomElement.style.animation = 'glitch-anim-1 0.3s ease-in-out';
+            setTimeout(() => {
+                randomElement.style.animation = '';
+            }, 300);
+        }, 5000);
+
+        // Add typing effect to inputs
+        document.querySelectorAll('.input-neon, .textarea-neon').forEach(input => {
+            input.addEventListener('focus', () => {
+                input.style.borderColor = 'var(--neon-cyan)';
+                input.style.boxShadow = '0 0 15px rgba(0, 255, 255, 0.5)';
+            });
+            
+            input.addEventListener('blur', () => {
+                input.style.borderColor = 'var(--dark-border)';
+                input.style.boxShadow = 'none';
+            });
+        });
+    </script>
+</body>
+</html>

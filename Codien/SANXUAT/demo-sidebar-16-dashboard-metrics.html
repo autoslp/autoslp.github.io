@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Sidebar 16 - Dashboard Metrics</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --dash-primary: #2563eb;
+            --dash-secondary: #10b981;
+            --dash-accent: #f59e0b;
+            --dash-danger: #ef4444;
+            --dash-purple: #8b5cf6;
+            --dash-bg: #f8fafc;
+            --dash-card: #ffffff;
+            --dash-text: #1e293b;
+            --dash-text-light: #64748b;
+            --dash-border: #e2e8f0;
+            --dash-success: #059669;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .demo-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-demo {
+            width: 500px;
+            background: var(--dash-bg);
+            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dash-header {
+            background: linear-gradient(135deg, var(--dash-primary), var(--dash-purple));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .dash-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0 0 1rem 0;
+        }
+
+        .dash-info {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-badge {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dash-stats {
+            display: flex;
+            justify-content: space-around;
+            gap: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .dash-content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            background: var(--dash-bg);
+        }
+
+        .metric-card {
+            background: var(--dash-card);
+            border: 1px solid var(--dash-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .metric-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: 1rem;
+        }
+
+        .metric-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dash-text);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+        }
+
+        .metric-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--dash-primary), var(--dash-secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dash-primary);
+            text-align: right;
+        }
+
+        .chart-container {
+            height: 150px;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        .gauge-container {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .gauge {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: conic-gradient(var(--dash-success) 0% 75%, var(--dash-border) 75% 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gauge::before {
+            content: '';
+            width: 70px;
+            height: 70px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .gauge-value {
+            position: absolute;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dash-text);
+            z-index: 2;
+        }
+
+        .progress-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .progress-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .progress-label {
+            font-size: 0.85rem;
+            color: var(--dash-text-light);
+            min-width: 60px;
+        }
+
+        .progress-bar-custom {
+            flex: 1;
+            height: 8px;
+            background: var(--dash-border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-fill.success { background: var(--dash-success); }
+        .progress-fill.danger { background: var(--dash-danger); }
+        .progress-fill.warning { background: var(--dash-accent); }
+        .progress-fill.primary { background: var(--dash-primary); }
+
+        .progress-value {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--dash-text);
+            min-width: 40px;
+            text-align: right;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .kpi-item {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border: 1px solid var(--dash-border);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .kpi-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .kpi-value.success { color: var(--dash-success); }
+        .kpi-value.danger { color: var(--dash-danger); }
+        .kpi-value.warning { color: var(--dash-accent); }
+        .kpi-value.primary { color: var(--dash-primary); }
+
+        .kpi-label {
+            font-size: 0.75rem;
+            color: var(--dash-text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .trend-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .trend-up { color: var(--dash-success); }
+        .trend-down { color: var(--dash-danger); }
+
+        .input-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .input-group-metric {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .input-label-metric {
+            font-size: 0.85rem;
+            color: var(--dash-text-light);
+            min-width: 80px;
+        }
+
+        .input-metric {
+            flex: 1;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--dash-border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .input-metric:focus {
+            outline: none;
+            border-color: var(--dash-primary);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+
+        .live-chart {
+            height: 200px;
+            margin: 1rem 0;
+        }
+
+        .action-area-dash {
+            padding: 1.5rem;
+            background: var(--dash-card);
+            border-top: 1px solid var(--dash-border);
+        }
+
+        .btn-dash {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-dash:last-child {
+            margin-bottom: 0;
+        }
+
+        .btn-primary-dash {
+            background: linear-gradient(135deg, var(--dash-primary), var(--dash-purple));
+            color: white;
+        }
+
+        .btn-primary-dash:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary-dash {
+            background: transparent;
+            color: var(--dash-text);
+            border: 2px solid var(--dash-border);
+        }
+
+        .btn-secondary-dash:hover {
+            background: var(--dash-bg);
+            border-color: var(--dash-primary);
+            color: var(--dash-primary);
+        }
+
+        .alert-metric {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 1px solid var(--dash-accent);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-icon {
+            color: var(--dash-accent);
+            font-size: 1.2rem;
+        }
+
+        .alert-text {
+            font-size: 0.9rem;
+            color: #92400e;
+        }
+
+        /* Scrollbar styling */
+        .dash-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .dash-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .dash-content::-webkit-scrollbar-thumb {
+            background: var(--dash-primary);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="main-content">
+            <div class="demo-title">
+                <i class="bi bi-graph-up-arrow me-3"></i>
+                Demo Sidebar 16: Dashboard Metrics
+            </div>
+        </div>
+        
+        <div class="sidebar-demo">
+            <div class="dash-header">
+                <h1 class="dash-title"><i class="bi bi-speedometer2 me-2"></i>Dashboard Báo cáo</h1>
+                <div class="dash-info">
+                    <div class="info-badge">
+                        <i class="bi bi-tag-fill"></i>
+                        LSX001234
+                    </div>
+                    <div class="info-badge">
+                        <i class="bi bi-clock"></i>
+                        Real-time
+                    </div>
+                </div>
+                <div class="dash-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">95%</div>
+                        <div class="stat-label">Hiệu suất</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">1000</div>
+                        <div class="stat-label">Tổng SX</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">2.5h</div>
+                        <div class="stat-label">Thời gian</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dash-content">
+                <!-- Real-time Production Chart -->
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-title">
+                            <div class="metric-icon">
+                                <i class="bi bi-graph-up"></i>
+                            </div>
+                            Sản xuất theo thời gian
+                        </div>
+                    </div>
+                    <div class="live-chart">
+                        <canvas id="productionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- KPI Grid -->
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-title">
+                            <div class="metric-icon" style="background: linear-gradient(135deg, var(--dash-success), var(--dash-secondary));">
+                                <i class="bi bi-bullseye"></i>
+                            </div>
+                            Chỉ số KPI
+                        </div>
+                    </div>
+                    <div class="kpi-grid">
+                        <div class="kpi-item">
+                            <div class="kpi-value success">950</div>
+                            <div class="kpi-label">OK</div>
+                            <div class="trend-indicator trend-up">
+                                <i class="bi bi-arrow-up"></i>
+                                +5%
+                            </div>
+                        </div>
+                        <div class="kpi-item">
+                            <div class="kpi-value danger">50</div>
+                            <div class="kpi-label">NG</div>
+                            <div class="trend-indicator trend-down">
+                                <i class="bi bi-arrow-down"></i>
+                                -2%
+                            </div>
+                        </div>
+                        <div class="kpi-item">
+                            <div class="kpi-value warning">20</div>
+                            <div class="kpi-label">NG Đầu/Cuối</div>
+                            <div class="trend-indicator trend-up">
+                                <i class="bi bi-arrow-up"></i>
+                                +1%
+                            </div>
+                        </div>
+                        <div class="kpi-item">
+                            <div class="kpi-value primary">900</div>
+                            <div class="kpi-label">Chuyển giao</div>
+                            <div class="trend-indicator trend-up">
+                                <i class="bi bi-arrow-up"></i>
+                                +3%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Gauge -->
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-title">
+                            <div class="metric-icon" style="background: linear-gradient(135deg, var(--dash-accent), var(--dash-danger));">
+                                <i class="bi bi-speedometer"></i>
+                            </div>
+                            Hiệu suất tổng thể
+                        </div>
+                        <div class="metric-value">95%</div>
+                    </div>
+                    <div class="gauge-container">
+                        <div class="gauge" id="performanceGauge">
+                            <div class="gauge-value">95%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Bars -->
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-title">
+                            <div class="metric-icon" style="background: linear-gradient(135deg, var(--dash-purple), var(--dash-primary));">
+                                <i class="bi bi-bar-chart"></i>
+                            </div>
+                            Tiến độ chi tiết
+                        </div>
+                    </div>
+                    <div class="progress-bars">
+                        <div class="progress-item">
+                            <div class="progress-label">OK</div>
+                            <div class="progress-bar-custom">
+                                <div class="progress-fill success" style="width: 95%"></div>
+                            </div>
+                            <div class="progress-value">95%</div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">NG</div>
+                            <div class="progress-bar-custom">
+                                <div class="progress-fill danger" style="width: 5%"></div>
+                            </div>
+                            <div class="progress-value">5%</div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">Máy</div>
+                            <div class="progress-bar-custom">
+                                <div class="progress-fill primary" style="width: 87%"></div>
+                            </div>
+                            <div class="progress-value">87%</div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">Thời gian</div>
+                            <div class="progress-bar-custom">
+                                <div class="progress-fill warning" style="width: 62%"></div>
+                            </div>
+                            <div class="progress-value">62%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Metrics -->
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-title">
+                            <div class="metric-icon" style="background: linear-gradient(135deg, var(--dash-secondary), var(--dash-success));">
+                                <i class="bi bi-pencil-square"></i>
+                            </div>
+                            Nhập dữ liệu nhanh
+                        </div>
+                    </div>
+                    <div class="input-metrics">
+                        <div class="input-group-metric">
+                            <div class="input-label-metric">OK:</div>
+                            <input type="number" class="input-metric" value="950" id="quickOK">
+                        </div>
+                        <div class="input-group-metric">
+                            <div class="input-label-metric">NG:</div>
+                            <input type="number" class="input-metric" value="50" id="quickNG">
+                        </div>
+                        <div class="input-group-metric">
+                            <div class="input-label-metric">Chuyển:</div>
+                            <input type="number" class="input-metric" value="900" id="quickHandover">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quality Chart -->
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-title">
+                            <div class="metric-icon" style="background: linear-gradient(135deg, var(--dash-danger), var(--dash-accent));">
+                                <i class="bi bi-pie-chart"></i>
+                            </div>
+                            Phân tích chất lượng
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="qualityChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Alert -->
+                <div class="alert-metric">
+                    <div class="alert-icon">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <div class="alert-text">
+                        <strong>Cảnh báo:</strong> Tỷ lệ NG cao hơn bình thường. Kiểm tra nguyên liệu đầu vào.
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-area-dash">
+                <button class="btn-dash btn-primary-dash">
+                    <i class="bi bi-download"></i>
+                    Xuất báo cáo Dashboard
+                </button>
+                <button class="btn-dash btn-secondary-dash">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    Refresh dữ liệu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Production Chart
+        const productionCtx = document.getElementById('productionChart').getContext('2d');
+        const productionChart = new Chart(productionCtx, {
+            type: 'line',
+            data: {
+                labels: ['8:00', '8:30', '9:00', '9:30', '10:00', '10:30'],
+                datasets: [{
+                    label: 'OK',
+                    data: [150, 320, 480, 650, 800, 950],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: 'NG',
+                    data: [5, 12, 18, 28, 38, 50],
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#f1f5f9'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: '#f1f5f9'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Quality Chart
+        const qualityCtx = document.getElementById('qualityChart').getContext('2d');
+        const qualityChart = new Chart(qualityCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['OK', 'NG', 'NG Đầu/Cuối'],
+                datasets: [{
+                    data: [950, 50, 20],
+                    backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15
+                        }
+                    }
+                }
+            }
+        });
+
+        // Update charts with real-time data simulation
+        function updateCharts() {
+            // Simulate new data
+            const newOK = Math.floor(Math.random() * 50) + 950;
+            const newNG = Math.floor(Math.random() * 10) + 45;
+            
+            // Update production chart
+            productionChart.data.datasets[0].data.push(newOK);
+            productionChart.data.datasets[1].data.push(newNG);
+            productionChart.data.labels.push(new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'}));
+            
+            if (productionChart.data.labels.length > 10) {
+                productionChart.data.labels.shift();
+                productionChart.data.datasets[0].data.shift();
+                productionChart.data.datasets[1].data.shift();
+            }
+            
+            productionChart.update('none');
+            
+            // Update KPI values
+            document.querySelector('.kpi-item .kpi-value.success').textContent = newOK;
+            document.querySelector('.kpi-item .kpi-value.danger').textContent = newNG;
+            
+            // Update header stats
+            const efficiency = Math.round((newOK / (newOK + newNG)) * 100);
+            document.querySelector('.stat-value').textContent = efficiency + '%';
+            
+            // Update gauge
+            updateGauge(efficiency);
+        }
+
+        function updateGauge(percentage) {
+            const gauge = document.getElementById('performanceGauge');
+            const gaugeValue = gauge.querySelector('.gauge-value');
+            
+            let color = '#ef4444'; // Red for low performance
+            if (percentage >= 90) color = '#10b981'; // Green for good performance
+            else if (percentage >= 80) color = '#f59e0b'; // Yellow for medium performance
+            
+            gauge.style.background = `conic-gradient(${color} 0% ${percentage}%, #e2e8f0 ${percentage}% 100%)`;
+            gaugeValue.textContent = percentage + '%';
+        }
+
+        // Input change handlers
+        document.getElementById('quickOK').addEventListener('input', function() {
+            const okValue = parseInt(this.value) || 0;
+            const ngValue = parseInt(document.getElementById('quickNG').value) || 0;
+            const total = okValue + ngValue;
+            const efficiency = total > 0 ? Math.round((okValue / total) * 100) : 0;
+            
+            // Update handover automatically (90% of OK)
+            document.getElementById('quickHandover').value = Math.floor(okValue * 0.9);
+            
+            // Update charts
+            qualityChart.data.datasets[0].data[0] = okValue;
+            qualityChart.update();
+            
+            updateGauge(efficiency);
+        });
+
+        document.getElementById('quickNG').addEventListener('input', function() {
+            const ngValue = parseInt(this.value) || 0;
+            const okValue = parseInt(document.getElementById('quickOK').value) || 0;
+            const total = okValue + ngValue;
+            const efficiency = total > 0 ? Math.round((okValue / total) * 100) : 0;
+            
+            // Update charts
+            qualityChart.data.datasets[0].data[1] = ngValue;
+            qualityChart.update();
+            
+            updateGauge(efficiency);
+        });
+
+        // Initialize gauge
+        updateGauge(95);
+
+        // Auto-update every 5 seconds
+        setInterval(updateCharts, 5000);
+
+        // Animate progress bars on load
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.querySelectorAll('.progress-fill').forEach(fill => {
+                    const width = fill.style.width;
+                    fill.style.width = '0%';
+                    setTimeout(() => {
+                        fill.style.width = width;
+                    }, 100);
+                });
+            }, 500);
+        });
+
+        // Add hover effects to metric cards
+        document.querySelectorAll('.metric-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.borderColor = '#2563eb';
+                this.style.borderWidth = '2px';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.borderColor = '#e2e8f0';
+                this.style.borderWidth = '1px';
+            });
+        });
+    </script>
+</body>
+</html>

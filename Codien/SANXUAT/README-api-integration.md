@@ -152,7 +152,7 @@ ProductionAPI.showNotification('Error occurred!', 'error');
 ### Environment Detection
 API tự động phát hiện môi trường:
 - **Local**: `http://localhost:3000` (development)
-- **Remote**: `https://autoslp.duckdns.org/api` (production)
+- **Remote**: `https://api.autoslp.com/api` (production)
 
 ### Customization
 ```javascript
@@ -276,7 +276,7 @@ const webhookData = {
     timestamp: new Date().toISOString()
 };
 
-fetch('https://autoslp.duckdns.org:5678/webhook/production_order', {
+fetch('https://api.autoslp.com:5678/webhook/production_order', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(webhookData)

@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Sidebar 10 - Mobile First</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --mobile-primary: #3b82f6;
+            --mobile-secondary: #10b981;
+            --mobile-accent: #f59e0b;
+            --mobile-danger: #ef4444;
+            --mobile-bg: #f8fafc;
+            --mobile-card: #ffffff;
+            --mobile-border: #e5e7eb;
+            --mobile-text: #1f2937;
+            --mobile-text-light: #6b7280;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            height: 100vh;
+            color: var(--mobile-text);
+            overflow: hidden;
+        }
+
+        .demo-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .demo-title {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 300;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-demo {
+            width: 100%;
+            max-width: 400px;
+            background: var(--mobile-bg);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Mobile-first header */
+        .mobile-header {
+            background: linear-gradient(135deg, var(--mobile-primary), var(--mobile-secondary));
+            color: white;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 60px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .header-info h6 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .header-info p {
+            margin: 0;
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .header-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Status bar */
+        .status-bar {
+            background: var(--mobile-card);
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--mobile-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .status-chip {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: #ecfdf5;
+            color: var(--mobile-secondary);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .progress-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--mobile-text-light);
+        }
+
+        .progress-dots {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .progress-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--mobile-border);
+        }
+
+        .progress-dot.active {
+            background: var(--mobile-primary);
+        }
+
+        /* Mobile content */
+        .mobile-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .mobile-section {
+            background: var(--mobile-card);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border: 1px solid var(--mobile-border);
+        }
+
+        .section-header-mobile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-icon-mobile {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--mobile-primary), var(--mobile-secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .section-title-mobile {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--mobile-text);
+            margin: 0;
+        }
+
+        /* Mobile form elements */
+        .form-group-mobile {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group-mobile:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label-mobile {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--mobile-text);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-control-mobile {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--mobile-border);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--mobile-card);
+            color: var(--mobile-text);
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .form-control-mobile:focus {
+            outline: none;
+            border-color: var(--mobile-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-control-mobile::placeholder {
+            color: var(--mobile-text-light);
+        }
+
+        /* Touch-friendly quantity inputs */
+        .quantity-grid-mobile {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .quantity-item-mobile {
+            background: var(--mobile-card);
+            border: 2px solid var(--mobile-border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-item-mobile:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .quantity-item-mobile.success {
+            border-color: var(--mobile-secondary);
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+        }
+
+        .quantity-item-mobile.danger {
+            border-color: var(--mobile-danger);
+            background: linear-gradient(135deg, #fef2f2, #fecaca);
+        }
+
+        .quantity-item-mobile.warning {
+            border-color: var(--mobile-accent);
+            background: linear-gradient(135deg, #fffbeb, #fed7aa);
+        }
+
+        .quantity-item-mobile.info {
+            border-color: var(--mobile-primary);
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        }
+
+        .quantity-label-mobile {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--mobile-text-light);
+            margin-bottom: 0.75rem;
+        }
+
+        .quantity-input-mobile {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 1.75rem;
+            font-weight: 700;
+            text-align: center;
+            color: inherit;
+            padding: 0.5rem;
+        }
+
+        .quantity-input-mobile:focus {
+            outline: none;
+        }
+
+        .success .quantity-input-mobile { color: var(--mobile-secondary); }
+        .danger .quantity-input-mobile { color: var(--mobile-danger); }
+        .warning .quantity-input-mobile { color: var(--mobile-accent); }
+        .info .quantity-input-mobile { color: var(--mobile-primary); }
+
+        /* Touch-friendly rating */
+        .rating-mobile {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .star-mobile {
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            color: var(--mobile-border);
+            transition: all 0.2s ease;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .star-mobile.active {
+            color: var(--mobile-accent);
+            transform: scale(1.1);
+        }
+
+        /* Touch-friendly checkboxes */
+        .checkbox-list-mobile {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .checkbox-mobile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: var(--mobile-bg);
+            border: 1px solid var(--mobile-border);
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .checkbox-mobile:hover {
+            background: #f1f5f9;
+            border-color: var(--mobile-primary);
+        }
+
+        .checkbox-mobile input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--mobile-primary);
+            cursor: pointer;
+        }
+
+        .checkbox-mobile label {
+            font-size: 0.9rem;
+            color: var(--mobile-text);
+            cursor: pointer;
+            flex: 1;
+        }
+
+        /* Textarea with auto-resize */
+        .textarea-mobile {
+            width: 100%;
+            min-height: 100px;
+            padding: 1rem;
+            border: 2px solid var(--mobile-border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: var(--mobile-card);
+            color: var(--mobile-text);
+            resize: none;
+            transition: all 0.3s ease;
+        }
+
+        .textarea-mobile:focus {
+            outline: none;
+            border-color: var(--mobile-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Mobile action buttons */
+        .action-area-mobile {
+            padding: 1rem;
+            background: var(--mobile-card);
+            border-top: 1px solid var(--mobile-border);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .btn-mobile {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 48px; /* Touch target size */
+        }
+
+        .btn-primary-mobile {
+            background: linear-gradient(135deg, var(--mobile-primary), var(--mobile-secondary));
+            color: white;
+        }
+
+        .btn-primary-mobile:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary-mobile {
+            background: var(--mobile-bg);
+            color: var(--mobile-text-light);
+            border: 2px solid var(--mobile-border);
+        }
+
+        .btn-secondary-mobile:hover {
+            background: #f1f5f9;
+            color: var(--mobile-text);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .sidebar-demo {
+                width: 100%;
+                max-width: none;
+            }
+            
+            .demo-container {
+                flex-direction: column;
+            }
+            
+            .main-content {
+                display: none;
+            }
+            
+            .quantity-grid-mobile {
+                grid-template-columns: 1fr;
+            }
+            
+            .mobile-content {
+                padding: 0.75rem;
+            }
+            
+            .mobile-section {
+                padding: 1rem;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .sidebar-demo {
+                width: 420px;
+            }
+        }
+
+        /* Scrollbar styling - mobile friendly */
+        .mobile-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .mobile-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .mobile-content::-webkit-scrollbar-thumb {
+            background: var(--mobile-border);
+            border-radius: 2px;
+        }
+
+        .mobile-content::-webkit-scrollbar-thumb:hover {
+            background: var(--mobile-text-light);
+        }
+
+        /* iOS style bounce scroll */
+        @supports (-webkit-overflow-scrolling: touch) {
+            .mobile-content {
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        /* Focus states for accessibility */
+        .btn-mobile:focus,
+        .form-control-mobile:focus,
+        .textarea-mobile:focus {
+            outline: 2px solid var(--mobile-primary);
+            outline-offset: 2px;
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --mobile-bg: #1f2937;
+                --mobile-card: #374151;
+                --mobile-border: #4b5563;
+                --mobile-text: #f9fafb;
+                --mobile-text-light: #d1d5db;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="main-content">
+            <div class="demo-title">
+                <i class="bi bi-phone me-3"></i>
+                Demo Sidebar 10: Mobile First
+            </div>
+        </div>
+        
+        <div class="sidebar-demo">
+            <!-- Mobile Header -->
+            <div class="mobile-header">
+                <div class="header-left">
+                    <div class="header-icon">
+                        <i class="bi bi-clipboard-data"></i>
+                    </div>
+                    <div class="header-info">
+                        <h6>Báo cáo lệnh</h6>
+                        <p>LSX001234 - Carton A4</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="header-btn" title="Thông báo">
+                        <i class="bi bi-bell"></i>
+                    </button>
+                    <button class="header-btn" title="Menu">
+                        <i class="bi bi-three-dots"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-chip">
+                    <i class="bi bi-play-circle-fill"></i>
+                    Đang sản xuất
+                </div>
+                <div class="progress-indicator">
+                    <span>3/5</span>
+                    <div class="progress-dots">
+                        <div class="progress-dot active"></div>
+                        <div class="progress-dot active"></div>
+                        <div class="progress-dot active"></div>
+                        <div class="progress-dot"></div>
+                        <div class="progress-dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Content -->
+            <div class="mobile-content">
+                <!-- Production Information -->
+                <div class="mobile-section">
+                    <div class="section-header-mobile">
+                        <div class="section-icon-mobile">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <h3 class="section-title-mobile">Thông tin sản xuất</h3>
+                    </div>
+                    
+                    <div class="form-group-mobile">
+                        <label class="form-label-mobile">Tên thợ phụ trách</label>
+                        <input type="text" class="form-control-mobile" value="Nguyễn Văn A">
+                    </div>
+
+                    <div class="form-group-mobile">
+                        <label class="form-label-mobile">Ca làm việc</label>
+                        <select class="form-control-mobile">
+                            <option>Ca 1 (6:00 - 14:00)</option>
+                            <option>Ca 2 (14:00 - 22:00)</option>
+                            <option>Ca 3 (22:00 - 6:00)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group-mobile">
+                        <label class="form-label-mobile">Máy sản xuất</label>
+                        <select class="form-control-mobile">
+                            <option>Máy XẢ 001</option>
+                            <option>Máy XẢ 002</option>
+                            <option>Máy XẢ 003</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Quantity Results -->
+                <div class="mobile-section">
+                    <div class="section-header-mobile">
+                        <div class="section-icon-mobile">
+                            <i class="bi bi-calculator-fill"></i>
+                        </div>
+                        <h3 class="section-title-mobile">Kết quả sản xuất</h3>
+                    </div>
+                    
+                    <div class="quantity-grid-mobile">
+                        <div class="quantity-item-mobile success">
+                            <div class="quantity-label-mobile">OK</div>
+                            <input type="number" class="quantity-input-mobile" value="950">
+                        </div>
+                        <div class="quantity-item-mobile danger">
+                            <div class="quantity-label-mobile">NG</div>
+                            <input type="number" class="quantity-input-mobile" value="50">
+                        </div>
+                        <div class="quantity-item-mobile warning">
+                            <div class="quantity-label-mobile">NG đầu/cuối</div>
+                            <input type="number" class="quantity-input-mobile" value="20">
+                        </div>
+                        <div class="quantity-item-mobile info">
+                            <div class="quantity-label-mobile">Trả</div>
+                            <input type="number" class="quantity-input-mobile" value="10">
+                        </div>
+                    </div>
+
+                    <div class="form-group-mobile" style="margin-top: 1.5rem;">
+                        <label class="form-label-mobile">Số lượng chuyển giao</label>
+                        <input type="number" class="form-control-mobile" value="900" style="font-size: 1.2rem; font-weight: 600; color: var(--mobile-primary); text-align: center;">
+                    </div>
+                </div>
+
+                <!-- Quality Assessment -->
+                <div class="mobile-section">
+                    <div class="section-header-mobile">
+                        <div class="section-icon-mobile">
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                        <h3 class="section-title-mobile">Đánh giá chất lượng</h3>
+                    </div>
+                    
+                    <div class="form-group-mobile">
+                        <label class="form-label-mobile">Mức chất lượng</label>
+                        <select class="form-control-mobile">
+                            <option>Xuất sắc (A+)</option>
+                            <option>Tốt (A)</option>
+                            <option>Khá (B+)</option>
+                            <option>Trung bình (B)</option>
+                            <option>Yếu (C)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group-mobile">
+                        <label class="form-label-mobile">Đánh giá tổng thể</label>
+                        <div class="rating-mobile">
+                            <i class="bi bi-star-fill star-mobile active"></i>
+                            <i class="bi bi-star-fill star-mobile active"></i>
+                            <i class="bi bi-star-fill star-mobile active"></i>
+                            <i class="bi bi-star-fill star-mobile active"></i>
+                            <i class="bi bi-star-fill star-mobile active"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group-mobile">
+                        <label class="form-label-mobile">Vấn đề gặp phải</label>
+                        <div class="checkbox-list-mobile">
+                            <div class="checkbox-mobile">
+                                <input type="checkbox" id="issue1">
+                                <label for="issue1">Lỗi máy móc</label>
+                            </div>
+                            <div class="checkbox-mobile">
+                                <input type="checkbox" id="issue2" checked>
+                                <label for="issue2">Nguyên liệu kém chất lượng</label>
+                            </div>
+                            <div class="checkbox-mobile">
+                                <input type="checkbox" id="issue3">
+                                <label for="issue3">Lỗi quy trình</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="mobile-section">
+                    <div class="section-header-mobile">
+                        <div class="section-icon-mobile">
+                            <i class="bi bi-chat-text-fill"></i>
+                        </div>
+                        <h3 class="section-title-mobile">Ghi chú</h3>
+                    </div>
+                    
+                    <div class="form-group-mobile">
+                        <label class="form-label-mobile">Ghi chú sản xuất</label>
+                        <textarea class="textarea-mobile" placeholder="Nhập ghi chú về quá trình sản xuất...">Sản xuất diễn ra bình thường. Máy hoạt động ổn định, chất lượng sản phẩm đạt yêu cầu.</textarea>
+                    </div>
+
+                    <div class="form-group-mobile">
+                        <label class="form-label-mobile">Đề xuất cải tiến</label>
+                        <textarea class="textarea-mobile" placeholder="Nhập đề xuất cải tiến...">Cần kiểm tra chất lượng nguyên liệu đầu vào kỹ hơn.</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Action Area -->
+            <div class="action-area-mobile">
+                <button class="btn-mobile btn-primary-mobile">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Xác nhận báo cáo
+                </button>
+                <button class="btn-mobile btn-secondary-mobile">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    Reset dữ liệu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Star rating functionality
+        document.querySelectorAll('.star-mobile').forEach((star, index) => {
+            star.addEventListener('click', () => {
+                const stars = star.parentElement.querySelectorAll('.star-mobile');
+                stars.forEach((s, i) => {
+                    if (i <= index) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Auto-resize textareas
+        document.querySelectorAll('.textarea-mobile').forEach(textarea => {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.max(100, this.scrollHeight) + 'px';
+            });
+        });
+
+        // Touch feedback for buttons
+        document.querySelectorAll('.btn-mobile, .header-btn').forEach(btn => {
+            btn.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.95)';
+            });
+            
+            btn.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        // Haptic feedback simulation
+        function vibrate() {
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        }
+
+        // Add vibration to interactive elements
+        document.querySelectorAll('.btn-mobile, .star-mobile, .checkbox-mobile').forEach(element => {
+            element.addEventListener('click', vibrate);
+        });
+
+        // Progress indicator update
+        function updateProgress() {
+            const completedSections = document.querySelectorAll('.mobile-section').length;
+            const dots = document.querySelectorAll('.progress-dot');
+            const progressText = document.querySelector('.progress-indicator span');
+            
+            dots.forEach((dot, index) => {
+                if (index < 3) { // Simulating 3 completed sections
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        // Initialize
+        updateProgress();
+
+        // Smooth scroll behavior
+        document.querySelector('.mobile-content').style.scrollBehavior = 'smooth';
+
+        // Add swipe gestures for better mobile experience
+        let startY = 0;
+        let startX = 0;
+
+        document.addEventListener('touchstart', e => {
+            startY = e.touches[0].clientY;
+            startX = e.touches[0].clientX;
+        });
+
+        document.addEventListener('touchmove', e => {
+            if (Math.abs(e.touches[0].clientY - startY) > Math.abs(e.touches[0].clientX - startX)) {
+                // Vertical scroll - allow default behavior
+                return;
+            }
+        });
+    </script>
+</body>
+</html>

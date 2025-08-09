@@ -497,6 +497,505 @@
         color: #6c757d;
     }
 
+    /* Details Panel (Sidebar Container) */
+    .details-panel {
+        position: fixed;
+        right: -400px;
+        top: 0;
+        width: 400px;
+        height: 100vh;
+        background: white;
+        /* box-shadow: -5px 0 20px rgba(0,0,0,0.15); */
+        border-left: 1px solid #00000029;
+
+        transition: right 0.3s ease;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .details-panel.show {
+        right: 0;
+    }
+
+    /* Horizontal Tabbed Sidebar Styles */
+    :root {
+        --primary-purple: #6f42c1;
+        --primary-blue: #0d6efd;
+        --primary-green: #198754;
+        --primary-orange: #fd7e14;
+    }
+
+    .sidebar-header {
+        background: var(--primary-purple);
+        color: white;
+        padding: 1.5rem;
+        text-align: center;
+        position: relative;
+    }
+
+    .sidebar-header h5 {
+        margin: 0;
+        font-weight: 600;
+    }
+
+    .order-info {
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .sidebar-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .details-panel .tab-navigation {
+        display: flex;
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .details-panel .tab-btn {
+        flex: 1;
+        padding: 1rem 0.5rem;
+        border: none;
+        background: transparent;
+        color: #6c757d;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .details-panel .tab-btn:hover {
+        background: rgba(111, 66, 193, 0.1);
+        color: var(--primary-purple);
+    }
+
+    .details-panel .tab-btn.active {
+        background: white;
+        color: var(--primary-purple);
+        font-weight: 600;
+    }
+
+    .details-panel .tab-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 30px;
+        height: 3px;
+        background: var(--primary-purple);
+        border-radius: 2px;
+    }
+
+    .details-panel .tab-icon {
+        font-size: 1.2rem;
+    }
+
+    .details-panel .tab-content {
+        flex: 1;
+        padding: 1.5rem;
+        overflow-y: auto;
+    }
+
+    .details-panel .tab-panel {
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .details-panel .tab-panel.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .details-panel .form-group {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    .details-panel .form-label {
+        position: absolute;
+        top: -8px;
+        left: 12px;
+        background: white;
+        padding: 0 8px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #6b7280;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .details-panel .form-label i {
+        font-size: 0.75rem;
+    }
+
+    .details-panel .form-control-custom {
+        width: 100%;
+        padding: 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #111827;
+        background: #ffffff;
+        transition: all 0.2s ease;
+    }
+
+    .details-panel .form-control-custom:focus {
+        outline: none;
+        /* border-color: #3b82f6; */
+        /* box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); */
+        border-color: var(--primary-purple);
+        box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.1);
+    }
+
+    .details-panel .form-control-custom:focus + .form-label,
+    .details-panel .form-group:focus-within .form-label {
+        color: var(--primary-purple);
+    }
+
+    .details-panel .form-control-custom:hover:not(:focus) {
+        border-color: #9ca3af;
+    }
+
+    /* Checkbox Group Styles */
+    .details-panel .checkbox-group {
+        position: relative;
+    }
+
+    .details-panel .checkbox-container {
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 1rem;
+        background: #ffffff;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .details-panel .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .details-panel .checkbox-input {
+        width: 16px;
+        height: 16px;
+        border: 1px solid #d1d5db;
+        border-radius: 3px;
+        cursor: pointer;
+        accent-color: var(--primary-purple);
+    }
+
+    .details-panel .checkbox-label {
+        font-size: 0.875rem;
+        color: #374151;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .details-panel .checkbox-group .form-label {
+        position: absolute;
+        top: -8px;
+        left: 12px;
+        background: white;
+        padding: 0 8px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #6b7280;
+        z-index: 1;
+    }
+
+    .details-panel .checkbox-container:focus-within {
+        border-color: var(--primary-purple);
+        box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.1);
+    }
+
+    .details-panel .checkbox-container:focus-within + .form-label {
+        color: var(--primary-purple);
+    }
+
+    .quantity-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .quantity-card {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .quantity-card.success {
+        border-color: var(--primary-green);
+        background: rgba(25, 135, 84, 0.05);
+    }
+
+    .quantity-card.danger {
+        border-color: #dc3545;
+        background: rgba(220, 53, 69, 0.05);
+    }
+
+    .quantity-card.warning {
+        border-color: var(--primary-orange);
+        background: rgba(253, 126, 20, 0.05);
+    }
+
+    .quantity-card.info {
+        border-color: var(--primary-blue);
+        background: rgba(13, 110, 253, 0.05);
+    }
+
+    .quantity-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+        color: #6c757d;
+    }
+
+    .quantity-input {
+        border: none;
+        background: transparent;
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-align: center;
+        width: 100%;
+        color: inherit;
+    }
+
+    .quantity-input:focus {
+        outline: none;
+    }
+
+    .success .quantity-input { color: var(--primary-green); }
+    .danger .quantity-input { color: #dc3545; }
+    .warning .quantity-input { color: var(--primary-orange); }
+    .info .quantity-input { color: var(--primary-blue); }
+
+    .note-area {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1rem;
+    }
+
+    .note-textarea {
+        width: 100%;
+        min-height: 80px;
+        border: none;
+        background: transparent;
+        resize: vertical;
+        font-size: 0.9rem;
+    }
+
+    .note-textarea:focus {
+        outline: none;
+    }
+
+    /* Production Control Buttons */
+    .production-controls {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #dee2e6;
+        background: #f8f9fa;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .control-row {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .production-status {
+        text-align: center;
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        margin-bottom: 1rem;
+    }
+
+    .production-status.running {
+        border-color: var(--primary-green);
+        background: rgba(25, 135, 84, 0.05);
+    }
+
+    .production-status.stopped {
+        border-color: #dc3545;
+        background: rgba(220, 53, 69, 0.05);
+    }
+
+    .production-status.paused {
+        border-color: var(--primary-orange);
+        background: rgba(253, 126, 20, 0.05);
+    }
+
+    .status-text {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .status-time {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #495057;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .action-buttons-bottom {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #dee2e6;
+        background: #f8f9fa;
+        display: flex;
+        gap: 1rem;
+        margin-top: auto;
+    }
+
+    .btn-custom {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        cursor: pointer;
+    }
+
+    .btn-primary-custom {
+        background: var(--primary-purple);
+        color: white;
+    }
+
+    .btn-primary-custom:hover {
+        background: #5a359a;
+        transform: translateY(-1px);
+    }
+
+    .btn-outline-custom {
+        background: transparent;
+        border: 2px solid var(--primary-purple);
+        color: var(--primary-purple);
+    }
+
+    .btn-outline-custom:hover {
+        background: var(--primary-purple);
+        color: white;
+    }
+
+    .btn-success-custom {
+        background: var(--primary-green);
+        color: white;
+    }
+
+    .btn-success-custom:hover {
+        background: #157347;
+        transform: translateY(-1px);
+    }
+
+    .btn-danger-custom {
+        background: #dc3545;
+        color: white;
+    }
+
+    .btn-danger-custom:hover {
+        background: #bb2d3b;
+        transform: translateY(-1px);
+    }
+
+    .btn-warning-custom {
+        background: var(--primary-orange);
+        color: white;
+    }
+
+    .btn-warning-custom:hover {
+        background: #e25d2d;
+        transform: translateY(-1px);
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        background: linear-gradient(135deg, var(--primary-green), #20c997);
+        color: white;
+        margin-top: 0.5rem;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .info-value {
+        font-size: 0.9rem;
+        color: #495057;
+        font-weight: 600;
+    }
+
+    /* Scrollbar styling */
+    .details-panel .tab-content::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .details-panel .tab-content::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .details-panel .tab-content::-webkit-scrollbar-thumb {
+        background: var(--primary-purple);
+        border-radius: 2px;
+    }
+
   </style>
 </head>
 <body data-stage="xa">
@@ -557,15 +1056,6 @@
             <!-- Main Actions -->
             <button class="btn btn-primary me-2" onclick="refreshData()">
               <i class="bi bi-arrow-clockwise me-1"></i>Làm mới
-            </button>
-            <button class="btn btn-info me-2" onclick="refreshMachineStatus()" title="Làm mới trạng thái máy">
-              <i class="bi bi-gear me-1"></i>Trạng thái máy
-            </button>
-            <button class="btn btn-warning me-2" onclick="debugMachineStatus()" title="Debug trạng thái máy">
-              <i class="bi bi-bug me-1"></i>Debug
-            </button>
-            <button class="btn btn-success" onclick="showNewOrderForm()">
-              <i class="bi bi-plus-lg me-1"></i>Thêm mới
             </button>
           </div>
         </div>
@@ -631,142 +1121,17 @@
           
           <!-- Tabs Navigation -->
           <ul class="nav nav-tabs mb-3" id="machineTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="xa1-tab" data-bs-toggle="tab" data-bs-target="#xa1-content" type="button" role="tab" aria-controls="xa1-content" aria-selected="true">
-                <i class="bi bi-gear me-1"></i>Xả 1
-                <span class="badge bg-primary ms-1" id="xa1-count">0</span>
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="xa2-tab" data-bs-toggle="tab" data-bs-target="#xa2-content" type="button" role="tab" aria-controls="xa2-content" aria-selected="false">
-                <i class="bi bi-gear me-1"></i>Xả 2
-                <span class="badge bg-primary ms-1" id="xa2-count">0</span>
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="xa3-tab" data-bs-toggle="tab" data-bs-target="#xa3-content" type="button" role="tab" aria-controls="xa3-content" aria-selected="false">
-                <i class="bi bi-gear me-1"></i>Xả 3
-                <span class="badge bg-primary ms-1" id="xa3-count">0</span>
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-content" type="button" role="tab" aria-controls="all-content" aria-selected="false">
-                <i class="bi bi-list-ul me-1"></i>Tất cả
-                <span class="badge bg-secondary ms-1" id="all-count">0</span>
-              </button>
-            </li>
-          </ul>
+                    <!-- Dynamic tabs will be generated here -->
+        
+
+      </ul>
           
           <!-- Tab Content -->
           <div class="tab-content" id="machineTabContent">
-            <!-- Xả 1 Tab -->
-            <div class="tab-pane fade " id="xa1-content" role="tabpanel" aria-labelledby="xa1-tab">
-              <div class="table-container">
-                <table class="table table-striped table-hover">
-                  <thead>
-                    <tr>
-                      <th style="width: 40px!important; min-width: 40px!important;" class="text-center">#</th>
-                      <th style="width: 150px!important; min-width: 120px!important;" class="text-center">Lệnh SX</th>
-                      <th style="width: 70px!important; min-width: 50px!important;" class="text-center">Loại LSX</th>
-                      <th style="width: 260px!important; min-width: 150px!important;" class="text-center">Sản phẩm</th>
-                      <th style="width: 130px!important; min-width: 130px!important;" class="text-center">Loại giấy</th>
-                      <th style="width: 90px!important; min-width: 90px!important;" class="text-center">Định lượng</th>
-                      <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Kế hoạch</th>
-                      <th style="width: 150px!important; min-width: 150px!important;" class="text-center">Triển khai</th>
-                      <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT xả</th>
-                      <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT xả</th>
-                      <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Số phôi</th>
-                      <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Tiến độ</th>
-                      <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Máy/Thợ</th>
-                    </tr>
-                  </thead>
-                  <tbody id="xa1TableBody">
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            
-            <!-- Xả 2 Tab -->
-            <div class="tab-pane fade" id="xa2-content" role="tabpanel" aria-labelledby="xa2-tab">
-              <div class="table-container">
-                <table class="table table-striped table-hover">
-                  <thead>
-                    <tr>
-                      <th style="width: 40px!important; min-width: 40px!important;" class="text-center">#</th>
-                      <th style="width: 150px!important; min-width: 120px!important;" class="text-center">Lệnh SX</th>
-                      <th style="width: 70px!important; min-width: 50px!important;" class="text-center">Loại LSX</th>
-                      <th style="width: 260px!important; min-width: 150px!important;" class="text-center">Sản phẩm</th>
-                      <th style="width: 130px!important; min-width: 130px!important;" class="text-center">Loại giấy</th>
-                      <th style="width: 90px!important; min-width: 90px!important;" class="text-center">Định lượng</th>
-                      <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Kế hoạch</th>
-                      <th style="width: 150px!important; min-width: 150px!important;" class="text-center">Triển khai</th>
-                      <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT xả</th>
-                      <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT xả</th>
-                      <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Số phôi</th>
-                      <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Tiến độ</th>
-                      <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Máy/Thợ</th>
-                    </tr>
-                  </thead>
-                  <tbody id="xa2TableBody">
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            
-            <!-- Xả 3 Tab -->
-            <div class="tab-pane fade" id="xa3-content" role="tabpanel" aria-labelledby="xa3-tab">
-              <div class="table-container">
-                <table class="table table-striped table-hover">
-                  <thead>
-                    <tr>
-                      <th style="width: 40px!important; min-width: 40px!important;" class="text-center">#</th>
-                      <th style="width: 150px!important; min-width: 120px!important;" class="text-center">Lệnh SX</th>
-                      <th style="width: 70px!important; min-width: 50px!important;" class="text-center">Loại LSX</th>
-                      <th style="width: 260px!important; min-width: 150px!important;" class="text-center">Sản phẩm</th>
-                      <th style="width: 130px!important; min-width: 130px!important;" class="text-center">Loại giấy</th>
-                      <th style="width: 90px!important; min-width: 90px!important;" class="text-center">Định lượng</th>
-                      <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Kế hoạch</th>
-                      <th style="width: 150px!important; min-width: 150px!important;" class="text-center">Triển khai</th>
-                      <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT xả</th>
-                      <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT xả</th>
-                      <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Số phôi</th>
-                      <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Tiến độ</th>
-                      <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Máy/Thợ</th>
-                    </tr>
-                  </thead>
-                  <tbody id="xa3TableBody">
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            
-            <!-- All Tab -->
-            <div class="tab-pane fade show active" id="all-content" role="tabpanel" aria-labelledby="all-tab">
-              <div class="table-container">
-                <table class="table table-striped table-hover">
-                  <thead>
-                    <tr>
-                      <th style="width: 40px!important; min-width: 40px!important;" class="text-center">#</th>
-                      <th style="width: 150px!important; min-width: 120px!important;" class="text-center">Lệnh SX</th>
-                      <th style="width: 70px!important; min-width: 50px!important;" class="text-center">Loại LSX</th>
-                      <th style="width: 260px!important; min-width: 150px!important;" class="text-center">Sản phẩm</th>
-                      <th style="width: 130px!important; min-width: 130px!important;" class="text-center">Loại giấy</th>
-                      <th style="width: 90px!important; min-width: 90px!important;" class="text-center">Định lượng</th>
-                      <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Kế hoạch</th>
-                      <th style="width: 150px!important; min-width: 150px!important;" class="text-center">Triển khai</th>
-                      <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT xả</th>
-                      <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT xả</th>
-                      <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Số phôi</th>
-                      <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Tiến độ</th>
-                      <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Máy/Thợ</th>
-                    </tr>
-                  </thead>
-                  <tbody id="allTableBody">
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+                    <!-- Dynamic tab content will be generated here -->
+        
+
+      </div>
         </div>
       </div>
     </div>
@@ -864,8 +1229,8 @@
      */
 
     // === CẤU HÌNH API & WEBHOOK ===
-    const API_BASE_URL = 'https://autoslp.duckdns.org/api';
-    const WEBHOOK_BASE_URL = 'https://autoslp.duckdns.org:5678/webhook';
+    const API_BASE_URL = 'https://api.autoslp.com/api';
+    const WEBHOOK_BASE_URL = 'https://api.autoslp.com:5678/webhook';
 
 
 
@@ -947,13 +1312,16 @@
     function getOrderMachine(order) {
         const assignedMachine = order.assigned_machine || '';
         
+        // Lọc các máy thuộc Stage_xa
+        const xaMachines = machineStatusData.filter(machine => 
+            machine.stage_machine && machine.stage_machine.includes('Stage_xa')
+        );
+        
         // Tìm máy Xả trong danh sách máy được gán
-        if (assignedMachine.includes('Xả 1')) {
-            return 'Xả 1';
-        } else if (assignedMachine.includes('Xả 2')) {
-            return 'Xả 2';
-        } else if (assignedMachine.includes('Xả 3')) {
-            return 'Xả 3';
+        for (const xaMachine of xaMachines) {
+            if (assignedMachine.includes(xaMachine.machine_name)) {
+                return xaMachine.machine_name;
+            }
         }
         
         return null;
@@ -1276,103 +1644,7 @@
         return stageColors[stageKey] || 'secondary';
     }
 
-    /**
-     * =================================================================
-     * WEBHOOK FUNCTIONS - HÀM GỬI DỮ LIỆU QUA WEBHOOK
-     * =================================================================
-     */
-
-    /**
-     * Gửi dữ liệu qua webhook n8n
-     * @param {string} action - Loại hành động
-     * @param {Object} data - Dữ liệu gửi đi
-     * @returns {Promise<Object>} Kết quả gửi webhook
-     */
-    async function sendWebhook(action, data) {
-        try {
-            const payload = {
-                action: action,
-                timestamp: new Date().toISOString(),
-                source: 'xa_stage_frontend',
-                data: data
-            };
-
-            const response = await fetch(`${WEBHOOK_BASE_URL}/production`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-                throw new Error(`Webhook failed: ${response.status}`);
-            }
-
-            const result = await response.json();
-            
-            return {
-                success: true,
-                message: 'Dữ liệu đã được gửi qua webhook thành công',
-                webhook_response: result
-            };
-
-        } catch (error) {
-
-            
-            // Fallback: Lưu vào localStorage để retry sau
-            saveToLocalStorage(action, data);
-            
-            return {
-                success: true,
-                message: 'Đã lưu dữ liệu local (sẽ đồng bộ khi có kết nối)',
-                local_only: true
-            };
-        }
-    }
-
-    /**
-     * Lưu dữ liệu vào localStorage để retry sau
-     */
-    function saveToLocalStorage(action, data) {
-        try {
-            const key = 'pending_webhooks_xa';
-            const existing = JSON.parse(localStorage.getItem(key) || '[]');
-            
-            existing.push({
-                action: action,
-                data: data,
-                timestamp: new Date().toISOString()
-            });
-            
-            localStorage.setItem(key, JSON.stringify(existing));
-        } catch (error) {
-
-        }
-    }
-
-    /**
-     * Đồng bộ dữ liệu đã lưu trong localStorage
-     */
-    async function syncPendingData() {
-        try {
-            const key = 'pending_webhooks_xa';
-            const pending = JSON.parse(localStorage.getItem(key) || '[]');
-            
-            if (pending.length === 0) return;
-            
-            for (const item of pending) {
-                await sendWebhook(item.action, item.data);
-            }
-            
-            // Xóa dữ liệu đã sync
-            localStorage.removeItem(key);
-            showNotification('Đã đồng bộ dữ liệu thành công', 'success');
-            
-        } catch (error) {
-
-        }
-    }
+        
 
     /**
      * =================================================================
@@ -1390,25 +1662,27 @@
      */
     async function initializePage() {
 
-
         
         try {
             showLoading('Đang tải dữ liệu...');
             
             // Tải dữ liệu từ API
             await loadOrdersData();
+            await loadMachineStatus();
+            
+            // Khởi tạo tabs trước khi render
+            await initializeTabs();
+            
+            // Cập nhật filter options sau khi có dữ liệu máy
+            updateMachineFilterOptions();
             
             // Render giao diện
-                        renderOrdersTable();
+            renderOrdersTable();
             updateStatistics();
             
             // Khởi tạo filters
             setupFilterChangeListeners();
             setupSearchDebounce();
-            updateMachineFilterOptions();
-            
-            // Khởi tạo tabs
-            initializeTabs();
             
             // Log tổng thời gian
             // logTotalLoadTime();
@@ -1445,49 +1719,49 @@
                 </tr>
             `;
             
-            document.getElementById('xa1TableBody').innerHTML = emptyMessage;
-            document.getElementById('xa2TableBody').innerHTML = emptyMessage;
-            document.getElementById('xa3TableBody').innerHTML = emptyMessage;
-            document.getElementById('allTableBody').innerHTML = emptyMessage;
+            // Lấy tất cả các tab body đã được tạo động
+            const tabBodies = document.querySelectorAll('[id$="TableBody"]');
+            tabBodies.forEach(tbody => {
+                tbody.innerHTML = emptyMessage;
+            });
             
             // Cập nhật số lượng cho các tab
-            updateTabCounts({ xa1: 0, xa2: 0, xa3: 0, all: 0 });
+            updateTabCountsDynamic();
             return;
         }
         
-        // Phân loại dữ liệu theo máy từ trường assigned_machine
-        const xa1Orders = ordersData.filter(order => {
-            const assignedMachine = order.assigned_machine || '';
-            return assignedMachine.includes('Xả 1');
-        });
-        const xa2Orders = ordersData.filter(order => {
-            const assignedMachine = order.assigned_machine || '';
-            return assignedMachine.includes('Xả 2');
-        });
-        const xa3Orders = ordersData.filter(order => {
-            const assignedMachine = order.assigned_machine || '';
-            return assignedMachine.includes('Xả 3');
-        });
-        const unassignedOrders = ordersData.filter(order => {
-            const assignedMachine = order.assigned_machine || '';
-            return !assignedMachine.includes('Xả 1') && !assignedMachine.includes('Xả 2') && !assignedMachine.includes('Xả 3');
+        // Lọc các máy thuộc Stage_xa
+        const xaMachines = machineStatusData.filter(machine => 
+            machine.stage_machine && machine.stage_machine.includes('Stage_xa')
+        );
+        
+        // Phân loại dữ liệu theo máy (chỉ lệnh chưa bàn giao)
+        const machineOrders = {};
+        xaMachines.forEach(machine => {
+            const machineName = machine.machine_name;
+            machineOrders[machineName] = ordersData.filter(order => {
+                const assignedMachine = order.assigned_machine || '';
+                return assignedMachine.includes(machineName) && order.xa_status !== 'handed_over';
+            });
         });
         
-        // Render từng tab
-        renderTabTable('xa1TableBody', xa1Orders);
-        renderTabTable('xa2TableBody', xa2Orders);
-        renderTabTable('xa3TableBody', xa3Orders);
-        renderTabTable('allTableBody', ordersData);
+        // Render từng tab máy
+        xaMachines.forEach(machine => {
+            const machineName = machine.machine_name;
+            const machineId = machineName.toLowerCase().replace(/\s+/g, '-');
+            const tableBodyId = `${machineId}TableBody`;
+            renderTabTable(tableBodyId, machineOrders[machineName] || []);
+        });
+        
+        // Render tab "Tất cả" (chỉ lệnh chưa bàn giao)
+        const activeOrders = ordersData.filter(order => order.xa_status !== 'handed_over');
+        renderTabTable('allTableBody', activeOrders);
         
         // Cập nhật số lượng cho các tab
-        updateTabCounts({
-            xa1: xa1Orders.length,
-            xa2: xa2Orders.length,
-            xa3: xa3Orders.length,
-            all: ordersData.length
-        });
+        updateTabCountsDynamic(machineOrders);
         
-
+        // Load dữ liệu báo cáo
+        loadReportData();
     }
     
 
@@ -1498,7 +1772,7 @@
     function renderTabTable(tableBodyId, orders) {
         const tableBody = document.getElementById(tableBodyId);
         if (!tableBody) {
-
+            console.error(`Table body not found: ${tableBodyId}`);
             return;
         }
         
@@ -1518,22 +1792,83 @@
             return;
         }
 
-
-
+        // Sắp xếp orders: lệnh đang chạy lên đầu, sau đó theo thời gian bắt đầu
+        const sortedOrders = [...orders].sort((a, b) => {
+            // Kiểm tra lệnh nào đang chạy
+            const aIsRunning = isOrderRunning(a).isRunning;
+            const bIsRunning = isOrderRunning(b).isRunning;
+            
+            // Nếu một lệnh đang chạy và lệnh kia không, ưu tiên lệnh đang chạy
+            if (aIsRunning && !bIsRunning) return -1;
+            if (!aIsRunning && bIsRunning) return 1;
+            
+            // Nếu cả hai đều đang chạy hoặc không chạy, sắp xếp theo thời gian bắt đầu
+            const aStartTime = a.xa_start_time ? new Date(a.xa_start_time).getTime() : 0;
+            const bStartTime = b.xa_start_time ? new Date(b.xa_start_time).getTime() : 0;
+            
+            // Lệnh bắt đầu sớm hơn lên đầu (thời gian lớn hơn = mới hơn)
+            return bStartTime - aStartTime;
+        });
 
         
         const fragment = document.createDocumentFragment();
         
-        orders.forEach((order, index) => {
-            const row = createOrderTableRow(order, index);
-            fragment.appendChild(row);
+        sortedOrders.forEach((order, index) => {
+            try {
+                const row = createOrderTableRow(order, index);
+                fragment.appendChild(row);
+            } catch (error) {
+                console.error(`Error creating row for order ${order.id}:`, error);
+                // Create a simple error row
+                const errorRow = document.createElement('tr');
+                errorRow.innerHTML = `
+                    <td colspan="13" class="text-center text-danger">
+                        Lỗi hiển thị lệnh ${order.id || 'N/A'}
+                    </td>
+                `;
+                fragment.appendChild(errorRow);
+            }
         });
         
         tableBody.appendChild(fragment);
     }
     
     /**
-     * Cập nhật số lượng hiển thị trên các tab
+     * Cập nhật số lượng hiển thị trên các tab động
+     */
+    function updateTabCountsDynamic(machineOrders = {}) {
+        // Lọc các máy thuộc Stage_xa
+        const xaMachines = machineStatusData.filter(machine => 
+            machine.stage_machine && machine.stage_machine.includes('Stage_xa')
+        );
+        
+        // Cập nhật số lượng cho từng máy
+        xaMachines.forEach(machine => {
+            const machineName = machine.machine_name;
+            const machineId = machineName.toLowerCase().replace(/\s+/g, '-');
+            const countElement = document.getElementById(`${machineId}-count`);
+            if (countElement) {
+                const orderCount = machineOrders[machineName] ? machineOrders[machineName].length : 0;
+                countElement.textContent = orderCount;
+            }
+        });
+        
+        // Cập nhật số lượng cho tab "Tất cả" (chỉ lệnh chưa bàn giao)
+        const allCountElement = document.getElementById('all-count');
+        if (allCountElement) {
+            const activeOrders = ordersData.filter(order => order.xa_status !== 'handed_over');
+            allCountElement.textContent = activeOrders.length;
+        }
+        
+        // Cập nhật số lượng cho tab "Báo cáo"
+        const handedOverOrders = ordersData.filter(order => 
+            order.xa_status === 'handed_over'
+        );
+        updateReportCount(handedOverOrders.length);
+    }
+
+    /**
+     * Cập nhật số lượng hiển thị trên các tab (legacy function)
      */
     function updateTabCounts(counts) {
         document.getElementById('xa1-count').textContent = counts.xa1;
@@ -1545,7 +1880,13 @@
     /**
      * Khởi tạo tab functionality
      */
-    function initializeTabs() {
+    async function initializeTabs() {
+        // Tải dữ liệu máy từ API
+        await loadMachineStatus();
+        
+        // Tạo các tab động dựa trên dữ liệu máy
+        await createDynamicTabs();
+        
         // Thêm event listeners cho các tab
         const tabs = document.querySelectorAll('#machineTabs .nav-link');
         tabs.forEach(tab => {
@@ -1565,6 +1906,11 @@
                     targetContent.classList.add('show', 'active');
                 }
                 
+                // Nếu click vào tab báo cáo, load dữ liệu báo cáo
+                if (targetId === '#report-content') {
+                    loadReportData();
+                }
+                
                 // Cập nhật URL hash để bookmark
                 window.location.hash = targetId.replace('#', '');
             });
@@ -1575,11 +1921,231 @@
         if (hash) {
             const targetTab = document.querySelector(`[data-bs-target="${hash}"]`);
             if (targetTab) {
-                targetTab.click();
+                // Xóa active class từ tất cả tabs và content
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                    link.setAttribute('aria-selected', 'false');
+                });
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.classList.remove('show', 'active');
+                });
+                
+                // Kích hoạt tab được chỉ định
+                targetTab.classList.add('active');
+                targetTab.setAttribute('aria-selected', 'true');
+                
+                const targetContent = document.querySelector(hash);
+                if (targetContent) {
+                    targetContent.classList.add('show', 'active');
+                }
             }
         }
     }
     
+    /**
+     * Tạo các tab động dựa trên dữ liệu máy từ production_machines
+     */
+    async function createDynamicTabs() {
+        const machineTabsContainer = document.getElementById('machineTabs');
+        const tabContentContainer = document.getElementById('machineTabContent');
+        
+        // Lưu tab "Báo cáo" nếu có
+        const reportTab = machineTabsContainer.querySelector('#report-tab');
+        const reportContent = tabContentContainer.querySelector('#report-content');
+        
+        // Xóa nội dung cũ (nhưng giữ lại tab "Báo cáo")
+        machineTabsContainer.innerHTML = '';
+        tabContentContainer.innerHTML = '';
+        
+        // Lọc các máy thuộc Stage_xa
+        const xaMachines = machineStatusData.filter(machine => 
+            machine.stage_machine && machine.stage_machine.includes('Stage_xa')
+        );
+        
+        // Tạo tab cho từng máy Xả
+        xaMachines.forEach((machine, index) => {
+            const machineName = machine.machine_name;
+            const machineId = machineName.toLowerCase().replace(/\s+/g, '-');
+            const tabId = `${machineId}-tab`;
+            const contentId = `${machineId}-content`;
+            
+            // Tạo tab navigation
+            const tabItem = document.createElement('li');
+            tabItem.className = 'nav-item';
+            tabItem.setAttribute('role', 'presentation');
+            
+            const isFirstTab = index === 0;
+            tabItem.innerHTML = `
+                <button class="nav-link ${isFirstTab ? 'active' : ''}" id="${tabId}" 
+                        data-bs-toggle="tab" data-bs-target="#${contentId}" 
+                        type="button" role="tab" aria-controls="${contentId}" 
+                        aria-selected="${isFirstTab}">
+                    <i class="bi bi-gear me-1"></i>${machineName}
+                    <span class="badge bg-primary ms-1" id="${machineId}-count">0</span>
+                </button>
+            `;
+            
+            machineTabsContainer.appendChild(tabItem);
+            
+            // Tạo tab content
+            const tabPane = document.createElement('div');
+            tabPane.className = `tab-pane fade ${isFirstTab ? 'show active' : ''}`;
+            tabPane.id = contentId;
+            tabPane.setAttribute('role', 'tabpanel');
+            tabPane.setAttribute('aria-labelledby', tabId);
+            
+            tabPane.innerHTML = `
+                <div class="table-container">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px!important; min-width: 40px!important;" class="text-center">#</th>
+                                <th style="width: 150px!important; min-width: 120px!important;" class="text-center">Lệnh SX</th>
+                                <th style="width: 70px!important; min-width: 50px!important;" class="text-center">Loại LSX</th>
+                                <th style="width: 260px!important; min-width: 150px!important;" class="text-center">Sản phẩm</th>
+                                <th style="width: 130px!important; min-width: 130px!important;" class="text-center">Loại giấy</th>
+                                <th style="width: 90px!important; min-width: 90px!important;" class="text-center">Định lượng</th>
+                                <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Kế hoạch</th>
+                                <th style="width: 150px!important; min-width: 150px!important;" class="text-center">Triển khai</th>
+                                <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT xả</th>
+                                <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT xả</th>
+                                <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Số phôi</th>
+                                <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Tiến độ</th>
+                                <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Máy/Thợ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="${machineId}TableBody">
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            tabContentContainer.appendChild(tabPane);
+        });
+        
+        // Thêm tab "Tất cả" ở cuối
+        const allTabItem = document.createElement('li');
+        allTabItem.className = 'nav-item';
+        allTabItem.setAttribute('role', 'presentation');
+        
+        // Nếu không có máy nào, "Tất cả" tab sẽ là active mặc định
+        const isAllTabActive = xaMachines.length === 0;
+        
+        allTabItem.innerHTML = `
+            <button class="nav-link ${isAllTabActive ? 'active' : ''}" id="all-tab" 
+                    data-bs-toggle="tab" data-bs-target="#all-content" 
+                    type="button" role="tab" aria-controls="all-content" 
+                    aria-selected="${isAllTabActive}">
+                <i class="bi bi-list-ul me-1"></i>Tất cả
+                <span class="badge bg-secondary ms-1" id="all-count">0</span>
+            </button>
+        `;
+        
+        machineTabsContainer.appendChild(allTabItem);
+        
+        // Thêm content cho tab "Tất cả"
+        const allTabPane = document.createElement('div');
+        allTabPane.className = `tab-pane fade ${isAllTabActive ? 'show active' : ''}`;
+        allTabPane.id = 'all-content';
+        allTabPane.setAttribute('role', 'tabpanel');
+        allTabPane.setAttribute('aria-labelledby', 'all-tab');
+        
+        allTabPane.innerHTML = `
+            <div class="table-container">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px!important; min-width: 40px!important;" class="text-center">#</th>
+                            <th style="width: 150px!important; min-width: 120px!important;" class="text-center">Lệnh SX</th>
+                            <th style="width: 70px!important; min-width: 50px!important;" class="text-center">Loại LSX</th>
+                            <th style="width: 260px!important; min-width: 150px!important;" class="text-center">Sản phẩm</th>
+                            <th style="width: 130px!important; min-width: 130px!important;" class="text-center">Loại giấy</th>
+                            <th style="width: 90px!important; min-width: 90px!important;" class="text-center">Định lượng</th>
+                            <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Kế hoạch</th>
+                            <th style="width: 150px!important; min-width: 150px!important;" class="text-center">Triển khai</th>
+                            <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT xả</th>
+                            <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT xả</th>
+                            <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Số phôi</th>
+                            <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Tiến độ</th>
+                            <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Máy/Thợ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allTableBody">
+                    </tbody>
+                </table>
+            </div>
+        `;
+        
+        tabContentContainer.appendChild(allTabPane);
+        
+        // Thêm lại tab "Báo cáo" nếu có
+        if (reportTab) {
+            machineTabsContainer.appendChild(reportTab);
+        } else {
+            // Tạo tab "Báo cáo" nếu chưa có
+            const reportTabItem = document.createElement('li');
+            reportTabItem.className = 'nav-item';
+            reportTabItem.setAttribute('role', 'presentation');
+            
+            reportTabItem.innerHTML = `
+                <button class="nav-link" id="report-tab" 
+                        data-bs-toggle="tab" data-bs-target="#report-content" 
+                        type="button" role="tab" aria-controls="report-content" 
+                        aria-selected="false">
+                    <i class="bi bi-file-earmark-text me-1"></i>Báo cáo
+                    <span class="badge bg-info ms-1" id="report-count">0</span>
+                </button>
+            `;
+            
+            machineTabsContainer.appendChild(reportTabItem);
+            console.log('Report tab created and appended');
+        }
+        
+        if (reportContent) {
+            console.log('Reusing existing report content');
+            tabContentContainer.appendChild(reportContent);
+        } else {
+            console.log('Creating new report content');
+            // Tạo content cho tab "Báo cáo" nếu chưa có
+            const reportTabPane = document.createElement('div');
+            reportTabPane.className = 'tab-pane fade';
+            reportTabPane.id = 'report-content';
+            reportTabPane.setAttribute('role', 'tabpanel');
+            reportTabPane.setAttribute('aria-labelledby', 'report-tab');
+            
+            reportTabPane.innerHTML = `
+                <div class="table-container">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px!important; min-width: 40px!important;" class="text-center">#</th>
+                                <th style="width: 150px!important; min-width: 120px!important;" class="text-center">Lệnh SX</th>
+                                <th style="width: 70px!important; min-width: 50px!important;" class="text-center">Loại LSX</th>
+                                <th style="width: 260px!important; min-width: 150px!important;" class="text-center">Sản phẩm</th>
+                                <th style="width: 130px!important; min-width: 130px!important;" class="text-center">Loại giấy</th>
+                                <th style="width: 90px!important; min-width: 90px!important;" class="text-center">Định lượng</th>
+                                <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Kế hoạch</th>
+                                <th style="width: 150px!important; min-width: 150px!important;" class="text-center">Triển khai</th>
+                                <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT xả</th>
+                                <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT xả</th>
+                                <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Số phôi</th>
+                                <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Tiến độ</th>
+                                <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Máy/Thợ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            tabContentContainer.appendChild(reportTabPane);
+        }
+        
+        // Load dữ liệu báo cáo ngay khi tạo tab
+        loadReportData();
+    }
+
     /**
      * Lọc dữ liệu theo tab hiện tại
      */
@@ -1589,26 +2155,19 @@
         
         const tabId = activeTab.id;
         
-        switch (tabId) {
-            case 'xa1-tab':
-                return ordersData.filter(order => {
-                    const assignedMachine = order.assigned_machine || '';
-                    return assignedMachine.includes('Xả 1');
-                });
-            case 'xa2-tab':
-                return ordersData.filter(order => {
-                    const assignedMachine = order.assigned_machine || '';
-                    return assignedMachine.includes('Xả 2');
-                });
-            case 'xa3-tab':
-                return ordersData.filter(order => {
-                    const assignedMachine = order.assigned_machine || '';
-                    return assignedMachine.includes('Xả 3');
-                });
-            case 'all-tab':
-            default:
-                return ordersData;
+        // Nếu là tab "Tất cả"
+        if (tabId === 'all-tab') {
+            return ordersData;
         }
+        
+        // Lấy tên máy từ tab ID
+        const machineName = tabId.replace('-tab', '').replace(/-/g, ' ');
+        
+        // Lọc theo máy được gán
+        return ordersData.filter(order => {
+            const assignedMachine = order.assigned_machine || '';
+            return assignedMachine.includes(machineName);
+        });
     }
     
     /**
@@ -1621,13 +2180,18 @@
         const machineValue = machineFilter.value;
         let targetTabId = 'all-tab';
         
+        // Lọc các máy thuộc Stage_xa
+        const xaMachines = machineStatusData.filter(machine => 
+            machine.stage_machine && machine.stage_machine.includes('Stage_xa')
+        );
+        
         // Kiểm tra máy được chọn và chuyển đến tab tương ứng
-        if (machineValue.includes('Xả 1')) {
-            targetTabId = 'xa1-tab';
-        } else if (machineValue.includes('Xả 2')) {
-            targetTabId = 'xa2-tab';
-        } else if (machineValue.includes('Xả 3')) {
-            targetTabId = 'xa3-tab';
+        for (const machine of xaMachines) {
+            if (machineValue.includes(machine.machine_name)) {
+                const machineId = machine.machine_name.toLowerCase().replace(/\s+/g, '-');
+                targetTabId = `${machineId}-tab`;
+                break;
+            }
         }
         
         const targetTab = document.getElementById(targetTabId);
@@ -1643,11 +2207,20 @@
         if (!assignedMachine) return '';
         
         const machines = assignedMachine.split(',').map(m => m.trim());
-        const xaMachine = machines.find(machine => 
-            machine.includes('Xả 1') || machine.includes('Xả 2') || machine.includes('Xả 3')
+        
+        // Lọc các máy thuộc Stage_xa
+        const xaMachines = machineStatusData.filter(machine => 
+            machine.stage_machine && machine.stage_machine.includes('Stage_xa')
         );
         
-        return xaMachine || '';
+        // Tìm máy Xả trong danh sách máy được gán
+        for (const xaMachine of xaMachines) {
+            if (machines.some(machine => machine.includes(xaMachine.machine_name))) {
+                return xaMachine.machine_name;
+            }
+        }
+        
+        return '';
     }
     
     /**
@@ -1657,8 +2230,15 @@
         if (!assignedMachine) return false;
         
         const machines = assignedMachine.split(',').map(m => m.trim());
-        return machines.some(machine => 
-            machine.includes('Xả 1') || machine.includes('Xả 2') || machine.includes('Xả 3')
+        
+        // Lọc các máy thuộc Stage_xa
+        const xaMachines = machineStatusData.filter(machine => 
+            machine.stage_machine && machine.stage_machine.includes('Stage_xa')
+        );
+        
+        // Kiểm tra xem có máy Xả nào trong danh sách máy được gán
+        return xaMachines.some(xaMachine => 
+            machines.some(machine => machine.includes(xaMachine.machine_name))
         );
     }
 
@@ -1693,14 +2273,14 @@
                 displayReason = `Máy ${orderMachine} đang trống`;
             } else {
                 // Máy Xả đang chạy
-                if (machineStatus.runningOrder.current_order_id == order.id) {
+                if (machineStatus.runningOrder && machineStatus.runningOrder.current_order_id == order.id) {
                     // Máy đang chạy chính lệnh này → hiển thị bình thường
                     isDisabled = false;
                     displayReason = `Lệnh hiện tại của máy ${orderMachine}`;
                 } else {
                     // Máy đang chạy lệnh khác → bị mờ
                     isDisabled = true;
-                    displayReason = `Máy ${orderMachine} đang sản xuất lệnh ${machineStatus.runningOrder.current_order_code}`;
+                    displayReason = `Máy ${orderMachine} đang sản xuất lệnh ${machineStatus.runningOrder ? machineStatus.runningOrder.current_order_code : 'N/A'}`;
                 }
             }
         }
@@ -1743,6 +2323,11 @@
                 statusIcon = 'bi-pause-circle';
                 statusClass = 'text-warning';
                 statusText = 'Tạm dừng';
+                break;
+            case 'handed_over':
+                statusIcon = 'bi-arrow-right-circle';
+                statusClass = 'text-info';
+                statusText = 'Đã bàn giao';
                 break;
         }
         
@@ -1915,129 +2500,9 @@
         }
     }
 
-    /**
-     * Refresh dữ liệu máy và render lại bảng
-     */
-    async function refreshMachineStatus() {
-        try {
-            await loadMachineStatus();
-            renderOrdersTable();
-        } catch (error) {
-            console.error('Lỗi khi refresh dữ liệu máy:', error);
-        }
-    }
 
-    /**
-     * Debug function để kiểm tra trạng thái máy và lệnh
-     */
-    function debugMachineStatus() {
-        console.log('=== DEBUG MACHINE STATUS ===');
-        console.log('Machine Status Data:', machineStatusData);
-        console.log('Orders Data:', ordersData);
-        
-        console.log('=== DEBUG MACHINE STATUS ===');
-        
-        // Hiển thị trạng thái từng máy
-        ['Xả 1', 'Xả 2', 'Xả 3'].forEach(machineName => {
-            const machineStatus = checkMachineStatus(machineName);
-            console.log(`${machineName}: ${machineStatus.isRunning ? 'RUNNING' : 'IDLE'} - ${machineStatus.runningOrder ? `Order: ${machineStatus.runningOrder.current_order_code}` : 'No order'}`);
-        });
-        
-        ordersData.forEach((order, index) => {
-            const orderMachine = getOrderMachine(order);
-            const machineStatus = orderMachine ? checkMachineStatus(orderMachine) : null;
-            
-            let isDisabled = false;
-            let reason = '';
-            
-            if (!orderMachine) {
-                isDisabled = true;
-                reason = 'Không được gán máy Xả';
-            } else if (machineStatus && machineStatus.isRunning && machineStatus.runningOrder.current_order_id != order.id) {
-                isDisabled = true;
-                reason = `Máy ${orderMachine} đang chạy lệnh khác`;
-            } else if (machineStatus && !machineStatus.isRunning) {
-                isDisabled = false;
-                reason = `Máy ${orderMachine} đang trống`;
-            } else if (machineStatus && machineStatus.isRunning && machineStatus.runningOrder.current_order_id == order.id) {
-                isDisabled = false;
-                reason = `Đang chạy trên máy ${orderMachine}`;
-            }
-            
-            console.log(`Order ${index + 1}: ${order.production_order} - Assigned Machine: ${order.assigned_machine || 'N/A'} - Xả Machine: ${orderMachine || 'N/A'} - Is Disabled: ${isDisabled} - Reason: ${reason}`);
-        });
-    }
 
-    /**
-     * Xử lý bàn giao đơn lẻ từ XẢ sang XÉN
-     */
-    async function executeHandoverOnly() {
-        if (!currentEditingOrder) {
-            showNotification('Lỗi: Không xác định được lệnh sản xuất', 'error');
-            return;
-        }
-        
-        try {
-            const handoverData = {
-                handoverQuantity: parseInt(getElementValue('handoverQty')) || 0,
-                handoverPerson: getElementValue('handoverPerson'),
-                receiverPerson: getElementValue('receiverPerson'),
-                handoverNotes: getElementValue('handoverNotes'),
-                confirmHandover: getElementValue('confirmHandover')
-            };
-            
-            // Validate
-            if (handoverData.handoverQuantity <= 0) {
-                showNotification('Số lượng bàn giao phải lớn hơn 0', 'error');
-                return;
-            }
-            
-            if (!handoverData.confirmHandover) {
-                showNotification('Bạn phải xác nhận đã bàn giao đủ số lượng và chất lượng', 'warning');
-                return;
-            }
-            
-            showLoading('Đang bàn giao...');
-            
-            // Lấy thông tin stage tiếp theo từ workflow
-            const nextStage = currentEditingOrder.next_stage;
-            if (!nextStage) {
-                showNotification('Không xác định được công đoạn tiếp theo', 'error');
-                return;
-            }
-            
-            // Chuẩn bị dữ liệu bàn giao
-            const handoverWebhookData = {
-                order_id: currentEditingOrder.id,
-                from_stage: STAGE_CONFIG.KEY,
-                to_stage: nextStage,
-                quantity: handoverData.handoverQuantity,
-                handover_person: handoverData.handoverPerson,
-                receiver_person: handoverData.receiverPerson,
-                notes: handoverData.handoverNotes,
-                handover_date: new Date().toISOString()
-            };
-            
-            // Gửi qua webhook
-            const result = await sendWebhook(`handover_${STAGE_CONFIG.KEY}_to_${nextStage}`, handoverWebhookData);
-            
-            if (result.success) {
-                showNotification(`Đã bàn giao ${handoverData.handoverQuantity} sản phẩm cho công đoạn ${getStageDisplayName(nextStage)}`, 'success');
-            }
-            
-            // Refresh dữ liệu và đóng modal
-            await refreshData();
-            
-            const modal = bootstrap.Modal.getInstance(document.getElementById('completeModal'));
-            modal.hide();
-            
-        } catch (error) {
 
-            showNotification('Lỗi bàn giao: ' + error.message, 'error');
-        } finally {
-            hideLoading();
-        }
-    }
 
     /**
      * Cập nhật số lượng bàn giao khi thay đổi số lượng OK
@@ -2054,192 +2519,9 @@
         updateHandoverQuantity();
     }
 
-    /**
-     * Xử lý hoàn thành công đoạn
-     */
-    async function completeOrder() {
-        if (!currentEditingOrder) {
-            showNotification('Lỗi: Không xác định được lệnh sản xuất', 'error');
-            return;
-        }
-        
-        try {
-            // Lấy dữ liệu từ form
-            const completionData = getCompletionDataFromForm();
-            
-            // Validate dữ liệu
-            if (!validateCompletionData(completionData)) {
-                return;
-            }
-            
-            showLoading('Đang xử lý...');
-            
-            // Luôn thực hiện cả hoàn thành và bàn giao (vì đã gộp chung thành 1 form)
-            await handleCompleteAndHandover(completionData);
-            
-            // Refresh dữ liệu và đóng modal
-            await refreshData();
-            
-            const modal = bootstrap.Modal.getInstance(document.getElementById('completeModal'));
-            modal.hide();
-            
-        } catch (error) {
 
-            showNotification('Lỗi: ' + error.message, 'error');
-        } finally {
-            hideLoading();
-        }
-    }
 
-    /**
-     * Lấy dữ liệu từ form hoàn thành
-     */
-    function getCompletionDataFromForm() {
-        return {
-            // Dữ liệu hoàn thành
-            goodQuantity: parseInt(getElementValue('completeGoodQty')) || 0,
-            ngQuantity: parseInt(getElementValue('completeNgQty')) || 0,
-            ngStartEndQuantity: parseInt(getElementValue('completeNgStartEndQty')) || 0,
-            returnQuantity: parseInt(getElementValue('completeReturnQty')) || 0,
-            machine: getElementValue('completeMachine'),
-            shift: getElementValue('completeShift'),
-            workerName: getElementValue('completeWorker'),
-            notes: getElementValue('completeNote'),
-            
-            // Dữ liệu bàn giao
-            handoverQuantity: parseInt(getElementValue('handoverQty')) || 0,
-            handoverDate: getElementValue('handoverDate'),
-            handoverPerson: getElementValue('handoverPerson'),
-            receiverPerson: getElementValue('receiverPerson'),
-            handoverNotes: getElementValue('handoverNotes'),
-            confirmHandover: getElementValue('confirmHandover')
-        };
-    }
 
-    /**
-     * Validate dữ liệu hoàn thành
-     */
-    function validateCompletionData(data) {
-        // Validate dữ liệu hoàn thành cơ bản
-        if (data.goodQuantity + data.ngQuantity === 0) {
-            showNotification('Tổng số lượng phải lớn hơn 0', 'error');
-            return false;
-        }
-        
-        // Validate dữ liệu bàn giao (luôn kiểm tra vì đã gộp chung form)
-        if (data.handoverQuantity <= 0) {
-            showNotification('Số lượng bàn giao phải lớn hơn 0', 'error');
-            return false;
-        }
-        
-        if (!data.confirmHandover) {
-            showNotification('Bạn phải xác nhận đã bàn giao đủ số lượng và chất lượng', 'warning');
-            return false;
-        }
-        
-        // Kiểm tra số lượng bàn giao không vượt quá số lượng OK
-        if (data.handoverQuantity > data.goodQuantity) {
-            showNotification('Số lượng bàn giao không thể lớn hơn số lượng OK', 'error');
-            return false;
-        }
-        
-        return true;
-    }
-
-    /**
-     * Xử lý hoàn thành và bàn giao từ XẢ sang stage tiếp theo
-     */
-    async function handleCompleteAndHandover(data) {
-        try {
-            const nextStage = currentEditingOrder.next_stage;
-            
-            if (!nextStage) {
-                // Nếu không có stage tiếp theo, chỉ hoàn thành
-                return await handleCompleteStageOnly(data);
-            }
-            
-            const completeHandoverData = {
-                order_id: currentEditingOrder.id,
-                action_type: 'complete_and_handover',
-                from_stage: 'xa',
-                to_stage: nextStage,
-                workflow_definition: currentEditingOrder.workflow_definition,
-                
-                // Thông tin hoàn thành
-                completion: {
-                    output_quantity: data.goodQuantity + data.ngQuantity,
-                    good_quantity: data.goodQuantity,
-                    ng_quantity: data.ngQuantity,
-                    worker_name: data.workerName,
-                    machine_name: data.machine,
-                    shift: data.shift,
-                    notes: data.notes
-                },
-                
-                // Thông tin bàn giao
-                handover: {
-                    handover_quantity: data.handoverQuantity,
-                    handover_person: data.handoverPerson,
-                    receiver_person: data.receiverPerson,
-                    handover_date: data.handoverDate,
-                    handover_notes: data.handoverNotes
-                },
-                
-                completed_at: new Date().toISOString()
-            };
-            
-            // Gửi qua webhook n8n
-            const result = await sendWebhook(`complete_xa_and_handover_to_${nextStage}`, completeHandoverData);
-            
-            if (result.success) {
-                const nextStageName = getStageDisplayName(nextStage);
-                showNotification(
-                    `✅ Đã hoàn thành công đoạn XẢ và bàn giao ${formatNumber(data.handoverQuantity)} sản phẩm cho công đoạn ${nextStageName} thành công!`,
-                    'success'
-                );
-            }
-            
-        } catch (error) {
-
-            showNotification('Lỗi khi hoàn thành và bàn giao: ' + error.message, 'error');
-            throw error;
-        }
-    }
-
-    /**
-     * Xử lý chỉ hoàn thành công đoạn
-     */
-    async function handleCompleteStageOnly(data) {
-        try {
-            const updateData = {
-                order_id: currentEditingOrder.id,
-                stage: STAGE_CONFIG.KEY,
-                output_quantity: data.goodQuantity + data.ngQuantity,
-                good_quantity: data.goodQuantity,
-                ng_quantity: data.ngQuantity,
-                worker_name: data.workerName,
-                machine_name: data.machine,
-                shift: data.shift,
-                notes: data.notes,
-                updated_at: new Date().toISOString()
-            };
-            
-            // Gửi qua webhook n8n
-            const result = await sendWebhook('update_stage_output', updateData);
-            
-            if (result.success) {
-                showNotification(
-                    `✅ Đã cập nhật hoàn thành công đoạn XẢ: ${formatNumber(data.goodQuantity + data.ngQuantity)} sản phẩm`,
-                    'success'
-                );
-            }
-            
-        } catch (error) {
-
-            showNotification('Lỗi khi hoàn thành công đoạn: ' + error.message, 'error');
-            throw error;
-        }
-    }
 
     /**
      * =================================================================
@@ -2399,99 +2681,7 @@
         updateElementText('confirmHandoverNotes', handoverNotes || 'Không có');
     }
 
-    /**
-     * Hoàn thành wizard
-     */
-    async function wizardFinish() {
-        if (!document.getElementById('wizardConfirmHandover').checked) {
-            showNotification('Vui lòng xác nhận đã bàn giao đủ số lượng và chất lượng!', 'error');
-            return;
-        }
-        
-        try {
-            // Lấy dữ liệu từ wizard form
-            const completionData = getWizardCompletionData();
-            
-            // Validate dữ liệu
-            if (!validateWizardCompletionData(completionData)) {
-                return;
-            }
-            
-            showLoading('Đang xử lý...');
-            
-            // Xử lý hoàn thành và bàn giao
-            await handleCompleteAndHandover(completionData);
-            
-            // Refresh dữ liệu và đóng sidebar
-            await refreshData();
-            
-            // Close the sidebar
-            closeDetailsPanel();
-            
-            showNotification('🎉 Hoàn thành! Dữ liệu đã được lưu thành công.', 'success');
-            
-        } catch (error) {
 
-            showNotification('Lỗi: ' + error.message, 'error');
-        } finally {
-            hideLoading();
-        }
-    }
-
-    /**
-     * Lấy dữ liệu từ wizard form
-     */
-    function getWizardCompletionData() {
-        return {
-            // Dữ liệu hoàn thành
-            goodQuantity: parseInt(getElementValue('wizardGoodQty')) || 0,
-            ngQuantity: parseInt(getElementValue('wizardNgQty')) || 0,
-            ngStartEndQuantity: parseInt(getElementValue('wizardNgStartEndQty')) || 0,
-            returnQuantity: parseInt(getElementValue('wizardReturnQty')) || 0,
-            machine: getElementValue('wizardMachine'),
-            shift: getElementValue('wizardShift'),
-            workerName: getElementValue('wizardWorker'),
-            notes: getElementValue('wizardNote'),
-            
-            // Dữ liệu bàn giao
-            handoverQuantity: parseInt(getElementValue('wizardHandoverQty')) || 0,
-            handoverDate: getElementValue('wizardHandoverDate'),
-            handoverPerson: getElementValue('wizardHandoverPerson'),
-            receiverPerson: getElementValue('wizardReceiverPerson'),
-            handoverNotes: getElementValue('wizardHandoverNotes'),
-            confirmHandover: getElementValue('wizardConfirmHandover')
-        };
-    }
-
-    /**
-     * Validate dữ liệu hoàn thành từ wizard
-     */
-    function validateWizardCompletionData(data) {
-        // Validate dữ liệu hoàn thành cơ bản
-        if (data.goodQuantity + data.ngQuantity === 0) {
-            showNotification('Tổng số lượng phải lớn hơn 0', 'error');
-            return false;
-        }
-        
-        // Validate dữ liệu bàn giao
-        if (data.handoverQuantity <= 0) {
-            showNotification('Số lượng bàn giao phải lớn hơn 0', 'error');
-            return false;
-        }
-        
-        if (!data.confirmHandover) {
-            showNotification('Bạn phải xác nhận đã bàn giao đủ số lượng và chất lượng', 'warning');
-            return false;
-        }
-        
-        // Kiểm tra số lượng bàn giao không vượt quá số lượng OK
-        if (data.handoverQuantity > data.goodQuantity) {
-            showNotification('Số lượng bàn giao không thể lớn hơn số lượng OK', 'error');
-            return false;
-        }
-        
-        return true;
-    }
 
     /**
      * =================================================================
@@ -2601,7 +2791,8 @@
             'waiting': 'Chờ xử lý',
             'in_progress': 'Đang xử lý', 
             'completed': 'Hoàn thành',
-            'paused': 'Tạm dừng'
+            'paused': 'Tạm dừng',
+            'handed_over': 'Đã bàn giao'
         };
         return statusMap[status] || 'Không xác định';
     }
@@ -2672,254 +2863,344 @@
         // Show details panel
         const detailsPanel = document.getElementById('detailsPanel');
         const contentArea = document.querySelector('.content-area');
-        const detailsContent = document.getElementById('detailsContent');
         
         detailsPanel.classList.add('show');
         contentArea.classList.add('details-open');
 
-        // Populate details content with handover form
+        // Generate dynamic HTML content for the sidebar
+        detailsPanel.innerHTML = generateSidebarHTML(order);
+
+        // Bắt đầu timer nếu đã có thời gian bắt đầu và chưa kết thúc
+        if (order.xa_start_time && !order.xa_end_time) {
+            setTimeout(() => {
+                startProductionTimer();
+            }, 100);
+        } else if (order.xa_start_time && order.xa_end_time) {
+            // Nếu đã kết thúc, hiển thị thời gian cố định
+            setTimeout(() => {
+                const statusTimeElement = document.getElementById('statusTime');
+                const runningTimeInfoElement = document.getElementById('runningTimeInfo');
+                
+                if (statusTimeElement) {
+                    const fixedTime = calculateWorkTime(order.xa_start_time, order.xa_end_time);
+                    statusTimeElement.textContent = `Thời gian: ${fixedTime}`;
+                }
+                
+                // Thời gian chạy trong tab thông tin đã được hiển thị đúng từ HTML generation
+                // Không cần cập nhật vì đã có giá trị cố định từ calculateWorkTime
+            }, 100);
+        }
+    }
+
+    /**
+     * Generate dynamic sidebar HTML for the order
+     */
+    function generateSidebarHTML(order) {
         const nextStage = order.next_stage;
         const nextStageName = nextStage ? getStageDisplayName(nextStage) : 'HOÀN THÀNH';
         
-        detailsContent.innerHTML = `
-            <!-- Action Buttons -->
-            <div class="detail-section mb-4">
-                <div class="row g-2">
-                    <div class="col-6">
-                        <button class="btn btn-primary btn-lg w-100" onclick="startProduction()" ${order.xa_status === 'completed' ? 'disabled' : ''}>
-                            <i class="bi bi-play-circle me-2"></i>Bắt đầu
-                        </button>
-                    </div>
-                    <div class="col-6">
-                        <button class="btn btn-danger btn-lg w-100" onclick="endProduction()" ${order.xa_status === 'not_started' ? 'disabled' : ''}>
-                            <i class="bi bi-stop-circle me-2"></i>Kết thúc
-                        </button>
-                    </div>
-                </div>
+        // Get status info
+        let statusBadgeStyle = '';
+        let statusText = '';
+        
+        if (order.xa_status === 'in_progress') {
+            statusBadgeStyle = 'background: linear-gradient(135deg, var(--primary-green), #20c997);';
+            statusText = 'Đang sản xuất';
+        } else if (order.xa_status === 'completed') {
+            statusBadgeStyle = 'background: linear-gradient(135deg, var(--primary-blue), #0dcaf0);';
+            statusText = 'Hoàn thành';
+        } else if (order.xa_status === 'handed_over') {
+            statusBadgeStyle = 'background: linear-gradient(135deg, var(--primary-orange), #fd7e14);';
+            statusText = 'Đã bàn giao';
+        } else {
+            statusBadgeStyle = 'background: linear-gradient(135deg, #6c757d, #adb5bd);';
+            statusText = 'Chưa bắt đầu';
+        }
+
+        // Calculate statistics
+        const totalProduced = (parseInt(order.xa_good_quantity || 0) + parseInt(order.xa_ng_quantity || 0));
+        const efficiency = order.quantity ? Math.round((totalProduced / order.quantity) * 100) : 0;
+        const ngRate = totalProduced ? Math.round((parseInt(order.xa_ng_quantity || 0) / totalProduced) * 100) : 0;
+
+        return `
+            <div class="sidebar-header">
+                <h5><i class="bi bi-clipboard-data me-2"></i>Báo cáo lệnh: <strong>${order.production_order || `#${order.id}`}</strong></h5>
+                <button type="button" class="detail-close" onclick="closeDetailsPanel()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
 
-            <!-- Production Time Display -->
-            <div class="detail-section mb-3">
-                <h6><i class="bi bi-clock me-2"></i>Thời gian sản xuất</h6>
-                <div style="border-top: 6px solid #495057!important;border-left: unset!important;" class="alert alert-light">
-                    <div class="row">
-                        <div style="text-align: center;" class="col-6">
-                            <strong>Bắt đầu:</strong><br>
-                            <span class="text-primary">${order.xa_start_time ? formatDateTime(order.xa_start_time) : 'Chưa bắt đầu'}</span>
-                        
-                        </div>
-                        <div style="text-align: center;" class="col-6">
-                            <strong>Kết thúc:</strong><br>
-                            <span class="text-primary">${order.xa_end_time ? formatDateTime(order.xa_end_time) : 'Chưa kết thúc'}</span>
-                        </div>
-                    </div>
-                    ${order.xa_start_time ? `
-                        <hr class="my-2">
-                        <div class="text-center">
-                            <strong>Thời gian ${order.xa_end_time ? 'làm việc' : 'đang chạy'}:</strong><br>
-                            <h1 class="${order.xa_end_time ? 'text-success' : 'text-warning'}" id="productionRunningTime">
-                                ${order.xa_end_time ? calculateWorkTime(order.xa_start_time, order.xa_end_time) : 'Đang tính...'}
-                            </h1>
-                        </div>
-                    ` : ''}
+            <div class="sidebar-content">
+                <!-- Tab Navigation -->
+                <div class="tab-navigation">
+                    <button class="tab-btn active" onclick="switchTab('info')">
+                        <div class="tab-icon"><i class="bi bi-person-fill"></i></div>
+                        <div>Thông tin</div>
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('quantity')">
+                        <div class="tab-icon"><i class="bi bi-calculator-fill"></i></div>
+                        <div>Số lượng</div>
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('quality')">
+                        <div class="tab-icon"><i class="bi bi-star-fill"></i></div>
+                        <div>Chất lượng</div>
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('notes')">
+                        <div class="tab-icon"><i class="bi bi-chat-text-fill"></i></div>
+                        <div>Ghi chú</div>
+                    </button>
                 </div>
-            </div>
 
-    
-            <!-- Input Information Alert -->
-                <!-- <div class="alert alert-info mb-3">
-                <h6><i class="bi bi-info-circle me-2"></i>Thông tin đầu vào</h6>
-                <div>
-                    <strong>Số lượng cần triển khai:</strong> <span class="text-primary">${formatNumber(order.sheet_count) || 0}</span>
-                 tờ</div>
-            </div> -->
-
-
-
-            <!-- Production Results Form -->
-            <div class="detail-section">
-                <h6><i class="bi bi-clipboard-check me-2"></i>Kết quả sản xuất</h6>
-                
-                <div class="form-card">
-                    <div class="form-group">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <label class="detail-label fw-bold text-success mb-0">
-                                <i class="bi bi-check-circle me-1"></i>Số lượng đạt (OK) <span class="text-danger">*</span>
-                            </label>
-                            <input type="number" class="form-control" id="goodQty" value="${order.xa_good_quantity || 0}" min="0">
-                        </div>
-
-                    </div>
-                    
-                    <div class="form-group">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <label class="detail-label fw-bold text-danger mb-0">
-                                <i class="bi bi-x-circle me-1"></i>Số lượng NG <span class="text-danger">*</span>
-                            </label>
-                            <input type="number" class="form-control" id="ngQty" value="${order.xa_ng_quantity || 0}" min="0">
-                        </div>
-
-                    </div>
-                    
-                    <div class="form-group">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <label class="detail-label fw-bold mb-0">
-                                <i class="bi bi-exclamation-triangle me-1"></i>NG Đầu/Cuối
-                            </label>
-                            <input type="number" class="form-control" id="ngStartEndQty" value="0" min="0">
-                        </div>
-
-                    </div>
-                    
-                    <div class="form-group">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <label class="detail-label fw-bold  mb-0">
-                                <i class="bi bi-arrow-return-left me-1"></i>Hàng trả
-                            </label>
-                            <input type="number" class="form-control" id="returnQty" value="0" min="0">
-                        </div>
-
-                    </div>
-                    
-
-                </div>
-            </div>
-
-            <!-- Assigned Machine Information -->
-            <div class="detail-section">
-                <h6><i class="bi bi-gear-wide-connected me-2"></i>Thông tin máy được gán</h6>
-                <div class="alert alert-info">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <div>
-                            <strong>Máy được gán:</strong> ${order.assigned_machine || 'Chưa gán máy'}
-                            ${order.assigned_machine ? `<br><small class="text-muted">Máy Xả: ${getXaMachineFromAssigned(order.assigned_machine) || 'Không có máy Xả'}</small>` : ''}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Production Information Form -->
-            <div class="detail-section">
-                <h6><i class="bi bi-person-gear me-2"></i>Thông tin sản xuất</h6>
-                
-                <div class="form-card">
-                    <div class="form-group">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <label class="detail-label mb-0">
-                                <i class="bi bi-gear me-1"></i>Máy sản xuất
-                            </label>
-                            <select class="form-select" id="machine">
-                                <option value="Xả 1" ${getXaMachineFromAssigned(order.assigned_machine) === 'Xả 1' ? 'selected' : ''}>Xả 1</option>
-                                <option value="Xả 2" ${getXaMachineFromAssigned(order.assigned_machine) === 'Xả 2' ? 'selected' : ''}>Xả 2</option>
-                                <option value="Xả 3" ${getXaMachineFromAssigned(order.assigned_machine) === 'Xả 3' ? 'selected' : ''}>Xả 3</option>
-                            </select>
-                        </div>
-
-                    </div>
-                    
-                    <div class="form-group">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <label class="detail-label mb-0">
-                                <i class="bi bi-clock me-1"></i>Ca sản xuất
-                            </label>
-                            <select class="form-select" id="shift">
-                                <option value="Ca 1" ${order.production_shift === 'Ca 1' ? 'selected' : ''}>Ca 1 (6:00-14:00)</option>
-                                <option value="Ca 2" ${order.production_shift === 'Ca 2' ? 'selected' : ''}>Ca 2 (14:00-22:00)</option>
-                                <option value="Ca 3" ${order.production_shift === 'Ca 3' ? 'selected' : ''}>Ca 3 (22:00-6:00)</option>
-                            </select>
-                        </div>
-
-                    </div>
-                    
-                    <div class="form-group">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <label class="detail-label mb-0">
-                                <i class="bi bi-person me-1"></i>Thợ phụ trách
-                            </label>
-                            <input type="text" class="form-control" id="worker" placeholder="Nhập tên thợ..." value="${order.xa_worker_name || ''}">
-                        </div>
-
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="detail-label">
-                            <i class="bi bi-chat-text me-1"></i>Ghi chú sản xuất
-                        </label>
-                        <textarea class="form-control" id="note" rows="2" placeholder="Ghi chú về quá trình sản xuất, vấn đề kỹ thuật, chất lượng...">${order.xa_note || ''}</textarea>
-
-                    </div>
-                </div>
-            </div>
-
-
-
-            <!-- Handover Form -->
-            <div class="detail-section">
-                <h6><i class="bi bi-arrow-right-circle me-2"></i>Chuyển giao công đoạn</h6>
-                
-                ${nextStage ? `
-                    <div class="alert alert-warning border-warning">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-exclamation-triangle-fill me-3 fs-4 text-warning"></i>
-                            <div>
-                                <h6 class="mb-1 fw-bold">Công đoạn tiếp theo: <span class="text-primary">${nextStageName}</span></h6>
-                                <p class="mb-0 small">Sản phẩm OK sẽ được chuyển sang công đoạn tiếp theo để tiếp tục xử lý</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-card">
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <!-- Info Tab -->
+                    <div id="info-panel" class="tab-panel active">
                         <div class="form-group">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <label class="detail-label fw-bold text-warning mb-0">
-                                    <i class="bi bi-box-arrow-right me-1"></i>Số lượng chuyển giao <span class="text-danger">*</span>
-                                </label>
-                                <input type="number" class="form-control" id="handoverQty" value="${order.xa_good_quantity || 0}" min="0" max="${order.xa_good_quantity || 0}">
-                            </div>
-
+                            <input type="text" class="form-control-custom" id="worker" value="${order.xa_worker_name || ''}" placeholder="Nguyen Van A">
+                            <label class="form-label">
+                                <i class="bi bi-person-badge"></i>
+                                Tên thợ phụ trách
+                            </label>
                         </div>
 
-                        <div class="d-grid gap-2 mt-4">
-                            <button class="btn btn-success btn-lg" onclick="sendXaHandoverWebhook()">
-                                <i class="bi bi-check-circle me-2"></i>Cập nhật & Chuyển giao
-                            </button>
+                        <div class="form-group">
+                            <select class="form-control-custom" id="shift">
+                                <option value="">Chọn ca làm việc</option>
+                                <option value="Ca 1" ${order.production_shift === 'Ca 1' ? 'selected' : ''}>Ca 1 (6:00 - 14:00)</option>
+                                <option value="Ca 2" ${order.production_shift === 'Ca 2' ? 'selected' : ''}>Ca 2 (14:00 - 22:00)</option>
+                                <option value="Ca 3" ${order.production_shift === 'Ca 3' ? 'selected' : ''}>Ca 3 (22:00 - 6:00)</option>
+                            </select>
+                            <label class="form-label">
+                                <i class="bi bi-clock"></i>
+                                Ca làm việc
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <select class="form-control-custom" id="machine">
+                                <option value="">Chọn máy sản xuất</option>
+                                <option value="Xả 1" ${getXaMachineFromAssigned(order.assigned_machine) === 'Xả 1' ? 'selected' : ''}>Máy XẢ 001</option>
+                                <option value="Xả 2" ${getXaMachineFromAssigned(order.assigned_machine) === 'Xả 2' ? 'selected' : ''}>Máy XẢ 002</option>
+                                <option value="Xả 3" ${getXaMachineFromAssigned(order.assigned_machine) === 'Xả 3' ? 'selected' : ''}>Máy XẢ 003</option>
+                            </select>
+                            <label class="form-label">
+                                <i class="bi bi-gear-fill"></i>
+                                Máy sản xuất
+                            </label>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Thời gian bắt đầu</span>
+                            <span class="info-value">${order.xa_start_time ? formatDateTime(order.xa_start_time) : '--'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Thời gian chạy</span>
+                            <span class="info-value" id="runningTimeInfo">${order.xa_start_time ? 
+                                (order.xa_end_time ? calculateWorkTime(order.xa_start_time, order.xa_end_time) : 'Đang tính...') : '--'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Trạng thái máy</span>
+                            <span class="info-value">${order.xa_status === 'in_progress' ? 'Hoạt động tốt' : 'Chờ'}</span>
                         </div>
                     </div>
-                ` : `
-                    <div class="alert alert-info border-info">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-flag-checkered me-3 fs-4 text-info"></i>
-                            <div>
-                                <h6 class="mb-1 fw-bold">Đây là công đoạn cuối cùng</h6>
-                                <p class="mb-0 small">Không có công đoạn tiếp theo để chuyển giao</p>
+
+                    <!-- Quantity Tab -->
+                    <div id="quantity-panel" class="tab-panel">
+                        <div class="quantity-grid mb-3">
+                            <div class="quantity-card success">
+                                <div class="quantity-label">Số lượng OK</div>
+                                <input type="number" class="quantity-input" id="goodQty" value="${order.xa_good_quantity || 0}">
+                            </div>
+                            <div class="quantity-card danger">
+                                <div class="quantity-label">Số lượng NG</div>
+                                <input type="number" class="quantity-input" id="ngQty" value="${order.xa_ng_quantity || 0}">
                             </div>
                         </div>
+
+                        <div class="quantity-grid mb-3">
+                            <div class="quantity-card warning">
+                                <div class="quantity-label">NG đầu/cuối</div>
+                                <input type="number" class="quantity-input" id="ngStartEndQty" value="${order.xa_ng_start_end_quantity || 0}">
+                            </div>
+                            <div class="quantity-card info">
+                                <div class="quantity-label">Số lượng trả</div>
+                                <input type="number" class="quantity-input" id="returnQty" value="${order.xa_return_quantity || 0}">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-arrow-right-circle"></i>
+                                Số lượng chuyển giao
+                            </label>
+                            <input type="number" class="form-control-custom" id="handoverQty" value="${order.xa_handover_quantity || 0}" style="font-size: 1.1rem; font-weight: 600; color: var(--primary-blue);">
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Tổng sản xuất</span>
+                            <span class="info-value">${totalProduced} sản phẩm</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Hiệu suất</span>
+                            <span class="info-value">${efficiency}%</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Tỷ lệ NG</span>
+                            <span class="info-value">${ngRate}%</span>
+                        </div>
                     </div>
-                `}
+
+                    <!-- Quality Tab -->
+                    <div id="quality-panel" class="tab-panel">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-star"></i>
+                                Đánh giá chất lượng
+                            </label>
+                            <select class="form-control-custom" id="qualityRating">
+                                <option value="">Chọn đánh giá</option>
+                                <option value="A+" ${order.quality_rating === 'A+' ? 'selected' : ''}>Xuất sắc (A+)</option>
+                                <option value="A" ${order.quality_rating === 'A' ? 'selected' : ''}>Tốt (A)</option>
+                                <option value="B+" ${order.quality_rating === 'B+' ? 'selected' : ''}>Khá (B+)</option>
+                                <option value="B" ${order.quality_rating === 'B' ? 'selected' : ''}>Trung bình (B)</option>
+                                <option value="C" ${order.quality_rating === 'C' ? 'selected' : ''}>Yếu (C)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-shield-check"></i>
+                                Kiểm tra chất lượng
+                            </label>
+                            <select class="form-control-custom" id="qualityCheck">
+                                <option value="">Chọn kết quả</option>
+                                <option value="pass" ${order.quality_check === 'pass' ? 'selected' : ''}>Đạt tiêu chuẩn</option>
+                                <option value="improve" ${order.quality_check === 'improve' ? 'selected' : ''}>Cần cải thiện</option>
+                                <option value="fail" ${order.quality_check === 'fail' ? 'selected' : ''}>Không đạt</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group checkbox-group">
+                            <div class="checkbox-container">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="issueMachine" class="checkbox-input">
+                                    <label for="issueMachine" class="checkbox-label">Lỗi máy móc</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="issueMaterial" class="checkbox-input">
+                                    <label for="issueMaterial" class="checkbox-label">Nguyên liệu kém chất lượng</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="issueProcess" class="checkbox-input">
+                                    <label for="issueProcess" class="checkbox-label">Lỗi quy trình</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="issueOther" class="checkbox-input">
+                                    <label for="issueOther" class="checkbox-label">Khác</label>
+                                </div>
+                            </div>
+                            <label class="form-label">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Vấn đề gặp phải
+                            </label>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Tỷ lệ đạt chuẩn</span>
+                            <span class="info-value">${100 - ngRate}%</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Mức độ hài lòng</span>
+                            <span class="info-value">⭐⭐⭐⭐⭐</span>
+                        </div>
+                    </div>
+
+                    <!-- Notes Tab -->
+                    <div id="notes-panel" class="tab-panel">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-journal-text"></i>
+                                Ghi chú sản xuất
+                            </label>
+                            <div class="note-area">
+                                <textarea class="note-textarea" id="note" placeholder="Nhập ghi chú về quá trình sản xuất...">${order.xa_notes || ''}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-lightbulb"></i>
+                                Đề xuất cải tiến
+                            </label>
+                            <div class="note-area">
+                                <textarea class="note-textarea" id="improvement" placeholder="Nhập đề xuất cải tiến...">${order.improvement_suggestions || ''}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-tag"></i>
+                                Tags
+                            </label>
+                            <input type="text" class="form-control-custom" id="tags" value="${order.tags || ''}" placeholder="Nhập các tag, cách nhau bởi dấu phẩy">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Production Controls -->
+                <div class="production-controls">
+                    <!-- Production Status -->
+                    <div class="production-status ${order.xa_status === 'in_progress' ? 'running' : 'stopped'}" id="productionStatus">
+                        <div class="status-text">
+                            <i class="bi bi-${order.xa_status === 'in_progress' ? 'play-circle-fill text-success' : 'stop-circle-fill text-danger'}"></i>
+                            <span id="productionStatusText">${statusText}</span>
+                        </div>
+                        <div class="status-time" id="statusTime">Thời gian: ${order.xa_start_time && order.xa_status === 'in_progress' ? 'Đang tính...' : '00:00:00'}</div>
+                    </div>
+
+                    <!-- Control Buttons -->
+                    <div class="control-row">
+                        <button class="btn-custom btn-success-custom" id="startBtn" onclick="startProduction()" ${order.xa_status === 'completed' || order.xa_status === 'handed_over' ? 'disabled' : ''} style="${order.xa_status === 'in_progress' ? 'display: none;' : 'display: flex;'}">
+                            <i class="bi bi-play-fill"></i>
+                            Bắt đầu
+                        </button>
+                        <button class="btn-custom btn-warning-custom" id="pauseBtn" onclick="pauseProduction()" style="${order.xa_status === 'in_progress' ? 'display: flex;' : 'display: none;'}">
+                            <i class="bi bi-pause-fill"></i>
+                            Tạm dừng
+                        </button>
+                        <button class="btn-custom btn-danger-custom" id="stopBtn" onclick="endProduction()" ${order.xa_status === 'not_started' || order.xa_status === 'handed_over' ? 'disabled' : ''} style="${order.xa_status === 'in_progress' ? 'display: flex;' : 'display: none;'}">
+                            <i class="bi bi-stop-fill"></i>
+                            Kết thúc
+                        </button>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button class="btn-custom btn-outline-custom" onclick="resetForm()">
+                            <i class="bi bi-arrow-clockwise"></i>
+                            Reset
+                        </button>
+                        <button class="btn-custom btn-primary-custom" onclick="executeHandover()">
+                            <i class="bi bi-check-circle-fill"></i>
+                            Xác nhận
+                        </button>
+                    </div>
+                </div>
             </div>
         `;
-        
-        // Bắt đầu timer nếu đã có thời gian bắt đầu
-        if (order.xa_start_time) {
-            // Đợi một chút để đảm bảo DOM đã được render
-            setTimeout(() => {
-                const timerElement = document.getElementById('productionRunningTime');
-                
-                if (order.xa_end_time) {
-                    // Nếu đã có thời gian kết thúc, chỉ hiển thị thời gian cố định
-                    if (timerElement) {
-                        const fixedTime = calculateWorkTime(order.xa_start_time, order.xa_end_time);
-                        timerElement.textContent = fixedTime;
-                    }
-                } else {
-                    // Nếu chưa có thời gian kết thúc, bắt đầu timer chạy
-                    startProductionTimer();
-                }
-            }, 100);
-        } else {
-            stopProductionTimer();
+    }
+
+    // Helper functions for form manipulation
+    function setElementValue(id, value) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.value = value;
         }
+    }
+
+    function getElementValue(id) {
+        const element = document.getElementById(id);
+        return element ? element.value : '';
     }
 
     function closeDetailsPanel() {
@@ -2941,122 +3222,14 @@
 
 
 
-    async function executeHandover() {
-        const order = currentEditingOrder;
-        if (!order) {
-            showNotification('Lỗi: Không xác định được lệnh sản xuất', 'error');
-            return;
-        }
-        
-        try {
-            // Lấy dữ liệu kết quả sản xuất từ sidebar
-            const productionData = {
-                goodQuantity: parseInt(getElementValue('goodQty')) || 0,
-                ngQuantity: parseInt(getElementValue('ngQty')) || 0,
-                ngStartEndQuantity: parseInt(getElementValue('ngStartEndQty')) || 0,
-                returnQuantity: parseInt(getElementValue('returnQty')) || 0,
-                machine: getElementValue('machine') || '',
-                shift: getElementValue('shift') || '',
-                workerName: getElementValue('worker') || '',
-                notes: getElementValue('note') || ''
-            };
-            
-            // Log để debug
-            
-            // Validation cơ bản
-            if (!productionData.workerName.trim()) {
-                showNotification('⚠️ Vui lòng nhập tên thợ phụ trách trong phần "Thông tin sản xuất"', 'warning');
-                return;
-            }
-            
-
-            
-            // Lấy dữ liệu chuyển giao
-            const handoverData = {
-                handoverQuantity: parseInt(getElementValue('handoverQty')) || 0
-            };
-            
-            // Validate kết quả sản xuất
-            if (productionData.goodQuantity + productionData.ngQuantity === 0) {
-                showNotification('Tổng số lượng phải lớn hơn 0', 'error');
-                return;
-            }
-            
-            // Validate chuyển giao
-            if (handoverData.handoverQuantity <= 0) {
-                showNotification('Số lượng chuyển giao phải lớn hơn 0', 'error');
-                return;
-            }
-            
-            if (handoverData.handoverQuantity > productionData.goodQuantity) {
-                showNotification('Số lượng chuyển giao không thể lớn hơn số lượng OK', 'error');
-                return;
-            }
-            
-            showLoading('Đang cập nhật và chuyển giao...');
-            
-            // Lấy thông tin stage tiếp theo từ workflow
-            const nextStage = order.next_stage;
-            if (!nextStage) {
-                showNotification('Không xác định được công đoạn tiếp theo', 'error');
-                return;
-            }
-            
-            // Chuẩn bị dữ liệu gửi lên API
-            const completeData = {
-                stage: 'xa',
-                output_quantity: productionData.goodQuantity + productionData.ngQuantity,
-                good_quantity: productionData.goodQuantity,
-                ng_quantity: productionData.ngQuantity,
-                worker_name: productionData.workerName,
-                machine_name: productionData.machine,
-                shift: productionData.shift,
-                notes: productionData.notes,
-                handover_quantity: handoverData.handoverQuantity,
-                next_stage: nextStage
-            };
-            
-
-            
-            // Gửi request đến API complete_production
-            const response = await fetch(`${API_BASE_URL}/data/production_orders/${order.id}/complete_production`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(completeData)
-            });
-            
-            const result = await response.json();
-            
-            if (response.ok) {
-                const nextStageName = getStageDisplayName(nextStage);
-                showNotification(
-                    `✅ Đã cập nhật kết quả sản xuất và chuyển giao ${formatNumber(handoverData.handoverQuantity)} sản phẩm cho công đoạn ${nextStageName} thành công!`,
-                    'success'
-                );
-                
-                // Refresh dữ liệu và đóng sidebar
-                await refreshData();
-                closeDetailsPanel();
-            } else {
-                throw new Error(`API error: ${response.status} - ${result.message || result.error || 'Unknown error'}`);
-            }
-            
-        } catch (error) {
-
-            showNotification('Lỗi khi cập nhật và chuyển giao: ' + error.message, 'error');
-        } finally {
-            hideLoading();
-        }
-    }
 
     function getStatusBadgeClass(status) {
         const statusMap = {
             'waiting': 'bg-warning',
             'in_progress': 'bg-primary',
             'completed': 'bg-success',
-            'paused': 'bg-secondary'
+            'paused': 'bg-secondary',
+            'handed_over': 'bg-info'
         };
         return statusMap[status] || 'bg-secondary';
     }
@@ -3116,7 +3289,7 @@
                 worker_name: worker,
                 machine_name: assignedMachine, // Sử dụng máy được gán thực tế
                 shift: shift,
-                notes: notes || 'Bắt đầu sản xuất từ giao diện XẢ'
+                notes: notes || 'Bắt đầu sản xuất công đoạn Xả'
             };
             
             // Gửi request đến API start_production
@@ -3173,9 +3346,6 @@
                 // Refresh dữ liệu từ API
                 await refreshData();
                 
-                // Refresh dữ liệu máy và render lại bảng
-                await refreshMachineStatus();
-                
                 // Refresh sidebar content
                 showOrderDetails(order.id);
             } else {
@@ -3221,10 +3391,10 @@
                 return;
             }
             
-            if (goodQty <= 0 && ngQty <= 0) {
-                showNotification('⚠️ Vui lòng nhập số lượng sản xuất (OK hoặc NG)', 'warning');
-                return;
-            }
+            // if (goodQty <= 0 && ngQty <= 0) {
+            //     showNotification('⚠️ Vui lòng nhập số lượng sản xuất (OK hoặc NG)', 'warning');
+            //     return;
+            // }
             
             // Hiển thị thông báo xác nhận máy sẽ được sử dụng
             showNotification(`ℹ️ Sẽ kết thúc sản xuất trên máy: ${assignedMachine}`, 'info');
@@ -3265,9 +3435,6 @@
                 }
                 
                 await refreshData();
-                
-                // Refresh dữ liệu máy và render lại bảng
-                await refreshMachineStatus();
                 
                 // Refresh sidebar content
                 showOrderDetails(order.id);
@@ -3327,6 +3494,74 @@
 
     // Biến để lưu trữ ID của timer
     let productionTimerId = null;
+
+    /**
+     * =================================================================
+     * TAB SWITCHING FUNCTIONS - HÀM CHUYỂN ĐỔI TAB
+     * =================================================================
+     */
+
+    /**
+     * Switch between tabs in the sidebar
+     */
+    function switchTab(tabName) {
+        // Remove active class from all tabs and panels in sidebar only
+        document.querySelectorAll('.details-panel .tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.details-panel .tab-panel').forEach(panel => panel.classList.remove('active'));
+        
+        // Add active class to clicked tab and corresponding panel
+        event.target.closest('.tab-btn').classList.add('active');
+        document.getElementById(tabName + '-panel').classList.add('active');
+    }
+
+    /**
+     * Reset form fields in the sidebar
+     */
+    function resetForm() {
+        // Reset all input fields
+        document.querySelectorAll('#detailsPanel input, #detailsPanel select, #detailsPanel textarea').forEach(field => {
+            if (field.type === 'checkbox') {
+                field.checked = false;
+            } else {
+                field.value = '';
+            }
+        });
+        
+        // Reset quantity inputs to 0
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.value = '0';
+        });
+        
+        showNotification('Đã reset form thành công!', 'success');
+    }
+
+    /**
+     * Pause/Resume production
+     */
+    function pauseProduction() {
+        if (!currentEditingOrder) {
+            showNotification('Vui lòng chọn lệnh sản xuất trước!', 'warning');
+            return;
+        }
+
+        const pauseBtn = document.getElementById('pauseBtn');
+        const statusDiv = document.getElementById('productionStatus');
+        const statusText = document.getElementById('productionStatusText');
+        
+        if (pauseBtn.innerHTML.includes('Tạm dừng')) {
+            // Pause production
+            pauseBtn.innerHTML = '<i class="bi bi-play-fill"></i> Tiếp tục';
+            statusDiv.className = 'production-status paused';
+            statusText.textContent = 'Tạm dừng';
+            showNotification('Đã tạm dừng sản xuất', 'warning');
+        } else {
+            // Resume production
+            pauseBtn.innerHTML = '<i class="bi bi-pause-fill"></i> Tạm dừng';
+            statusDiv.className = 'production-status running';
+            statusText.textContent = 'Đang sản xuất';
+            showNotification('Đã tiếp tục sản xuất', 'success');
+        }
+    }
     
     // Hàm tính thời gian đang chạy (từ thời điểm bắt đầu đến hiện tại)
     function calculateRunningTime(startTime, endTime) {
@@ -3345,13 +3580,37 @@
     
     // Hàm cập nhật thời gian chạy trong giao diện
     function updateRunningTimer() {
+        // Tìm element timer trong sidebar mới
+        const statusTimeElement = document.getElementById('statusTime');
+        const runningTimeInfoElement = document.getElementById('runningTimeInfo');
+        // Fallback cho element cũ nếu còn tồn tại
         const timerElement = document.getElementById('productionRunningTime');
         
-        if (timerElement && currentEditingOrder && currentEditingOrder.xa_start_time) {
+        if (currentEditingOrder && currentEditingOrder.xa_start_time) {
             const time = calculateRunningTime(currentEditingOrder.xa_start_time, currentEditingOrder.xa_end_time);
-            timerElement.textContent = time;
+            
+            // Cập nhật timer trong sidebar mới (production status)
+            if (statusTimeElement) {
+                statusTimeElement.textContent = `Thời gian: ${time}`;
+            }
+            
+            // Cập nhật thời gian chạy trong tab thông tin
+            if (runningTimeInfoElement && !currentEditingOrder.xa_end_time) {
+                runningTimeInfoElement.textContent = time;
+            }
+            
+            // Cập nhật timer cũ nếu còn tồn tại (fallback)
+            if (timerElement) {
+                timerElement.textContent = time;
+            }
         } else {
-            // Timer update logging removed
+            // Nếu chưa bắt đầu hoặc không có thời gian
+            if (statusTimeElement) {
+                statusTimeElement.textContent = 'Thời gian: 00:00:00';
+            }
+            if (runningTimeInfoElement) {
+                runningTimeInfoElement.textContent = '--';
+            }
         }
     }
     
@@ -3380,10 +3639,10 @@
 
     // Export functions for global access
     window.refreshData = refreshData;
+    window.showReportTab = showReportTab;
 
     
-    window.executeHandoverOnly = executeHandoverOnly;
-    window.completeOrder = completeOrder;
+
     window.updateHandoverQuantity = updateHandoverQuantity;
     
     // Filter functions
@@ -3393,15 +3652,20 @@
     // Wizard functions
     window.wizardNextStep = wizardNextStep;
     window.wizardPreviousStep = wizardPreviousStep;
-    window.wizardFinish = wizardFinish;
+
     window.updateWizardHandoverQuantity = updateWizardHandoverQuantity;
     
     // Details panel functions
     window.showOrderDetails = showOrderDetails;
     window.closeDetailsPanel = closeDetailsPanel;
-    window.executeHandover = executeHandover;
+    // window.executeHandover = executeHandover;
     window.startProduction = startProduction;
     window.endProduction = endProduction;
+
+    // Tab switching functions
+    window.switchTab = switchTab;
+    window.resetForm = resetForm;
+    window.pauseProduction = pauseProduction;
 
     
 
@@ -3454,6 +3718,214 @@
             closeDetailsPanel();
         }
     });
+
+    /**
+     * =================================================================
+     * REPORT FUNCTIONS - HÀM XỬ LÝ BÁO CÁO
+     * =================================================================
+     */
+
+    /**
+     * Hiển thị tab báo cáo
+     */
+    function showReportTab() {
+        console.log('showReportTab() called');
+        
+        // Chuyển sang tab báo cáo
+        const reportTab = document.getElementById('report-tab');
+        console.log('reportTab element:', reportTab);
+        
+        if (reportTab) {
+            console.log('Clicking report tab...');
+            reportTab.click();
+        } else {
+            console.error('Report tab not found!');
+        }
+        
+        // Load dữ liệu báo cáo
+        loadReportData();
+    }
+
+    /**
+     * Load dữ liệu báo cáo - các lệnh đã bàn giao
+     */
+    async function loadReportData() {
+        console.log('loadReportData() called');
+        console.log('ordersData length:', ordersData.length);
+        
+        try {
+            showLoading('Đang tải dữ liệu báo cáo...');
+            
+            // Lọc các lệnh đã bàn giao (xa_status = 'handed_over')
+            const handedOverOrders = ordersData.filter(order => 
+                order.xa_status === 'handed_over'
+            );
+            
+            console.log('Handed over orders found:', handedOverOrders.length);
+            console.log('Handed over orders:', handedOverOrders);
+            
+            // Render bảng báo cáo
+            renderReportTable(handedOverOrders);
+            
+            // Cập nhật số lượng
+            updateReportCount(handedOverOrders.length);
+            
+        } catch (error) {
+            console.error('Error in loadReportData:', error);
+            showNotification('Lỗi khi tải dữ liệu báo cáo: ' + error.message, 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    /**
+     * Render bảng báo cáo
+     */
+    function renderReportTable(orders) {
+        const tableBody = document.getElementById('reportTableBody');
+        if (!tableBody) {
+            console.error('reportTableBody not found!');
+            return;
+        }
+        
+        // Xóa dữ liệu cũ
+        tableBody.innerHTML = '';
+        
+        // Kiểm tra có dữ liệu không
+        if (orders.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="13" class="text-center text-muted py-4">
+                        <i class="bi bi-file-earmark-text fs-1 mb-2 d-block"></i>
+                        Chưa có lệnh nào được bàn giao
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        // Sắp xếp theo thời gian bàn giao (mới nhất lên đầu)
+        const sortedOrders = [...orders].sort((a, b) => {
+            const aTime = a.xa_handover_date ? new Date(a.xa_handover_date).getTime() : 0;
+            const bTime = b.xa_handover_date ? new Date(b.xa_handover_date).getTime() : 0;
+            return bTime - aTime;
+        });
+
+        // Render từng dòng
+        sortedOrders.forEach((order, index) => {
+            const row = createReportTableRow(order, index);
+            tableBody.appendChild(row);
+        });
+    }
+
+    /**
+     * Tạo dòng báo cáo
+     */
+    function createReportTableRow(order, index) {
+        const row = document.createElement('tr');
+        row.className = 'order-row';
+        row.setAttribute('data-order-id', order.id);
+        
+        // Tính toán tiến độ
+        const inputQty = order.xa_input_quantity || 0;
+        const sheet_count = order.sheet_count || 0;
+        const goodQty = order.xa_good_quantity || 0;
+        const ngQty = order.xa_ng_quantity || 0;
+        const deployedQty = order.deployed_quantity || 0;
+        const progressPercent = inputQty > 0 ? Math.round((goodQty / inputQty) * 100) : 0;
+        
+        // Lấy thông tin bàn giao
+        const handoverDate = order.xa_handover_date ? formatDateTime(order.xa_handover_date) : 'N/A';
+        const handoverQuantity = order.xa_handover_quantity || 0;
+        
+        // Xác định icon và màu sắc cho trạng thái đã bàn giao
+        const statusIcon = 'bi-arrow-right-circle';
+        const statusClass = 'text-info';
+        const statusText = 'Đã bàn giao';
+        
+        row.innerHTML = `
+            <td class="text-center">
+                <span class="badge bg-light text-dark">${index + 1}</span>
+            </td>
+            <td>
+                <div class="d-flex align-items-center">
+                    <i class="bi ${statusIcon} ${statusClass} me-2"></i>
+                    <div>
+                        <div class="fw-bold">${order.production_order}</div>
+                        <small class="text-muted">${formatDate(order.deployment_date)} - ${order.production_shift}</small>
+                        <small class="text-info d-block">${statusText} - ${handoverDate}</small>
+                    </div>
+                </div>
+            </td>
+            <td class="text-center">
+                <span class="fw-bold">${order.order_type || ''}</span>
+            </td>
+            <td>
+                <div>
+                    <div class="fw-bold">${order.internal_product_code}</div>
+                    <small class="text-muted" title="${order.product_name}">${truncateText(order.product_name, 100)}</small>
+                </div>
+            </td>
+            <td class="text-center">
+                <span class="badge bg-secondary">${order.paper_type || 'N/A'}</span>
+            </td>
+            <td class="text-center">
+                <span class="fw-bold">${order.paper_weight || 0} gsm</span>
+            </td>
+            <td class="text-center">
+                <div class="fw-bold">${formatNumber(deployedQty)}</div>
+                <small class="text-muted">pcs</small>
+            </td>
+            <td class="text-center">
+                <div class="fw-bold text-primary">${formatNumber(sheet_count)}</div>
+                <small class="text-muted">tờ giấy</small>
+            </td>
+            <td class="text-center">
+                <div class="fw-bold text-success">${formatNumber(order.paper_length || 0)}</div>
+                <small class="text-muted">KT</small>
+            </td>
+            <td class="text-center">
+                <div class="fw-bold text-danger">${formatNumber(order.paper_width || 0)}</div>
+                <small class="text-muted">chiều rộng</small>
+            </td>
+            <td class="text-center">
+                <div class="fw-bold">${formatNumber(order.blank_count || 0)}</div>
+                <small class="text-muted">phôi</small>
+            </td>
+            <td class="text-center">
+                <div class="progress" style="height: 20px;">
+                    <div class="progress-bar bg-success" style="width: ${Math.min(progressPercent, 100)}%">
+                        ${progressPercent}%
+                    </div>
+                </div>
+                <small class="text-muted">${statusText}</small>
+            </td>
+            <td class="text-center">
+                <small class="text-muted d-block">${order.assigned_machine || 'N/A'}</small>
+                <small class="text-muted">${order.xa_worker_name || 'N/A'}</small>
+            </td>
+        `;
+        
+        // Thêm click event để xem chi tiết
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', () => {
+            showOrderDetails(order.id);
+        });
+        
+        return row;
+    }
+
+    /**
+     * Cập nhật số lượng báo cáo
+     */
+    function updateReportCount(count) {
+        const reportCountElement = document.getElementById('report-count');
+        if (reportCountElement) {
+            reportCountElement.textContent = count;
+        } else {
+            console.error('report-count element not found!');
+        }
+    }
 
     /**
      * =================================================================
@@ -3610,21 +4082,10 @@
         const machineFilter = document.getElementById('machineFilter');
         if (!machineFilter) return;
 
-        // Lấy danh sách máy từ trường assigned_machine
-        const allMachines = [];
-        originalOrdersData.forEach(order => {
-            const assignedMachine = order.assigned_machine || '';
-            if (assignedMachine.trim() !== '') {
-                // Tách các máy bằng dấu phẩy và thêm vào danh sách
-                const machines = assignedMachine.split(',').map(m => m.trim());
-                allMachines.push(...machines);
-            }
-        });
-
-        // Lọc ra các máy Xả và loại bỏ trùng lặp
-        const xaMachines = [...new Set(allMachines.filter(machine => 
-            machine.includes('Xả') && (machine.includes('Xả 1') || machine.includes('Xả 2') || machine.includes('Xả 3'))
-        ))];
+        // Lọc các máy thuộc Stage_xa từ dữ liệu máy
+        const xaMachines = machineStatusData.filter(machine => 
+            machine.stage_machine && machine.stage_machine.includes('Stage_xa')
+        ).map(machine => machine.machine_name);
 
         // Xóa options cũ (giữ lại option "Tất cả")
         machineFilter.innerHTML = '<option value="">Tất cả</option>';
@@ -3636,8 +4097,6 @@
             option.textContent = machine;
             machineFilter.appendChild(option);
         });
-
-
     }
 
     // Thêm hàm mới để gửi dữ liệu chuyển giao qua webhook n8n
@@ -3736,20 +4195,9 @@
   
 
   
-  <!-- Details Panel -->
+  <!-- Details Panel - Will be generated dynamically -->
   <div class="details-panel" id="detailsPanel">
-    <div class="details-header">
-      <h5 class="mb-0">
-        <i class="bi bi-info-circle me-2"></i>
-        Báo cáo lệnh: <span id="detailOrderCode"></span>
-      </h5>
-      <button type="button" class="detail-close" onclick="closeDetailsPanel()">
-        <i class="bi bi-x-lg"></i>
-      </button>
-    </div>
-    <div class="details-content" id="detailsContent">
-      <!-- Details will be loaded here -->
-    </div>
+    <!-- Content will be generated by showOrderDetails() function -->
   </div>
   
   <!-- Loading Overlay -->

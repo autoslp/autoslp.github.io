@@ -1,8 +1,8 @@
 // Settings Data Manager - Enhanced với Database Integration
 class SettingsManager {
     constructor() {
-        this.apiBaseUrl = 'https://autoslp.duckdns.org/api/data';
-        this.webhookBaseUrl = 'https://autoslp.duckdns.org:5678/webhook';
+        this.apiBaseUrl = 'https://api.autoslp.com/api/data';
+        this.webhookBaseUrl = 'https://api.autoslp.com:5678/webhook';
         
         this.data = {
             acTypes: [],

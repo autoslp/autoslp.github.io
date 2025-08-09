@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Sidebar 5 - Collapsible Sections</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-teal: #14b8a6;
+            --primary-indigo: #6366f1;
+            --primary-rose: #f43f5e;
+            --primary-amber: #f59e0b;
+            --section-bg: #ffffff;
+            --section-border: #e5e7eb;
+            --collapsed-bg: #f9fafb;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+        }
+
+        .demo-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-demo {
+            width: 420px;
+            background: #f8fafc;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, var(--primary-teal), var(--primary-indigo));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .sidebar-header h5 {
+            margin: 0 0 0.5rem 0;
+            font-weight: 600;
+        }
+
+        .order-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .collapsible-section {
+            background: var(--section-bg);
+            border: 1px solid var(--section-border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .collapsible-section:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+        }
+
+        .section-header {
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .section-header:hover {
+            background: #f8fafc;
+        }
+
+        .section-header.active {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .section-icon.teal { background: var(--primary-teal); }
+        .section-icon.indigo { background: var(--primary-indigo); }
+        .section-icon.rose { background: var(--primary-rose); }
+        .section-icon.amber { background: var(--primary-amber); }
+
+        .section-toggle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .section-header.active .section-toggle {
+            background: var(--primary-teal);
+            color: white;
+            transform: rotate(180deg);
+        }
+
+        .section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .section-content.expanded {
+            max-height: 800px;
+        }
+
+        .section-body {
+            padding: 1.5rem 1.25rem;
+            border-top: 1px solid #f1f5f9;
+            background: #fafbfc;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .form-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-field {
+            flex: 1;
+        }
+
+        .form-field.narrow {
+            flex: 0.7;
+        }
+
+        .form-field.wide {
+            flex: 1.5;
+        }
+
+        .field-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-teal);
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+        }
+
+        .quantity-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .quantity-item {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .quantity-item.success {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+        }
+
+        .quantity-item.danger {
+            border-color: #ef4444;
+            background: linear-gradient(135deg, #fef2f2, #fecaca);
+        }
+
+        .quantity-item.warning {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, #fffbeb, #fed7aa);
+        }
+
+        .quantity-item.info {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #eff6ff, #bfdbfe);
+        }
+
+        .quantity-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .quantity-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-align: center;
+            color: inherit;
+        }
+
+        .quantity-input:focus {
+            outline: none;
+        }
+
+        .success .quantity-input { color: #10b981; }
+        .danger .quantity-input { color: #ef4444; }
+        .warning .quantity-input { color: #f59e0b; }
+        .info .quantity-input { color: #3b82f6; }
+
+        .textarea-field {
+            width: 100%;
+            min-height: 80px;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        .textarea-field:focus {
+            outline: none;
+            border-color: var(--primary-teal);
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+        }
+
+        .quality-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .star {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            color: #e5e7eb;
+            transition: color 0.2s ease;
+        }
+
+        .star.active {
+            color: #f59e0b;
+        }
+
+        .rating-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-left: 0.5rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: background 0.2s ease;
+        }
+
+        .checkbox-item:hover {
+            background: #f3f4f6;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary-teal);
+        }
+
+        .checkbox-item label {
+            font-size: 0.9rem;
+            color: #374151;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .section-summary {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.25rem 0;
+            font-size: 0.85rem;
+        }
+
+        .summary-label {
+            color: #6b7280;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .action-section {
+            padding: 1.5rem;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 0.875rem 1rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary-action {
+            background: linear-gradient(135deg, var(--primary-teal), var(--primary-indigo));
+            color: white;
+        }
+
+        .btn-primary-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3);
+        }
+
+        .btn-secondary-action {
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-secondary-action:hover {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .expand-all-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .expand-all-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Scrollbar styling */
+        .sidebar-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: var(--primary-teal);
+            border-radius: 3px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb:hover {
+            background: #0d9488;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="main-content">
+            <div class="demo-title">
+                <i class="bi bi-menu-button-wide-fill me-3"></i>
+                Demo Sidebar 5: Collapsible Sections
+            </div>
+        </div>
+        
+        <div class="sidebar-demo">
+            <div class="sidebar-header">
+                <button class="expand-all-btn" onclick="toggleAllSections()">
+                    <i class="bi bi-arrows-expand" id="expandIcon"></i>
+                    <span id="expandText">Mở tất cả</span>
+                </button>
+                <h5><i class="bi bi-clipboard-data me-2"></i>Báo cáo lệnh</h5>
+                <div class="order-badge">
+                    <i class="bi bi-tag-fill"></i>
+                    <strong>LSX001234</strong> - Carton A4
+                </div>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- Production Information Section -->
+                <div class="collapsible-section">
+                    <div class="section-header active" onclick="toggleSection(this)">
+                        <div class="section-title">
+                            <div class="section-icon teal">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <span>Thông tin sản xuất</span>
+                        </div>
+                        <div class="section-toggle">
+                            <i class="bi bi-chevron-down"></i>
+                        </div>
+                    </div>
+                    <div class="section-content expanded">
+                        <div class="section-body">
+                            <div class="form-row">
+                                <div class="form-field wide">
+                                    <div class="field-label">
+                                        <i class="bi bi-person-badge"></i>
+                                        Tên thợ phụ trách
+                                    </div>
+                                    <input type="text" class="form-input" value="Nguyễn Văn A">
+                                </div>
+                                <div class="form-field narrow">
+                                    <div class="field-label">
+                                        <i class="bi bi-clock"></i>
+                                        Ca
+                                    </div>
+                                    <select class="form-input">
+                                        <option>Ca 1</option>
+                                        <option>Ca 2</option>
+                                        <option>Ca 3</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <div class="field-label">
+                                        <i class="bi bi-gear-fill"></i>
+                                        Máy sản xuất
+                                    </div>
+                                    <select class="form-input">
+                                        <option>Máy XẢ 001</option>
+                                        <option>Máy XẢ 002</option>
+                                        <option>Máy XẢ 003</option>
+                                    </select>
+                                </div>
+                                <div class="form-field narrow">
+                                    <div class="field-label">
+                                        <i class="bi bi-stopwatch"></i>
+                                        Thời gian
+                                    </div>
+                                    <input type="time" class="form-input" value="08:30">
+                                </div>
+                            </div>
+                            <div class="section-summary">
+                                <div class="summary-item">
+                                    <span class="summary-label">Bắt đầu:</span>
+                                    <span class="summary-value">08:00 - 15/01/2025</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Thời gian chạy:</span>
+                                    <span class="summary-value">2 giờ 30 phút</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quantity Results Section -->
+                <div class="collapsible-section">
+                    <div class="section-header" onclick="toggleSection(this)">
+                        <div class="section-title">
+                            <div class="section-icon indigo">
+                                <i class="bi bi-calculator-fill"></i>
+                            </div>
+                            <span>Kết quả sản xuất</span>
+                        </div>
+                        <div class="section-toggle">
+                            <i class="bi bi-chevron-down"></i>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="section-body">
+                            <div class="quantity-grid">
+                                <div class="quantity-item success">
+                                    <div class="quantity-label">OK</div>
+                                    <input type="number" class="quantity-input" value="950">
+                                </div>
+                                <div class="quantity-item danger">
+                                    <div class="quantity-label">NG</div>
+                                    <input type="number" class="quantity-input" value="50">
+                                </div>
+                                <div class="quantity-item warning">
+                                    <div class="quantity-label">NG đầu/cuối</div>
+                                    <input type="number" class="quantity-input" value="20">
+                                </div>
+                                <div class="quantity-item info">
+                                    <div class="quantity-label">Trả</div>
+                                    <input type="number" class="quantity-input" value="10">
+                                </div>
+                            </div>
+                            <div class="form-row" style="margin-top: 1rem;">
+                                <div class="form-field">
+                                    <div class="field-label">
+                                        <i class="bi bi-arrow-right-circle"></i>
+                                        Số lượng chuyển giao
+                                    </div>
+                                    <input type="number" class="form-input" value="900" style="font-weight: 600; color: var(--primary-teal);">
+                                </div>
+                            </div>
+                            <div class="section-summary">
+                                <div class="summary-item">
+                                    <span class="summary-label">Tổng sản xuất:</span>
+                                    <span class="summary-value">1000 sản phẩm</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Hiệu suất:</span>
+                                    <span class="summary-value" style="color: var(--primary-teal);">95%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quality Assessment Section -->
+                <div class="collapsible-section">
+                    <div class="section-header" onclick="toggleSection(this)">
+                        <div class="section-title">
+                            <div class="section-icon rose">
+                                <i class="bi bi-star-fill"></i>
+                            </div>
+                            <span>Đánh giá chất lượng</span>
+                        </div>
+                        <div class="section-toggle">
+                            <i class="bi bi-chevron-down"></i>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="section-body">
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <div class="field-label">
+                                        <i class="bi bi-award"></i>
+                                        Mức chất lượng
+                                    </div>
+                                    <select class="form-input">
+                                        <option>Xuất sắc (A+)</option>
+                                        <option>Tốt (A)</option>
+                                        <option>Khá (B+)</option>
+                                        <option>Trung bình (B)</option>
+                                        <option>Yếu (C)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="quality-rating">
+                                <span class="field-label">Đánh giá tổng thể:</span>
+                                <div class="star-rating">
+                                    <i class="bi bi-star-fill star active"></i>
+                                    <i class="bi bi-star-fill star active"></i>
+                                    <i class="bi bi-star-fill star active"></i>
+                                    <i class="bi bi-star-fill star active"></i>
+                                    <i class="bi bi-star-fill star active"></i>
+                                </div>
+                                <span class="rating-label">5/5</span>
+                            </div>
+                            <div class="field-label">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Vấn đề gặp phải
+                            </div>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="issue1">
+                                    <label for="issue1">Lỗi máy móc</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="issue2" checked>
+                                    <label for="issue2">Nguyên liệu kém chất lượng</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="issue3">
+                                    <label for="issue3">Lỗi quy trình</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="issue4">
+                                    <label for="issue4">Vấn đề khác</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes and Comments Section -->
+                <div class="collapsible-section">
+                    <div class="section-header" onclick="toggleSection(this)">
+                        <div class="section-title">
+                            <div class="section-icon amber">
+                                <i class="bi bi-chat-text-fill"></i>
+                            </div>
+                            <span>Ghi chú & Nhận xét</span>
+                        </div>
+                        <div class="section-toggle">
+                            <i class="bi bi-chevron-down"></i>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="section-body">
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <div class="field-label">
+                                        <i class="bi bi-journal-text"></i>
+                                        Ghi chú sản xuất
+                                    </div>
+                                    <textarea class="textarea-field" placeholder="Nhập ghi chú về quá trình sản xuất...">Sản xuất diễn ra bình thường. Máy hoạt động ổn định, chất lượng sản phẩm đạt yêu cầu. Có một số lỗi nhỏ do nguyên liệu đầu vào không đồng đều.</textarea>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <div class="field-label">
+                                        <i class="bi bi-lightbulb"></i>
+                                        Đề xuất cải tiến
+                                    </div>
+                                    <textarea class="textarea-field" placeholder="Nhập đề xuất cải tiến...">Cần kiểm tra chất lượng nguyên liệu đầu vào kỹ hơn để giảm tỷ lệ NG.</textarea>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <div class="field-label">
+                                        <i class="bi bi-tag"></i>
+                                        Tags
+                                    </div>
+                                    <input type="text" class="form-input" placeholder="Nhập các tag, cách nhau bởi dấu phẩy" value="chất lượng tốt, máy ổn định">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-section">
+                <div class="action-buttons">
+                    <button class="btn-action btn-secondary-action">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Reset
+                    </button>
+                    <button class="btn-action btn-primary-action">
+                        <i class="bi bi-check-circle-fill"></i>
+                        Xác nhận
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSection(headerElement) {
+            const section = headerElement.parentElement;
+            const content = section.querySelector('.section-content');
+            const isExpanded = content.classList.contains('expanded');
+
+            // Toggle the section
+            headerElement.classList.toggle('active');
+            content.classList.toggle('expanded');
+
+            // Update expand/collapse all button if needed
+            updateExpandAllButton();
+        }
+
+        function toggleAllSections() {
+            const sections = document.querySelectorAll('.collapsible-section');
+            const expandIcon = document.getElementById('expandIcon');
+            const expandText = document.getElementById('expandText');
+            
+            // Check if all sections are expanded
+            const allExpanded = Array.from(sections).every(section => 
+                section.querySelector('.section-content').classList.contains('expanded')
+            );
+
+            sections.forEach(section => {
+                const header = section.querySelector('.section-header');
+                const content = section.querySelector('.section-content');
+                
+                if (allExpanded) {
+                    // Collapse all
+                    header.classList.remove('active');
+                    content.classList.remove('expanded');
+                } else {
+                    // Expand all
+                    header.classList.add('active');
+                    content.classList.add('expanded');
+                }
+            });
+
+            // Update button
+            if (allExpanded) {
+                expandIcon.className = 'bi bi-arrows-expand';
+                expandText.textContent = 'Mở tất cả';
+            } else {
+                expandIcon.className = 'bi bi-arrows-collapse';
+                expandText.textContent = 'Đóng tất cả';
+            }
+        }
+
+        function updateExpandAllButton() {
+            const sections = document.querySelectorAll('.collapsible-section');
+            const expandIcon = document.getElementById('expandIcon');
+            const expandText = document.getElementById('expandText');
+            
+            const allExpanded = Array.from(sections).every(section => 
+                section.querySelector('.section-content').classList.contains('expanded')
+            );
+
+            if (allExpanded) {
+                expandIcon.className = 'bi bi-arrows-collapse';
+                expandText.textContent = 'Đóng tất cả';
+            } else {
+                expandIcon.className = 'bi bi-arrows-expand';
+                expandText.textContent = 'Mở tất cả';
+            }
+        }
+
+        // Initialize with first section expanded
+        document.addEventListener('DOMContentLoaded', function() {
+            updateExpandAllButton();
+        });
+    </script>
+</body>
+</html>

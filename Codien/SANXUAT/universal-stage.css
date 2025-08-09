@@ -600,7 +600,7 @@ body {
   margin-right: 400px;
 }
 
-.details-panel {
+/* .details-panel {
   width: 400px;
   background: white;
   border-left: 1px solid #dee2e6;
@@ -613,7 +613,7 @@ body {
   top: 0;
   z-index: 1000;
   box-shadow: -2px 0 8px rgba(0,0,0,0.1);
-}
+} */
 
 .details-panel.show {
   transform: translateX(0);

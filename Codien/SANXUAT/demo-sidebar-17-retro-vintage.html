@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Sidebar 17 - Retro Vintage</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --retro-orange: #ff6b35;
+            --retro-yellow: #f7931e;
+            --retro-brown: #8b4513;
+            --retro-cream: #fdf6e3;
+            --retro-dark: #2c1810;
+            --retro-green: #228b22;
+            --retro-red: #dc143c;
+            --retro-blue: #4169e1;
+            --retro-gold: #ffd700;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(45deg, var(--retro-brown), var(--retro-dark));
+            font-family: 'Courier Prime', monospace;
+            margin: 0;
+            height: 100vh;
+            color: var(--retro-cream);
+            overflow: hidden;
+        }
+
+        .demo-container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+        }
+
+        .demo-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(255, 107, 53, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(247, 147, 30, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--retro-cream);
+            text-align: center;
+            padding: 2rem;
+            z-index: 2;
+        }
+
+        .demo-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-shadow: 
+                0 0 5px var(--retro-orange),
+                0 0 10px var(--retro-orange),
+                0 0 15px var(--retro-orange);
+            animation: retroGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes retroGlow {
+            from { 
+                text-shadow: 
+                    0 0 5px var(--retro-orange),
+                    0 0 10px var(--retro-orange),
+                    0 0 15px var(--retro-orange);
+            }
+            to { 
+                text-shadow: 
+                    0 0 10px var(--retro-yellow),
+                    0 0 20px var(--retro-yellow),
+                    0 0 30px var(--retro-yellow);
+            }
+        }
+
+        .sidebar-demo {
+            width: 450px;
+            background: var(--retro-cream);
+            color: var(--retro-dark);
+            box-shadow: 
+                inset 0 0 0 8px var(--retro-brown),
+                inset 0 0 0 16px var(--retro-yellow),
+                0 0 30px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 2;
+        }
+
+        .sidebar-demo::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            right: 24px;
+            bottom: 24px;
+            border: 4px solid var(--retro-orange);
+            border-radius: 8px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .retro-header {
+            background: linear-gradient(135deg, var(--retro-orange), var(--retro-yellow));
+            color: var(--retro-cream);
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            border-bottom: 8px solid var(--retro-brown);
+        }
+
+        .retro-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 2px,
+                rgba(255, 255, 255, 0.1) 2px,
+                rgba(255, 255, 255, 0.1) 4px
+            );
+            pointer-events: none;
+        }
+
+        .retro-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 1rem 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .retro-info {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .retro-badge {
+            padding: 0.5rem 1rem;
+            background: var(--retro-dark);
+            color: var(--retro-gold);
+            border: 2px solid var(--retro-gold);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .status-display {
+            background: var(--retro-dark);
+            color: var(--retro-green);
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--retro-green);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: statusBlink 2s infinite;
+        }
+
+        @keyframes statusBlink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.5; }
+        }
+
+        .retro-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            background: var(--retro-cream);
+        }
+
+        .retro-section {
+            background: var(--retro-cream);
+            border: 4px solid var(--retro-brown);
+            border-radius: 0;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            box-shadow: 8px 8px 0 rgba(139, 69, 19, 0.3);
+        }
+
+        .retro-section::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: var(--retro-yellow);
+            z-index: -1;
+        }
+
+        .section-title-retro {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--retro-dark);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 2px solid var(--retro-orange);
+            padding-bottom: 0.5rem;
+        }
+
+        .retro-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--retro-orange);
+            color: var(--retro-cream);
+            border: 2px solid var(--retro-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 700;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+        }
+
+        .form-group-retro {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label-retro {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--retro-dark);
+            margin-bottom: 0.5rem;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-retro {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--retro-cream);
+            border: 3px solid var(--retro-brown);
+            color: var(--retro-dark);
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: inset 4px 4px 0 rgba(139, 69, 19, 0.2);
+        }
+
+        .input-retro:focus {
+            outline: none;
+            border-color: var(--retro-orange);
+            box-shadow: 
+                inset 4px 4px 0 rgba(255, 107, 53, 0.2),
+                0 0 10px rgba(255, 107, 53, 0.5);
+        }
+
+        .select-retro {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--retro-cream);
+            border: 3px solid var(--retro-brown);
+            color: var(--retro-dark);
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: inset 4px 4px 0 rgba(139, 69, 19, 0.2);
+        }
+
+        .select-retro:focus {
+            outline: none;
+            border-color: var(--retro-orange);
+            box-shadow: 
+                inset 4px 4px 0 rgba(255, 107, 53, 0.2),
+                0 0 10px rgba(255, 107, 53, 0.5);
+        }
+
+        .textarea-retro {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--retro-cream);
+            border: 3px solid var(--retro-brown);
+            color: var(--retro-dark);
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+            resize: vertical;
+            min-height: 100px;
+            transition: all 0.3s ease;
+            box-shadow: inset 4px 4px 0 rgba(139, 69, 19, 0.2);
+        }
+
+        .textarea-retro:focus {
+            outline: none;
+            border-color: var(--retro-orange);
+            box-shadow: 
+                inset 4px 4px 0 rgba(255, 107, 53, 0.2),
+                0 0 10px rgba(255, 107, 53, 0.5);
+        }
+
+        .quantity-grid-retro {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .quantity-card-retro {
+            background: var(--retro-cream);
+            border: 4px solid var(--retro-brown);
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            box-shadow: 6px 6px 0 rgba(139, 69, 19, 0.3);
+        }
+
+        .quantity-card-retro::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            z-index: -1;
+        }
+
+        .quantity-card-retro.success::before {
+            background: var(--retro-green);
+        }
+
+        .quantity-card-retro.danger::before {
+            background: var(--retro-red);
+        }
+
+        .quantity-card-retro.warning::before {
+            background: var(--retro-yellow);
+        }
+
+        .quantity-card-retro.info::before {
+            background: var(--retro-blue);
+        }
+
+        .quantity-label-retro {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--retro-dark);
+            margin-bottom: 1rem;
+        }
+
+        .quantity-input-retro {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            font-weight: 900;
+            text-align: center;
+            color: var(--retro-dark);
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+        }
+
+        .quantity-input-retro:focus {
+            outline: none;
+        }
+
+        .rating-retro {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .star-retro {
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            color: var(--retro-brown);
+            transition: all 0.3s ease;
+            font-size: 1.5rem;
+            background: var(--retro-cream);
+            border: 2px solid var(--retro-brown);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .star-retro.active {
+            color: var(--retro-gold);
+            background: var(--retro-dark);
+            border-color: var(--retro-gold);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .star-retro:hover {
+            background: var(--retro-yellow);
+            transform: scale(1.1);
+        }
+
+        .checkbox-list-retro {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .checkbox-retro {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: var(--retro-cream);
+            border: 2px solid var(--retro-brown);
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-retro:hover {
+            background: var(--retro-yellow);
+            border-color: var(--retro-orange);
+        }
+
+        .checkbox-retro input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            appearance: none;
+            background: var(--retro-cream);
+            border: 3px solid var(--retro-brown);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .checkbox-retro input[type="checkbox"]:checked {
+            background: var(--retro-green);
+            border-color: var(--retro-dark);
+        }
+
+        .checkbox-retro input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--retro-cream);
+            font-weight: 900;
+            font-size: 0.8rem;
+        }
+
+        .checkbox-retro label {
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--retro-dark);
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .action-area-retro {
+            padding: 2rem;
+            background: var(--retro-cream);
+            border-top: 8px solid var(--retro-brown);
+            position: relative;
+        }
+
+        .action-area-retro::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: var(--retro-yellow);
+        }
+
+        .btn-retro {
+            width: 100%;
+            padding: 1rem 2rem;
+            border: 4px solid var(--retro-dark);
+            background: var(--retro-orange);
+            color: var(--retro-cream);
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+            position: relative;
+            box-shadow: 6px 6px 0 var(--retro-dark);
+        }
+
+        .btn-retro:hover {
+            background: var(--retro-yellow);
+            color: var(--retro-dark);
+            transform: translate(2px, 2px);
+            box-shadow: 4px 4px 0 var(--retro-dark);
+        }
+
+        .btn-retro:active {
+            transform: translate(6px, 6px);
+            box-shadow: 0 0 0 var(--retro-dark);
+        }
+
+        .btn-retro:last-child {
+            margin-bottom: 0;
+        }
+
+        .btn-secondary-retro {
+            background: var(--retro-cream);
+            color: var(--retro-dark);
+            border-color: var(--retro-brown);
+        }
+
+        .btn-secondary-retro:hover {
+            background: var(--retro-brown);
+            color: var(--retro-cream);
+        }
+
+        /* CRT Effect */
+        .retro-section::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.03) 2px,
+                rgba(0, 0, 0, 0.03) 4px
+            );
+            pointer-events: none;
+        }
+
+        /* Scrollbar styling - retro */
+        .retro-content::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        .retro-content::-webkit-scrollbar-track {
+            background: var(--retro-brown);
+            border: 2px solid var(--retro-dark);
+        }
+
+        .retro-content::-webkit-scrollbar-thumb {
+            background: var(--retro-orange);
+            border: 2px solid var(--retro-dark);
+        }
+
+        .retro-content::-webkit-scrollbar-thumb:hover {
+            background: var(--retro-yellow);
+        }
+
+        /* Terminal effect */
+        .terminal-text {
+            font-family: 'Courier Prime', monospace;
+            color: var(--retro-green);
+            background: var(--retro-dark);
+            padding: 1rem;
+            border: 2px solid var(--retro-green);
+            margin: 1rem 0;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
+        .terminal-text::before {
+            content: '> ';
+            color: var(--retro-yellow);
+        }
+
+        /* Vintage decorations */
+        .vintage-corner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--retro-gold);
+        }
+
+        .vintage-corner.top-left {
+            top: 10px;
+            left: 10px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .vintage-corner.top-right {
+            top: 10px;
+            right: 10px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .vintage-corner.bottom-left {
+            bottom: 10px;
+            left: 10px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .vintage-corner.bottom-right {
+            bottom: 10px;
+            right: 10px;
+            border-left: none;
+            border-top: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="main-content">
+            <div class="demo-title">
+                <i class="bi bi-cassette me-3"></i>
+                Demo Sidebar 17: Retro Vintage
+            </div>
+        </div>
+        
+        <div class="sidebar-demo">
+            <div class="vintage-corner top-left"></div>
+            <div class="vintage-corner top-right"></div>
+            <div class="vintage-corner bottom-left"></div>
+            <div class="vintage-corner bottom-right"></div>
+            
+            <div class="retro-header">
+                <h1 class="retro-title">Production Report System</h1>
+                <div class="retro-info">
+                    <div class="retro-badge">LSX001234</div>
+                    <div class="status-display">ACTIVE</div>
+                </div>
+                <div class="terminal-text">
+                    SYSTEM READY - AWAITING INPUT
+                </div>
+            </div>
+
+            <div class="retro-content">
+                <!-- Production Information -->
+                <div class="retro-section">
+                    <div class="section-title-retro">
+                        <div class="retro-icon">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        Worker Information
+                    </div>
+                    
+                    <div class="form-group-retro">
+                        <label class="form-label-retro">Worker Name</label>
+                        <input type="text" class="input-retro" value="NGUYEN VAN A">
+                    </div>
+
+                    <div class="form-group-retro">
+                        <label class="form-label-retro">Work Shift</label>
+                        <select class="select-retro">
+                            <option>SHIFT 1 (6:00 - 14:00)</option>
+                            <option>SHIFT 2 (14:00 - 22:00)</option>
+                            <option>SHIFT 3 (22:00 - 6:00)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group-retro">
+                        <label class="form-label-retro">Machine ID</label>
+                        <select class="select-retro">
+                            <option>XA-001</option>
+                            <option>XA-002</option>
+                            <option>XA-003</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Quantity Results -->
+                <div class="retro-section">
+                    <div class="section-title-retro">
+                        <div class="retro-icon">
+                            <i class="bi bi-calculator-fill"></i>
+                        </div>
+                        Production Results
+                    </div>
+                    
+                    <div class="quantity-grid-retro">
+                        <div class="quantity-card-retro success">
+                            <div class="quantity-label-retro">GOOD UNITS</div>
+                            <input type="number" class="quantity-input-retro" value="950">
+                        </div>
+                        <div class="quantity-card-retro danger">
+                            <div class="quantity-label-retro">DEFECTIVE</div>
+                            <input type="number" class="quantity-input-retro" value="50">
+                        </div>
+                        <div class="quantity-card-retro warning">
+                            <div class="quantity-label-retro">START/END NG</div>
+                            <input type="number" class="quantity-input-retro" value="20">
+                        </div>
+                        <div class="quantity-card-retro info">
+                            <div class="quantity-label-retro">RETURNED</div>
+                            <input type="number" class="quantity-input-retro" value="10">
+                        </div>
+                    </div>
+
+                    <div class="form-group-retro" style="margin-top: 1.5rem;">
+                        <label class="form-label-retro">Handover Quantity</label>
+                        <input type="number" class="input-retro" value="900" style="font-size: 1.2rem; font-weight: 900; text-align: center;">
+                    </div>
+
+                    <div class="terminal-text">
+                        EFFICIENCY: 95% - STATUS: OPTIMAL
+                    </div>
+                </div>
+
+                <!-- Quality Assessment -->
+                <div class="retro-section">
+                    <div class="section-title-retro">
+                        <div class="retro-icon">
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                        Quality Assessment
+                    </div>
+                    
+                    <div class="form-group-retro">
+                        <label class="form-label-retro">Quality Level</label>
+                        <select class="select-retro">
+                            <option>EXCELLENT (A+)</option>
+                            <option>GOOD (A)</option>
+                            <option>FAIR (B+)</option>
+                            <option>AVERAGE (B)</option>
+                            <option>POOR (C)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group-retro">
+                        <label class="form-label-retro">Overall Rating</label>
+                        <div class="rating-retro">
+                            <div class="star-retro active"><i class="bi bi-star-fill"></i></div>
+                            <div class="star-retro active"><i class="bi bi-star-fill"></i></div>
+                            <div class="star-retro active"><i class="bi bi-star-fill"></i></div>
+                            <div class="star-retro active"><i class="bi bi-star-fill"></i></div>
+                            <div class="star-retro active"><i class="bi bi-star-fill"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group-retro">
+                        <label class="form-label-retro">Issues Encountered</label>
+                        <div class="checkbox-list-retro">
+                            <div class="checkbox-retro">
+                                <input type="checkbox" id="issue1">
+                                <label for="issue1">MACHINE MALFUNCTION</label>
+                            </div>
+                            <div class="checkbox-retro">
+                                <input type="checkbox" id="issue2" checked>
+                                <label for="issue2">POOR MATERIAL QUALITY</label>
+                            </div>
+                            <div class="checkbox-retro">
+                                <input type="checkbox" id="issue3">
+                                <label for="issue3">PROCESS ERROR</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="retro-section">
+                    <div class="section-title-retro">
+                        <div class="retro-icon">
+                            <i class="bi bi-journal-text"></i>
+                        </div>
+                        System Log
+                    </div>
+                    
+                    <div class="form-group-retro">
+                        <label class="form-label-retro">Production Notes</label>
+                        <textarea class="textarea-retro" placeholder="ENTER PRODUCTION NOTES...">PRODUCTION RUNNING SMOOTHLY. MACHINE OPERATING WITHIN NORMAL PARAMETERS. PRODUCT QUALITY MEETS SPECIFICATIONS.</textarea>
+                    </div>
+
+                    <div class="form-group-retro">
+                        <label class="form-label-retro">Improvement Suggestions</label>
+                        <textarea class="textarea-retro" placeholder="ENTER SUGGESTIONS...">RECOMMEND ENHANCED QUALITY CONTROL FOR INPUT MATERIALS TO REDUCE DEFECT RATES.</textarea>
+                    </div>
+
+                    <div class="terminal-text">
+                        LOG ENTRY SAVED - TIMESTAMP: 10:30:45
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-area-retro">
+                <button class="btn-retro">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    CONFIRM REPORT
+                </button>
+                <button class="btn-retro btn-secondary-retro">
+                    <i class="bi bi-arrow-clockwise me-2"></i>
+                    RESET SYSTEM
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Star rating functionality
+        document.querySelectorAll('.star-retro').forEach((star, index) => {
+            star.addEventListener('click', () => {
+                const stars = star.parentElement.querySelectorAll('.star-retro');
+                stars.forEach((s, i) => {
+                    if (i <= index) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Terminal typing effect
+        function typeWriter(element, text, speed = 50) {
+            let i = 0;
+            element.innerHTML = '';
+            
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            
+            type();
+        }
+
+        // Add retro sound effects (simulated)
+        function playRetroSound() {
+            // Create audio context for retro beep sound
+            if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
+                const audioContext = new (AudioContext || webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'square';
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            }
+        }
+
+        // Add click sound to buttons
+        document.querySelectorAll('.btn-retro').forEach(btn => {
+            btn.addEventListener('click', () => {
+                playRetroSound();
+                
+                // Add visual feedback
+                btn.style.transform = 'translate(6px, 6px)';
+                btn.style.boxShadow = '0 0 0 var(--retro-dark)';
+                
+                setTimeout(() => {
+                    btn.style.transform = '';
+                    btn.style.boxShadow = '';
+                }, 150);
+            });
+        });
+
+        // Add typing sound to inputs
+        document.querySelectorAll('.input-retro, .textarea-retro').forEach(input => {
+            input.addEventListener('keydown', () => {
+                if (Math.random() > 0.7) { // Random typing sounds
+                    playRetroSound();
+                }
+            });
+        });
+
+        // Retro loading animation
+        function showRetroLoading() {
+            const terminal = document.querySelector('.terminal-text');
+            const loadingTexts = [
+                'INITIALIZING SYSTEM...',
+                'LOADING MODULES...',
+                'CHECKING HARDWARE...',
+                'SYSTEM READY - AWAITING INPUT'
+            ];
+            
+            let currentIndex = 0;
+            
+            function showNext() {
+                if (currentIndex < loadingTexts.length) {
+                    typeWriter(terminal, '> ' + loadingTexts[currentIndex], 30);
+                    currentIndex++;
+                    setTimeout(showNext, 1500);
+                }
+            }
+            
+            showNext();
+        }
+
+        // Initialize retro effects
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(showRetroLoading, 1000);
+            
+            // Add scanline effect
+            const scanline = document.createElement('div');
+            scanline.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, transparent, var(--retro-green), transparent);
+                animation: scanline 3s linear infinite;
+                pointer-events: none;
+                z-index: 1000;
+            `;
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes scanline {
+                    0% { transform: translateY(-2px); }
+                    100% { transform: translateY(100vh); }
+                }
+            `;
+            document.head.appendChild(style);
+            document.body.appendChild(scanline);
+        });
+
+        // Add retro hover effects
+        document.querySelectorAll('.retro-section').forEach(section => {
+            section.addEventListener('mouseenter', () => {
+                section.style.boxShadow = '12px 12px 0 rgba(139, 69, 19, 0.5)';
+                section.style.transform = 'translate(-2px, -2px)';
+            });
+            
+            section.addEventListener('mouseleave', () => {
+                section.style.boxShadow = '8px 8px 0 rgba(139, 69, 19, 0.3)';
+                section.style.transform = 'translate(0, 0)';
+            });
+        });
+
+        // Retro data validation with terminal feedback
+        document.querySelectorAll('.quantity-input-retro').forEach(input => {
+            input.addEventListener('change', () => {
+                const value = parseInt(input.value) || 0;
+                const terminal = document.querySelector('.terminal-text');
+                
+                if (value > 1000) {
+                    typeWriter(terminal, '> WARNING: VALUE EXCEEDS NORMAL RANGE');
+                    playRetroSound();
+                } else if (value < 0) {
+                    typeWriter(terminal, '> ERROR: NEGATIVE VALUES NOT PERMITTED');
+                    playRetroSound();
+                } else {
+                    typeWriter(terminal, '> VALUE ACCEPTED - UPDATING CALCULATIONS');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 // N8N API Configuration
-const N8N_BASE_URL = 'https://autoslp.duckdns.org:5678/webhook';
-const N8N_BASE_URL_API = 'https://autoslp.duckdns.org/api/data';
+const N8N_BASE_URL = 'https://api.autoslp.com:5678/webhook';
+const N8N_BASE_URL_API = 'https://api.autoslp.com/api/data';
 const ENDPOINTS = {
   GET_WORKS: `${N8N_BASE_URL_API}/congviec`,
   GET_USERS: `${N8N_BASE_URL_API}/user`,
@@ -525,7 +525,7 @@ async function assignMainWorker(stt, buttonElement) {
     const seconds = String(now.getSeconds()).padStart(2, '0');
     const currentTime = `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
 
-    const response = await fetch('https://autoslp.duckdns.org:5678/webhook/update-congviec', {
+    const response = await fetch('https://api.autoslp.com:5678/webhook/update-congviec', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -620,7 +620,7 @@ async function assignSupportWorker(stt, buttonElement) {
     const seconds = String(now.getSeconds()).padStart(2, '0');
     const currentTime = `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
 
-    const response = await fetch('https://autoslp.duckdns.org:5678/webhook/update-congviec', {
+    const response = await fetch('https://api.autoslp.com:5678/webhook/update-congviec', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -963,7 +963,7 @@ function updateWork(stt) {
       saveBtn.disabled = false;
     }, 2000);
     try {
-      const response = await fetch('https://autoslp.duckdns.org:5678/webhook/update-congviec', {
+      const response = await fetch('https://api.autoslp.com:5678/webhook/update-congviec', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1037,7 +1037,7 @@ function updateWork(stt) {
       saveAndDeliverBtn.disabled = false;
     }, 2000);
     try {
-      const response = await fetch('https://autoslp.duckdns.org:5678/webhook/update-congviec', {
+      const response = await fetch('https://api.autoslp.com:5678/webhook/update-congviec', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1156,7 +1156,7 @@ window.confirmWork = async function(stt, buttonElement, action, event) {
   }
 
   try {
-    const response = await fetch('https://autoslp.duckdns.org:5678/webhook/update-congviec', {
+    const response = await fetch('https://api.autoslp.com:5678/webhook/update-congviec', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Sidebar 6 - Grid Layout</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --grid-primary: #8b5cf6;
+            --grid-secondary: #06b6d4;
+            --grid-success: #10b981;
+            --grid-warning: #f59e0b;
+            --grid-danger: #ef4444;
+            --grid-bg: #fafbfc;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+        }
+
+        .demo-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-demo {
+            width: 480px;
+            background: var(--grid-bg);
+            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, var(--grid-primary), var(--grid-secondary));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .sidebar-header h5 {
+            margin: 0 0 0.5rem 0;
+            font-weight: 600;
+        }
+
+        .order-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .status-chip {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            grid-auto-rows: min-content;
+        }
+
+        .grid-section {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .grid-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .title-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .title-icon.purple { background: var(--grid-primary); }
+        .title-icon.cyan { background: var(--grid-secondary); }
+        .title-icon.green { background: var(--grid-success); }
+        .title-icon.amber { background: var(--grid-warning); }
+
+        /* Grid Layouts */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1rem;
+        }
+
+        .info-grid.triple {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .quantity-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .quality-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .notes-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .grid-item {
+            background: #f8fafc;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .grid-item:hover {
+            border-color: var(--grid-primary);
+            background: #faf5ff;
+        }
+
+        .grid-item:focus-within {
+            border-color: var(--grid-primary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .grid-item.highlight {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-color: var(--grid-warning);
+        }
+
+        .grid-item.success {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border-color: var(--grid-success);
+        }
+
+        .grid-item.danger {
+            background: linear-gradient(135deg, #fecaca, #fca5a5);
+            border-color: var(--grid-danger);
+        }
+
+        .grid-item.info {
+            background: linear-gradient(135deg, #bfdbfe, #93c5fd);
+            border-color: var(--grid-secondary);
+        }
+
+        .item-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .item-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 0.5rem 0;
+            color: #1f2937;
+        }
+
+        .item-input:focus {
+            outline: none;
+        }
+
+        .item-input.large {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .success .item-input { color: var(--grid-success); }
+        .danger .item-input { color: var(--grid-danger); }
+        .highlight .item-input { color: var(--grid-warning); }
+        .info .item-input { color: var(--grid-secondary); }
+
+        .select-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 0.5rem 0;
+            color: #1f2937;
+        }
+
+        .textarea-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 0.9rem;
+            font-family: inherit;
+            resize: none;
+            min-height: 60px;
+            padding: 0.5rem 0;
+            color: #1f2937;
+        }
+
+        .textarea-input:focus {
+            outline: none;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--grid-primary);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            margin-top: 0.25rem;
+        }
+
+        .rating-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.5rem;
+            justify-items: center;
+        }
+
+        .star-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #e5e7eb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #9ca3af;
+        }
+
+        .star-btn.active {
+            background: var(--grid-warning);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .star-btn:hover {
+            background: #fbbf24;
+            color: white;
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-item:hover {
+            background: #f9fafb;
+            border-color: var(--grid-primary);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--grid-primary);
+        }
+
+        .checkbox-item label {
+            font-size: 0.85rem;
+            color: #374151;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .btn-grid {
+            padding: 0.875rem 1rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary-grid {
+            background: linear-gradient(135deg, var(--grid-primary), var(--grid-secondary));
+            color: white;
+        }
+
+        .btn-primary-grid:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-secondary-grid {
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-secondary-grid:hover {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        /* Scrollbar styling */
+        .sidebar-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: var(--grid-primary);
+            border-radius: 3px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb:hover {
+            background: #7c3aed;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="main-content">
+            <div class="demo-title">
+                <i class="bi bi-grid-3x3-gap-fill me-3"></i>
+                Demo Sidebar 6: Grid Layout
+            </div>
+        </div>
+        
+        <div class="sidebar-demo">
+            <div class="sidebar-header">
+                <h5><i class="bi bi-grid me-2"></i>Báo cáo lệnh</h5>
+                <div class="order-info">
+                    <div class="status-chip">
+                        <i class="bi bi-tag-fill"></i>
+                        <strong>LSX001234</strong>
+                    </div>
+                    <div class="status-chip">
+                        <i class="bi bi-play-circle-fill"></i>
+                        Đang sản xuất
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- Production Information -->
+                <div class="grid-section">
+                    <div class="section-title">
+                        <div class="title-icon purple">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        Thông tin sản xuất
+                    </div>
+                    <div class="info-grid">
+                        <div class="grid-item">
+                            <div class="item-label">
+                                <i class="bi bi-person-badge"></i>
+                                Tên thợ phụ trách
+                            </div>
+                            <input type="text" class="item-input" value="Nguyễn Văn A">
+                        </div>
+                        <div class="grid-item">
+                            <div class="item-label">
+                                <i class="bi bi-clock"></i>
+                                Ca
+                            </div>
+                            <select class="select-input">
+                                <option>Ca 1</option>
+                                <option>Ca 2</option>
+                                <option>Ca 3</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="info-grid triple">
+                        <div class="grid-item">
+                            <div class="item-label">
+                                <i class="bi bi-gear-fill"></i>
+                                Máy
+                            </div>
+                            <select class="select-input">
+                                <option>XẢ-001</option>
+                                <option>XẢ-002</option>
+                                <option>XẢ-003</option>
+                            </select>
+                        </div>
+                        <div class="grid-item">
+                            <div class="item-label">
+                                <i class="bi bi-stopwatch"></i>
+                                Bắt đầu
+                            </div>
+                            <input type="time" class="item-input" value="08:00">
+                        </div>
+                        <div class="grid-item highlight">
+                            <div class="item-label">
+                                <i class="bi bi-hourglass-split"></i>
+                                Thời gian
+                            </div>
+                            <input type="text" class="item-input" value="2h30p" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quantity Results -->
+                <div class="grid-section">
+                    <div class="section-title">
+                        <div class="title-icon cyan">
+                            <i class="bi bi-calculator-fill"></i>
+                        </div>
+                        Kết quả sản xuất
+                    </div>
+                    <div class="quantity-grid">
+                        <div class="grid-item success">
+                            <div class="item-label">
+                                <i class="bi bi-check-circle-fill"></i>
+                                Số lượng OK
+                            </div>
+                            <input type="number" class="item-input large" value="950">
+                        </div>
+                        <div class="grid-item danger">
+                            <div class="item-label">
+                                <i class="bi bi-x-circle-fill"></i>
+                                Số lượng NG
+                            </div>
+                            <input type="number" class="item-input large" value="50">
+                        </div>
+                        <div class="grid-item highlight">
+                            <div class="item-label">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                NG đầu/cuối
+                            </div>
+                            <input type="number" class="item-input large" value="20">
+                        </div>
+                        <div class="grid-item info">
+                            <div class="item-label">
+                                <i class="bi bi-arrow-return-left"></i>
+                                Số lượng trả
+                            </div>
+                            <input type="number" class="item-input large" value="10">
+                        </div>
+                    </div>
+                    <div class="info-grid">
+                        <div class="grid-item" style="background: linear-gradient(135deg, #e0e7ff, #c7d2fe);">
+                            <div class="item-label">
+                                <i class="bi bi-arrow-right-circle"></i>
+                                Chuyển giao
+                            </div>
+                            <input type="number" class="item-input large" value="900" style="color: var(--grid-primary);">
+                        </div>
+                        <div class="stats-row" style="grid-column: 2;">
+                            <div class="stat-item">
+                                <div class="stat-value">95%</div>
+                                <div class="stat-label">Hiệu suất</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quality Assessment -->
+                <div class="grid-section">
+                    <div class="section-title">
+                        <div class="title-icon green">
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                        Đánh giá chất lượng
+                    </div>
+                    <div class="quality-grid">
+                        <div class="grid-item">
+                            <div class="item-label">
+                                <i class="bi bi-award"></i>
+                                Mức chất lượng
+                            </div>
+                            <select class="select-input">
+                                <option>Xuất sắc (A+)</option>
+                                <option>Tốt (A)</option>
+                                <option>Khá (B+)</option>
+                                <option>Trung bình (B)</option>
+                            </select>
+                        </div>
+                        <div class="grid-item">
+                            <div class="item-label">
+                                <i class="bi bi-star"></i>
+                                Đánh giá
+                            </div>
+                            <div class="rating-grid">
+                                <button class="star-btn active"><i class="bi bi-star-fill"></i></button>
+                                <button class="star-btn active"><i class="bi bi-star-fill"></i></button>
+                                <button class="star-btn active"><i class="bi bi-star-fill"></i></button>
+                                <button class="star-btn active"><i class="bi bi-star-fill"></i></button>
+                                <button class="star-btn active"><i class="bi bi-star-fill"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-item">
+                        <div class="item-label">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Vấn đề gặp phải
+                        </div>
+                        <div class="checkbox-grid">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="issue1">
+                                <label for="issue1">Lỗi máy móc</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="issue2" checked>
+                                <label for="issue2">Nguyên liệu kém</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="issue3">
+                                <label for="issue3">Lỗi quy trình</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="issue4">
+                                <label for="issue4">Vấn đề khác</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes and Comments -->
+                <div class="grid-section">
+                    <div class="section-title">
+                        <div class="title-icon amber">
+                            <i class="bi bi-chat-text-fill"></i>
+                        </div>
+                        Ghi chú & Nhận xét
+                    </div>
+                    <div class="notes-grid">
+                        <div class="grid-item">
+                            <div class="item-label">
+                                <i class="bi bi-journal-text"></i>
+                                Ghi chú sản xuất
+                            </div>
+                            <textarea class="textarea-input" placeholder="Nhập ghi chú...">Sản xuất diễn ra bình thường. Máy hoạt động ổn định, chất lượng sản phẩm đạt yêu cầu.</textarea>
+                        </div>
+                        <div class="info-grid">
+                            <div class="grid-item">
+                                <div class="item-label">
+                                    <i class="bi bi-lightbulb"></i>
+                                    Đề xuất cải tiến
+                                </div>
+                                <textarea class="textarea-input" placeholder="Đề xuất...">Cần kiểm tra chất lượng nguyên liệu kỹ hơn.</textarea>
+                            </div>
+                            <div class="grid-item">
+                                <div class="item-label">
+                                    <i class="bi bi-tag"></i>
+                                    Tags
+                                </div>
+                                <input type="text" class="item-input" value="chất lượng tốt, ổn định">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-grid">
+                <button class="btn-grid btn-secondary-grid">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    Reset
+                </button>
+                <button class="btn-grid btn-primary-grid">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Xác nhận báo cáo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Star rating functionality
+        document.querySelectorAll('.star-btn').forEach((star, index) => {
+            star.addEventListener('click', () => {
+                const stars = star.parentElement.querySelectorAll('.star-btn');
+                stars.forEach((s, i) => {
+                    if (i <= index) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

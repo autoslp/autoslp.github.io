@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Sidebar 2 - Compact Horizontal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #ff6b6b;
+            --secondary-color: #4ecdc4;
+            --accent-color: #45b7d1;
+            --bg-light: #f8f9fa;
+            --text-dark: #2c3e50;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+        }
+
+        .demo-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-demo {
+            width: 450px;
+            background: white;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .sidebar-header::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid var(--secondary-color);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .compact-section {
+            background: var(--bg-light);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .horizontal-group {
+            display: flex;
+            gap: 0.75rem;
+            align-items: end;
+            margin-bottom: 1rem;
+        }
+
+        .horizontal-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-field {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .form-field.narrow {
+            flex: 0.7;
+        }
+
+        .form-field.wide {
+            flex: 1.5;
+        }
+
+        .field-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control-compact {
+            height: 35px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control-compact:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(69, 183, 209, 0.2);
+            outline: none;
+        }
+
+        .quantity-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            align-items: end;
+        }
+
+        .quantity-field {
+            text-align: center;
+        }
+
+        .quantity-field input {
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .quantity-field.ok input {
+            border-color: #28a745;
+            color: #28a745;
+        }
+
+        .quantity-field.ng input {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+        .quantity-field.handover input {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-quick {
+            flex: 1;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-outline-custom {
+            background: transparent;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .btn-outline-custom:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            margin-top: 0.5rem;
+        }
+
+        .info-pills {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .info-pill {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 15px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+
+        .textarea-compact {
+            min-height: 60px;
+            resize: vertical;
+        }
+
+        /* Scrollbar styling */
+        .sidebar-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="main-content">
+            <div class="demo-title">
+                <i class="bi bi-layout-three-columns me-3"></i>
+                Demo Sidebar 2: Compact Horizontal
+            </div>
+        </div>
+        
+        <div class="sidebar-demo">
+            <div class="sidebar-header">
+                <h5 class="mb-1"><i class="bi bi-clipboard-data me-2"></i>Báo cáo lệnh</h5>
+                <div><strong>LSX001234</strong></div>
+                <div class="status-indicator">
+                    <i class="bi bi-play-circle-fill"></i>
+                    Đang sản xuất
+                </div>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- Production Info -->
+                <div class="compact-section">
+                    <div class="section-title">
+                        <i class="bi bi-person-fill"></i>
+                        Thông tin sản xuất
+                    </div>
+                    
+                    <div class="horizontal-group">
+                        <div class="form-field wide">
+                            <div class="field-label">Tên thợ</div>
+                            <input type="text" class="form-control form-control-compact" value="Nguyễn Văn A">
+                        </div>
+                        <div class="form-field">
+                            <div class="field-label">Ca</div>
+                            <select class="form-control form-control-compact">
+                                <option>Ca 1</option>
+                                <option>Ca 2</option>
+                                <option>Ca 3</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="horizontal-group">
+                        <div class="form-field">
+                            <div class="field-label">Máy</div>
+                            <select class="form-control form-control-compact">
+                                <option>XẢ-001</option>
+                                <option>XẢ-002</option>
+                                <option>XẢ-003</option>
+                            </select>
+                        </div>
+                        <div class="form-field narrow">
+                            <div class="field-label">Thời gian</div>
+                            <input type="time" class="form-control form-control-compact" value="08:30">
+                        </div>
+                    </div>
+
+                    <div class="info-pills">
+                        <span class="info-pill">Bắt đầu: 08:00</span>
+                        <span class="info-pill">Thời gian: 2h30p</span>
+                    </div>
+                </div>
+
+                <!-- Quantity Results -->
+                <div class="compact-section">
+                    <div class="section-title">
+                        <i class="bi bi-calculator-fill"></i>
+                        Kết quả sản xuất
+                    </div>
+                    
+                    <div class="quantity-row">
+                        <div class="quantity-field ok">
+                            <div class="field-label">OK</div>
+                            <input type="number" class="form-control form-control-compact" value="950">
+                        </div>
+                        <div class="quantity-field ng">
+                            <div class="field-label">NG</div>
+                            <input type="number" class="form-control form-control-compact" value="50">
+                        </div>
+                        <div class="quantity-field ng">
+                            <div class="field-label">NG đầu/cuối</div>
+                            <input type="number" class="form-control form-control-compact" value="20">
+                        </div>
+                        <div class="quantity-field">
+                            <div class="field-label">Trả</div>
+                            <input type="number" class="form-control form-control-compact" value="10">
+                        </div>
+                    </div>
+
+                    <div class="horizontal-group mt-3">
+                        <div class="form-field quantity-field handover">
+                            <div class="field-label">Chuyển giao</div>
+                            <input type="number" class="form-control form-control-compact" value="900">
+                        </div>
+                        <div class="form-field">
+                            <div class="field-label">Hiệu suất</div>
+                            <input type="text" class="form-control form-control-compact" value="95%" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="compact-section">
+                    <div class="section-title">
+                        <i class="bi bi-chat-text-fill"></i>
+                        Ghi chú & Chất lượng
+                    </div>
+                    
+                    <div class="horizontal-group">
+                        <div class="form-field">
+                            <div class="field-label">Chất lượng</div>
+                            <select class="form-control form-control-compact">
+                                <option>Tốt</option>
+                                <option>Khá</option>
+                                <option>Trung bình</option>
+                            </select>
+                        </div>
+                        <div class="form-field narrow">
+                            <div class="field-label">Mức độ</div>
+                            <select class="form-control form-control-compact">
+                                <option>A</option>
+                                <option>B</option>
+                                <option>C</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <div class="field-label">Ghi chú chi tiết</div>
+                        <textarea class="form-control form-control-compact textarea-compact" placeholder="Nhập ghi chú...">Sản xuất bình thường, chất lượng tốt. Máy hoạt động ổn định.</textarea>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="btn btn-quick btn-outline-custom">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Reset
+                    </button>
+                    <button class="btn btn-quick btn-primary-custom">
+                        <i class="bi bi-check-circle-fill"></i>
+                        Xác nhận
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

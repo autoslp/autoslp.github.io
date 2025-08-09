@@ -1,7 +1,7 @@
 // API Configuration
 const API_CONFIG = {
     // Base URL cho API
-    BASE_URL: 'https://autoslp.duckdns.org',
+    BASE_URL: 'https://api.autoslp.com',
     
     // API Endpoints
     ENDPOINTS: {

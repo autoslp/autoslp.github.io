@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Sidebar 3B - Horizontal Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --dash-primary: #3b82f6;
+            --dash-secondary: #10b981;
+            --dash-accent: #f59e0b;
+            --dash-danger: #ef4444;
+            --dash-purple: #8b5cf6;
+            --bg-gradient: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+        }
+
+        body {
+            background: var(--bg-gradient);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+        }
+
+        .demo-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-demo {
+            width: 480px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            box-shadow: -5px 0 25px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--dash-primary), var(--dash-purple));
+            color: white;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .order-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .header-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .header-stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Enhanced Tabs */
+        .enhanced-tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+        .enhanced-tab {
+            flex: 1;
+            padding: 1rem 0.75rem;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .enhanced-tab:hover {
+            color: var(--dash-primary);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .enhanced-tab.active {
+            color: var(--dash-primary);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .enhanced-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 3px;
+            background: var(--dash-primary);
+            border-radius: 2px;
+        }
+
+        .tab-icon {
+            font-size: 1.2rem;
+        }
+
+        .tab-badge {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: var(--dash-danger);
+            color: white;
+            font-size: 0.6rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: 10px;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        /* Dashboard Content */
+        .dashboard-content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+
+        .dashboard-panel {
+            display: none;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .dashboard-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Widget Cards */
+        .widget-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .widget-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+
+        .widget-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        .widget-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .widget-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #374151;
+            flex: 1;
+        }
+
+        .widget-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .widget-icon.primary { background: var(--dash-primary); }
+        .widget-icon.secondary { background: var(--dash-secondary); }
+        .widget-icon.accent { background: var(--dash-accent); }
+        .widget-icon.danger { background: var(--dash-danger); }
+
+        .widget-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+
+        .widget-change {
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .widget-change.positive {
+            color: var(--dash-secondary);
+        }
+
+        .widget-change.negative {
+            color: var(--dash-danger);
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 1rem;
+        }
+
+        .chart-wrapper {
+            height: 200px;
+            position: relative;
+        }
+
+        /* Form Widgets */
+        .form-widget {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group-dash {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label-dash {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input-dash {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input-dash:focus {
+            outline: none;
+            border-color: var(--dash-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Action Panel */
+        .action-panel {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .action-btn-dash {
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-start {
+            background: var(--dash-secondary);
+            color: white;
+        }
+
+        .btn-start:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .btn-stop {
+            background: var(--dash-danger);
+            color: white;
+        }
+
+        .btn-stop:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .btn-report {
+            background: var(--dash-primary);
+            color: white;
+        }
+
+        .btn-report:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        /* Scrollbar */
+        .dashboard-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .dashboard-content::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .dashboard-content::-webkit-scrollbar-thumb {
+            background: var(--dash-primary);
+            border-radius: 3px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="main-content">
+            <div class="demo-title">
+                <i class="bi bi-speedometer2 me-3"></i>
+                Demo Sidebar 3B: Horizontal Dashboard
+            </div>
+        </div>
+        
+        <div class="sidebar-demo">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="header-content">
+                    <div class="header-top">
+                        <div class="order-title">LSX001234 - Production Report</div>
+                        <div class="status-indicator">
+                            <div class="status-dot"></div>
+                            ACTIVE
+                        </div>
+                    </div>
+                    <div class="header-stats">
+                        <div class="header-stat">
+                            <div class="stat-number">95%</div>
+                            <div class="stat-label">Efficiency</div>
+                        </div>
+                        <div class="header-stat">
+                            <div class="stat-number">1000</div>
+                            <div class="stat-label">Produced</div>
+                        </div>
+                        <div class="header-stat">
+                            <div class="stat-number">2.5h</div>
+                            <div class="stat-label">Runtime</div>
+                        </div>
+                        <div class="header-stat">
+                            <div class="stat-number">A+</div>
+                            <div class="stat-label">Quality</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Tabs -->
+            <div class="enhanced-tabs">
+                <button class="enhanced-tab active" onclick="switchDashPanel('overview')">
+                    <i class="bi bi-speedometer2 tab-icon"></i>
+                    <span>Overview</span>
+                </button>
+                <button class="enhanced-tab" onclick="switchDashPanel('production')">
+                    <i class="bi bi-gear-fill tab-icon"></i>
+                    <span>Production</span>
+                    <span class="tab-badge">3</span>
+                </button>
+                <button class="enhanced-tab" onclick="switchDashPanel('quality')">
+                    <i class="bi bi-shield-check tab-icon"></i>
+                    <span>Quality</span>
+                </button>
+                <button class="enhanced-tab" onclick="switchDashPanel('analytics')">
+                    <i class="bi bi-graph-up tab-icon"></i>
+                    <span>Analytics</span>
+                </button>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Overview Panel -->
+                <div id="overview-panel" class="dashboard-panel active">
+                    <div class="widget-grid">
+                        <div class="widget-card">
+                            <div class="widget-header">
+                                <div class="widget-title">Production Rate</div>
+                                <div class="widget-icon primary">
+                                    <i class="bi bi-speedometer2"></i>
+                                </div>
+                            </div>
+                            <div class="widget-value">1,200</div>
+                            <div class="widget-change positive">
+                                <i class="bi bi-arrow-up"></i>
+                                +5.2% from last hour
+                            </div>
+                        </div>
+
+                        <div class="widget-card">
+                            <div class="widget-header">
+                                <div class="widget-title">Quality Score</div>
+                                <div class="widget-icon secondary">
+                                    <i class="bi bi-star-fill"></i>
+                                </div>
+                            </div>
+                            <div class="widget-value">95%</div>
+                            <div class="widget-change positive">
+                                <i class="bi bi-arrow-up"></i>
+                                +2.1% improvement
+                            </div>
+                        </div>
+
+                        <div class="widget-card">
+                            <div class="widget-header">
+                                <div class="widget-title">Defect Rate</div>
+                                <div class="widget-icon danger">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </div>
+                            </div>
+                            <div class="widget-value">5%</div>
+                            <div class="widget-change negative">
+                                <i class="bi bi-arrow-down"></i>
+                                -1.2% better
+                            </div>
+                        </div>
+
+                        <div class="widget-card">
+                            <div class="widget-header">
+                                <div class="widget-title">Efficiency</div>
+                                <div class="widget-icon accent">
+                                    <i class="bi bi-lightning-fill"></i>
+                                </div>
+                            </div>
+                            <div class="widget-value">98%</div>
+                            <div class="widget-change positive">
+                                <i class="bi bi-arrow-up"></i>
+                                Target achieved
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="chart-title">Production Trend</div>
+                        <div class="chart-wrapper">
+                            <canvas id="overviewChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Production Panel -->
+                <div id="production-panel" class="dashboard-panel">
+                    <div class="form-widget">
+                        <div class="chart-title">Production Settings</div>
+                        <div class="form-row">
+                            <div class="form-group-dash">
+                                <label class="form-label-dash">Worker</label>
+                                <input type="text" class="form-input-dash" value="Nguyễn Văn A">
+                            </div>
+                            <div class="form-group-dash">
+                                <label class="form-label-dash">Shift</label>
+                                <select class="form-input-dash">
+                                    <option>Ca 1 (6:00-14:00)</option>
+                                    <option>Ca 2 (14:00-22:00)</option>
+                                    <option>Ca 3 (22:00-6:00)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group-dash">
+                                <label class="form-label-dash">Machine</label>
+                                <select class="form-input-dash">
+                                    <option>XẢ-001</option>
+                                    <option>XẢ-002</option>
+                                    <option>XẢ-003</option>
+                                </select>
+                            </div>
+                            <div class="form-group-dash">
+                                <label class="form-label-dash">Speed (m/min)</label>
+                                <input type="number" class="form-input-dash" value="1200">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="widget-grid">
+                        <div class="widget-card">
+                            <div class="widget-header">
+                                <div class="widget-title">OK Units</div>
+                                <div class="widget-icon secondary">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
+                            </div>
+                            <div class="widget-value">950</div>
+                            <input type="number" value="950" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 6px; margin-top: 0.5rem;">
+                        </div>
+
+                        <div class="widget-card">
+                            <div class="widget-header">
+                                <div class="widget-title">NG Units</div>
+                                <div class="widget-icon danger">
+                                    <i class="bi bi-x-circle"></i>
+                                </div>
+                            </div>
+                            <div class="widget-value">50</div>
+                            <input type="number" value="50" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 6px; margin-top: 0.5rem;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quality Panel -->
+                <div id="quality-panel" class="dashboard-panel">
+                    <div class="chart-container">
+                        <div class="chart-title">Quality Distribution</div>
+                        <div class="chart-wrapper">
+                            <canvas id="qualityChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="form-widget">
+                        <div class="form-row">
+                            <div class="form-group-dash">
+                                <label class="form-label-dash">Quality Grade</label>
+                                <select class="form-input-dash">
+                                    <option>A+ (Excellent)</option>
+                                    <option>A (Good)</option>
+                                    <option>B+ (Fair)</option>
+                                    <option>B (Average)</option>
+                                    <option>C (Poor)</option>
+                                </select>
+                            </div>
+                            <div class="form-group-dash">
+                                <label class="form-label-dash">Inspector</label>
+                                <input type="text" class="form-input-dash" value="Trần Thị B">
+                            </div>
+                        </div>
+                        <div class="form-group-dash">
+                            <label class="form-label-dash">Quality Notes</label>
+                            <textarea class="form-input-dash" rows="3" placeholder="Enter quality observations...">Product meets all quality standards. Minor surface variations within acceptable limits.</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Panel -->
+                <div id="analytics-panel" class="dashboard-panel">
+                    <div class="chart-container">
+                        <div class="chart-title">Performance Analytics</div>
+                        <div class="chart-wrapper">
+                            <canvas id="analyticsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="widget-grid">
+                        <div class="widget-card">
+                            <div class="widget-header">
+                                <div class="widget-title">Avg Cycle Time</div>
+                                <div class="widget-icon primary">
+                                    <i class="bi bi-clock"></i>
+                                </div>
+                            </div>
+                            <div class="widget-value">2.4s</div>
+                            <div class="widget-change positive">
+                                <i class="bi bi-arrow-down"></i>
+                                -0.2s faster
+                            </div>
+                        </div>
+
+                        <div class="widget-card">
+                            <div class="widget-header">
+                                <div class="widget-title">Downtime</div>
+                                <div class="widget-icon accent">
+                                    <i class="bi bi-pause-circle"></i>
+                                </div>
+                            </div>
+                            <div class="widget-value">12min</div>
+                            <div class="widget-change negative">
+                                <i class="bi bi-arrow-up"></i>
+                                +3min today
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Panel -->
+            <div class="action-panel">
+                <button class="action-btn-dash btn-start">
+                    <i class="bi bi-play-fill"></i>
+                    Start Production
+                </button>
+                <button class="action-btn-dash btn-stop">
+                    <i class="bi bi-stop-fill"></i>
+                    Stop Production
+                </button>
+                <button class="action-btn-dash btn-report">
+                    <i class="bi bi-file-text"></i>
+                    Generate Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function switchDashPanel(panelName) {
+            // Remove active from all tabs and panels
+            document.querySelectorAll('.enhanced-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.dashboard-panel').forEach(panel => panel.classList.remove('active'));
+            
+            // Add active to clicked tab and corresponding panel
+            event.target.closest('.enhanced-tab').classList.add('active');
+            document.getElementById(panelName + '-panel').classList.add('active');
+        }
+
+        // Initialize Charts
+        const overviewCtx = document.getElementById('overviewChart').getContext('2d');
+        new Chart(overviewCtx, {
+            type: 'line',
+            data: {
+                labels: ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00'],
+                datasets: [{
+                    label: 'Production',
+                    data: [150, 280, 420, 580, 750, 950],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                    x: { grid: { color: '#f1f5f9' } }
+                }
+            }
+        });
+
+        const qualityCtx = document.getElementById('qualityChart').getContext('2d');
+        new Chart(qualityCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['OK', 'NG', 'Rework'],
+                datasets: [{
+                    data: [950, 50, 20],
+                    backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        const analyticsCtx = document.getElementById('analyticsChart').getContext('2d');
+        new Chart(analyticsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Efficiency', 'Quality', 'Speed', 'Uptime'],
+                datasets: [{
+                    data: [95, 92, 98, 87],
+                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, max: 100, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

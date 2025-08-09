@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Sidebar 7 - Timeline Style</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --timeline-primary: #3b82f6;
+            --timeline-secondary: #10b981;
+            --timeline-accent: #f59e0b;
+            --timeline-danger: #ef4444;
+            --timeline-line: #e5e7eb;
+            --timeline-bg: #f8fafc;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+        }
+
+        .demo-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-demo {
+            width: 450px;
+            background: var(--timeline-bg);
+            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, var(--timeline-primary), var(--timeline-secondary));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .sidebar-header h5 {
+            margin: 0 0 0.5rem 0;
+            font-weight: 600;
+        }
+
+        .order-timeline-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 0.75rem;
+        }
+
+        .timeline-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+        }
+
+        .timeline-container {
+            position: relative;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 24px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--timeline-line);
+        }
+
+        .timeline-progress {
+            position: absolute;
+            left: 24px;
+            top: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--timeline-primary), var(--timeline-secondary));
+            height: 60%;
+            transition: height 0.5s ease;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 4rem;
+            margin-bottom: 2rem;
+            animation: slideInFromRight 0.5s ease;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        @keyframes slideInFromRight {
+            from { 
+                opacity: 0; 
+                transform: translateX(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateX(0); 
+            }
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: -1.5rem;
+            top: 0.5rem;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 2;
+        }
+
+        .timeline-marker.completed {
+            background: var(--timeline-secondary);
+        }
+
+        .timeline-marker.active {
+            background: var(--timeline-primary);
+            animation: pulse 2s infinite;
+        }
+
+        .timeline-marker.pending {
+            background: #9ca3af;
+        }
+
+        .timeline-marker.warning {
+            background: var(--timeline-accent);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+            50% { box-shadow: 0 4px 20px rgba(59, 130, 246, 0.6); }
+            100% { box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+        }
+
+        .timeline-content {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-content:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .timeline-content.completed {
+            border-left: 4px solid var(--timeline-secondary);
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+        }
+
+        .timeline-content.active {
+            border-left: 4px solid var(--timeline-primary);
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        }
+
+        .timeline-content.pending {
+            border-left: 4px solid #9ca3af;
+        }
+
+        .timeline-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .timeline-time {
+            font-size: 0.8rem;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+        }
+
+        .form-group-timeline {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group-timeline:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label-timeline {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-control-timeline {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control-timeline:focus {
+            outline: none;
+            border-color: var(--timeline-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .input-group-timeline {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .input-group-timeline .form-control-timeline {
+            flex: 1;
+        }
+
+        .quantity-row-timeline {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .quantity-box {
+            background: #f8fafc;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-box:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .quantity-box.success {
+            border-color: var(--timeline-secondary);
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+        }
+
+        .quantity-box.danger {
+            border-color: var(--timeline-danger);
+            background: linear-gradient(135deg, #fef2f2, #fecaca);
+        }
+
+        .quantity-box.warning {
+            border-color: var(--timeline-accent);
+            background: linear-gradient(135deg, #fffbeb, #fed7aa);
+        }
+
+        .quantity-box.info {
+            border-color: var(--timeline-primary);
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        }
+
+        .quantity-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .quantity-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-align: center;
+            color: inherit;
+        }
+
+        .quantity-input:focus {
+            outline: none;
+        }
+
+        .success .quantity-input { color: var(--timeline-secondary); }
+        .danger .quantity-input { color: var(--timeline-danger); }
+        .warning .quantity-input { color: var(--timeline-accent); }
+        .info .quantity-input { color: var(--timeline-primary); }
+
+        .textarea-timeline {
+            width: 100%;
+            min-height: 80px;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        .textarea-timeline:focus {
+            outline: none;
+            border-color: var(--timeline-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .status-indicator.completed {
+            background: linear-gradient(135deg, var(--timeline-secondary), #059669);
+            color: white;
+        }
+
+        .status-indicator.active {
+            background: linear-gradient(135deg, var(--timeline-primary), #1d4ed8);
+            color: white;
+        }
+
+        .status-indicator.pending {
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+        }
+
+        .action-buttons-timeline {
+            padding: 1.5rem;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-timeline {
+            flex: 1;
+            padding: 0.875rem 1rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary-timeline {
+            background: linear-gradient(135deg, var(--timeline-primary), var(--timeline-secondary));
+            color: white;
+        }
+
+        .btn-primary-timeline:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary-timeline {
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-secondary-timeline:hover {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .progress-summary {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e5e7eb;
+        }
+
+        .progress-bar-container {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--timeline-primary), var(--timeline-secondary));
+            width: 60%;
+            transition: width 0.5s ease;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+
+        .progress-stat {
+            color: #6b7280;
+        }
+
+        .progress-value {
+            font-weight: 600;
+            color: var(--timeline-primary);
+        }
+
+        /* Scrollbar styling */
+        .sidebar-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: var(--timeline-primary);
+            border-radius: 3px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="main-content">
+            <div class="demo-title">
+                <i class="bi bi-clock-history me-3"></i>
+                Demo Sidebar 7: Timeline Style
+            </div>
+        </div>
+        
+        <div class="sidebar-demo">
+            <div class="sidebar-header">
+                <h5><i class="bi bi-timeline me-2"></i>Báo cáo lệnh</h5>
+                <div class="order-timeline-info">
+                    <div class="timeline-badge">
+                        <i class="bi bi-tag-fill"></i>
+                        <strong>LSX001234</strong>
+                    </div>
+                    <div class="timeline-badge">
+                        <i class="bi bi-box-seam"></i>
+                        Carton A4
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- Progress Summary -->
+                <div class="progress-summary">
+                    <h6 style="margin-bottom: 1rem; color: #1f2937; font-weight: 600;">
+                        <i class="bi bi-graph-up me-2"></i>Tiến độ báo cáo
+                    </h6>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar"></div>
+                    </div>
+                    <div class="progress-stats">
+                        <span class="progress-stat">Đã hoàn thành: <span class="progress-value">3/5 bước</span></span>
+                        <span class="progress-stat">Tiến độ: <span class="progress-value">60%</span></span>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="timeline-container">
+                    <div class="timeline-line"></div>
+                    <div class="timeline-progress"></div>
+
+                    <!-- Step 1: Setup -->
+                    <div class="timeline-item">
+                        <div class="timeline-marker completed">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="timeline-content completed">
+                            <div class="timeline-title">
+                                Thiết lập thông tin
+                                <div class="timeline-time">08:00</div>
+                            </div>
+                            <div class="status-indicator completed">
+                                <i class="bi bi-check-circle-fill"></i>
+                                Đã hoàn thành
+                            </div>
+                            <div class="input-group-timeline">
+                                <div style="flex: 2;">
+                                    <div class="form-label-timeline">
+                                        <i class="bi bi-person-badge"></i>
+                                        Thợ phụ trách
+                                    </div>
+                                    <input type="text" class="form-control-timeline" value="Nguyễn Văn A" readonly>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div class="form-label-timeline">
+                                        <i class="bi bi-clock"></i>
+                                        Ca
+                                    </div>
+                                    <input type="text" class="form-control-timeline" value="Ca 1" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Machine Setup -->
+                    <div class="timeline-item">
+                        <div class="timeline-marker completed">
+                            <i class="bi bi-gear-fill"></i>
+                        </div>
+                        <div class="timeline-content completed">
+                            <div class="timeline-title">
+                                Cài đặt máy móc
+                                <div class="timeline-time">08:15</div>
+                            </div>
+                            <div class="status-indicator completed">
+                                <i class="bi bi-check-circle-fill"></i>
+                                Đã hoàn thành
+                            </div>
+                            <div class="form-group-timeline">
+                                <div class="form-label-timeline">
+                                    <i class="bi bi-gear-fill"></i>
+                                    Máy sản xuất
+                                </div>
+                                <input type="text" class="form-control-timeline" value="Máy XẢ 001" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Production -->
+                    <div class="timeline-item">
+                        <div class="timeline-marker active">
+                            <i class="bi bi-play-circle-fill"></i>
+                        </div>
+                        <div class="timeline-content active">
+                            <div class="timeline-title">
+                                Quá trình sản xuất
+                                <div class="timeline-time">08:30 - hiện tại</div>
+                            </div>
+                            <div class="status-indicator active">
+                                <i class="bi bi-play-circle-fill"></i>
+                                Đang thực hiện
+                            </div>
+                            <div class="quantity-row-timeline">
+                                <div class="quantity-box success">
+                                    <div class="quantity-label">OK</div>
+                                    <input type="number" class="quantity-input" value="950">
+                                </div>
+                                <div class="quantity-box danger">
+                                    <div class="quantity-label">NG</div>
+                                    <input type="number" class="quantity-input" value="50">
+                                </div>
+                            </div>
+                            <div class="quantity-row-timeline">
+                                <div class="quantity-box warning">
+                                    <div class="quantity-label">NG đầu/cuối</div>
+                                    <input type="number" class="quantity-input" value="20">
+                                </div>
+                                <div class="quantity-box info">
+                                    <div class="quantity-label">Trả</div>
+                                    <input type="number" class="quantity-input" value="10">
+                                </div>
+                            </div>
+                            <div class="form-group-timeline">
+                                <div class="form-label-timeline">
+                                    <i class="bi bi-arrow-right-circle"></i>
+                                    Số lượng chuyển giao
+                                </div>
+                                <input type="number" class="form-control-timeline" value="900" style="font-weight: 600; color: var(--timeline-primary);">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Quality Check -->
+                    <div class="timeline-item">
+                        <div class="timeline-marker pending">
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                        <div class="timeline-content pending">
+                            <div class="timeline-title">
+                                Đánh giá chất lượng
+                                <div class="timeline-time">Chờ thực hiện</div>
+                            </div>
+                            <div class="status-indicator pending">
+                                <i class="bi bi-clock"></i>
+                                Chờ thực hiện
+                            </div>
+                            <div class="form-group-timeline">
+                                <div class="form-label-timeline">
+                                    <i class="bi bi-award"></i>
+                                    Mức chất lượng
+                                </div>
+                                <select class="form-control-timeline">
+                                    <option>Chọn mức chất lượng</option>
+                                    <option>Xuất sắc (A+)</option>
+                                    <option>Tốt (A)</option>
+                                    <option>Khá (B+)</option>
+                                    <option>Trung bình (B)</option>
+                                </select>
+                            </div>
+                            <div class="form-group-timeline">
+                                <div class="form-label-timeline">
+                                    <i class="bi bi-chat-text"></i>
+                                    Nhận xét chất lượng
+                                </div>
+                                <textarea class="textarea-timeline" placeholder="Nhập nhận xét về chất lượng sản phẩm..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Final Notes -->
+                    <div class="timeline-item">
+                        <div class="timeline-marker pending">
+                            <i class="bi bi-journal-text"></i>
+                        </div>
+                        <div class="timeline-content pending">
+                            <div class="timeline-title">
+                                Ghi chú cuối cùng
+                                <div class="timeline-time">Chờ thực hiện</div>
+                            </div>
+                            <div class="status-indicator pending">
+                                <i class="bi bi-clock"></i>
+                                Chờ thực hiện
+                            </div>
+                            <div class="form-group-timeline">
+                                <div class="form-label-timeline">
+                                    <i class="bi bi-journal-text"></i>
+                                    Ghi chú tổng kết
+                                </div>
+                                <textarea class="textarea-timeline" placeholder="Nhập ghi chú tổng kết về ca sản xuất..."></textarea>
+                            </div>
+                            <div class="form-group-timeline">
+                                <div class="form-label-timeline">
+                                    <i class="bi bi-lightbulb"></i>
+                                    Đề xuất cải tiến
+                                </div>
+                                <textarea class="textarea-timeline" placeholder="Nhập đề xuất cải tiến (nếu có)..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons-timeline">
+                <button class="btn-timeline btn-secondary-timeline">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    Reset
+                </button>
+                <button class="btn-timeline btn-primary-timeline">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Tiếp tục
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Simulate timeline progress
+        function updateTimelineProgress() {
+            const completedSteps = document.querySelectorAll('.timeline-marker.completed').length;
+            const totalSteps = document.querySelectorAll('.timeline-marker').length;
+            const progress = (completedSteps / totalSteps) * 100;
+            
+            const progressBar = document.querySelector('.progress-bar');
+            const timelineProgress = document.querySelector('.timeline-progress');
+            
+            progressBar.style.width = progress + '%';
+            timelineProgress.style.height = progress + '%';
+        }
+
+        // Initialize timeline
+        updateTimelineProgress();
+
+        // Add click handlers for timeline items
+        document.querySelectorAll('.timeline-marker.pending').forEach(marker => {
+            marker.addEventListener('click', () => {
+                const timelineItem = marker.closest('.timeline-item');
+                const content = timelineItem.querySelector('.timeline-content');
+                
+                if (content.classList.contains('pending')) {
+                    marker.classList.remove('pending');
+                    marker.classList.add('active');
+                    content.classList.remove('pending');
+                    content.classList.add('active');
+                    
+                    const statusIndicator = content.querySelector('.status-indicator');
+                    statusIndicator.classList.remove('pending');
+                    statusIndicator.classList.add('active');
+                    statusIndicator.innerHTML = '<i class="bi bi-play-circle-fill"></i> Đang thực hiện';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

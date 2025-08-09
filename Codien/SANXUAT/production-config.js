@@ -2,7 +2,7 @@
 
 // API Configuration
 const API = {
-  baseUrl: 'https://autoslp.duckdns.org/api',
+  baseUrl: 'https://api.autoslp.com/api',
   
   formatNumber: function(num) {
     return new Intl.NumberFormat('vi-VN').format(num || 0);

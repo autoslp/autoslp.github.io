@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Sidebar 8 - Minimalist Clean</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --minimal-primary: #2563eb;
+            --minimal-gray: #64748b;
+            --minimal-light-gray: #94a3b8;
+            --minimal-bg: #ffffff;
+            --minimal-border: #e2e8f0;
+            --minimal-focus: #3b82f6;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            height: 100vh;
+            color: #1e293b;
+        }
+
+        .demo-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: 200;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: -0.025em;
+        }
+
+        .sidebar-demo {
+            width: 400px;
+            background: var(--minimal-bg);
+            box-shadow: -1px 0 3px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 2rem 2rem 1.5rem;
+            border-bottom: 1px solid var(--minimal-border);
+        }
+
+        .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: #0f172a;
+            margin: 0 0 0.5rem 0;
+            letter-spacing: -0.025em;
+        }
+
+        .order-code {
+            font-size: 0.875rem;
+            color: var(--minimal-gray);
+            font-weight: 500;
+        }
+
+        .status-minimal {
+            display: inline-block;
+            margin-top: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            background: #eff6ff;
+            color: var(--minimal-primary);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .section-minimal {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-minimal:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--minimal-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .field-minimal {
+            margin-bottom: 1.5rem;
+        }
+
+        .field-minimal:last-child {
+            margin-bottom: 0;
+        }
+
+        .field-label-minimal {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .input-minimal {
+            width: 100%;
+            padding: 0.75rem 0;
+            border: none;
+            border-bottom: 1px solid var(--minimal-border);
+            background: transparent;
+            font-size: 1rem;
+            font-weight: 400;
+            color: #0f172a;
+            transition: all 0.2s ease;
+        }
+
+        .input-minimal:focus {
+            outline: none;
+            border-bottom-color: var(--minimal-focus);
+        }
+
+        .input-minimal::placeholder {
+            color: var(--minimal-light-gray);
+        }
+
+        .select-minimal {
+            width: 100%;
+            padding: 0.75rem 0;
+            border: none;
+            border-bottom: 1px solid var(--minimal-border);
+            background: transparent;
+            font-size: 1rem;
+            font-weight: 400;
+            color: #0f172a;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .select-minimal:focus {
+            outline: none;
+            border-bottom-color: var(--minimal-focus);
+        }
+
+        .textarea-minimal {
+            width: 100%;
+            padding: 0.75rem 0;
+            border: none;
+            border-bottom: 1px solid var(--minimal-border);
+            background: transparent;
+            font-size: 1rem;
+            font-weight: 400;
+            color: #0f172a;
+            font-family: inherit;
+            resize: none;
+            min-height: 80px;
+            transition: all 0.2s ease;
+        }
+
+        .textarea-minimal:focus {
+            outline: none;
+            border-bottom-color: var(--minimal-focus);
+        }
+
+        .textarea-minimal::placeholder {
+            color: var(--minimal-light-gray);
+        }
+
+        .quantity-grid-minimal {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .quantity-item-minimal {
+            text-align: center;
+        }
+
+        .quantity-value {
+            font-size: 2.5rem;
+            font-weight: 200;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+            border: none;
+            background: transparent;
+            text-align: center;
+            width: 100%;
+        }
+
+        .quantity-value:focus {
+            outline: none;
+        }
+
+        .quantity-value.success {
+            color: #059669;
+        }
+
+        .quantity-value.danger {
+            color: #dc2626;
+        }
+
+        .quantity-value.warning {
+            color: #d97706;
+        }
+
+        .quantity-value.info {
+            color: var(--minimal-primary);
+        }
+
+        .quantity-label-minimal {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--minimal-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--minimal-border);
+            margin: 2rem 0;
+        }
+
+        .rating-minimal {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .star-minimal {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            color: #e2e8f0;
+            transition: color 0.15s ease;
+        }
+
+        .star-minimal.active {
+            color: #fbbf24;
+        }
+
+        .star-minimal:hover {
+            color: #f59e0b;
+        }
+
+        .checkbox-list-minimal {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .checkbox-minimal {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .checkbox-minimal input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--minimal-primary);
+        }
+
+        .checkbox-minimal label {
+            font-size: 0.875rem;
+            color: #475569;
+            cursor: pointer;
+        }
+
+        .action-area {
+            padding: 2rem;
+            border-top: 1px solid var(--minimal-border);
+        }
+
+        .btn-minimal {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            background: var(--minimal-primary);
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 1rem;
+        }
+
+        .btn-minimal:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-minimal:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn-minimal.secondary {
+            background: transparent;
+            color: var(--minimal-gray);
+            border: 1px solid var(--minimal-border);
+            margin-bottom: 0;
+        }
+
+        .btn-minimal.secondary:hover {
+            background: #f8fafc;
+            color: #334155;
+        }
+
+        .summary-minimal {
+            background: #f8fafc;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 0;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+            font-weight: 500;
+        }
+
+        .summary-label {
+            font-size: 0.875rem;
+            color: var(--minimal-gray);
+        }
+
+        .summary-value {
+            font-size: 0.875rem;
+            color: #0f172a;
+            font-weight: 500;
+        }
+
+        /* Scrollbar styling - minimal */
+        .sidebar-content::-webkit-scrollbar {
+            width: 1px;
+        }
+
+        .sidebar-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: var(--minimal-border);
+        }
+
+        .sidebar-content::-webkit-scrollbar-thumb:hover {
+            background: var(--minimal-light-gray);
+        }
+
+        /* Focus states */
+        .input-minimal:focus,
+        .select-minimal:focus,
+        .textarea-minimal:focus {
+            border-bottom-width: 2px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .sidebar-demo {
+                width: 100%;
+            }
+            
+            .quantity-grid-minimal {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="main-content">
+            <div class="demo-title">
+                <i class="bi bi-circle me-3"></i>
+                Demo Sidebar 8: Minimalist Clean
+            </div>
+        </div>
+        
+        <div class="sidebar-demo">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Báo cáo lệnh</h1>
+                <div class="order-code">LSX001234 - Carton A4</div>
+                <div class="status-minimal">Đang sản xuất</div>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- Production Information -->
+                <div class="section-minimal">
+                    <div class="section-label">Thông tin sản xuất</div>
+                    
+                    <div class="field-minimal">
+                        <label class="field-label-minimal">Tên thợ phụ trách</label>
+                        <input type="text" class="input-minimal" value="Nguyễn Văn A">
+                    </div>
+
+                    <div class="field-minimal">
+                        <label class="field-label-minimal">Ca làm việc</label>
+                        <select class="select-minimal">
+                            <option>Ca 1 (6:00 - 14:00)</option>
+                            <option>Ca 2 (14:00 - 22:00)</option>
+                            <option>Ca 3 (22:00 - 6:00)</option>
+                        </select>
+                    </div>
+
+                    <div class="field-minimal">
+                        <label class="field-label-minimal">Máy sản xuất</label>
+                        <select class="select-minimal">
+                            <option>Máy XẢ 001</option>
+                            <option>Máy XẢ 002</option>
+                            <option>Máy XẢ 003</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Quantity Results -->
+                <div class="section-minimal">
+                    <div class="section-label">Kết quả sản xuất</div>
+                    
+                    <div class="quantity-grid-minimal">
+                        <div class="quantity-item-minimal">
+                            <input type="number" class="quantity-value success" value="950">
+                            <div class="quantity-label-minimal">OK</div>
+                        </div>
+                        <div class="quantity-item-minimal">
+                            <input type="number" class="quantity-value danger" value="50">
+                            <div class="quantity-label-minimal">NG</div>
+                        </div>
+                        <div class="quantity-item-minimal">
+                            <input type="number" class="quantity-value warning" value="20">
+                            <div class="quantity-label-minimal">NG đầu/cuối</div>
+                        </div>
+                        <div class="quantity-item-minimal">
+                            <input type="number" class="quantity-value info" value="10">
+                            <div class="quantity-label-minimal">Trả</div>
+                        </div>
+                    </div>
+
+                    <div class="field-minimal" style="margin-top: 2rem;">
+                        <label class="field-label-minimal">Số lượng chuyển giao</label>
+                        <input type="number" class="input-minimal" value="900" style="font-size: 1.25rem; font-weight: 500; color: var(--minimal-primary);">
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Quality Assessment -->
+                <div class="section-minimal">
+                    <div class="section-label">Đánh giá chất lượng</div>
+                    
+                    <div class="field-minimal">
+                        <label class="field-label-minimal">Mức chất lượng</label>
+                        <select class="select-minimal">
+                            <option>Xuất sắc (A+)</option>
+                            <option>Tốt (A)</option>
+                            <option>Khá (B+)</option>
+                            <option>Trung bình (B)</option>
+                            <option>Yếu (C)</option>
+                        </select>
+                    </div>
+
+                    <div class="field-minimal">
+                        <label class="field-label-minimal">Đánh giá tổng thể</label>
+                        <div class="rating-minimal">
+                            <i class="bi bi-star-fill star-minimal active"></i>
+                            <i class="bi bi-star-fill star-minimal active"></i>
+                            <i class="bi bi-star-fill star-minimal active"></i>
+                            <i class="bi bi-star-fill star-minimal active"></i>
+                            <i class="bi bi-star-fill star-minimal active"></i>
+                        </div>
+                    </div>
+
+                    <div class="field-minimal">
+                        <label class="field-label-minimal">Vấn đề gặp phải</label>
+                        <div class="checkbox-list-minimal">
+                            <div class="checkbox-minimal">
+                                <input type="checkbox" id="issue1">
+                                <label for="issue1">Lỗi máy móc</label>
+                            </div>
+                            <div class="checkbox-minimal">
+                                <input type="checkbox" id="issue2" checked>
+                                <label for="issue2">Nguyên liệu kém chất lượng</label>
+                            </div>
+                            <div class="checkbox-minimal">
+                                <input type="checkbox" id="issue3">
+                                <label for="issue3">Lỗi quy trình</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Notes -->
+                <div class="section-minimal">
+                    <div class="section-label">Ghi chú</div>
+                    
+                    <div class="field-minimal">
+                        <label class="field-label-minimal">Ghi chú sản xuất</label>
+                        <textarea class="textarea-minimal" placeholder="Nhập ghi chú về quá trình sản xuất...">Sản xuất diễn ra bình thường. Máy hoạt động ổn định, chất lượng sản phẩm đạt yêu cầu.</textarea>
+                    </div>
+
+                    <div class="field-minimal">
+                        <label class="field-label-minimal">Đề xuất cải tiến</label>
+                        <textarea class="textarea-minimal" placeholder="Nhập đề xuất cải tiến...">Cần kiểm tra chất lượng nguyên liệu đầu vào kỹ hơn.</textarea>
+                    </div>
+                </div>
+
+                <!-- Summary -->
+                <div class="summary-minimal">
+                    <div class="section-label" style="margin-bottom: 1rem;">Tóm tắt</div>
+                    <div class="summary-row">
+                        <span class="summary-label">Tổng sản xuất</span>
+                        <span class="summary-value">1000 sản phẩm</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Hiệu suất</span>
+                        <span class="summary-value">95%</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Tỷ lệ NG</span>
+                        <span class="summary-value">5%</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Chuyển giao</span>
+                        <span class="summary-value">900 sản phẩm</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Area -->
+            <div class="action-area">
+                <button class="btn-minimal">Xác nhận báo cáo</button>
+                <button class="btn-minimal secondary">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Star rating functionality
+        document.querySelectorAll('.star-minimal').forEach((star, index) => {
+            star.addEventListener('click', () => {
+                const stars = star.parentElement.querySelectorAll('.star-minimal');
+                stars.forEach((s, i) => {
+                    if (i <= index) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Auto-resize textareas
+        document.querySelectorAll('.textarea-minimal').forEach(textarea => {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+        });
+    </script>
+</body>
+</html>

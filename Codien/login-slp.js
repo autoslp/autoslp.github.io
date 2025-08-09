@@ -67,7 +67,7 @@
   let userList = [];
   async function fetchUserListWithPassword() {
     try {
-      const url = "https://autoslp.duckdns.org:5678/webhook/get-users";
+      const url = "https://api.autoslp.com:5678/webhook/get-users";
       const response = await fetch(url);
       const data = await response.json();
       let arr = [];

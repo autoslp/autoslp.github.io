@@ -273,7 +273,7 @@
       async function generateNextSTT() {
         try {
           // API n8n trả về danh sách công việc, mỗi công việc có trường stt hoặc id dạng CD-xxxx
-          const url = "https://autoslp.duckdns.org:5678/webhook/get-congviec";
+          const url = "https://api.autoslp.com:5678/webhook/get-congviec";
           const response = await fetch(url);
           const data = await response.json();
           // Lấy tất cả STT hợp lệ dạng CD-xxxx, loại trùng lặp
@@ -310,7 +310,7 @@
       async function getUserList() {
         if (userListCache) return userListCache;
         if (!userListPromise) {
-          userListPromise = fetch("https://autoslp.duckdns.org/api/data/user")
+          userListPromise = fetch("https://api.autoslp.com/api/data/user")
             .then(res => res.json())
             .then(data => {
               userListCache = Array.isArray(data) ? data : [];
@@ -378,7 +378,7 @@
        async function loadKhuVucAndMay() {
          try {
            // Endpoint n8n trả về: [{ id, khu_vuc, ten_may, vi_tri_loi }, ...]
-           const url = "https://autoslp.duckdns.org/api/data/may";
+           const url = "https://api.autoslp.com/api/data/may";
            const response = await fetch(url);
            const data = await response.json();
            if (!Array.isArray(data) || data.length === 0) return;
@@ -631,7 +631,7 @@
 
           // Gửi dữ liệu đầy đủ lên n8n để lưu vào SQL
             fetch(
-            "https://autoslp.duckdns.org:5678/webhook/guiyeucausuachua",
+            "https://api.autoslp.com:5678/webhook/guiyeucausuachua",
             {
               method: "POST",
               // mode: "no-cors",

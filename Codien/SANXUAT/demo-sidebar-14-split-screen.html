@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Sidebar 14 - Split Screen Dual Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --split-primary: #3b82f6;
+            --split-secondary: #10b981;
+            --split-accent: #f59e0b;
+            --split-danger: #ef4444;
+            --split-bg-left: #f8fafc;
+            --split-bg-right: #1e293b;
+            --split-text-left: #1e293b;
+            --split-text-right: #f1f5f9;
+            --split-border: #e2e8f0;
+            --split-divider: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .demo-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-demo {
+            width: 600px;
+            display: flex;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        /* Split Screen Layout */
+        .split-left {
+            flex: 1;
+            background: var(--split-bg-left);
+            color: var(--split-text-left);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .split-right {
+            flex: 1;
+            background: var(--split-bg-right);
+            color: var(--split-text-right);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .split-divider {
+            width: 4px;
+            background: var(--split-divider);
+            cursor: col-resize;
+            position: relative;
+            transition: background 0.3s ease;
+        }
+
+        .split-divider:hover {
+            background: var(--split-primary);
+        }
+
+        .split-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Left Panel Styles */
+        .left-header {
+            padding: 2rem;
+            background: white;
+            border-bottom: 1px solid var(--split-border);
+            text-align: center;
+        }
+
+        .left-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--split-text-left);
+            margin: 0 0 1rem 0;
+        }
+
+        .left-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .left-badge {
+            padding: 0.5rem 1rem;
+            background: var(--split-primary);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .left-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .left-section {
+            background: white;
+            border: 1px solid var(--split-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .left-section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--split-text-left);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .left-icon {
+            width: 24px;
+            height: 24px;
+            color: var(--split-primary);
+        }
+
+        /* Right Panel Styles */
+        .right-header {
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .right-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--split-text-right);
+            margin: 0 0 1rem 0;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .right-status {
+            padding: 0.5rem 1rem;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--split-secondary);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .right-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .right-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .right-section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--split-text-right);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .right-icon {
+            width: 24px;
+            height: 24px;
+            color: var(--split-secondary);
+        }
+
+        /* Form Elements - Left Panel */
+        .form-group-left {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label-left {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--split-text-left);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .input-left {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--split-border);
+            border-radius: 8px;
+            color: var(--split-text-left);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .input-left:focus {
+            outline: none;
+            border-color: var(--split-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .select-left {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--split-border);
+            border-radius: 8px;
+            color: var(--split-text-left);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .select-left:focus {
+            outline: none;
+            border-color: var(--split-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Form Elements - Right Panel */
+        .form-group-right {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label-right {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--split-text-right);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .input-right {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: var(--split-text-right);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .input-right:focus {
+            outline: none;
+            border-color: var(--split-secondary);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .input-right::placeholder {
+            color: rgba(241, 245, 249, 0.6);
+        }
+
+        .textarea-right {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: var(--split-text-right);
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .textarea-right:focus {
+            outline: none;
+            border-color: var(--split-secondary);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .textarea-right::placeholder {
+            color: rgba(241, 245, 249, 0.6);
+        }
+
+        /* Quantity Grid */
+        .quantity-grid-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .quantity-card-split {
+            background: white;
+            border: 2px solid var(--split-border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-card-split:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .quantity-card-split.success {
+            border-color: var(--split-secondary);
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+        }
+
+        .quantity-card-split.danger {
+            border-color: var(--split-danger);
+            background: linear-gradient(135deg, #fef2f2, #fecaca);
+        }
+
+        .quantity-card-split.warning {
+            border-color: var(--split-accent);
+            background: linear-gradient(135deg, #fffbeb, #fed7aa);
+        }
+
+        .quantity-card-split.info {
+            border-color: var(--split-primary);
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        }
+
+        .quantity-label-split {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+            margin-bottom: 0.75rem;
+        }
+
+        .quantity-input-split {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            color: inherit;
+        }
+
+        .quantity-input-split:focus {
+            outline: none;
+        }
+
+        .success .quantity-input-split { color: var(--split-secondary); }
+        .danger .quantity-input-split { color: var(--split-danger); }
+        .warning .quantity-input-split { color: var(--split-accent); }
+        .info .quantity-input-split { color: var(--split-primary); }
+
+        /* Rating */
+        .rating-split {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .star-split {
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .star-split.active {
+            color: var(--split-accent);
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+        }
+
+        .star-split:hover {
+            color: var(--split-accent);
+            transform: scale(1.1);
+        }
+
+        /* Checkboxes */
+        .checkbox-list-split {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .checkbox-split {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-split:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .checkbox-split input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--split-secondary);
+        }
+
+        .checkbox-split label {
+            font-size: 0.9rem;
+            color: var(--split-text-right);
+            cursor: pointer;
+            flex: 1;
+        }
+
+        /* Action Buttons */
+        .action-area-left {
+            padding: 2rem;
+            background: white;
+            border-top: 1px solid var(--split-border);
+        }
+
+        .action-area-right {
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-split {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-split:last-child {
+            margin-bottom: 0;
+        }
+
+        .btn-primary-left {
+            background: var(--split-primary);
+            color: white;
+        }
+
+        .btn-primary-left:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary-left {
+            background: transparent;
+            color: var(--split-text-left);
+            border: 2px solid var(--split-border);
+        }
+
+        .btn-secondary-left:hover {
+            background: var(--split-bg-left);
+            border-color: var(--split-primary);
+            color: var(--split-primary);
+        }
+
+        .btn-primary-right {
+            background: var(--split-secondary);
+            color: white;
+        }
+
+        .btn-primary-right:hover {
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-secondary-right {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--split-text-right);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary-right:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--split-secondary);
+        }
+
+        /* Scrollbar styling */
+        .left-content::-webkit-scrollbar,
+        .right-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .left-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .left-content::-webkit-scrollbar-thumb {
+            background: var(--split-primary);
+            border-radius: 3px;
+        }
+
+        .right-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .right-content::-webkit-scrollbar-thumb {
+            background: var(--split-secondary);
+            border-radius: 3px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar-demo {
+                width: 100%;
+                flex-direction: column;
+            }
+            
+            .split-divider {
+                width: 100%;
+                height: 4px;
+                cursor: row-resize;
+            }
+            
+            .split-left,
+            .split-right {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="main-content">
+            <div class="demo-title">
+                <i class="bi bi-layout-split me-3"></i>
+                Demo Sidebar 14: Split Screen Dual Panel
+            </div>
+        </div>
+        
+        <div class="sidebar-demo">
+            <!-- Left Panel -->
+            <div class="split-left">
+                <div class="left-header">
+                    <h1 class="left-title">Thông tin đầu vào</h1>
+                    <div class="left-info">
+                        <div class="left-badge">
+                            <i class="bi bi-tag-fill"></i>
+                            LSX001234
+                        </div>
+                    </div>
+                </div>
+
+                <div class="left-content">
+                    <!-- Production Information -->
+                    <div class="left-section">
+                        <div class="left-section-title">
+                            <i class="bi bi-person-fill left-icon"></i>
+                            Thông tin sản xuất
+                        </div>
+                        
+                        <div class="form-group-left">
+                            <label class="form-label-left">Tên thợ phụ trách</label>
+                            <input type="text" class="input-left" value="Nguyễn Văn A">
+                        </div>
+
+                        <div class="form-group-left">
+                            <label class="form-label-left">Ca làm việc</label>
+                            <select class="select-left">
+                                <option>Ca 1 (6:00 - 14:00)</option>
+                                <option>Ca 2 (14:00 - 22:00)</option>
+                                <option>Ca 3 (22:00 - 6:00)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group-left">
+                            <label class="form-label-left">Máy sản xuất</label>
+                            <select class="select-left">
+                                <option>Máy XẢ 001</option>
+                                <option>Máy XẢ 002</option>
+                                <option>Máy XẢ 003</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Quantity Results -->
+                    <div class="left-section">
+                        <div class="left-section-title">
+                            <i class="bi bi-calculator-fill left-icon"></i>
+                            Kết quả sản xuất
+                        </div>
+                        
+                        <div class="quantity-grid-split">
+                            <div class="quantity-card-split success">
+                                <div class="quantity-label-split">OK</div>
+                                <input type="number" class="quantity-input-split" value="950">
+                            </div>
+                            <div class="quantity-card-split danger">
+                                <div class="quantity-label-split">NG</div>
+                                <input type="number" class="quantity-input-split" value="50">
+                            </div>
+                            <div class="quantity-card-split warning">
+                                <div class="quantity-label-split">NG đầu/cuối</div>
+                                <input type="number" class="quantity-input-split" value="20">
+                            </div>
+                            <div class="quantity-card-split info">
+                                <div class="quantity-label-split">Trả</div>
+                                <input type="number" class="quantity-input-split" value="10">
+                            </div>
+                        </div>
+
+                        <div class="form-group-left" style="margin-top: 1.5rem;">
+                            <label class="form-label-left">Số lượng chuyển giao</label>
+                            <input type="number" class="input-left" value="900" style="font-size: 1.2rem; font-weight: 600; text-align: center; color: var(--split-primary);">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-area-left">
+                    <button class="btn-split btn-primary-left">
+                        <i class="bi bi-save"></i>
+                        Lưu dữ liệu
+                    </button>
+                    <button class="btn-split btn-secondary-left">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="split-divider"></div>
+
+            <!-- Right Panel -->
+            <div class="split-right">
+                <div class="right-header">
+                    <h1 class="right-title">Đánh giá & Ghi chú</h1>
+                    <div class="right-status">
+                        <i class="bi bi-play-circle-fill"></i>
+                        Đang sản xuất
+                    </div>
+                </div>
+
+                <div class="right-content">
+                    <!-- Quality Assessment -->
+                    <div class="right-section">
+                        <div class="right-section-title">
+                            <i class="bi bi-star-fill right-icon"></i>
+                            Đánh giá chất lượng
+                        </div>
+                        
+                        <div class="form-group-right">
+                            <label class="form-label-right">Mức chất lượng</label>
+                            <input type="text" class="input-right" value="Xuất sắc (A+)" readonly>
+                        </div>
+
+                        <div class="form-group-right">
+                            <label class="form-label-right">Đánh giá tổng thể</label>
+                            <div class="rating-split">
+                                <i class="bi bi-star-fill star-split active"></i>
+                                <i class="bi bi-star-fill star-split active"></i>
+                                <i class="bi bi-star-fill star-split active"></i>
+                                <i class="bi bi-star-fill star-split active"></i>
+                                <i class="bi bi-star-fill star-split active"></i>
+                            </div>
+                        </div>
+
+                        <div class="form-group-right">
+                            <label class="form-label-right">Vấn đề gặp phải</label>
+                            <div class="checkbox-list-split">
+                                <div class="checkbox-split">
+                                    <input type="checkbox" id="issue1">
+                                    <label for="issue1">Lỗi máy móc</label>
+                                </div>
+                                <div class="checkbox-split">
+                                    <input type="checkbox" id="issue2" checked>
+                                    <label for="issue2">Nguyên liệu kém chất lượng</label>
+                                </div>
+                                <div class="checkbox-split">
+                                    <input type="checkbox" id="issue3">
+                                    <label for="issue3">Lỗi quy trình</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="right-section">
+                        <div class="right-section-title">
+                            <i class="bi bi-chat-text-fill right-icon"></i>
+                            Ghi chú & Nhận xét
+                        </div>
+                        
+                        <div class="form-group-right">
+                            <label class="form-label-right">Ghi chú sản xuất</label>
+                            <textarea class="textarea-right" placeholder="Nhập ghi chú về quá trình sản xuất...">Sản xuất diễn ra bình thường. Máy hoạt động ổn định, chất lượng sản phẩm đạt yêu cầu.</textarea>
+                        </div>
+
+                        <div class="form-group-right">
+                            <label class="form-label-right">Đề xuất cải tiến</label>
+                            <textarea class="textarea-right" placeholder="Nhập đề xuất cải tiến...">Cần kiểm tra chất lượng nguyên liệu đầu vào kỹ hơn để giảm tỷ lệ NG.</textarea>
+                        </div>
+
+                        <div class="form-group-right">
+                            <label class="form-label-right">Tags</label>
+                            <input type="text" class="input-right" placeholder="Nhập các tag..." value="chất lượng tốt, máy ổn định">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-area-right">
+                    <button class="btn-split btn-primary-right">
+                        <i class="bi bi-check-circle-fill"></i>
+                        Xác nhận báo cáo
+                    </button>
+                    <button class="btn-split btn-secondary-right">
+                        <i class="bi bi-download"></i>
+                        Xuất báo cáo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Star rating functionality
+        document.querySelectorAll('.star-split').forEach((star, index) => {
+            star.addEventListener('click', () => {
+                const stars = star.parentElement.querySelectorAll('.star-split');
+                stars.forEach((s, i) => {
+                    if (i <= index) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Split panel resizer
+        let isResizing = false;
+        
+        document.querySelector('.split-divider').addEventListener('mousedown', (e) => {
+            isResizing = true;
+            document.body.style.cursor = 'col-resize';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            
+            const sidebar = document.querySelector('.sidebar-demo');
+            const rect = sidebar.getBoundingClientRect();
+            const leftPanel = document.querySelector('.split-left');
+            const rightPanel = document.querySelector('.split-right');
+            
+            const newLeftWidth = ((e.clientX - rect.left) / rect.width) * 100;
+            const newRightWidth = 100 - newLeftWidth;
+            
+            if (newLeftWidth > 20 && newLeftWidth < 80) {
+                leftPanel.style.flex = `0 0 ${newLeftWidth}%`;
+                rightPanel.style.flex = `0 0 ${newRightWidth}%`;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isResizing = false;
+            document.body.style.cursor = 'default';
+        });
+
+        // Sync data between panels
+        function syncData() {
+            const leftInputs = document.querySelectorAll('.split-left input, .split-left select');
+            const rightInputs = document.querySelectorAll('.split-right input[readonly]');
+            
+            // Update quality level based on quantity ratios
+            const okQty = parseInt(document.querySelector('.success .quantity-input-split').value) || 0;
+            const ngQty = parseInt(document.querySelector('.danger .quantity-input-split').value) || 0;
+            const total = okQty + ngQty;
+            
+            if (total > 0) {
+                const efficiency = (okQty / total) * 100;
+                let quality = 'Yếu (C)';
+                
+                if (efficiency >= 95) quality = 'Xuất sắc (A+)';
+                else if (efficiency >= 90) quality = 'Tốt (A)';
+                else if (efficiency >= 80) quality = 'Khá (B+)';
+                else if (efficiency >= 70) quality = 'Trung bình (B)';
+                
+                const qualityInput = document.querySelector('.input-right[readonly]');
+                if (qualityInput) qualityInput.value = quality;
+            }
+        }
+
+        // Add event listeners to sync data
+        document.querySelectorAll('.quantity-input-split').forEach(input => {
+            input.addEventListener('input', syncData);
+        });
+
+        // Initialize sync
+        syncData();
+
+        // Add visual feedback for data changes
+        document.querySelectorAll('.input-left, .select-left, .quantity-input-split').forEach(input => {
+            input.addEventListener('change', () => {
+                input.style.borderColor = 'var(--split-secondary)';
+                setTimeout(() => {
+                    input.style.borderColor = '';
+                }, 1000);
+            });
+        });
+
+        // Panel focus effects
+        document.querySelector('.split-left').addEventListener('click', () => {
+            document.querySelector('.split-left').style.transform = 'scale(1.01)';
+            document.querySelector('.split-right').style.transform = 'scale(0.99)';
+            setTimeout(() => {
+                document.querySelector('.split-left').style.transform = '';
+                document.querySelector('.split-right').style.transform = '';
+            }, 200);
+        });
+
+        document.querySelector('.split-right').addEventListener('click', () => {
+            document.querySelector('.split-right').style.transform = 'scale(1.01)';
+            document.querySelector('.split-left').style.transform = 'scale(0.99)';
+            setTimeout(() => {
+                document.querySelector('.split-right').style.transform = '';
+                document.querySelector('.split-left').style.transform = '';
+            }, 200);
+        });
+    </script>
+</body>
+</html>

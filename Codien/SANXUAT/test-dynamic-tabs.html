@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Dynamic Tabs - Xả Stage</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Test Dynamic Tabs Generation</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Mock Machine Data</h3>
+                <pre id="mockData"></pre>
+            </div>
+            <div class="col-md-6">
+                <h3>Generated Tabs</h3>
+                <ul class="nav nav-tabs" id="tabContainer" role="tablist">
+                    <!-- Tabs will be generated here -->
+                </ul>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <h3>Tab Content</h3>
+            <div class="tab-content" id="tabContentContainer">
+                <!-- Tab content will be generated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock data for testing
+        const mockMachineStatusData = [
+            {
+                id: 1,
+                machine_name: "Xả 1",
+                stage_machine: "Stage_xa",
+                current_order_id: null,
+                current_order_code: null
+            },
+            {
+                id: 2,
+                machine_name: "Xả 2", 
+                stage_machine: "Stage_xa",
+                current_order_id: 123,
+                current_order_code: "LSX-2024-001"
+            },
+            {
+                id: 3,
+                machine_name: "Xả 3",
+                stage_machine: "Stage_xa", 
+                current_order_id: null,
+                current_order_code: null
+            },
+            {
+                id: 4,
+                machine_name: "Xén 1",
+                stage_machine: "Stage_xen",
+                current_order_id: null,
+                current_order_code: null
+            }
+        ];
+
+        // Display mock data
+        document.getElementById('mockData').textContent = JSON.stringify(mockMachineStatusData, null, 2);
+
+        // Function to create dynamic tabs (copied from xa-stage.html)
+        function createDynamicTabs() {
+            const machineTabsContainer = document.getElementById('tabContainer');
+            const tabContentContainer = document.getElementById('tabContentContainer');
+            
+            // Clear old content
+            machineTabsContainer.innerHTML = '';
+            tabContentContainer.innerHTML = '';
+            
+            // Filter machines belonging to Stage_xa
+            const xaMachines = mockMachineStatusData.filter(machine => 
+                machine.stage_machine && machine.stage_machine.includes('Stage_xa')
+            );
+            
+            console.log('Xả machines found:', xaMachines);
+            
+            // Create tab for each Xả machine
+            xaMachines.forEach((machine, index) => {
+                const machineName = machine.machine_name;
+                const machineId = machineName.toLowerCase().replace(/\s+/g, '-');
+                const tabId = `${machineId}-tab`;
+                const contentId = `${machineId}-content`;
+                
+                // Create tab navigation
+                const tabItem = document.createElement('li');
+                tabItem.className = 'nav-item';
+                tabItem.setAttribute('role', 'presentation');
+                
+                const isFirstTab = index === 0;
+                tabItem.innerHTML = `
+                    <button class="nav-link ${isFirstTab ? 'active' : ''}" id="${tabId}" 
+                            data-bs-toggle="tab" data-bs-target="#${contentId}" 
+                            type="button" role="tab" aria-controls="${contentId}" 
+                            aria-selected="${isFirstTab}">
+                        <i class="bi bi-gear me-1"></i>${machineName}
+                        <span class="badge bg-primary ms-1" id="${machineId}-count">0</span>
+                    </button>
+                `;
+                
+                machineTabsContainer.appendChild(tabItem);
+                
+                // Create tab content
+                const tabPane = document.createElement('div');
+                tabPane.className = `tab-pane fade ${isFirstTab ? 'show active' : ''}`;
+                tabPane.id = contentId;
+                tabPane.setAttribute('role', 'tabpanel');
+                tabPane.setAttribute('aria-labelledby', tabId);
+                
+                tabPane.innerHTML = `
+                    <div class="table-container">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Lệnh SX</th>
+                                    <th>Sản phẩm</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody id="${machineId}TableBody">
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">
+                                        Không có dữ liệu cho máy ${machineName}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                tabContentContainer.appendChild(tabPane);
+            });
+            
+            // Add "All" tab at the end
+            const allTabItem = document.createElement('li');
+            allTabItem.className = 'nav-item';
+            allTabItem.setAttribute('role', 'presentation');
+            
+            allTabItem.innerHTML = `
+                <button class="nav-link" id="all-tab" 
+                        data-bs-toggle="tab" data-bs-target="#all-content" 
+                        type="button" role="tab" aria-controls="all-content" 
+                        aria-selected="false">
+                    <i class="bi bi-list-ul me-1"></i>Tất cả
+                    <span class="badge bg-secondary ms-1" id="all-count">0</span>
+                </button>
+            `;
+            
+            machineTabsContainer.appendChild(allTabItem);
+            
+            // Add content for "All" tab
+            const allTabPane = document.createElement('div');
+            allTabPane.className = 'tab-pane fade';
+            allTabPane.id = 'all-content';
+            allTabPane.setAttribute('role', 'tabpanel');
+            allTabPane.setAttribute('aria-labelledby', 'all-tab');
+            
+            allTabPane.innerHTML = `
+                <div class="table-container">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Lệnh SX</th>
+                                <th>Sản phẩm</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allTableBody">
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">
+                                    Tất cả lệnh sản xuất
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            tabContentContainer.appendChild(allTabPane);
+        }
+
+        // Initialize tabs when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            createDynamicTabs();
+        });
+    </script>
+</body>
+</html>

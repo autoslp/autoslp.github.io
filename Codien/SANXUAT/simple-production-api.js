@@ -6,10 +6,10 @@
 class SimpleProductionAPI {
     constructor() {
         // Cấu hình API để nhận dữ liệu
-        this.baseURL = 'https://autoslp.duckdns.org';
+        this.baseURL = 'https://api.autoslp.com';
         
         // Cấu hình webhook n8n để gửi dữ liệu
-        this.webhookURL = 'https://n8n.autoslp.duckdns.org/webhook/production';
+        this.webhookURL = 'https://n8n.api.autoslp.com/webhook/production';
         
         // Backup endpoint (nếu webhook chính không khả dụng)
         this.backupWebhookURL = 'https://webhook.site/your-backup-url';

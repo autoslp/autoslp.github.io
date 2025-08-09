@@ -3,8 +3,8 @@
 
 class SmartACAPI {
     constructor() {
-        this.API_BASE_URL = 'https://autoslp.duckdns.org/api/data';
-        this.WEBHOOK_BASE_URL = 'https://autoslp.duckdns.org:5678/webhook';
+        this.API_BASE_URL = 'https://api.autoslp.com/api/data';
+        this.WEBHOOK_BASE_URL = 'https://api.autoslp.com:5678/webhook';
     }
 
     // === AIR CONDITIONERS API ===
@@ -337,8 +337,8 @@ class SmartACAPI {
 // Create global instance
 window.SmartACAPI = {
     // API Configuration
-    API_BASE_URL: 'https://autoslp.duckdns.org/api/data',
-    WEBHOOK_BASE_URL: 'https://autoslp.duckdns.org:5678/webhook',
+    API_BASE_URL: 'https://api.autoslp.com/api/data',
+    WEBHOOK_BASE_URL: 'https://api.autoslp.com:5678/webhook',
 
     // === AIR CONDITIONERS API ===
     getAirConditioners: async function() {

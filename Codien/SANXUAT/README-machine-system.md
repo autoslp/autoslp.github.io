@@ -22,7 +22,7 @@ node server.js
 
 ### 3. Mở trình duyệt
 ```
-https://autoslp.duckdns.org/test-machine-system.html
+https://api.autoslp.com/test-machine-system.html
 ```
 
 ## 📊 Database Schema
@@ -156,7 +156,7 @@ SOURCE simple-machine-solution.sql;
 
 ### Lỗi API
 - Kiểm tra server đã chạy chưa: `node server.js`
-- Kiểm tra domain `https://autoslp.duckdns.org` có hoạt động không
+- Kiểm tra domain `https://api.autoslp.com` có hoạt động không
 - Kiểm tra database connection
 - Kiểm tra file `api-config.js` có đúng domain không
 

@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Demo Sidebar Báo cáo lệnh - 10 biến thể</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root{
+      --sb-w: 380px;
+      --sb-bg: #0f172a; /* slate-900 */
+      --sb-bg-2: #111827; /* gray-900 */
+      --sb-card: #111827;
+      --sb-soft: #0b1223; /* darker */
+      --sb-text: #e5e7eb; /* gray-200 */
+      --sb-muted: #9ca3af; /* gray-400 */
+      --sb-border: #1f2937; /* gray-800 */
+      --primary: #3b82f6; /* blue-500 */
+      --success: #22c55e; /* green-500 */
+      --warning: #f59e0b; /* amber-500 */
+      --danger: #ef4444; /* red-500 */
+    }
+
+    html, body { height: 100%; background: #0b1020; color: var(--sb-text); }
+
+    .page-wrap{ min-height: 100vh; display: grid; grid-template-rows: auto 1fr; gap: 12px; }
+
+    .app-header{ backdrop-filter: blur(6px); border-bottom: 1px solid var(--sb-border); background: linear-gradient(180deg, rgba(17,24,39,.6), rgba(17,24,39,.3)); }
+    .app-header .brand{ font-weight: 700; letter-spacing: .3px; }
+
+    .demo-area{ display: grid; grid-template-columns: 1fr; gap: 16px; }
+
+    .top-controls{ display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .top-controls .form-select, .top-controls .form-control{ background: var(--sb-bg-2); color: var(--sb-text); border-color: var(--sb-border); }
+
+    .frame{ display: grid; grid-template-columns: var(--sb-w) 1fr; gap: 18px; }
+    .canvas{ border: 1px dashed var(--sb-border); border-radius: 12px; background: linear-gradient(180deg, rgba(59,130,246,.08), rgba(59,130,246,0) 50%), linear-gradient(180deg, rgba(17,24,39,.8), rgba(17,24,39,.6)); min-height: calc(100vh - 220px); position: relative; overflow: hidden; }
+    .canvas .hint{ position: absolute; inset: auto 10px 10px auto; color: var(--sb-muted); font-size: 12px; }
+
+    /* Sidebar base */
+    .sidebar{ width: var(--sb-w); background: var(--sb-bg); border: 1px solid var(--sb-border); border-radius: 14px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+    .sb-header{ display:flex; align-items:center; justify-content: space-between; gap: 8px; padding: 14px 16px; background: linear-gradient(180deg, rgba(59,130,246,.18), rgba(59,130,246,.06)); border-bottom: 1px solid var(--sb-border); }
+    .sb-title{ display:flex; align-items:center; gap: 10px; font-weight: 700; }
+    .sb-title .badge{ background: rgba(59,130,246,.15); color: #cfe1ff; border: 1px solid rgba(59,130,246,.35); }
+    .sb-body{ padding: 14px; display: grid; gap: 12px; background: linear-gradient(180deg, var(--sb-bg), var(--sb-soft)); }
+    .sb-footer{ padding: 14px; border-top: 1px solid var(--sb-border); background: rgba(17,24,39,.7); display:flex; gap:10px; }
+
+    .sb-card{ background: var(--sb-card); border: 1px solid var(--sb-border); border-radius: 12px; padding: 12px; }
+    .sb-card h6{ font-size: 13px; text-transform: uppercase; letter-spacing: .5px; color: var(--sb-muted); margin-bottom: 10px; }
+
+    .s-field{ display:grid; gap:6px; }
+    .s-label{ color: var(--sb-muted); font-size: 12px; }
+    .s-input, .s-select, .s-textarea{ background: #0d1427; color: var(--sb-text); border: 1px solid var(--sb-border); border-radius: 10px; padding: 10px 12px; outline: none; }
+    .s-input:focus, .s-select:focus, .s-textarea:focus{ border-color: rgba(59,130,246,.7); box-shadow: 0 0 0 2px rgba(59,130,246,.25); }
+    .s-row{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .qty-stepper{ display:flex; align-items:center; border: 1px solid var(--sb-border); border-radius: 10px; overflow: hidden; }
+    .qty-stepper button{ background: rgba(255,255,255,.04); color: var(--sb-text); border: none; width: 40px; height: 38px; }
+    .qty-stepper input{ flex:1; min-width: 0; background: transparent; border: none; color: var(--sb-text); text-align: center; height: 38px; }
+
+    .chip-group{ display:flex; flex-wrap: wrap; gap: 8px; }
+    .chip{ padding: 6px 10px; border-radius: 999px; border: 1px solid var(--sb-border); background: rgba(255,255,255,.04); font-size: 12px; cursor: pointer; }
+    .chip.active{ background: rgba(59,130,246,.2); border-color: rgba(59,130,246,.5); }
+
+    .segmented{ display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--sb-border); border-radius: 10px; overflow: hidden; }
+    .segmented button{ background: transparent; color: var(--sb-text); border: none; padding: 8px; font-size: 13px; }
+    .segmented button.active{ background: rgba(59,130,246,.18); }
+
+    .soft{ background: rgba(255,255,255,.03); border-color: rgba(255,255,255,.05); }
+    .ghost{ background: transparent; border-color: rgba(255,255,255,.12); }
+
+    .kpad{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .kpad button{ background: rgba(255,255,255,.06); border: 1px solid var(--sb-border); color: var(--sb-text); border-radius: 10px; padding: 12px 0; font-size: 18px; }
+
+    .accordion-button{ background: #0f172a; color: var(--sb-text); }
+    .accordion-item{ background: #0f172a; border-color: var(--sb-border); }
+
+    .mini{ font-size: 12px; color: var(--sb-muted); }
+    .btn{ border-radius: 10px; }
+    .btn-primary{ background: #2563eb; border-color: #1d4ed8; }
+    .btn-outline-light{ border-color: rgba(255,255,255,.2); }
+
+    .nav-pills .nav-link{ color: var(--sb-text); background: #0f172a; border: 1px solid var(--sb-border); }
+    .nav-pills .nav-link.active{ background: rgba(59,130,246,.25); border-color: rgba(59,130,246,.6); }
+
+    .divider{ height:1px; background: var(--sb-border); margin: 6px 0; }
+
+    .sticky-head{ position: sticky; top: 0; z-index: 5; }
+
+    @media (max-width: 992px){
+      .frame{ grid-template-columns: 1fr; }
+      .sidebar{ width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <header class="app-header py-2 px-3 sticky-top">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="brand d-flex align-items-center gap-2">
+          <i class="bi bi-layout-sidebar-inset"></i>
+          <span>Demo Sidebar Báo cáo lệnh</span>
+        </div>
+        <div class="top-controls">
+          <select id="demoSelect" class="form-select form-select-sm" style="width: 260px;">
+            <option value="1">Demo 1 - Form nhóm + Stepper</option>
+            <option value="2">Demo 2 - Tab trong Sidebar + Slider</option>
+            <option value="3">Demo 3 - Quick Actions + Keypad</option>
+            <option value="4">Demo 4 - Wizard 3 bước</option>
+            <option value="5">Demo 5 - Accordion Section</option>
+            <option value="6">Demo 6 - Bảng dòng có thể sửa</option>
+            <option value="7">Demo 7 - Chip/Tag + Preset</option>
+            <option value="8">Demo 8 - Floating Label + Mask</option>
+            <option value="9">Demo 9 - Split: Tóm tắt | Nhập liệu</option>
+            <option value="10">Demo 10 - Trạng thái + Timer</option>
+          </select>
+          <button id="prevBtn" class="btn btn-outline-light btn-sm"><i class="bi bi-chevron-left"></i></button>
+          <button id="nextBtn" class="btn btn-outline-light btn-sm"><i class="bi bi-chevron-right"></i></button>
+        </div>
+      </div>
+    </header>
+
+    <main class="demo-area container-fluid px-3 pb-4">
+      <div class="frame">
+        <aside class="sidebar" id="sidebarHost">
+          <!-- Dynamic demo content injected here -->
+        </aside>
+        <section class="canvas d-none d-lg-block">
+          <div class="p-3">
+            <h6 class="text-uppercase text-secondary">Gợi ý tích hợp</h6>
+            <ul class="mini">
+              <li>Mỗi demo giữ tên trường phổ biến: qty_good, qty_ng, qty_handover, status, machine, worker, note.</li>
+              <li>CSS tách lớp .s-field, .s-input, .qty-stepper để tái sử dụng.</li>
+              <li>JS mẫu: tăng/giảm số lượng, cập nhật slider, chip toggle, keypad nhập nhanh.</li>
+              <li>Có thể copy nguyên cụm .sb-body và .sb-footer vào dự án thật.</li>
+            </ul>
+          </div>
+          <span class="hint">Khung mô phỏng trang chính • Sidebar ở trái</span>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <template id="tpl-1">
+    <div class="sb-header">
+      <div class="sb-title"><i class="bi bi-clipboard2-check"></i> Báo cáo lệnh • Nhập nhanh</div>
+      <span class="badge rounded-pill">#1</span>
+    </div>
+    <div class="sb-body">
+      <div class="sb-card">
+        <h6>Thông tin chung</h6>
+        <div class="s-row">
+          <div class="s-field">
+            <label class="s-label">Mã lệnh</label>
+            <input class="s-input" placeholder="VD: LENH-2025-001" />
+          </div>
+          <div class="s-field">
+            <label class="s-label">Sản phẩm</label>
+            <input class="s-input" placeholder="Tên sản phẩm" />
+          </div>
+        </div>
+        <div class="s-row">
+          <div class="s-field">
+            <label class="s-label">Máy</label>
+            <select class="s-select" name="machine">
+              <option>Xả 1</option>
+              <option>Xả 2</option>
+              <option>Xả 3</option>
+            </select>
+          </div>
+          <div class="s-field">
+            <label class="s-label">Công nhân</label>
+            <input class="s-input" name="worker" placeholder="Tên công nhân" />
+          </div>
+        </div>
+      </div>
+
+      <div class="sb-card">
+        <h6>Số lượng</h6>
+        <div class="s-row">
+          <div class="s-field">
+            <label class="s-label">OK</label>
+            <div class="qty-stepper" data-target="#qty_good">
+              <button class="btn-step" data-delta="-1"><i class="bi bi-dash"></i></button>
+              <input id="qty_good" class="s-input" type="number" value="0" min="0" />
+              <button class="btn-step" data-delta="1"><i class="bi bi-plus"></i></button>
+            </div>
+          </div>
+          <div class="s-field">
+            <label class="s-label">NG</label>
+            <div class="qty-stepper" data-target="#qty_ng">
+              <button class="btn-step" data-delta="-1"><i class="bi bi-dash"></i></button>
+              <input id="qty_ng" class="s-input" type="number" value="0" min="0" />
+              <button class="btn-step" data-delta="1"><i class="bi bi-plus"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="s-field">
+          <label class="s-label">Bàn giao</label>
+          <input class="s-input" id="qty_handover" type="number" value="0" min="0" />
+          <div class="mini">Mặc định bằng OK. Có thể điều chỉnh.</div>
+        </div>
+      </div>
+
+      <div class="sb-card">
+        <h6>Khác</h6>
+        <div class="s-row">
+          <div class="s-field">
+            <label class="s-label">Trạng thái</label>
+            <div class="segmented" data-name="status">
+              <button class="active" data-val="processing">Đang làm</button>
+              <button data-val="pause">Tạm dừng</button>
+              <button data-val="done">Hoàn tất</button>
+            </div>
+          </div>
+          <div class="s-field">
+            <label class="s-label">Thời gian</label>
+            <input class="s-input" type="datetime-local" />
+          </div>
+        </div>
+        <div class="s-field">
+          <label class="s-label">Ghi chú</label>
+          <textarea class="s-textarea" rows="2" placeholder="Ghi chú thêm..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="sb-footer">
+      <button class="btn btn-outline-light flex-fill"><i class="bi bi-x-circle"></i> Hủy</button>
+      <button class="btn btn-primary flex-fill"><i class="bi bi-save"></i> Lưu</button>
+    </div>
+  </template>
+
+  <template id="tpl-2">
+    <div class="sb-header">
+      <div class="sb-title"><i class="bi bi-sliders2"></i> NHẬP THEO TAB</div>
+      <span class="badge rounded-pill">#2</span>
+    </div>
+    <div class="sb-body">
+      <ul class="nav nav-pills mb-2" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#pills-qty" type="button">Số lượng</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-info" type="button">Thông tin</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-status" type="button">Trạng thái</button>
+        </li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="pills-qty">
+          <div class="sb-card soft">
+            <h6>OK / NG</h6>
+            <div class="s-row">
+              <input class="s-input" type="number" placeholder="OK" />
+              <input class="s-input" type="number" placeholder="NG" />
+            </div>
+            <div class="s-field mt-2">
+              <label class="s-label">Tiến độ</label>
+              <input type="range" class="form-range" min="0" max="100" value="50" oninput="this.nextElementSibling.innerText=this.value+'%';">
+              <div class="mini">50%</div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-pane fade" id="pills-info">
+          <div class="sb-card soft">
+            <h6>Thông tin</h6>
+            <div class="s-row">
+              <select class="s-select"><option>Xả 1</option><option>Xả 2</option><option>Xả 3</option></select>
+              <input class="s-input" placeholder="Công nhân" />
+            </div>
+            <input class="s-input mt-2" placeholder="Mã lệnh" />
+          </div>
+        </div>
+        <div class="tab-pane fade" id="pills-status">
+          <div class="sb-card soft">
+            <h6>Trạng thái</h6>
+            <div class="segmented">
+              <button class="active">Đang làm</button>
+              <button>Tạm dừng</button>
+              <button>Hoàn tất</button>
+            </div>
+            <textarea class="s-textarea mt-2" rows="2" placeholder="Ghi chú..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sb-footer">
+      <button class="btn btn-outline-light flex-fill">Đóng</button>
+      <button class="btn btn-primary flex-fill">Lưu</button>
+    </div>
+  </template>
+
+  <template id="tpl-3">
+    <div class="sb-header">
+      <div class="sb-title"><i class="bi bi-lightning-charge"></i> QUICK ACTIONS</div>
+      <span class="badge rounded-pill">#3</span>
+    </div>
+    <div class="sb-body">
+      <div class="sb-card">
+        <h6>Preset nhanh</h6>
+        <div class="chip-group">
+          <div class="chip" data-preset="50">+50 OK</div>
+          <div class="chip" data-preset="100">+100 OK</div>
+          <div class="chip" data-preset-ng="10">+10 NG</div>
+          <div class="chip" data-set="done">Đặt Hoàn tất</div>
+        </div>
+      </div>
+      <div class="sb-card">
+        <h6>Keypad số lượng</h6>
+        <div class="s-field">
+          <label class="s-label">OK</label>
+          <input id="kpad_ok" class="s-input" type="number" value="0" />
+        </div>
+        <div class="kpad mt-2" data-input="#kpad_ok">
+          <button>1</button><button>2</button><button>3</button>
+          <button>4</button><button>5</button><button>6</button>
+          <button>7</button><button>8</button><button>9</button>
+          <button>0</button><button class="bk">⌫</button><button class="ok">OK</button>
+        </div>
+      </div>
+      <div class="sb-card">
+        <h6>Thông tin</h6>
+        <div class="s-row">
+          <select class="s-select"><option>Xả 1</option><option>Xả 2</option></select>
+          <input class="s-input" placeholder="Công nhân" />
+        </div>
+      </div>
+    </div>
+    <div class="sb-footer">
+      <button class="btn btn-outline-light flex-fill">Reset</button>
+      <button class="btn btn-primary flex-fill">Cập nhật</button>
+    </div>
+  </template>
+
+  <template id="tpl-4">
+    <div class="sb-header">
+      <div class="sb-title"><i class="bi bi-list-ol"></i> WIZARD 3 bước</div>
+      <span class="badge rounded-pill">#4</span>
+    </div>
+    <div class="sb-body">
+      <div class="sb-card">
+        <div class="d-flex justify-content-between mini">
+          <span>B1. Số lượng</span><span>B2. Thông tin</span><span>B3. Xác nhận</span>
+        </div>
+      </div>
+      <div class="sb-card" data-wizard>
+        <div data-step="1">
+          <h6>Bước 1: Số lượng</h6>
+          <div class="s-row">
+            <input class="s-input" placeholder="OK" />
+            <input class="s-input" placeholder="NG" />
+          </div>
+        </div>
+        <div class="d-none" data-step="2">
+          <h6>Bước 2: Thông tin</h6>
+          <div class="s-row">
+            <select class="s-select"><option>Xả 1</option><option>Xả 2</option></select>
+            <input class="s-input" placeholder="Công nhân" />
+          </div>
+        </div>
+        <div class="d-none" data-step="3">
+          <h6>Bước 3: Xác nhận</h6>
+          <div class="soft p-2 rounded">Kiểm tra lại dữ liệu trước khi lưu.</div>
+        </div>
+      </div>
+    </div>
+    <div class="sb-footer">
+      <button class="btn btn-outline-light" data-prev>Trước</button>
+      <div class="flex-fill"></div>
+      <button class="btn btn-primary" data-next>Tiếp</button>
+    </div>
+  </template>
+
+  <template id="tpl-5">
+    <div class="sb-header">
+      <div class="sb-title"><i class="bi bi-ui-checks-grid"></i> Accordion</div>
+      <span class="badge rounded-pill">#5</span>
+    </div>
+    <div class="sb-body">
+      <div class="accordion" id="acc">
+        <div class="accordion-item">
+          <h2 class="accordion-header"><button class="accordion-button" data-bs-toggle="collapse" data-bs-target="#acc1">Số lượng</button></h2>
+          <div id="acc1" class="accordion-collapse collapse show" data-bs-parent="#acc">
+            <div class="accordion-body">
+              <div class="s-row">
+                <input class="s-input" placeholder="OK" />
+                <input class="s-input" placeholder="NG" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#acc2">Thông tin</button></h2>
+          <div id="acc2" class="accordion-collapse collapse" data-bs-parent="#acc">
+            <div class="accordion-body">
+              <div class="s-row">
+                <select class="s-select"><option>Xả 1</option><option>Xả 2</option></select>
+                <input class="s-input" placeholder="Công nhân" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#acc3">Ghi chú</button></h2>
+          <div id="acc3" class="accordion-collapse collapse" data-bs-parent="#acc">
+            <div class="accordion-body">
+              <textarea class="s-textarea" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sb-footer">
+      <button class="btn btn-outline-light flex-fill">Đóng</button>
+      <button class="btn btn-primary flex-fill">Lưu</button>
+    </div>
+  </template>
+
+  <template id="tpl-6">
+    <div class="sb-header">
+      <div class="sb-title"><i class="bi bi-table"></i> Bảng nhập</div>
+      <span class="badge rounded-pill">#6</span>
+    </div>
+    <div class="sb-body">
+      <div class="sb-card">
+        <h6>Mục tiêu ngày</h6>
+        <div class="table-responsive">
+          <table class="table table-dark table-sm align-middle mb-2" style="--bs-table-bg: #0f172a; --bs-table-border-color: var(--sb-border);">
+            <thead><tr><th>Hạng mục</th><th style="width:90px">Số</th><th style="width:90px">Chỉnh</th></tr></thead>
+            <tbody>
+              <tr><td>OK</td><td><input class="form-control form-control-sm soft text-center" value="0"></td><td><div class="d-flex gap-1"><button class="btn btn-sm btn-secondary">-1</button><button class="btn btn-sm btn-secondary">+1</button></div></td></tr>
+              <tr><td>NG</td><td><input class="form-control form-control-sm soft text-center" value="0"></td><td><div class="d-flex gap-1"><button class="btn btn-sm btn-secondary">-1</button><button class="btn btn-sm btn-secondary">+1</button></div></td></tr>
+              <tr><td>Bàn giao</td><td><input class="form-control form-control-sm soft text-center" value="0"></td><td><div class="d-flex gap-1"><button class="btn btn-sm btn-secondary">-1</button><button class="btn btn-sm btn-secondary">+1</button></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="sb-card">
+        <h6>Thông tin</h6>
+        <div class="s-row">
+          <select class="s-select"><option>Xả 1</option><option>Xả 2</option></select>
+          <input class="s-input" placeholder="Công nhân" />
+        </div>
+      </div>
+    </div>
+    <div class="sb-footer">
+      <button class="btn btn-outline-light flex-fill">Hủy</button>
+      <button class="btn btn-primary flex-fill">Lưu</button>
+    </div>
+  </template>
+
+  <template id="tpl-7">
+    <div class="sb-header">
+      <div class="sb-title"><i class="bi bi-tags"></i> Chip / Tag</div>
+      <span class="badge rounded-pill">#7</span>
+    </div>
+    <div class="sb-body">
+      <div class="sb-card">
+        <h6>Loại lỗi (NG)</h6>
+        <div class="chip-group" data-multi>
+          <div class="chip">Xước</div>
+          <div class="chip">Lệch</div>
+          <div class="chip">Bẩn</div>
+          <div class="chip">Rách</div>
+          <div class="chip">Khác</div>
+        </div>
+      </div>
+      <div class="sb-card">
+        <h6>Preset số lượng</h6>
+        <div class="chip-group">
+          <div class="chip" data-preset="20">+20 OK</div>
+          <div class="chip" data-preset="50">+50 OK</div>
+          <div class="chip" data-preset-ng="5">+5 NG</div>
+        </div>
+      </div>
+      <div class="sb-card">
+        <h6>Nhập chi tiết</h6>
+        <div class="s-row">
+          <input class="s-input" placeholder="OK" />
+          <input class="s-input" placeholder="NG" />
+        </div>
+        <textarea class="s-textarea mt-2" rows="3" placeholder="Ghi chú..."></textarea>
+      </div>
+    </div>
+    <div class="sb-footer">
+      <button class="btn btn-outline-light flex-fill">Đóng</button>
+      <button class="btn btn-primary flex-fill">Lưu</button>
+    </div>
+  </template>
+
+  <template id="tpl-8">
+    <div class="sb-header">
+      <div class="sb-title"><i class="bi bi-input-cursor-text"></i> Floating Label</div>
+      <span class="badge rounded-pill">#8</span>
+    </div>
+    <div class="sb-body">
+      <div class="sb-card">
+        <h6>Số lượng</h6>
+        <div class="form-floating mb-2">
+          <input type="number" class="form-control soft" id="flOK" placeholder="OK" value="0">
+          <label for="flOK">OK</label>
+        </div>
+        <div class="form-floating">
+          <input type="number" class="form-control soft" id="flNG" placeholder="NG" value="0">
+          <label for="flNG">NG</label>
+        </div>
+      </div>
+      <div class="sb-card">
+        <h6>Thông tin</h6>
+        <div class="form-floating mb-2">
+          <select class="form-select soft" id="flMachine"><option>Xả 1</option><option>Xả 2</option></select>
+          <label for="flMachine">Máy</label>
+        </div>
+        <div class="form-floating">
+          <input class="form-control soft" id="flWorker" placeholder="Công nhân">
+          <label for="flWorker">Công nhân</label>
+        </div>
+      </div>
+    </div>
+    <div class="sb-footer">
+      <button class="btn btn-outline-light flex-fill">Hủy</button>
+      <button class="btn btn-primary flex-fill">Lưu</button>
+    </div>
+  </template>
+
+  <template id="tpl-9">
+    <div class="sb-header">
+      <div class="sb-title"><i class="bi bi-columns-gap"></i> Split: Tóm tắt | Nhập</div>
+      <span class="badge rounded-pill">#9</span>
+    </div>
+    <div class="sb-body" style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <div class="sb-card">
+        <h6>Tóm tắt</h6>
+        <div class="mini">Mã: LENH-001</div>
+        <div class="mini">SP: ABC</div>
+        <div class="mini">Kế hoạch: 1,000</div>
+        <div class="divider"></div>
+        <div class="mini">Đã OK: 450</div>
+        <div class="mini">Còn lại: 550</div>
+      </div>
+      <div class="sb-card">
+        <h6>Nhập</h6>
+        <div class="s-row">
+          <input class="s-input" placeholder="OK" />
+          <input class="s-input" placeholder="NG" />
+        </div>
+        <select class="s-select mt-2"><option>Xả 1</option><option>Xả 2</option></select>
+      </div>
+      <div class="sb-card" style="grid-column: 1 / -1;">
+        <h6>Tệp đính kèm</h6>
+        <div class="p-3 text-center rounded" style="border: 1px dashed var(--sb-border); background: rgba(255,255,255,.02);">
+          Kéo & thả tệp vào đây hoặc <a href="#">chọn tệp</a>
+        </div>
+      </div>
+    </div>
+    <div class="sb-footer">
+      <button class="btn btn-outline-light flex-fill">Đóng</button>
+      <button class="btn btn-primary flex-fill">Lưu</button>
+    </div>
+  </template>
+
+  <template id="tpl-10">
+    <div class="sb-header">
+      <div class="sb-title"><i class="bi bi-stopwatch"></i> Trạng thái + Timer</div>
+      <span class="badge rounded-pill">#10</span>
+    </div>
+    <div class="sb-body">
+      <div class="sb-card">
+        <h6>Trạng thái</h6>
+        <div class="segmented" data-name="status">
+          <button class="active" data-val="processing"><i class="bi bi-play-circle"></i> Đang làm</button>
+          <button data-val="pause"><i class="bi bi-pause-circle"></i> Tạm dừng</button>
+          <button data-val="done"><i class="bi bi-check-circle"></i> Hoàn tất</button>
+        </div>
+      </div>
+      <div class="sb-card">
+        <h6>Timer</h6>
+        <div class="d-flex align-items-center gap-2">
+          <div class="display-6" id="timerDisp">00:00:00</div>
+          <div class="flex-fill"></div>
+          <button class="btn btn-secondary btn-sm" id="btnStart"><i class="bi bi-play-fill"></i></button>
+          <button class="btn btn-secondary btn-sm" id="btnPause"><i class="bi bi-pause-fill"></i></button>
+          <button class="btn btn-secondary btn-sm" id="btnReset"><i class="bi bi-arrow-counterclockwise"></i></button>
+        </div>
+      </div>
+      <div class="sb-card">
+        <h6>Số lượng</h6>
+        <div class="s-row">
+          <input class="s-input" placeholder="OK" />
+          <input class="s-input" placeholder="NG" />
+        </div>
+      </div>
+    </div>
+    <div class="sb-footer">
+      <button class="btn btn-outline-light flex-fill">Hủy</button>
+      <button class="btn btn-primary flex-fill">Lưu</button>
+    </div>
+  </template>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const host = document.getElementById('sidebarHost');
+    const select = document.getElementById('demoSelect');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    function loadDemo(idx){
+      const tpl = document.getElementById('tpl-' + idx);
+      if(!tpl){ return; }
+      host.innerHTML = tpl.innerHTML;
+      postMount(idx);
+    }
+
+    function postMount(idx){
+      // Stepper
+      host.querySelectorAll('.qty-stepper').forEach(step => {
+        const targetSel = step.getAttribute('data-target');
+        const input = targetSel ? host.querySelector(targetSel) : step.querySelector('input');
+        step.querySelectorAll('.btn-step').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const delta = Number(btn.getAttribute('data-delta')) || 0;
+            const cur = Number(input.value || 0);
+            const next = Math.max(0, cur + delta);
+            input.value = next;
+            const h = host.querySelector('#qty_handover');
+            if(h && (input.id === 'qty_good')) h.value = next;
+          });
+        });
+      });
+
+      // Segmented pickers
+      host.querySelectorAll('.segmented').forEach(seg => {
+        seg.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => {
+          seg.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          seg.setAttribute('data-value', btn.dataset.val || btn.textContent.trim());
+        }));
+      });
+
+      // Chips
+      host.querySelectorAll('.chip-group').forEach(group => {
+        const multi = group.hasAttribute('data-multi');
+        group.querySelectorAll('.chip').forEach(chip => {
+          chip.addEventListener('click', () => {
+            if(multi){ chip.classList.toggle('active'); } else { group.querySelectorAll('.chip').forEach(c => c.classList.remove('active')); chip.classList.add('active'); }
+            // presets
+            const presetOK = chip.getAttribute('data-preset');
+            const presetNG = chip.getAttribute('data-preset-ng');
+            if(presetOK){ const ok = host.querySelector('#kpad_ok') || host.querySelector('#qty_good'); if(ok){ ok.value = Number(ok.value||0) + Number(presetOK); } }
+            if(presetNG){ const ng = host.querySelector('#qty_ng') || host.querySelector("input[placeholder='NG']"); if(ng){ ng.value = Number(ng.value||0) + Number(presetNG); } }
+          });
+        });
+      });
+
+      // Keypad
+      host.querySelectorAll('.kpad').forEach(k => {
+        const input = host.querySelector(k.getAttribute('data-input'));
+        k.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+          if(b.classList.contains('ok')) return; // no-op
+          if(b.classList.contains('bk')){ input.value = String(input.value).slice(0, -1) || '0'; return; }
+          const d = b.textContent.trim();
+          input.value = String(Number((input.value||'0') + d));
+        }));
+      });
+
+      // Wizard
+      const wiz = host.querySelector('[data-wizard]');
+      if(wiz){
+        let step = 1;
+        const show = s => wiz.querySelectorAll('[data-step]').forEach(sec => sec.classList.toggle('d-none', Number(sec.getAttribute('data-step')) !== s));
+        show(step);
+        const prev = host.querySelector('[data-prev]');
+        const next = host.querySelector('[data-next]');
+        prev && prev.addEventListener('click', () => { step = Math.max(1, step-1); show(step); });
+        next && next.addEventListener('click', () => { step = Math.min(3, step+1); show(step); });
+      }
+
+      // Timer
+      if(idx === 10){
+        let startAt = null, acc = 0, tmr = null;
+        const disp = host.querySelector('#timerDisp');
+        const fmt = s => new Date(s*1000).toISOString().substring(11, 19);
+        const tick = () => { const now = Date.now(); const el = acc + (startAt? (now - startAt): 0); disp.textContent = fmt(Math.floor(el/1000)); };
+        const start = () => { if(!startAt){ startAt = Date.now(); tmr = setInterval(tick, 500);} };
+        const pause = () => { if(startAt){ acc += Date.now() - startAt; startAt = null; clearInterval(tmr); tick(); } };
+        const reset = () => { acc = 0; startAt = null; clearInterval(tmr); tick(); };
+        host.querySelector('#btnStart')?.addEventListener('click', start);
+        host.querySelector('#btnPause')?.addEventListener('click', pause);
+        host.querySelector('#btnReset')?.addEventListener('click', reset);
+        tick();
+      }
+    }
+
+    select.addEventListener('change', () => loadDemo(Number(select.value)));
+    prevBtn.addEventListener('click', () => { const v = Math.max(1, Number(select.value)-1); select.value = String(v); loadDemo(v); });
+    nextBtn.addEventListener('click', () => { const v = Math.min(10, Number(select.value)+1); select.value = String(v); loadDemo(v); });
+
+    // init
+    loadDemo(1);
+  </script>
+</body>
+</html>

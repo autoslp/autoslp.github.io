@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Sidebar 13 - Material Design 3</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Material Design 3 Color Tokens */
+            --md-primary: #6750a4;
+            --md-on-primary: #ffffff;
+            --md-primary-container: #eaddff;
+            --md-on-primary-container: #21005d;
+            --md-secondary: #625b71;
+            --md-on-secondary: #ffffff;
+            --md-secondary-container: #e8def8;
+            --md-on-secondary-container: #1d192b;
+            --md-tertiary: #7d5260;
+            --md-on-tertiary: #ffffff;
+            --md-tertiary-container: #ffd8e4;
+            --md-on-tertiary-container: #31111d;
+            --md-error: #ba1a1a;
+            --md-on-error: #ffffff;
+            --md-error-container: #ffdad6;
+            --md-on-error-container: #410002;
+            --md-background: #fffbfe;
+            --md-on-background: #1c1b1f;
+            --md-surface: #fffbfe;
+            --md-on-surface: #1c1b1f;
+            --md-surface-variant: #e7e0ec;
+            --md-on-surface-variant: #49454f;
+            --md-outline: #79747e;
+            --md-outline-variant: #cab6d6;
+            --md-shadow: #000000;
+            --md-surface-tint: #6750a4;
+            --md-surface-1: #f7f2fa;
+            --md-surface-2: #f1ecf4;
+            --md-surface-3: #ebe6ee;
+            --md-surface-4: #e9e4ed;
+            --md-surface-5: #e6e1e9;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--md-background);
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0;
+            height: 100vh;
+            color: var(--md-on-background);
+            overflow: hidden;
+        }
+
+        .demo-container {
+            display: flex;
+            height: 100vh;
+            background: var(--md-background);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--md-primary), var(--md-tertiary));
+        }
+
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: var(--md-on-primary);
+            padding: 2rem 3rem;
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .sidebar-demo {
+            width: 450px;
+            background: var(--md-surface);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Material 3 Header */
+        .md-header {
+            padding: 24px;
+            background: var(--md-surface-2);
+            border-bottom: 1px solid var(--md-outline-variant);
+        }
+
+        .header-title {
+            font-size: 22px;
+            font-weight: 400;
+            color: var(--md-on-surface);
+            margin: 0 0 16px 0;
+            line-height: 28px;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .md-chip {
+            padding: 8px 16px;
+            background: var(--md-secondary-container);
+            color: var(--md-on-secondary-container);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--md-outline-variant);
+        }
+
+        .md-chip.status {
+            background: var(--md-tertiary-container);
+            color: var(--md-on-tertiary-container);
+        }
+
+        .md-progress {
+            width: 100%;
+            height: 4px;
+            background: var(--md-surface-variant);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .md-progress-bar {
+            height: 100%;
+            background: var(--md-primary);
+            width: 70%;
+            transition: width 0.3s ease;
+        }
+
+        /* Material 3 Content */
+        .md-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            background: var(--md-surface);
+        }
+
+        .md-card {
+            background: var(--md-surface-1);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            border: 1px solid var(--md-outline-variant);
+            transition: all 0.2s ease;
+        }
+
+        .md-card:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .md-card-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--md-on-surface);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .md-icon {
+            width: 24px;
+            height: 24px;
+            color: var(--md-primary);
+        }
+
+        /* Material 3 Form Elements */
+        .md-field {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .md-field:last-child {
+            margin-bottom: 0;
+        }
+
+        .md-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--md-on-surface-variant);
+            margin-bottom: 8px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .md-input {
+            width: 100%;
+            padding: 16px;
+            background: var(--md-surface);
+            border: 1px solid var(--md-outline);
+            border-radius: 4px;
+            color: var(--md-on-surface);
+            font-size: 16px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .md-input:focus {
+            outline: none;
+            border-color: var(--md-primary);
+            border-width: 2px;
+            padding: 15px; /* Adjust for thicker border */
+        }
+
+        .md-input::placeholder {
+            color: var(--md-on-surface-variant);
+        }
+
+        .md-select {
+            width: 100%;
+            padding: 16px;
+            background: var(--md-surface);
+            border: 1px solid var(--md-outline);
+            border-radius: 4px;
+            color: var(--md-on-surface);
+            font-size: 16px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .md-select:focus {
+            outline: none;
+            border-color: var(--md-primary);
+            border-width: 2px;
+            padding: 15px;
+        }
+
+        .md-textarea {
+            width: 100%;
+            padding: 16px;
+            background: var(--md-surface);
+            border: 1px solid var(--md-outline);
+            border-radius: 4px;
+            color: var(--md-on-surface);
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.2s ease;
+        }
+
+        .md-textarea:focus {
+            outline: none;
+            border-color: var(--md-primary);
+            border-width: 2px;
+            padding: 15px;
+        }
+
+        .md-textarea::placeholder {
+            color: var(--md-on-surface-variant);
+        }
+
+        /* Material 3 Quantity Cards */
+        .quantity-grid-md {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .quantity-card-md {
+            background: var(--md-surface-2);
+            border: 1px solid var(--md-outline-variant);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .quantity-card-md:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .quantity-card-md.success {
+            background: #e8f5e8;
+            border-color: #4caf50;
+        }
+
+        .quantity-card-md.error {
+            background: var(--md-error-container);
+            border-color: var(--md-error);
+        }
+
+        .quantity-card-md.warning {
+            background: #fff8e1;
+            border-color: #ff9800;
+        }
+
+        .quantity-card-md.info {
+            background: var(--md-primary-container);
+            border-color: var(--md-primary);
+        }
+
+        .quantity-label-md {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--md-on-surface-variant);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .quantity-input-md {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: 32px;
+            font-weight: 400;
+            text-align: center;
+            color: var(--md-on-surface);
+            font-family: inherit;
+        }
+
+        .quantity-input-md:focus {
+            outline: none;
+        }
+
+        .success .quantity-input-md { color: #2e7d32; }
+        .error .quantity-input-md { color: var(--md-error); }
+        .warning .quantity-input-md { color: #f57c00; }
+        .info .quantity-input-md { color: var(--md-primary); }
+
+        /* Material 3 Rating */
+        .rating-md {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 16px 0;
+        }
+
+        .star-md {
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            color: var(--md-outline);
+            transition: all 0.2s ease;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .star-md.active {
+            color: #ff9800;
+        }
+
+        .star-md:hover {
+            background: rgba(255, 152, 0, 0.12);
+        }
+
+        /* Material 3 Checkboxes */
+        .checkbox-list-md {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .checkbox-md {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .checkbox-md:hover {
+            background: var(--md-surface-2);
+        }
+
+        .checkbox-md input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--md-primary);
+            cursor: pointer;
+        }
+
+        .checkbox-md label {
+            font-size: 14px;
+            color: var(--md-on-surface);
+            cursor: pointer;
+            flex: 1;
+        }
+
+        /* Material 3 Buttons */
+        .action-area-md {
+            padding: 24px;
+            background: var(--md-surface-2);
+            border-top: 1px solid var(--md-outline-variant);
+        }
+
+        .md-button {
+            width: 100%;
+            padding: 16px 24px;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: inherit;
+        }
+
+        .md-button:last-child {
+            margin-bottom: 0;
+        }
+
+        .md-button.filled {
+            background: var(--md-primary);
+            color: var(--md-on-primary);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        }
+
+        .md-button.filled:hover {
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
+            background: #5a47a0;
+        }
+
+        .md-button.outlined {
+            background: transparent;
+            color: var(--md-primary);
+            border: 1px solid var(--md-outline);
+        }
+
+        .md-button.outlined:hover {
+            background: rgba(103, 80, 164, 0.08);
+        }
+
+        /* Material 3 FAB */
+        .md-fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            background: var(--md-primary);
+            color: var(--md-on-primary);
+            border: none;
+            border-radius: 16px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .md-fab:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.16);
+            transform: translateY(-2px);
+        }
+
+        /* Material 3 Divider */
+        .md-divider {
+            height: 1px;
+            background: var(--md-outline-variant);
+            margin: 24px 0;
+        }
+
+        /* Material 3 List Items */
+        .md-list-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--md-outline-variant);
+        }
+
+        .md-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .md-list-item-text {
+            flex: 1;
+        }
+
+        .md-list-item-title {
+            font-size: 16px;
+            color: var(--md-on-surface);
+            margin: 0 0 4px 0;
+        }
+
+        .md-list-item-subtitle {
+            font-size: 14px;
+            color: var(--md-on-surface-variant);
+            margin: 0;
+        }
+
+        .md-list-item-trailing {
+            color: var(--md-primary);
+            font-weight: 500;
+        }
+
+        /* Scrollbar styling - Material 3 */
+        .md-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .md-content::-webkit-scrollbar-track {
+            background: var(--md-surface-variant);
+        }
+
+        .md-content::-webkit-scrollbar-thumb {
+            background: var(--md-outline);
+            border-radius: 4px;
+        }
+
+        .md-content::-webkit-scrollbar-thumb:hover {
+            background: var(--md-on-surface-variant);
+        }
+
+        /* Animations */
+        .md-ripple {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .md-ripple::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+
+        .md-ripple:active::before {
+            width: 200px;
+            height: 200px;
+        }
+
+        /* Input field focus indicator */
+        .md-field-focused {
+            position: relative;
+        }
+
+        .md-field-focused::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--md-primary);
+            transition: width 0.3s ease;
+        }
+
+        .md-field-focused.focused::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="main-content">
+            <div class="demo-title">
+                <i class="bi bi-google me-3"></i>
+                Demo Sidebar 13: Material Design 3
+            </div>
+        </div>
+        
+        <div class="sidebar-demo">
+            <!-- Material 3 Header -->
+            <div class="md-header">
+                <h1 class="header-title">Báo cáo lệnh</h1>
+                <div class="header-info">
+                    <div class="md-chip">
+                        <i class="bi bi-tag-fill"></i>
+                        LSX001234
+                    </div>
+                    <div class="md-chip status">
+                        <i class="bi bi-play-circle-fill"></i>
+                        Đang sản xuất
+                    </div>
+                </div>
+                <div class="md-progress">
+                    <div class="md-progress-bar"></div>
+                </div>
+            </div>
+
+            <!-- Material 3 Content -->
+            <div class="md-content">
+                <!-- Production Information Card -->
+                <div class="md-card">
+                    <div class="md-card-title">
+                        <i class="bi bi-person-fill md-icon"></i>
+                        Thông tin sản xuất
+                    </div>
+                    
+                    <div class="md-field">
+                        <label class="md-label">Tên thợ phụ trách</label>
+                        <input type="text" class="md-input" value="Nguyễn Văn A">
+                    </div>
+
+                    <div class="md-field">
+                        <label class="md-label">Ca làm việc</label>
+                        <select class="md-select">
+                            <option>Ca 1 (6:00 - 14:00)</option>
+                            <option>Ca 2 (14:00 - 22:00)</option>
+                            <option>Ca 3 (22:00 - 6:00)</option>
+                        </select>
+                    </div>
+
+                    <div class="md-field">
+                        <label class="md-label">Máy sản xuất</label>
+                        <select class="md-select">
+                            <option>Máy XẢ 001</option>
+                            <option>Máy XẢ 002</option>
+                            <option>Máy XẢ 003</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Quantity Results Card -->
+                <div class="md-card">
+                    <div class="md-card-title">
+                        <i class="bi bi-calculator-fill md-icon"></i>
+                        Kết quả sản xuất
+                    </div>
+                    
+                    <div class="quantity-grid-md">
+                        <div class="quantity-card-md success">
+                            <div class="quantity-label-md">OK</div>
+                            <input type="number" class="quantity-input-md" value="950">
+                        </div>
+                        <div class="quantity-card-md error">
+                            <div class="quantity-label-md">NG</div>
+                            <input type="number" class="quantity-input-md" value="50">
+                        </div>
+                        <div class="quantity-card-md warning">
+                            <div class="quantity-label-md">NG đầu/cuối</div>
+                            <input type="number" class="quantity-input-md" value="20">
+                        </div>
+                        <div class="quantity-card-md info">
+                            <div class="quantity-label-md">Trả</div>
+                            <input type="number" class="quantity-input-md" value="10">
+                        </div>
+                    </div>
+
+                    <div class="md-divider"></div>
+
+                    <div class="md-field">
+                        <label class="md-label">Số lượng chuyển giao</label>
+                        <input type="number" class="md-input" value="900" style="font-size: 18px; font-weight: 500; color: var(--md-primary); text-align: center;">
+                    </div>
+
+                    <!-- Summary List -->
+                    <div class="md-list-item">
+                        <div class="md-list-item-text">
+                            <div class="md-list-item-title">Tổng sản xuất</div>
+                            <div class="md-list-item-subtitle">Số lượng tổng cộng</div>
+                        </div>
+                        <div class="md-list-item-trailing">1000</div>
+                    </div>
+                    <div class="md-list-item">
+                        <div class="md-list-item-text">
+                            <div class="md-list-item-title">Hiệu suất</div>
+                            <div class="md-list-item-subtitle">Tỷ lệ thành công</div>
+                        </div>
+                        <div class="md-list-item-trailing">95%</div>
+                    </div>
+                </div>
+
+                <!-- Quality Assessment Card -->
+                <div class="md-card">
+                    <div class="md-card-title">
+                        <i class="bi bi-star-fill md-icon"></i>
+                        Đánh giá chất lượng
+                    </div>
+                    
+                    <div class="md-field">
+                        <label class="md-label">Mức chất lượng</label>
+                        <select class="md-select">
+                            <option>Xuất sắc (A+)</option>
+                            <option>Tốt (A)</option>
+                            <option>Khá (B+)</option>
+                            <option>Trung bình (B)</option>
+                            <option>Yếu (C)</option>
+                        </select>
+                    </div>
+
+                    <div class="md-field">
+                        <label class="md-label">Đánh giá tổng thể</label>
+                        <div class="rating-md">
+                            <i class="bi bi-star-fill star-md active"></i>
+                            <i class="bi bi-star-fill star-md active"></i>
+                            <i class="bi bi-star-fill star-md active"></i>
+                            <i class="bi bi-star-fill star-md active"></i>
+                            <i class="bi bi-star-fill star-md active"></i>
+                        </div>
+                    </div>
+
+                    <div class="md-field">
+                        <label class="md-label">Vấn đề gặp phải</label>
+                        <div class="checkbox-list-md">
+                            <div class="checkbox-md">
+                                <input type="checkbox" id="issue1">
+                                <label for="issue1">Lỗi máy móc</label>
+                            </div>
+                            <div class="checkbox-md">
+                                <input type="checkbox" id="issue2" checked>
+                                <label for="issue2">Nguyên liệu kém chất lượng</label>
+                            </div>
+                            <div class="checkbox-md">
+                                <input type="checkbox" id="issue3">
+                                <label for="issue3">Lỗi quy trình</label>
+                            </div>
+                            <div class="checkbox-md">
+                                <input type="checkbox" id="issue4">
+                                <label for="issue4">Vấn đề khác</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes Card -->
+                <div class="md-card">
+                    <div class="md-card-title">
+                        <i class="bi bi-chat-text-fill md-icon"></i>
+                        Ghi chú & Nhận xét
+                    </div>
+                    
+                    <div class="md-field">
+                        <label class="md-label">Ghi chú sản xuất</label>
+                        <textarea class="md-textarea" placeholder="Nhập ghi chú về quá trình sản xuất...">Sản xuất diễn ra bình thường. Máy hoạt động ổn định, chất lượng sản phẩm đạt yêu cầu.</textarea>
+                    </div>
+
+                    <div class="md-field">
+                        <label class="md-label">Đề xuất cải tiến</label>
+                        <textarea class="md-textarea" placeholder="Nhập đề xuất cải tiến...">Cần kiểm tra chất lượng nguyên liệu đầu vào kỹ hơn để giảm tỷ lệ NG.</textarea>
+                    </div>
+
+                    <div class="md-field">
+                        <label class="md-label">Tags</label>
+                        <input type="text" class="md-input" placeholder="Nhập các tag..." value="chất lượng tốt, máy ổn định">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Material 3 Action Area -->
+            <div class="action-area-md">
+                <button class="md-button filled md-ripple">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Xác nhận báo cáo
+                </button>
+                <button class="md-button outlined md-ripple">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    Reset dữ liệu
+                </button>
+            </div>
+        </div>
+
+        <!-- Material 3 FAB -->
+        <button class="md-fab md-ripple" title="Thêm ghi chú nhanh">
+            <i class="bi bi-plus"></i>
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Star rating functionality
+        document.querySelectorAll('.star-md').forEach((star, index) => {
+            star.addEventListener('click', () => {
+                const stars = star.parentElement.querySelectorAll('.star-md');
+                stars.forEach((s, i) => {
+                    if (i <= index) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Material 3 ripple effect
+        document.querySelectorAll('.md-ripple').forEach(element => {
+            element.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+                
+                ripple.style.position = 'absolute';
+                ripple.style.borderRadius = '50%';
+                ripple.style.background = 'rgba(255, 255, 255, 0.6)';
+                ripple.style.transform = 'scale(0)';
+                ripple.style.animation = 'ripple 0.6s linear';
+                ripple.style.pointerEvents = 'none';
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // Add ripple animation CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Focus states for inputs
+        document.querySelectorAll('.md-input, .md-select, .md-textarea').forEach(input => {
+            const field = input.closest('.md-field');
+            
+            input.addEventListener('focus', () => {
+                field.classList.add('md-field-focused', 'focused');
+            });
+            
+            input.addEventListener('blur', () => {
+                field.classList.remove('focused');
+                setTimeout(() => {
+                    if (!input.matches(':focus')) {
+                        field.classList.remove('md-field-focused');
+                    }
+                }, 100);
+            });
+        });
+
+        // Animate progress bar
+        window.addEventListener('load', () => {
+            const progressBar = document.querySelector('.md-progress-bar');
+            progressBar.style.width = '0%';
+            setTimeout(() => {
+                progressBar.style.width = '70%';
+            }, 500);
+        });
+
+        // FAB functionality
+        document.querySelector('.md-fab').addEventListener('click', () => {
+            const textarea = document.querySelector('.md-textarea');
+            textarea.focus();
+            textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+
+        // Enhanced hover effects for cards
+        document.querySelectorAll('.md-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-2px)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Checkbox hover effects
+        document.querySelectorAll('.checkbox-md').forEach(checkbox => {
+            checkbox.addEventListener('click', () => {
+                const input = checkbox.querySelector('input[type="checkbox"]');
+                if (input && !checkbox.contains(event.target)) {
+                    input.checked = !input.checked;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
