@@ -3,479 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Công đoạn XẢ - Carton Manager</title>
+  <title>Công đoạn ${STAGE_CONFIG.NAME} - Carton Manager</title>
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <!-- Universal Stage CSS -->
   <link rel="stylesheet" href="universal-stage.css">
   <!-- Sidebar Generator -->
   <script src="sidebar-generator.js"></script>
-  <style>
-
-  
-    /* Đảm bảo modal hiển thị đúng và ở giữa màn hình */
-    .modal {
-      z-index: 1050 !important;
-    }
-    
-    .modal-backdrop {
-      z-index: 1040 !important;
-    }
-    
-    .modal-dialog {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 1.75rem auto;
-    }
-    
-    .modal-content {
-      max-width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-      border-radius: 8px;
-    }
-    
-    /* Đảm bảo các tab hiển thị đúng */
-    .nav-tabs .nav-link.active {
-      font-weight: bold;
-      border-bottom-color: transparent;
-    }
-    
-    /* Cải thiện hiển thị của form */
-    .form-control, .form-select {
-      /* margin-bottom: 0.5rem; */
-      border-radius: 6px;
-    }
-    
-    /* Tạo khoảng cách rõ ràng giữa các phần của form */
-    .form-label {
-      font-weight: 500;
-      margin-bottom: 0.25rem;
-    }
-    
-    /* Làm nổi bật thông tin quan trọng */
-    .alert {
-      border-radius: 6px;
-    }
-    
-    /* Đảm bảo modal không bị tràn màn hình trên thiết bị di động */
-    @media (max-width: 768px) {
-      .modal-dialog {
-        margin: 0.5rem;
-        max-width: 95%;
-      }
+  <!-- Custom Logout Handler -->
+  <script>
+    // Định nghĩa handleLogout trước khi auth.js load
+    window.handleLogout = function() {
+      // Xóa session
+      localStorage.removeItem('user_session');
       
-      .modal-dialog-centered {
-        min-height: calc(100% - 1rem);
-      }
-    }
-    
-    /* Fix cho nút đóng trên modal header */
-    .modal-header .btn-close {
-      padding: 0.5rem;
-      margin: -0.5rem -0.5rem -0.5rem auto;
-    }
-    
-    /* Hiệu ứng hover cho các nút */
-    .btn {
-      transition: all 0.2s;
-    }
-    
-    .btn:hover {
-      transform: translateY(-1px);
-    }
-    
-    /* Animation styles cho notification */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateX(100%); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-    @keyframes fadeOut {
-      from { opacity: 1; transform: translateX(0); }
-      to { opacity: 0; transform: translateX(100%); }
-    }
-
-    /* Enhanced form styling for sidebar */
-    .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid #e9ecef;
-    }
-
-    /* Style cho các lệnh bị disable */
-    .disabled-order {
-        opacity: 0.1;
-        background-color: #f8f9fa !important;
-    }
-
-    .disabled-order:hover {
-        background-color: #f8f9fa !important;
-    }
-
-    .disabled-order td {
-        color: #6c757d !important;
-    }
-
-    .disabled-order .progress-bar {
-        background-color: #6c757d !important;
-    }
-
-    /* Style cho lệnh đang chạy - highlight màu xanh */
-    .running-order {
-        background-color: #d1ecf1 !important;
-        border-left: 4px solid #17a2b8 !important;
-    }
-
-    .running-order:hover {
-        background-color: #bee5eb !important;
-    }
-
-    .running-order td {
-        color: #0c5460 !important;
-        font-weight: 500;
-    }
-
-    /* Đảm bảo tương thích với table-striped của Bootstrap */
-    .table.table-striped tbody tr.running-order {
-        background-color: #d1ecf1 !important;
-    }
-
-    .table.table-striped tbody tr.running-order:nth-child(odd) {
-        background-color: #d1ecf1 !important;
-    }
-
-    .table.table-striped tbody tr.running-order:nth-child(even) {
-        background-color: #d1ecf1 !important;
-    }
-
-    .table.table-striped tbody tr.running-order:hover {
-        background-color: #bee5eb !important;
-    }
-
-    .table.table-striped tbody tr.running-order:nth-child(odd):hover {
-        background-color: #bee5eb !important;
-    }
-
-    .table.table-striped tbody tr.running-order:nth-child(even):hover {
-        background-color: #bee5eb !important;
-    }
-
-    .section-badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: bold;
-    }
-
-
-
-    .form-group {
-        margin-bottom: 0.5rem;
-    }
-
-    .form-group:last-child {
-        margin-bottom: 0;
-    }
-
-    .detail-label {
-        min-width: 180px;
-        margin-bottom: 0;
-    }
-    
-
-    
-    /* Table styles */
-    .table {
-        table-layout: fixed;
-        width: 100%;
-    }
-    
-    
-
-    
-    /* Active row highlight */
-    .table-active {
-        background-color: #e3f2fd !important;
-        border-left: 4px solid #2196f3;
-    }
-    
-
-    
-    /* Hover effect for rows */
-    .order-row:hover {
-        background-color: #f8f9fa;
-        cursor: pointer;
-    }
-    
-
-    
-    /* Card styles for statistics */
-    .card.border-0 {
-        transition: transform 0.2s ease;
-    }
-    
-    .card.border-0:hover {
-        transform: translateY(-2px);
-    }
-
-    .form-control-lg, .form-select-lg {
-        border-radius: 8px;
-        border: 2px solid #e9ecef;
-        transition: all 0.3s ease;
-    }
-
-    .form-control-lg:focus, .form-select-lg:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-    }
-
-    .input-group-lg .form-control {
-        border-radius: 8px 0 0 8px;
-    }
-
-    .input-group-lg .input-group-text {
-        border-radius: 0 8px 8px 0;
-    }
-
-    .alert {
-        border-radius: 8px;
-        border-left: 4px solid;
-    }
-
-    .btn-lg {
-        border-radius: 8px;
-        font-weight: 600;
-        padding: 0.75rem 1.5rem;
-    }
-
-
-
-    /* Wizard Form Styles */
-    .wizard-container {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 15px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-      backdrop-filter: blur(10px);
-      margin: 20px;
-      max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    
-    .wizard-steps {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 30px;
-      background: #f8f9fa;
-      border-bottom: 1px solid #e9ecef;
-    }
-    
-    .step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      flex: 1;
-      position: relative;
-    }
-    
-    .step:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      top: 20px;
-      left: 50%;
-      width: 100%;
-      height: 2px;
-      background: #e9ecef;
-      z-index: 1;
-    }
-    
-    .step.active:not(:last-child)::after {
-      background: #6f42c1;
-    }
-    
-    .step.completed:not(:last-child)::after {
-      background: #28a745;
-    }
-    
-    .step-circle {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #e9ecef;
-      color: #6c757d;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      position: relative;
-      z-index: 2;
-      transition: all 0.3s ease;
-    }
-    
-    .step.active .step-circle {
-      background: #6f42c1;
-      color: white;
-      box-shadow: 0 0 0 4px rgba(111, 66, 193, 0.2);
-    }
-    
-    .step.completed .step-circle {
-      background: #28a745;
-      color: white;
-    }
-    
-    .step-label {
-      margin-top: 8px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      text-align: center;
-    }
-    
-    .wizard-content {
-      padding: 30px;
-      min-height: 400px;
-    }
-    
-    .step-content {
-      display: none;
-    }
-    
-    .step-content.active {
-      display: block;
-      animation: fadeIn 0.5s ease;
-    }
-    
-    .form-control, .form-select {
-      border-radius: 8px;
-      border: 2px solid #e9ecef;
-      transition: all 0.3s ease;
-    }
-    
-    .form-control:focus, .form-select:focus {
-      border-color: #6f42c1;
-      box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
-    }
-    
-    /* .btn-primary {
-      background: linear-gradient(45deg, #6f42c1, #5a2d91);
-      border: none;
-      border-radius: 25px;
-      padding: 12px 30px;
-      font-weight: 600;
-    } */
-    
-    .btn-success {
-      background: linear-gradient(45deg, #28a745, #1e7e34);
-      border: none;
-      border-radius: 25px;
-      padding: 12px 30px;
-      font-weight: 600;
-    }
-    
-    .btn-secondary {
-      background: linear-gradient(45deg, #6c757d, #545b62);
-      border: none;
-      border-radius: 25px;
-      padding: 12px 30px;
-      font-weight: 600;
-    }
-    
-    .info-card {
-      background: linear-gradient(45deg, #17a2b8, #138496);
-      color: white;
-      border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-    
-    .progress-card {
-      background: linear-gradient(45deg, #fd7e14, #e55a00);
-      color: white;
-      border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-    
-    .wizard-footer {
-      padding: 20px 30px;
-      background: #f8f9fa;
-      border-top: 1px solid #e9ecef;
-      border-radius: 0 0 15px 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .step-indicator {
-      font-size: 0.9rem;
-      color: #6c757d;
-    }
-
-    /* Cập nhật chỉ phần details-header để cố định khi cuộn */
-    .details-header {
-        position: sticky;
-        top: 0;
-        z-index: 1050;
-        /* background: #f8f9fa; */
-        padding: 15px;
-        border-bottom: 1px solid #dee2e6;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    }
-
-    /* Tab Styles */
-    .nav-tabs {
-        border-bottom: 2px solid #dee2e6;
-    }
-    
-    .nav-tabs .nav-link {
-        border: none;
-        border-bottom: 3px solid transparent;
-        color: #6c757d;
-        font-weight: 500;
-        padding: 0.75rem 1.5rem;
-        transition: all 0.3s ease;
-    }
-    
-    .nav-tabs .nav-link:hover {
-        border-color: transparent;
-        color: #495057;
-        background-color: #f8f9fa;
-    }
-    
-    .nav-tabs .nav-link.active {
-        border-bottom-color: #0d6efd;
-        color: #0d6efd;
-        background-color: transparent;
-        font-weight: 600;
-    }
-    
-    .nav-tabs .nav-link .badge {
-        font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
-    }
-    
-    /* Tab content animation */
-    .tab-pane {
-        transition: opacity 0.3s ease;
-    }
-    
-    .tab-pane.fade {
-        opacity: 0;
-    }
-    
-    .tab-pane.fade.show {
-        opacity: 1;
-    }
-    
+      // Ẩn thông tin user
+      updateUserInfo();
+      
+      // Hiển thị login popup
+      showLoginPopup({
+        onLoginSuccess: function(userData) {
+          updateUserInfo();
+          refreshData();
+        }
+      });
+    };
+  </script>
+  
+  <!-- Auth Manager -->
+  <script src="../js/auth.js"></script>
+  <!-- Login Popup Component -->
+  <script src="../js/login-popup.js"></script>
+  <style>
     /* Machine-specific tab colors */
     #xa1-tab.active {
         border-bottom-color: #dc3545;
@@ -497,509 +60,10 @@
         color: #6c757d;
     }
 
-    /* Details Panel (Sidebar Container) */
-    .details-panel {
-        position: fixed;
-        right: -400px;
-        top: 0;
-        width: 400px;
-        height: 100vh;
-        background: white;
-        /* box-shadow: -5px 0 20px rgba(0,0,0,0.15); */
-        border-left: 1px solid #00000029;
-
-        transition: right 0.3s ease;
-        z-index: 1000;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .details-panel.show {
-        right: 0;
-    }
-
-    /* Horizontal Tabbed Sidebar Styles */
-    :root {
-        --primary-purple: #6f42c1;
-        --primary-blue: #0d6efd;
-        --primary-green: #198754;
-        --primary-orange: #fd7e14;
-    }
-
-    .sidebar-header {
-        background: var(--primary-purple);
-        color: white;
-        padding: 1.5rem;
-        text-align: center;
-        position: relative;
-    }
-
-    .sidebar-header h5 {
-        margin: 0;
-        font-weight: 600;
-    }
-
-    .order-info {
-        margin-top: 0.5rem;
-        font-size: 0.9rem;
-        opacity: 0.9;
-    }
-
-    .sidebar-content {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .details-panel .tab-navigation {
-        display: flex;
-        background: #f8f9fa;
-        border-bottom: 1px solid #dee2e6;
-    }
-
-    .details-panel .tab-btn {
-        flex: 1;
-        padding: 1rem 0.5rem;
-        border: none;
-        background: transparent;
-        color: #6c757d;
-        font-size: 0.85rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.25rem;
-    }
-
-    .details-panel .tab-btn:hover {
-        background: rgba(111, 66, 193, 0.1);
-        color: var(--primary-purple);
-    }
-
-    .details-panel .tab-btn.active {
-        background: white;
-        color: var(--primary-purple);
-        font-weight: 600;
-    }
-
-    .details-panel .tab-btn.active::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 30px;
-        height: 3px;
-        background: var(--primary-purple);
-        border-radius: 2px;
-    }
-
-    .details-panel .tab-icon {
-        font-size: 1.2rem;
-    }
-
-    .details-panel .tab-content {
-        flex: 1;
-        padding: 1.5rem;
-        overflow-y: auto;
-    }
-
-    .details-panel .tab-panel {
-        display: none;
-        animation: fadeIn 0.3s ease;
-    }
-
-    .details-panel .tab-panel.active {
-        display: block;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .details-panel .form-group {
-        margin-bottom: 1.5rem;
-        position: relative;
-    }
-
-    .details-panel .form-label {
-        position: absolute;
-        top: -8px;
-        left: 12px;
-        background: white;
-        padding: 0 8px;
-        font-size: 0.75rem;
-        font-weight: 500;
-        color: #6b7280;
-        z-index: 1;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-
-    .details-panel .form-label i {
-        font-size: 0.75rem;
-    }
-
-    .details-panel .form-control-custom {
-        width: 100%;
-        padding: 1rem;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        font-size: 0.875rem;
-        font-weight: 400;
-        line-height: 1.5;
-        color: #111827;
-        background: #ffffff;
-        transition: all 0.2s ease;
-    }
-
-    .details-panel .form-control-custom:focus {
-        outline: none;
-        /* border-color: #3b82f6; */
-        /* box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); */
-        border-color: var(--primary-purple);
-        box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.1);
-    }
-
-    .details-panel .form-control-custom:focus + .form-label,
-    .details-panel .form-group:focus-within .form-label {
-        color: var(--primary-purple);
-    }
-
-    .details-panel .form-control-custom:hover:not(:focus) {
-        border-color: #9ca3af;
-    }
-
-    /* Checkbox Group Styles */
-    .details-panel .checkbox-group {
-        position: relative;
-    }
-
-    .details-panel .checkbox-container {
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        padding: 1rem;
-        background: #ffffff;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .details-panel .checkbox-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .details-panel .checkbox-input {
-        width: 16px;
-        height: 16px;
-        border: 1px solid #d1d5db;
-        border-radius: 3px;
-        cursor: pointer;
-        accent-color: var(--primary-purple);
-    }
-
-    .details-panel .checkbox-label {
-        font-size: 0.875rem;
-        color: #374151;
-        cursor: pointer;
-        user-select: none;
-    }
-
-    .details-panel .checkbox-group .form-label {
-        position: absolute;
-        top: -8px;
-        left: 12px;
-        background: white;
-        padding: 0 8px;
-        font-size: 0.75rem;
-        font-weight: 500;
-        color: #6b7280;
-        z-index: 1;
-    }
-
-    .details-panel .checkbox-container:focus-within {
-        border-color: var(--primary-purple);
-        box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.1);
-    }
-
-    .details-panel .checkbox-container:focus-within + .form-label {
-        color: var(--primary-purple);
-    }
-
-    .quantity-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-
-    .quantity-card {
-        background: #f8f9fa;
-        border: 2px solid #e9ecef;
-        border-radius: 10px;
-        padding: 1rem;
-        text-align: center;
-        transition: all 0.3s ease;
-    }
-
-    .quantity-card.success {
-        border-color: var(--primary-green);
-        background: rgba(25, 135, 84, 0.05);
-    }
-
-    .quantity-card.danger {
-        border-color: #dc3545;
-        background: rgba(220, 53, 69, 0.05);
-    }
-
-    .quantity-card.warning {
-        border-color: var(--primary-orange);
-        background: rgba(253, 126, 20, 0.05);
-    }
-
-    .quantity-card.info {
-        border-color: var(--primary-blue);
-        background: rgba(13, 110, 253, 0.05);
-    }
-
-    .quantity-label {
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        margin-bottom: 0.5rem;
-        color: #6c757d;
-    }
-
-    .quantity-input {
-        border: none;
-        background: transparent;
-        font-size: 1.5rem;
-        font-weight: 700;
-        text-align: center;
-        width: 100%;
-        color: inherit;
-    }
-
-    .quantity-input:focus {
-        outline: none;
-    }
-
-    .success .quantity-input { color: var(--primary-green); }
-    .danger .quantity-input { color: #dc3545; }
-    .warning .quantity-input { color: var(--primary-orange); }
-    .info .quantity-input { color: var(--primary-blue); }
-
-    .note-area {
-        background: #f8f9fa;
-        border: 2px solid #e9ecef;
-        border-radius: 10px;
-        padding: 1rem;
-    }
-
-    .note-textarea {
-        width: 100%;
-        min-height: 80px;
-        border: none;
-        background: transparent;
-        resize: vertical;
-        font-size: 0.9rem;
-    }
-
-    .note-textarea:focus {
-        outline: none;
-    }
-
-    /* Production Control Buttons */
-    .production-controls {
-        padding: 1rem 1.5rem;
-        border-top: 1px solid #dee2e6;
-        background: #f8f9fa;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .control-row {
-        display: flex;
-        gap: 1rem;
-    }
-
-    .production-status {
-        text-align: center;
-        padding: 1rem;
-        background: white;
-        border-radius: 8px;
-        border: 2px solid #e9ecef;
-        margin-bottom: 1rem;
-    }
-
-    .production-status.running {
-        border-color: var(--primary-green);
-        background: rgba(25, 135, 84, 0.05);
-    }
-
-    .production-status.stopped {
-        border-color: #dc3545;
-        background: rgba(220, 53, 69, 0.05);
-    }
-
-    .production-status.paused {
-        border-color: var(--primary-orange);
-        background: rgba(253, 126, 20, 0.05);
-    }
-
-    .status-text {
-        font-size: 0.9rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-    }
-
-    .status-time {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #495057;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 1rem;
-    }
-
-    .action-buttons-bottom {
-        padding: 1rem 1.5rem;
-        border-top: 1px solid #dee2e6;
-        background: #f8f9fa;
-        display: flex;
-        gap: 1rem;
-        margin-top: auto;
-    }
-
-    .btn-custom {
-        flex: 1;
-        padding: 0.75rem 1rem;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        cursor: pointer;
-    }
-
-    .btn-primary-custom {
-        background: var(--primary-purple);
-        color: white;
-    }
-
-    .btn-primary-custom:hover {
-        background: #5a359a;
-        transform: translateY(-1px);
-    }
-
-    .btn-outline-custom {
-        background: transparent;
-        border: 2px solid var(--primary-purple);
-        color: var(--primary-purple);
-    }
-
-    .btn-outline-custom:hover {
-        background: var(--primary-purple);
-        color: white;
-    }
-
-    .btn-success-custom {
-        background: var(--primary-green);
-        color: white;
-    }
-
-    .btn-success-custom:hover {
-        background: #157347;
-        transform: translateY(-1px);
-    }
-
-    .btn-danger-custom {
-        background: #dc3545;
-        color: white;
-    }
-
-    .btn-danger-custom:hover {
-        background: #bb2d3b;
-        transform: translateY(-1px);
-    }
-
-    .btn-warning-custom {
-        background: var(--primary-orange);
-        color: white;
-    }
-
-    .btn-warning-custom:hover {
-        background: #e25d2d;
-        transform: translateY(-1px);
-    }
-
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 500;
-        background: linear-gradient(135deg, var(--primary-green), #20c997);
-        color: white;
-        margin-top: 0.5rem;
-    }
-
-    .info-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.5rem 0;
-        border-bottom: 1px solid #f1f1f1;
-    }
-
-    .info-row:last-child {
-        border-bottom: none;
-    }
-
-    .info-label {
-        font-size: 0.85rem;
-        color: #6c757d;
-        font-weight: 500;
-    }
-
-    .info-value {
-        font-size: 0.9rem;
-        color: #495057;
-        font-weight: 600;
-    }
-
-    /* Scrollbar styling */
-    .details-panel .tab-content::-webkit-scrollbar {
-        width: 4px;
-    }
-
-    .details-panel .tab-content::-webkit-scrollbar-track {
-        background: #f1f1f1;
-    }
-
-    .details-panel .tab-content::-webkit-scrollbar-thumb {
-        background: var(--primary-purple);
-        border-radius: 2px;
-    }
 
   </style>
 </head>
-<body data-stage="xa">
-  
+<body data-stage="${STAGE_CONFIG.KEY}">
   <!-- Sidebar will be generated by JavaScript -->
 
   <!-- Main Content -->
@@ -1009,11 +73,26 @@
       
       <!-- Stage Header -->
       <div class="stage-header">
-        <h1>
-          <i class="bi bi-bullseye me-2 text-primary"></i>
-          Công đoạn XẢ
-        </h1>
-        <p class="mb-0">Xả giấy cuộn - Quản lý chi tiết sản xuất</p>
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1>
+              <i class="bi bi-bullseye me-2 text-primary"></i>
+              Công đoạn xả
+            </h1>
+            <p class="mb-0">Xả giấy cuộn - Quản lý chi tiết sản xuất</p>
+          </div>
+          
+          <div class="user-controls">
+            <div class="user-info d-flex align-items-center me-3">
+              <i class="fas fa-user-circle me-2"></i>
+              <span id="userName" class="fw-bold me-2">Loading...</span>
+              <!-- <span class="badge bg-primary" id="userRole">...</span> -->
+            </div>
+            <button class="btn btn-outline-primary btn-sm" onclick="handleLogout()">
+              <i class="fas fa-sign-out-alt me-1"></i>Đăng xuất
+            </button>
+          </div>
+        </div>
       </div>
       
       <!-- Statistics -->
@@ -1047,12 +126,9 @@
       <!-- Main Card -->
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">Danh sách lệnh sản xuất - Công đoạn Xả</h5>
+                          <h5 class="mb-0">Danh sách lệnh sản xuất </h5>
           <div class="d-flex align-items-center">
 
-            
- 
-            
             <!-- Main Actions -->
             <button class="btn btn-primary me-2" onclick="refreshData()">
               <i class="bi bi-arrow-clockwise me-1"></i>Làm mới
@@ -1090,6 +166,8 @@
                     <option value="Ca 1">Ca 1</option>
                     <option value="Ca 2">Ca 2</option>
                     <option value="Ca 3">Ca 3</option>
+                    <option value="Kíp 1">Kíp 1</option>
+                    <option value="Kíp 2">Kíp 2</option>
                   </select>
                 </div>
                 <div class="col-md-2">
@@ -1121,125 +199,65 @@
           
           <!-- Tabs Navigation -->
           <ul class="nav nav-tabs mb-3" id="machineTabs" role="tablist">
-                    <!-- Dynamic tabs will be generated here -->
-        
-
-      </ul>
+            <!-- Dynamic tabs will be generated here -->
+          </ul>
           
           <!-- Tab Content -->
           <div class="tab-content" id="machineTabContent">
-                    <!-- Dynamic tab content will be generated here -->
-        
-
-      </div>
+            <!-- Dynamic tab content will be generated here -->
+          </div>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- Add/Edit Order Modal -->
-  <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalTitle">Thêm lệnh sản xuất mới - Công đoạn Xả</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form id="orderForm">
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Mã lệnh sản xuất *</label>
-                <input type="text" class="form-control" id="orderCode" required>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Mã sản phẩm *</label>
-                <input type="text" class="form-control" id="productCode" required>
-              </div>
-              <div class="col-md-12 mb-3">
-                <label class="form-label">Tên sản phẩm *</label>
-                <input type="text" class="form-control" id="productName" required>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Loại giấy *</label>
-                <select class="form-select" id="paperType" required>
-                  <option value="">Chọn loại giấy</option>
-                  <option value="BC">BC</option>
-                  <option value="CC">CC</option>
-                  <option value="WF">WF</option>
-                  <option value="OF">OF</option>
-                </select>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Định lượng (gsm) *</label>
-                <input type="number" class="form-control" id="paperWeight" required min="100" max="1000">
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Khổ tờ</label>
-                <input type="text" class="form-control" id="sheetSize" placeholder="VD: 1020x720mm">
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Số lượng kế hoạch *</label>
-                <input type="number" class="form-control" id="planQty" required min="1">
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Ca sản xuất</label>
-                <select class="form-select" id="shift">
-                  <option value="Ca 1">Ca 1</option>
-                  <option value="Ca 2">Ca 2</option>
-                  <option value="Ca 3">Ca 3</option>
-                </select>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Máy xả</label>
-                <select class="form-select" id="machine">
-                  <option value="Xả 1">Xả 1</option>
-                  <option value="Xả 2">Xả 2</option>
-                  <option value="Xả 3">Xả 3</option>
-                </select>
-              </div>
-              <div class="col-md-12 mb-3">
-                <label class="form-label">Ghi chú</label>
-                <textarea class="form-control" id="orderNote" rows="3"></textarea>
-              </div>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-          <button type="button" class="btn btn-primary" onclick="saveOrder()">Lưu</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
+    // === CẤU HÌNH CÔNG ĐOẠN HIỆN TẠI ===
+    const $stage_now = 'xa'; // Thay đổi giá trị này để chuyển sang công đoạn khác: xa, xen, in_offset, boi, be, dan, kho
+    
+    // === CẤU HÌNH STAGE TỰ ĐỘNG ===
+    const STAGE_CONFIGS = {
+        xa: { KEY: 'xa', NAME: 'XẢ', DISPLAY: 'XẢ GIẤY CUỘN' },
+        xen: { KEY: 'xen', NAME: 'XÉN', DISPLAY: 'XÉN GIẤY' },
+        in_offset: { KEY: 'in_offset', NAME: 'IN OFFSET', DISPLAY: 'IN OFFSET' },
+        boi: { KEY: 'boi', NAME: 'BỒI', DISPLAY: 'BỒI GIẤY' },
+        be: { KEY: 'be', NAME: 'BẾ', DISPLAY: 'BẾ GIẤY' },
+        dan: { KEY: 'dan', NAME: 'DÁN', DISPLAY: 'DÁN GIẤY' },
+        kho: { KEY: 'kho', NAME: 'KHO', DISPLAY: 'KHO THÀNH PHẨM' }
+    };
+    
+    const STAGE_CONFIG = STAGE_CONFIGS[$stage_now];
+    
+    // === HELPER FUNCTIONS FOR DYNAMIC FIELD NAMES ===
+    function getFieldName(field) {
+        return `${STAGE_CONFIG.KEY}_${field}`;
+    }
+    
+    function getOrderField(order, field) {
+        const fieldName = getFieldName(field);
+        return order[fieldName] || order[field] || 0;
+    }
+    
+    function setOrderField(order, field, value) {
+        const fieldName = getFieldName(field);
+        order[fieldName] = value;
+    }
+    
     /**
      * =================================================================
-     * XẢ STAGE MANAGEMENT - QUẢN LÝ CÔNG ĐOẠN XẢ
+     * ${STAGE_CONFIG.NAME} STAGE MANAGEMENT - QUẢN LÝ CÔNG ĐOẠN ${STAGE_CONFIG.NAME}
      * =================================================================
      * Chức năng chính:
-     * 1. Hiển thị danh sách lệnh sản xuất ở công đoạn XẢ
-     * 2. Hoàn thành công đoạn XẢ (cập nhật số lượng OK, NG)
+     * 1. Hiển thị danh sách lệnh sản xuất ở công đoạn ${STAGE_CONFIG.NAME}
+     * 2. Hoàn thành công đoạn ${STAGE_CONFIG.NAME} (cập nhật số lượng OK, NG)
      * 3. Bàn giao sang công đoạn tiếp theo theo workflow_definition
      */
 
     // === CẤU HÌNH API & WEBHOOK ===
     const API_BASE_URL = 'https://api.autoslp.com/api';
     const WEBHOOK_BASE_URL = 'https://api.autoslp.com:5678/webhook';
-
-
-
-    // === CẤU HÌNH CÔNG ĐOẠN ===
-    const STAGE_CONFIG = {
-        KEY: 'xa',           // Tên key trong database
-        NAME: 'XẢ',          // Tên hiển thị
-        NEXT_STAGE: null     // Sẽ được xác định từ workflow_definition
-    };
 
     // === BIẾN GLOBAL ===
     let ordersData = [];        // Dữ liệu lệnh sản xuất
@@ -1312,15 +330,15 @@
     function getOrderMachine(order) {
         const assignedMachine = order.assigned_machine || '';
         
-        // Lọc các máy thuộc Stage_xa
-        const xaMachines = machineStatusData.filter(machine => 
-            machine.stage_machine && machine.stage_machine.includes('Stage_xa')
+        // Lọc các máy thuộc Stage_${STAGE_CONFIG.KEY}
+        const MStageMachines = machineStatusData.filter(machine => 
+            machine.stage_machine && machine.stage_machine.includes(`Stage_${STAGE_CONFIG.KEY}`)
         );
         
-        // Tìm máy Xả trong danh sách máy được gán
-        for (const xaMachine of xaMachines) {
-            if (assignedMachine.includes(xaMachine.machine_name)) {
-                return xaMachine.machine_name;
+        // Tìm máy ${STAGE_CONFIG.NAME} trong danh sách máy được gán
+        for (const MStageMachine of MStageMachines) {
+            if (assignedMachine.includes(MStageMachine.machine_name)) {
+                return MStageMachine.machine_name;
             }
         }
         
@@ -1346,8 +364,6 @@
         // Nếu không có máy nào đang sản xuất lệnh này
         return { isRunning: false, reason: 'Lệnh không đang được sản xuất' };
     }
-
-
 
     /**
      * =================================================================
@@ -1411,13 +427,9 @@
      */
     async function loadOrdersData() {
         const timingKey = 'loadOrdersData';
-
-        
         try {
             // Load dữ liệu máy trước
             await loadMachineStatus();
-    
-            
             // Tối ưu: Thêm pagination để load nhanh hơn
             const pageSize = 500; // Load 500 records mỗi lần
             let allData = [];
@@ -1425,7 +437,7 @@
             let hasMore = true;
             
             while (hasMore) {
-                const url = `${API_BASE_URL}/data/production_orders/optimized?stage=xa&page=${page}&limit=${pageSize}&days_back=300`;
+                const url = `${API_BASE_URL}/data/production_orders/optimized?stage=${STAGE_CONFIG.KEY}&page=${page}&limit=${pageSize}&days_back=300`;
                 
                 // Tối ưu: Giảm timeout và retry cho load nhanh hơn
                 const fastOptions = {
@@ -1440,13 +452,13 @@
                 // Kiểm tra dữ liệu raw từ API
         
                 if (apiData.length > 0) {
-                    // Log các mẫu để kiểm tra xa_start_time
+                    // Log các mẫu để kiểm tra start_time
                     apiData.slice(0, 3).forEach((record, idx) => {
                         // Sample data logging removed
                     });
                     
-                    // Đếm số bản ghi có xa_start_time
-                    const recordsWithStartTime = apiData.filter(r => r.xa_start_time).length;
+                    // Đếm số bản ghi có start_time
+                    const recordsWithStartTime = apiData.filter(r => getOrderField(r, 'start_time')).length;
                 }
                 
                 if (!Array.isArray(apiData) || apiData.length === 0) {
@@ -1468,20 +480,17 @@
                     hasMore = false;
                 }
             }
-            
-
-            
             ordersData = transformApiData(allData);
             
             // Kiểm tra dữ liệu sau khi transform
             if (ordersData.length > 0) {
-                // Log các mẫu để kiểm tra xa_start_time
+                // Log các mẫu để kiểm tra start_time
                 ordersData.slice(0, 3).forEach((record, idx) => {
                     // Sample transformed data logging removed
                 });
                 
-                // Đếm số bản ghi có xa_start_time
-                const recordsWithStartTime = ordersData.filter(r => r.xa_start_time).length;
+                // Đếm số bản ghi có start_time
+                const recordsWithStartTime = ordersData.filter(r => getOrderField(r, 'start_time')).length;
             }
             
             // Lưu dữ liệu gốc cho filtering
@@ -1492,9 +501,6 @@
             if (ordersData.length > 0) {
                 // Sample orders data logging removed
             }
-            
-
-            
         } catch (error) {
             ordersData = [];
             showNotification('Không thể tải dữ liệu: ' + error.message, 'error');
@@ -1518,8 +524,6 @@
         return transformedData;
     }
 
-
-
     /**
      * Transform một order
      */
@@ -1528,7 +532,7 @@
         
         // Log dữ liệu thô từ API để debug
         
-        if (order.xa_start_time) {
+        if (getOrderField(order, 'start_time')) {
             // API Data logging removed
         }
         
@@ -1545,22 +549,23 @@
             total_quantity: order.quantity || order.total_quantity,
             deployed_quantity: order.deployed_quantity || 0, // Thêm deployed_quantity
             sheet_count: order.sheet_count || 0, // Thêm sheet_count
-            xa_input_quantity: order.quantity || order.total_quantity || 0,
-            xa_output_quantity: order.xa_output_quantity || 0,
-            xa_good_quantity: order.xa_good_quantity || 0,
-            xa_ng_quantity: order.xa_ng_quantity || 0,
-            xa_status: order.xa_status || order.status || 'waiting',
-            xa_machine_name: order.xa_machine_name || '',
-            xa_worker_name: order.xa_worker_name || '',
-            xa_note: order.xa_note || order.notes || '',
-            xa_start_time: order.xa_start_time || null,
-            xa_end_time: order.xa_end_time || null,
+            [getFieldName('input_quantity')]: order.quantity || order.total_quantity || 0,
+            [getFieldName('output_quantity')]: getOrderField(order, 'output_quantity'),
+            [getFieldName('good_quantity')]: getOrderField(order, 'good_quantity'),
+            [getFieldName('ng_quantity')]: getOrderField(order, 'ng_quantity'),
+            [getFieldName('handover_quantity')]: getOrderField(order, 'handover_quantity'),
+            [getFieldName('status')]: getOrderField(order, 'status') || 'waiting',
+            [getFieldName('machine_name')]: getOrderField(order, 'machine_name'),
+            [getFieldName('worker_name')]: getOrderField(order, 'worker_name'),
+            [getFieldName('note')]: getOrderField(order, 'note') || order.notes || '',
+            [getFieldName('start_time')]: getOrderField(order, 'start_time'),
+            [getFieldName('end_time')]: getOrderField(order, 'end_time'),
             paper_type: order.paper_type || '',
             paper_weight: order.paper_weight || 0,
             paper_length: order.paper_length  || 0,
             paper_width: order.paper_width  || 0,
             blank_count: order.blank_count|| 0, // Số phôi
-            production_shift: order.shift || order.production_shift || '',
+            [getFieldName('shift')]: getOrderField(order, 'shift'),
             delivery_date: order.delivery_date,
             deployment_date: order.deployment_date || order.created_at,
             assigned_machine: order.assigned_machine || '', // Thêm trường assigned_machine
@@ -1571,7 +576,7 @@
         };
         
         // Log dữ liệu sau khi transform để debug
-        if (transformedOrder.xa_start_time) {
+        if (transformedOrder[getFieldName('start_time')]) {
             // Transformed data logging removed
         }
         
@@ -1607,19 +612,41 @@
     }
 
     /**
+     * Lấy stage trước đó từ workflow
+     * @param {string} workflowDef - Định nghĩa workflow
+     * @param {string} currentStage - Stage hiện tại
+     * @returns {string|null} Stage trước đó hoặc null nếu là stage đầu
+     */
+    function getPreviousStageFromWorkflow(workflowDef, currentStage) {
+        if (!workflowDef) {
+            return null;
+        }
+        
+        const stages = workflowDef.split(',').map(s => s.trim());
+        const currentIndex = stages.indexOf(currentStage);
+        
+        if (currentIndex === -1 || currentIndex <= 0) {
+            return null; // Không tìm thấy hoặc đã là stage đầu
+        }
+        
+        const previousStage = stages[currentIndex - 1];
+        return previousStage;
+    }
+
+    /**
      * Lấy tên hiển thị của stage
      * @param {string} stageKey - Key của stage
      * @returns {string} Tên hiển thị
      */
     function getStageDisplayName(stageKey) {
         const stageNames = {
-            'xa': 'XẢ',
-            'xen': 'XÉN', 
-            'in_offset': 'IN OFFSET',
-            'boi': 'BỒI',
-            'be': 'BẾ',
-            'dan': 'DÁN',
-            'kho': 'KHO'
+            'xa': 'Xả',
+            'xen': 'Xén', 
+            'in_offset': 'In Offset',
+            'boi': 'Bồi',
+            'be': 'Bế',
+            'dan': 'Dán',
+            'kho': 'Kho'
         };
         
         return stageNames[stageKey] || stageKey.toUpperCase();
@@ -1730,23 +757,23 @@
             return;
         }
         
-        // Lọc các máy thuộc Stage_xa
-        const xaMachines = machineStatusData.filter(machine => 
-            machine.stage_machine && machine.stage_machine.includes('Stage_xa')
+        // Lọc các máy thuộc Stage_${STAGE_CONFIG.KEY}
+        const MStageMachines = machineStatusData.filter(machine => 
+            machine.stage_machine && machine.stage_machine.includes(`Stage_${STAGE_CONFIG.KEY}`)
         );
         
         // Phân loại dữ liệu theo máy (chỉ lệnh chưa bàn giao)
         const machineOrders = {};
-        xaMachines.forEach(machine => {
+        MStageMachines.forEach(machine => {
             const machineName = machine.machine_name;
             machineOrders[machineName] = ordersData.filter(order => {
                 const assignedMachine = order.assigned_machine || '';
-                return assignedMachine.includes(machineName) && order.xa_status !== 'handed_over';
+                return assignedMachine.includes(machineName) && getOrderField(order, 'status') !== 'handed_over';
             });
         });
         
         // Render từng tab máy
-        xaMachines.forEach(machine => {
+        MStageMachines.forEach(machine => {
             const machineName = machine.machine_name;
             const machineId = machineName.toLowerCase().replace(/\s+/g, '-');
             const tableBodyId = `${machineId}TableBody`;
@@ -1754,7 +781,7 @@
         });
         
         // Render tab "Tất cả" (chỉ lệnh chưa bàn giao)
-        const activeOrders = ordersData.filter(order => order.xa_status !== 'handed_over');
+        const activeOrders = ordersData.filter(order => getOrderField(order, 'status') !== 'handed_over');
         renderTabTable('allTableBody', activeOrders);
         
         // Cập nhật số lượng cho các tab
@@ -1803,8 +830,8 @@
             if (!aIsRunning && bIsRunning) return 1;
             
             // Nếu cả hai đều đang chạy hoặc không chạy, sắp xếp theo thời gian bắt đầu
-            const aStartTime = a.xa_start_time ? new Date(a.xa_start_time).getTime() : 0;
-            const bStartTime = b.xa_start_time ? new Date(b.xa_start_time).getTime() : 0;
+                    const aStartTime = getOrderField(a, 'start_time') ? new Date(getOrderField(a, 'start_time')).getTime() : 0;
+        const bStartTime = getOrderField(b, 'start_time') ? new Date(getOrderField(b, 'start_time')).getTime() : 0;
             
             // Lệnh bắt đầu sớm hơn lên đầu (thời gian lớn hơn = mới hơn)
             return bStartTime - aStartTime;
@@ -1837,13 +864,13 @@
      * Cập nhật số lượng hiển thị trên các tab động
      */
     function updateTabCountsDynamic(machineOrders = {}) {
-        // Lọc các máy thuộc Stage_xa
-        const xaMachines = machineStatusData.filter(machine => 
-            machine.stage_machine && machine.stage_machine.includes('Stage_xa')
+        // Lọc các máy thuộc Stage hiện tại
+        const stageMachines = machineStatusData.filter(machine => 
+            machine.stage_machine && machine.stage_machine.includes(`Stage_${STAGE_CONFIG.KEY}`)
         );
         
         // Cập nhật số lượng cho từng máy
-        xaMachines.forEach(machine => {
+        stageMachines.forEach(machine => {
             const machineName = machine.machine_name;
             const machineId = machineName.toLowerCase().replace(/\s+/g, '-');
             const countElement = document.getElementById(`${machineId}-count`);
@@ -1856,27 +883,18 @@
         // Cập nhật số lượng cho tab "Tất cả" (chỉ lệnh chưa bàn giao)
         const allCountElement = document.getElementById('all-count');
         if (allCountElement) {
-            const activeOrders = ordersData.filter(order => order.xa_status !== 'handed_over');
+            const activeOrders = ordersData.filter(order => getOrderField(order, 'status') !== 'handed_over');
             allCountElement.textContent = activeOrders.length;
         }
         
         // Cập nhật số lượng cho tab "Báo cáo"
         const handedOverOrders = ordersData.filter(order => 
-            order.xa_status === 'handed_over'
+            getOrderField(order, 'status') === 'handed_over'
         );
         updateReportCount(handedOverOrders.length);
     }
 
-    /**
-     * Cập nhật số lượng hiển thị trên các tab (legacy function)
-     */
-    function updateTabCounts(counts) {
-        document.getElementById('xa1-count').textContent = counts.xa1;
-        document.getElementById('xa2-count').textContent = counts.xa2;
-        document.getElementById('xa3-count').textContent = counts.xa3;
-        document.getElementById('all-count').textContent = counts.all;
-    }
-    
+
     /**
      * Khởi tạo tab functionality
      */
@@ -1957,13 +975,13 @@
         machineTabsContainer.innerHTML = '';
         tabContentContainer.innerHTML = '';
         
-        // Lọc các máy thuộc Stage_xa
-        const xaMachines = machineStatusData.filter(machine => 
-            machine.stage_machine && machine.stage_machine.includes('Stage_xa')
+        // Lọc các máy thuộc Stage_${STAGE_CONFIG.KEY}
+        const MStageMachines = machineStatusData.filter(machine => 
+            machine.stage_machine && machine.stage_machine.includes(`Stage_${STAGE_CONFIG.KEY}`)
         );
         
-        // Tạo tab cho từng máy Xả
-        xaMachines.forEach((machine, index) => {
+        // Tạo tab cho từng máy ${STAGE_CONFIG.NAME}
+        MStageMachines.forEach((machine, index) => {
             const machineName = machine.machine_name;
             const machineId = machineName.toLowerCase().replace(/\s+/g, '-');
             const tabId = `${machineId}-tab`;
@@ -1981,7 +999,7 @@
                         type="button" role="tab" aria-controls="${contentId}" 
                         aria-selected="${isFirstTab}">
                     <i class="bi bi-gear me-1"></i>${machineName}
-                    <span class="badge bg-primary ms-1" id="${machineId}-count">0</span>
+                    <!-- <span class="badge bg-primary ms-1" id="${machineId}-count">0</span> -->
                 </button>
             `;
             
@@ -2029,7 +1047,7 @@
         allTabItem.setAttribute('role', 'presentation');
         
         // Nếu không có máy nào, "Tất cả" tab sẽ là active mặc định
-        const isAllTabActive = xaMachines.length === 0;
+        const isAllTabActive = MStageMachines.length === 0;
         
         allTabItem.innerHTML = `
             <button class="nav-link ${isAllTabActive ? 'active' : ''}" id="all-tab" 
@@ -2063,8 +1081,8 @@
                             <th style="width: 90px!important; min-width: 90px!important;" class="text-center">Định lượng</th>
                             <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Kế hoạch</th>
                             <th style="width: 150px!important; min-width: 150px!important;" class="text-center">Triển khai</th>
-                            <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT xả</th>
-                            <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT xả</th>
+                            <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT ${STAGE_CONFIG.KEY}</th>
+                            <th style="width: 120px!important; min-width: 120px!important;" class="text-center">KT ${STAGE_CONFIG.KEY}</th>
                             <th style="width: 100px!important; min-width: 100px!important;" class="text-center">Số phôi</th>
                             <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Tiến độ</th>
                             <th style="width: 120px!important; min-width: 120px!important;" class="text-center">Máy/Thợ</th>
@@ -2098,14 +1116,11 @@
             `;
             
             machineTabsContainer.appendChild(reportTabItem);
-            console.log('Report tab created and appended');
         }
         
         if (reportContent) {
-            console.log('Reusing existing report content');
             tabContentContainer.appendChild(reportContent);
         } else {
-            console.log('Creating new report content');
             // Tạo content cho tab "Báo cáo" nếu chưa có
             const reportTabPane = document.createElement('div');
             reportTabPane.className = 'tab-pane fade';
@@ -2180,13 +1195,13 @@
         const machineValue = machineFilter.value;
         let targetTabId = 'all-tab';
         
-        // Lọc các máy thuộc Stage_xa
-        const xaMachines = machineStatusData.filter(machine => 
-            machine.stage_machine && machine.stage_machine.includes('Stage_xa')
+        // Lọc các máy thuộc Stage_${STAGE_CONFIG.KEY}
+        const MStageMachines = machineStatusData.filter(machine => 
+            machine.stage_machine && machine.stage_machine.includes(`Stage_${STAGE_CONFIG.KEY}`)
         );
         
         // Kiểm tra máy được chọn và chuyển đến tab tương ứng
-        for (const machine of xaMachines) {
+        for (const machine of MStageMachines) {
             if (machineValue.includes(machine.machine_name)) {
                 const machineId = machine.machine_name.toLowerCase().replace(/\s+/g, '-');
                 targetTabId = `${machineId}-tab`;
@@ -2201,22 +1216,70 @@
     }
     
     /**
-     * Lấy tên máy Xả từ trường assigned_machine
+     * Lấy danh sách tất cả máy của stage hiện tại có sẵn
+     * @returns {Array} - Mảng các máy của stage hiện tại
      */
-    function getXaMachineFromAssigned(assignedMachine) {
+    function getAvailableStageMachines() {
+        if (!machineStatusData || machineStatusData.length === 0) {
+            return [];
+        }
+        
+        return machineStatusData.filter(machine => 
+            machine.stage_machine && 
+            machine.stage_machine.includes(`Stage_${STAGE_CONFIG.KEY}`) &&
+            machine.machine_name
+        ).map(machine => machine.machine_name);
+    }
+
+    /**
+     * Lấy số lượng từ stage trước đó cho bất kỳ stage nào
+     * @param {object} order - Lệnh sản xuất
+     * @param {string} currentStage - Stage hiện tại (mặc định: STAGE_CONFIG.KEY)
+     * @returns {number} - Số lượng từ stage trước
+     */
+    function getInputQuantityFromPreviousStage(order, currentStage = STAGE_CONFIG.KEY) {
+        if (!order || !order.workflow_definition) {
+            return 0;
+        }
+
+        // Sử dụng function getPreviousStageFromWorkflow để lấy stage trước
+        const previousStage = getPreviousStageFromWorkflow(order.workflow_definition, currentStage);
+        
+        if (!previousStage) {
+            // Stage hiện tại là stage đầu tiên hoặc không tìm thấy
+            // Ưu tiên sheet_count, fallback về quantity
+            return order.sheet_count || order.quantity || 0;
+        }
+
+        // Tạo tên field dựa trên stage
+        const handoverField = `${previousStage}_handover_quantity`;
+        const goodField = `${previousStage}_good_quantity`;
+        
+        // Lấy số lượng từ stage trước
+        const handoverQty = order[handoverField] || 0;
+        const goodQty = order[goodField] || 0;
+        
+        // Ưu tiên handover_quantity, fallback về good_quantity
+        return handoverQty > 0 ? handoverQty : goodQty;
+    }
+
+    /**
+     * Lấy tên máy từ trường assigned_machine cho công đoạn hiện tại
+     */
+    function getStageMachineFromAssigned(assignedMachine) {
         if (!assignedMachine) return '';
         
         const machines = assignedMachine.split(',').map(m => m.trim());
         
-        // Lọc các máy thuộc Stage_xa
-        const xaMachines = machineStatusData.filter(machine => 
-            machine.stage_machine && machine.stage_machine.includes('Stage_xa')
+        // Lọc các máy thuộc Stage hiện tại
+        const stageMachines = machineStatusData.filter(machine => 
+            machine.stage_machine && machine.stage_machine.includes(`Stage_${STAGE_CONFIG.KEY}`)
         );
         
-        // Tìm máy Xả trong danh sách máy được gán
-        for (const xaMachine of xaMachines) {
-            if (machines.some(machine => machine.includes(xaMachine.machine_name))) {
-                return xaMachine.machine_name;
+        // Tìm máy của stage hiện tại trong danh sách máy được gán
+        for (const stageMachine of stageMachines) {
+            if (machines.some(machine => machine.includes(stageMachine.machine_name))) {
+                return stageMachine.machine_name;
             }
         }
         
@@ -2224,21 +1287,21 @@
     }
     
     /**
-     * Kiểm tra xem assigned_machine có chứa máy Xả nào không
+     * Kiểm tra xem assigned_machine có chứa máy của stage hiện tại không
      */
-    function hasXaMachine(assignedMachine) {
+    function hasStageMachine(assignedMachine) {
         if (!assignedMachine) return false;
         
         const machines = assignedMachine.split(',').map(m => m.trim());
         
-        // Lọc các máy thuộc Stage_xa
-        const xaMachines = machineStatusData.filter(machine => 
-            machine.stage_machine && machine.stage_machine.includes('Stage_xa')
+        // Lọc các máy thuộc Stage hiện tại
+        const stageMachines = machineStatusData.filter(machine => 
+            machine.stage_machine && machine.stage_machine.includes(`Stage_${STAGE_CONFIG.KEY}`)
         );
         
-        // Kiểm tra xem có máy Xả nào trong danh sách máy được gán
-        return xaMachines.some(xaMachine => 
-            machines.some(machine => machine.includes(xaMachine.machine_name))
+        // Kiểm tra xem có máy của stage hiện tại nào trong danh sách máy được gán
+        return stageMachines.some(stageMachine => 
+            machines.some(machine => machine.includes(stageMachine.machine_name))
         );
     }
 
@@ -2251,28 +1314,28 @@
         row.setAttribute('data-order-id', order.id);
         
         // Tính toán trạng thái và tiến độ
-        const status = order.xa_status || 'waiting';
+        const status = getOrderField(order, 'status') || 'waiting';
         
-        // Lấy máy Xả được gán cho lệnh này
+        // Lấy máy được gán cho lệnh này
         const orderMachine = getOrderMachine(order);
         
         let isDisabled = false;
         let displayReason = '';
         
         if (!orderMachine) {
-            // Lệnh không được gán cho máy Xả nào → bị mờ
+            // Lệnh không được gán cho máy nào → bị mờ
             isDisabled = true;
-            displayReason = 'Lệnh không được gán cho máy Xả';
+            displayReason = `Lệnh không được gán cho máy ${STAGE_CONFIG.NAME}`;
         } else {
-            // Kiểm tra trạng thái máy Xả được gán
+            // Kiểm tra trạng thái máy được gán
             const machineStatus = checkMachineStatus(orderMachine);
             
             if (!machineStatus.isRunning) {
-                // Máy Xả đang trống → có thể bắt đầu
+                // Máy đang trống → có thể bắt đầu
                 isDisabled = false;
                 displayReason = `Máy ${orderMachine} đang trống`;
             } else {
-                // Máy Xả đang chạy
+                // Máy đang chạy
                 if (machineStatus.runningOrder && machineStatus.runningOrder.current_order_id == order.id) {
                     // Máy đang chạy chính lệnh này → hiển thị bình thường
                     isDisabled = false;
@@ -2296,10 +1359,10 @@
                 row.classList.add('running-order');
             }
         }
-        const inputQty = order.xa_input_quantity || 0;
+        const inputQty = getOrderField(order, 'input_quantity') || 0;
         const sheet_count = order.sheet_count || 0; // Sửa: lấy số tờ giấy
-        const goodQty = order.xa_good_quantity || 0;
-        const ngQty = order.xa_ng_quantity || 0;
+        const goodQty = getOrderField(order, 'good_quantity') || 0;
+        const ngQty = getOrderField(order, 'ng_quantity') || 0;
         const deployedQty = order.deployed_quantity || 0;
         const progressPercent = inputQty > 0 ? Math.round((goodQty / inputQty) * 100) : 0;
         
@@ -2342,7 +1405,7 @@
                     <i class="bi ${statusIcon} ${statusClass} me-2"></i>
                     <div>
                         <div class="fw-bold ${isDisabled ? 'text-muted' : ''}">${order.production_order}</div>
-                        <small class="text-muted">${formatDate(order.deployment_date)} - ${order.production_shift}</small>
+                        <small class="text-muted">${formatDate(order.deployment_date)} - ${getOrderField(order, 'shift')}</small>
                         <small class="${isDisabled ? 'text-danger' : 'text-success'} d-block">${displayReason}</small>
                     </div>
                 </div>
@@ -2393,8 +1456,7 @@
                 <small class="text-muted">${statusText}</small>
             </td>
             <td class="text-center">
-                <small class="text-muted d-block">${order.assigned_machine || 'Chưa gán'}</small>
-                <small class="text-muted">${order.xa_worker_name || 'Chưa gán'}</small>
+                <small class="text-muted d-block" title="${order.assigned_machine || 'Chưa gán'}">${truncateText(order.assigned_machine || 'Chưa gán', 15)}</small>
             </td>
 
         `;
@@ -2434,9 +1496,9 @@
      */
     function updateStatistics() {
         const totalOrders = ordersData.length;
-        const totalPlan = ordersData.reduce((sum, order) => sum + (order.xa_input_quantity || 0), 0);
-        const totalGood = ordersData.reduce((sum, order) => sum + (order.xa_good_quantity || 0), 0);
-        const totalNg = ordersData.reduce((sum, order) => sum + (order.xa_ng_quantity || 0), 0);
+        const totalPlan = ordersData.reduce((sum, order) => sum + (getOrderField(order, 'input_quantity') || 0), 0);
+        const totalGood = ordersData.reduce((sum, order) => sum + (getOrderField(order, 'good_quantity') || 0), 0);
+        const totalNg = ordersData.reduce((sum, order) => sum + (getOrderField(order, 'ng_quantity') || 0), 0);
         
         // Cập nhật các thẻ thống kê
         updateElementText('totalOrders', totalOrders);
@@ -2869,20 +1931,42 @@
 
         // Generate dynamic HTML content for the sidebar
         detailsPanel.innerHTML = generateSidebarHTML(order);
+        
+        // Initialize multi-select for workers
+        initializeWorkerMultiSelect(order);
+
+        // Active tab "Số lượng" nếu đã có thời gian bắt đầu
+        if (getOrderField(order, 'start_time')) {
+            setTimeout(() => {
+                const quantityTab = document.querySelector('.details-panel .tab-btn[onclick*="quantity"]');
+                if (quantityTab) {
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.details-panel .tab-btn').forEach(btn => btn.classList.remove('active'));
+                    document.querySelectorAll('.details-panel .tab-panel').forEach(panel => panel.classList.remove('active'));
+                    
+                    // Add active class to quantity tab
+                    quantityTab.classList.add('active');
+                    const quantityPanel = document.getElementById('quantity-panel');
+                    if (quantityPanel) {
+                        quantityPanel.classList.add('active');
+                    }
+                }
+            }, 100);
+        }
 
         // Bắt đầu timer nếu đã có thời gian bắt đầu và chưa kết thúc
-        if (order.xa_start_time && !order.xa_end_time) {
+        if (getOrderField(order, 'start_time') && !getOrderField(order, 'end_time')) {
             setTimeout(() => {
                 startProductionTimer();
             }, 100);
-        } else if (order.xa_start_time && order.xa_end_time) {
+        } else if (getOrderField(order, 'start_time') && getOrderField(order, 'end_time')) {
             // Nếu đã kết thúc, hiển thị thời gian cố định
             setTimeout(() => {
                 const statusTimeElement = document.getElementById('statusTime');
                 const runningTimeInfoElement = document.getElementById('runningTimeInfo');
                 
                 if (statusTimeElement) {
-                    const fixedTime = calculateWorkTime(order.xa_start_time, order.xa_end_time);
+                    const fixedTime = calculateWorkTime(getOrderField(order, 'start_time'), getOrderField(order, 'end_time'));
                     statusTimeElement.textContent = `Thời gian: ${fixedTime}`;
                 }
                 
@@ -2890,6 +1974,43 @@
                 // Không cần cập nhật vì đã có giá trị cố định từ calculateWorkTime
             }, 100);
         }
+
+        // Thêm event listener để tự động cập nhật số lượng chuyển giao
+        setTimeout(() => {
+            const goodQtyInput = document.getElementById('goodQty');
+            const handoverQtyInput = document.getElementById('handoverQty');
+            
+            if (goodQtyInput && handoverQtyInput) {
+                goodQtyInput.addEventListener('input', function() {
+                    const goodQty = parseInt(this.value) || 0;
+                    handoverQtyInput.value = goodQty;
+                    updateTotalQuantityDisplay(); // Cập nhật validation real-time
+                });
+            }
+            
+            // Thêm event listeners cho validation real-time
+            const quantityInputs = ['goodQty', 'ngQty', 'ngStartEndQty', 'returnQty'];
+            quantityInputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                if (input) {
+                    input.addEventListener('input', updateTotalQuantityDisplay);
+                    input.addEventListener('blur', updateTotalQuantityDisplay);
+                }
+            });
+            
+            // Khởi tạo hiển thị tổng số lượng
+            updateTotalQuantityDisplay();
+            
+            // Tự động đề xuất ca làm việc hiện tại nếu chưa có ca được chọn
+            const shiftSelect = document.getElementById('shift');
+            if (shiftSelect && !shiftSelect.value) {
+                const currentShift = getCurrentShift();
+                shiftSelect.value = currentShift;
+                
+                // Hiển thị thông báo đề xuất
+                showNotification(`💡 Đã tự động đề xuất ca làm việc: ${currentShift}`, 'info');
+            }
+        }, 150);
     }
 
     /**
@@ -2903,13 +2024,13 @@
         let statusBadgeStyle = '';
         let statusText = '';
         
-        if (order.xa_status === 'in_progress') {
+        if (getOrderField(order, 'status') === 'in_progress') {
             statusBadgeStyle = 'background: linear-gradient(135deg, var(--primary-green), #20c997);';
             statusText = 'Đang sản xuất';
-        } else if (order.xa_status === 'completed') {
+        } else if (getOrderField(order, 'status') === 'completed') {
             statusBadgeStyle = 'background: linear-gradient(135deg, var(--primary-blue), #0dcaf0);';
             statusText = 'Hoàn thành';
-        } else if (order.xa_status === 'handed_over') {
+        } else if (getOrderField(order, 'status') === 'handed_over') {
             statusBadgeStyle = 'background: linear-gradient(135deg, var(--primary-orange), #fd7e14);';
             statusText = 'Đã bàn giao';
         } else {
@@ -2918,9 +2039,10 @@
         }
 
         // Calculate statistics
-        const totalProduced = (parseInt(order.xa_good_quantity || 0) + parseInt(order.xa_ng_quantity || 0));
-        const efficiency = order.quantity ? Math.round((totalProduced / order.quantity) * 100) : 0;
-        const ngRate = totalProduced ? Math.round((parseInt(order.xa_ng_quantity || 0) / totalProduced) * 100) : 0;
+        const totalProduced = (parseInt(getOrderField(order, 'good_quantity') || 0) + parseInt(getOrderField(order, 'ng_quantity') || 0));
+        const inputQuantity = getInputQuantityFromPreviousStage(order);
+        const efficiency = inputQuantity > 0 ? Math.round((totalProduced / inputQuantity) * 100) : 0;
+        const ngRate = totalProduced ? Math.round((parseInt(getOrderField(order, 'ng_quantity') || 0) / totalProduced) * 100) : 0;
 
         return `
             <div class="sidebar-header">
@@ -2956,19 +2078,32 @@
                     <!-- Info Tab -->
                     <div id="info-panel" class="tab-panel active">
                         <div class="form-group">
-                            <input type="text" class="form-control-custom" id="worker" value="${order.xa_worker_name || ''}" placeholder="Nguyen Van A">
+                            <div class="multi-select-container">
+                                <div class="multi-select-input" id="workerMultiSelect">
+                                    <div class="selected-items" id="selectedWorkers"></div>
+                                    <input type="text" class="multi-select-search" id="workerSearch" placeholder="Tìm kiếm thợ...">
+                                </div>
+                                <div class="multi-select-dropdown" id="workerDropdown" style="display: none;">
+                                    <div class="dropdown-items" id="workerOptions">
+                                        <!-- Options will be populated by JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
                             <label class="form-label">
                                 <i class="bi bi-person-badge"></i>
                                 Tên thợ phụ trách
                             </label>
+                            <input type="hidden" id="worker" value="${getOrderField(order, 'worker_name') || ''}">
                         </div>
 
                         <div class="form-group">
                             <select class="form-control-custom" id="shift">
                                 <option value="">Chọn ca làm việc</option>
-                                <option value="Ca 1" ${order.production_shift === 'Ca 1' ? 'selected' : ''}>Ca 1 (6:00 - 14:00)</option>
-                                <option value="Ca 2" ${order.production_shift === 'Ca 2' ? 'selected' : ''}>Ca 2 (14:00 - 22:00)</option>
-                                <option value="Ca 3" ${order.production_shift === 'Ca 3' ? 'selected' : ''}>Ca 3 (22:00 - 6:00)</option>
+                                <option value="Ca 1" ${getOrderField(order, 'shift') === 'Ca 1' ? 'selected' : ''}>Ca 1 (6:00 - 14:00)</option>
+                                <option value="Ca 2" ${getOrderField(order, 'shift') === 'Ca 2' ? 'selected' : ''}>Ca 2 (14:00 - 22:00)</option>
+                                <option value="Ca 3" ${getOrderField(order, 'shift') === 'Ca 3' ? 'selected' : ''}>Ca 3 (22:00 - 6:00)</option>
+                                <option value="Kíp 1" ${getOrderField(order, 'shift') === 'Kíp 1' ? 'selected' : ''}>Kíp 1 (6:00 - 18:00)</option>
+                                <option value="Kíp 2" ${getOrderField(order, 'shift') === 'Kíp 2' ? 'selected' : ''}>Kíp 2 (18:00 - 6:00)</option>
                             </select>
                             <label class="form-label">
                                 <i class="bi bi-clock"></i>
@@ -2976,12 +2111,13 @@
                             </label>
                         </div>
 
-                        <div class="form-group">
+                        <div style="display: none;" class="form-group">
                             <select class="form-control-custom" id="machine">
                                 <option value="">Chọn máy sản xuất</option>
-                                <option value="Xả 1" ${getXaMachineFromAssigned(order.assigned_machine) === 'Xả 1' ? 'selected' : ''}>Máy XẢ 001</option>
-                                <option value="Xả 2" ${getXaMachineFromAssigned(order.assigned_machine) === 'Xả 2' ? 'selected' : ''}>Máy XẢ 002</option>
-                                <option value="Xả 3" ${getXaMachineFromAssigned(order.assigned_machine) === 'Xả 3' ? 'selected' : ''}>Máy XẢ 003</option>
+                                ${getAvailableStageMachines().map(machineName => {
+                                    const isSelected = getStageMachineFromAssigned(order.assigned_machine) === machineName;
+                                    return `<option value="${machineName}" ${isSelected ? 'selected' : ''}>${machineName}</option>`;
+                                }).join('')}
                             </select>
                             <label class="form-label">
                                 <i class="bi bi-gear-fill"></i>
@@ -2991,16 +2127,20 @@
 
                         <div class="info-row">
                             <span class="info-label">Thời gian bắt đầu</span>
-                            <span class="info-value">${order.xa_start_time ? formatDateTime(order.xa_start_time) : '--'}</span>
+                            <span class="info-value">${getOrderField(order, 'start_time') ? formatDateTime(getOrderField(order, 'start_time')) : '--'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Thời gian kết thúc</span>
+                            <span class="info-value" id="endTimeInfo">${getOrderField(order, 'end_time') ? formatDateTime(getOrderField(order, 'end_time')) : '--'}</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Thời gian chạy</span>
-                            <span class="info-value" id="runningTimeInfo">${order.xa_start_time ? 
-                                (order.xa_end_time ? calculateWorkTime(order.xa_start_time, order.xa_end_time) : 'Đang tính...') : '--'}</span>
+                                                        <span class="info-value" id="runningTimeInfo">${getOrderField(order, 'start_time') ?
+                                (getOrderField(order, 'end_time') ? calculateWorkTime(getOrderField(order, 'start_time'), getOrderField(order, 'end_time')) : 'Đang tính...') : '--'}</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Trạng thái máy</span>
-                            <span class="info-value">${order.xa_status === 'in_progress' ? 'Hoạt động tốt' : 'Chờ'}</span>
+                            <span class="info-value">${getOrderField(order, 'status') === 'in_progress' ? 'Hoạt động tốt' : 'Chờ'}</span>
                         </div>
                     </div>
 
@@ -3009,33 +2149,42 @@
                         <div class="quantity-grid mb-3">
                             <div class="quantity-card success">
                                 <div class="quantity-label">Số lượng OK</div>
-                                <input type="number" class="quantity-input" id="goodQty" value="${order.xa_good_quantity || 0}">
+                                <input type="number" class="quantity-input" id="goodQty" value="${getOrderField(order, 'good_quantity') || 0}">
                             </div>
                             <div class="quantity-card danger">
                                 <div class="quantity-label">Số lượng NG</div>
-                                <input type="number" class="quantity-input" id="ngQty" value="${order.xa_ng_quantity || 0}">
+                                <input type="number" class="quantity-input" id="ngQty" value="${getOrderField(order, 'ng_quantity') || 0}">
                             </div>
                         </div>
 
                         <div class="quantity-grid mb-3">
-                            <div class="quantity-card warning">
+                            <div class="quantity-card ">
                                 <div class="quantity-label">NG đầu/cuối</div>
-                                <input type="number" class="quantity-input" id="ngStartEndQty" value="${order.xa_ng_start_end_quantity || 0}">
+                                <input type="number" class="quantity-input" id="ngStartEndQty" value="${getOrderField(order, 'ng_start_end_quantity') || 0}">
                             </div>
-                            <div class="quantity-card info">
+                            <div class="quantity-card ">
                                 <div class="quantity-label">Số lượng trả</div>
-                                <input type="number" class="quantity-input" id="returnQty" value="${order.xa_return_quantity || 0}">
+                                <input type="number" class="quantity-input" id="returnQty" value="${getOrderField(order, 'return_quantity') || 0}">
                             </div>
                         </div>
+
 
                         <div class="form-group">
                             <label class="form-label">
                                 <i class="bi bi-arrow-right-circle"></i>
                                 Số lượng chuyển giao
                             </label>
-                            <input type="number" class="form-control-custom" id="handoverQty" value="${order.xa_handover_quantity || 0}" style="font-size: 1.1rem; font-weight: 600; color: var(--primary-blue);">
+                            <input type="number" class="form-control-custom" id="handoverQty" value="${getOrderField(order, 'handover_quantity') || 0}" style="font-size: 1.1rem; font-weight: 600; color: var(--primary-blue);">
                         </div>
 
+                        <div class="info-row" style="background: linear-gradient(135deg, #e3f2fd, #e3f2fd); border-radius: 8px; padding: 12px; margin: 10px 0; ">
+                            <span class="info-label" style="font-weight: 600; color: #1976d2;">📥 Số lượng cần sản xuất</span>
+                            <span class="info-value" style="font-weight: 700; font-size: 1.1rem; color: #1565c0;">${getInputQuantityFromPreviousStage(order)} tờ giấy</span>
+                        </div>
+                        <div class="info-row" style="background: linear-gradient(135deg, #fff3cd, #fff3cd); border-radius: 8px; padding: 12px; margin: 10px 0; ">
+                            <span class="info-label" style="font-weight: 600; color: #856404;">📊 Tổng số lượng đã nhập</span>
+                            <span class="info-value" id="totalQuantityDisplay" style="font-weight: 700; font-size: 1.1rem; color: #856404;">0 / ${getInputQuantityFromPreviousStage(order)}</span>
+                        </div>
                         <div class="info-row">
                             <span class="info-label">Tổng sản xuất</span>
                             <span class="info-value">${totalProduced} sản phẩm</span>
@@ -3123,7 +2272,7 @@
                                 Ghi chú sản xuất
                             </label>
                             <div class="note-area">
-                                <textarea class="note-textarea" id="note" placeholder="Nhập ghi chú về quá trình sản xuất...">${order.xa_notes || ''}</textarea>
+                                <textarea class="note-textarea" id="note" placeholder="Nhập ghi chú về quá trình sản xuất...">${getOrderField(order, 'note') || ''}</textarea>
                             </div>
                         </div>
 
@@ -3150,41 +2299,41 @@
                 <!-- Production Controls -->
                 <div class="production-controls">
                     <!-- Production Status -->
-                    <div class="production-status ${order.xa_status === 'in_progress' ? 'running' : 'stopped'}" id="productionStatus">
+                    <div class="production-status ${getOrderField(order, 'status') === 'in_progress' ? 'running' : 'stopped'}" id="productionStatus">
                         <div class="status-text">
-                            <i class="bi bi-${order.xa_status === 'in_progress' ? 'play-circle-fill text-success' : 'stop-circle-fill text-danger'}"></i>
+                            <i class="bi bi-${getOrderField(order, 'status') === 'in_progress' ? 'play-circle-fill text-success' : 'stop-circle-fill text-danger'}"></i>
                             <span id="productionStatusText">${statusText}</span>
                         </div>
-                        <div class="status-time" id="statusTime">Thời gian: ${order.xa_start_time && order.xa_status === 'in_progress' ? 'Đang tính...' : '00:00:00'}</div>
+                        <div class="status-time" id="statusTime">Thời gian: ${getOrderField(order, 'start_time') && getOrderField(order, 'status') === 'in_progress' ? 'Đang tính...' : '00:00:00'}</div>
                     </div>
 
                     <!-- Control Buttons -->
                     <div class="control-row">
-                        <button class="btn-custom btn-success-custom" id="startBtn" onclick="startProduction()" ${order.xa_status === 'completed' || order.xa_status === 'handed_over' ? 'disabled' : ''} style="${order.xa_status === 'in_progress' ? 'display: none;' : 'display: flex;'}">
+                        <button class="btn-custom btn-success-custom" id="startBtn" onclick="startProduction()" ${getOrderField(order, 'status') === 'completed' || getOrderField(order, 'status') === 'handed_over' ? 'disabled' : ''} style="${!getOrderField(order, 'start_time') ? 'display: flex;' : 'display: none;'}">
                             <i class="bi bi-play-fill"></i>
                             Bắt đầu
                         </button>
-                        <button class="btn-custom btn-warning-custom" id="pauseBtn" onclick="pauseProduction()" style="${order.xa_status === 'in_progress' ? 'display: flex;' : 'display: none;'}">
-                            <i class="bi bi-pause-fill"></i>
-                            Tạm dừng
-                        </button>
-                        <button class="btn-custom btn-danger-custom" id="stopBtn" onclick="endProduction()" ${order.xa_status === 'not_started' || order.xa_status === 'handed_over' ? 'disabled' : ''} style="${order.xa_status === 'in_progress' ? 'display: flex;' : 'display: none;'}">
+                          <!--  <button class="btn-custom btn-danger-custom" id="stopBtn" onclick="endProduction()" ${getOrderField(order, 'status') === 'not_started' || getOrderField(order, 'status') === 'handed_over' ? 'disabled' : ''} style="${getOrderField(order, 'start_time') && !getOrderField(order, 'end_time') ? 'display: flex;' : 'display: none;'}">
                             <i class="bi bi-stop-fill"></i>
                             Kết thúc
+                        </button> -->
+                        <button class="btn-custom btn-warning-custom" id="stopAndHandoverBtn" onclick="endProductionAndHandover()" ${getOrderField(order, 'status') === 'not_started' || getOrderField(order, 'status') === 'handed_over' ? 'disabled' : ''} style="${getOrderField(order, 'start_time') && !getOrderField(order, 'end_time') ? 'display: flex;' : 'display: none;'}">
+                            <i class="bi bi-clipboard2-check-fill"></i>
+                        Bàn giao sang ${nextStageName}
+                        </button>
+
+                        
+                        <button class="btn-custom btn-primary-custom" id="handoverBtn" onclick="sendStageHandoverWebhook()" style="${getOrderField(order, 'start_time') && getOrderField(order, 'end_time') && getOrderField(order, 'status') !== 'handed_over' ? 'display: flex;' : 'display: none;'}">
+                            <i class="bi clipboard2-check-fill"></i>
+                            Bàn giao
+                            </button>
+                          <button class="btn-custom btn-secondary-custom" id="resetBtn" onclick="resetProduction()" style="${getOrderField(order, 'start_time') && getOrderField(order, 'status') === 'in_progress' ? 'display: flex;    max-width: 100px;' : 'display: none;'}">
+                            <i class="bi bi-arrow-clockwise"></i>
+                            Hủy làm
                         </button>
                     </div>
 
-                    <!-- Action Buttons -->
-                    <div class="action-buttons">
-                        <button class="btn-custom btn-outline-custom" onclick="resetForm()">
-                            <i class="bi bi-arrow-clockwise"></i>
-                            Reset
-                        </button>
-                        <button class="btn-custom btn-primary-custom" onclick="executeHandover()">
-                            <i class="bi bi-check-circle-fill"></i>
-                            Xác nhận
-                        </button>
-                    </div>
+          
                 </div>
             </div>
         `;
@@ -3200,7 +2349,124 @@
 
     function getElementValue(id) {
         const element = document.getElementById(id);
-        return element ? element.value : '';
+        if (!element) return '';
+        
+        // Xử lý đặc biệt cho select elements
+        if (element.tagName === 'SELECT') {
+            const selectedOption = element.options[element.selectedIndex];
+            return selectedOption ? selectedOption.value : '';
+        }
+        
+        // Xử lý cho input, textarea và các element khác
+        return element.value || '';
+    }
+
+    /**
+     * Xác định ca làm việc theo thời gian hiện tại
+     */
+    function getCurrentShift() {
+        const now = new Date();
+        const currentHour = now.getHours();
+        
+        // Kíp 1: từ 6:00 - 18:00 (6:00 đến 17:59)
+        if (currentHour >= 6 && currentHour < 18) {
+            return 'Kíp 1';
+        }
+        // Kíp 2: từ 18:00 - 6:00 (18:00 đến 5:59)
+        else {
+            return 'Kíp 2';
+        }
+    }
+
+    /**
+     * Validate tổng số lượng không vượt quá số lượng đầu vào
+     */
+    function validateTotalQuantity(order, goodQty, ngQty, ngStartEndQty = 0, returnQty = 0) {
+        // Lấy số lượng đầu vào từ stage trước hoặc sheet_count
+        const inputQuantity = getInputQuantityFromPreviousStage(order);
+        
+        // Tính tổng số lượng đã nhập
+        const totalEntered = goodQty + ngQty + ngStartEndQty + returnQty;
+        
+        // Kiểm tra tổng số lượng không vượt quá số lượng đầu vào
+        if (totalEntered > inputQuantity) {
+            showNotification(`⚠️ Tổng số lượng (${totalEntered}) vượt quá số lượng đầu vào (${inputQuantity})!\n\nChi tiết:\n• OK: ${goodQty}\n• NG: ${ngQty}\n• NG đầu/cuối: ${ngStartEndQty}\n• Trả: ${returnQty}\n• Tổng: ${totalEntered}\n• Đầu vào: ${inputQuantity}`, 'error');
+            return false;
+        }
+        
+        return true;
+    }
+
+    /**
+     * Cập nhật hiển thị tổng số lượng và validation real-time
+     */
+    function updateTotalQuantityDisplay() {
+        if (!currentEditingOrder) return;
+        
+        const goodQty = parseInt(getElementValue('goodQty')) || 0;
+        const ngQty = parseInt(getElementValue('ngQty')) || 0;
+        const ngStartEndQty = parseInt(getElementValue('ngStartEndQty')) || 0;
+        const returnQty = parseInt(getElementValue('returnQty')) || 0;
+        
+        const totalEntered = goodQty + ngQty + ngStartEndQty + returnQty;
+        const inputQuantity = getInputQuantityFromPreviousStage(currentEditingOrder);
+        
+        // Cập nhật hiển thị tổng số lượng
+        const totalDisplay = document.getElementById('totalQuantityDisplay');
+        if (totalDisplay) {
+            totalDisplay.textContent = `${totalEntered} / ${inputQuantity}`;
+            
+            // Thay đổi màu sắc dựa trên validation
+            if (totalEntered > inputQuantity) {
+                totalDisplay.style.color = '#dc3545'; // Đỏ
+                totalDisplay.style.fontWeight = 'bold';
+            } else if (totalEntered === inputQuantity) {
+                totalDisplay.style.color = '#28a745'; // Xanh lá
+                totalDisplay.style.fontWeight = 'bold';
+            } else {
+                totalDisplay.style.color = '#6c757d'; // Xám
+                totalDisplay.style.fontWeight = 'normal';
+            }
+        }
+        
+        // Cập nhật trạng thái các input field
+        const inputs = ['goodQty', 'ngQty', 'ngStartEndQty', 'returnQty'];
+        inputs.forEach(inputId => {
+            const input = document.getElementById(inputId);
+            if (input) {
+                if (totalEntered > inputQuantity) {
+                    input.style.color = '#ff3030';
+                    // input.style.backgroundColor = '#fff5f5';
+                } else {
+                    input.style.color = '';
+                    // input.style.backgroundColor = '';
+                }
+            }
+        });
+    }
+
+    /**
+     * Lấy dữ liệu từ form trong sidebar
+     * @returns {object} - Dữ liệu form đã được validate
+     */
+    function getFormData() {
+        const formData = {
+            worker: getElementValue('worker') || '',
+            shift: getElementValue('shift') || '',
+            machine: getElementValue('machine') || '',
+            goodQty: parseInt(getElementValue('goodQty')) || 0,
+            ngQty: parseInt(getElementValue('ngQty')) || 0,
+            ngStartEndQty: parseInt(getElementValue('ngStartEndQty')) || 0,
+            returnQty: parseInt(getElementValue('returnQty')) || 0,
+            handoverQty: parseInt(getElementValue('handoverQty')) || 0,
+            qualityRating: getElementValue('qualityRating') || '',
+            qualityCheck: getElementValue('qualityCheck') || '',
+            note: getElementValue('note') || '',
+            improvement: getElementValue('improvement') || '',
+            tags: getElementValue('tags') || ''
+        };
+
+        return formData;
     }
 
     function closeDetailsPanel() {
@@ -3262,14 +2528,18 @@
             showLoading('Đang bắt đầu sản xuất...');
             
             // Lấy thông tin từ form trong sidebar
-            const worker = getElementValue('worker') || '';
-            const shift = getElementValue('shift') || '';
-            const notes = getElementValue('note') || '';
+            const formData = getFormData();
+            
+            // Kiểm tra đã chọn ca làm việc chưa
+            if (!formData.shift) {
+                showNotification('⚠️ Vui lòng chọn ca làm việc', 'warning');
+                return;
+            }
             
             // Lấy máy được gán thực tế cho lệnh này
             const assignedMachine = getOrderMachine(order);
             if (!assignedMachine) {
-                showNotification('⚠️ Lệnh này không được gán cho máy Xả nào', 'warning');
+                showNotification(`⚠️ Lệnh này không được gán cho máy ${STAGE_CONFIG.NAME} nào`, 'warning');
                 return;
             }
             
@@ -3277,19 +2547,20 @@
             showNotification(`ℹ️ Sẽ bắt đầu sản xuất trên máy: ${assignedMachine}`, 'info');
             
             // Validation cơ bản
-            if (!worker.trim()) {
+            if (!formData.worker || !formData.worker.trim()) {
                 showNotification('⚠️ Vui lòng nhập tên thợ phụ trách trong phần "Thông tin sản xuất"', 'warning');
                 return;
             }
             
             // Chuẩn bị dữ liệu gửi lên API
             const startData = {
-                stage: 'xa',
+                stage: STAGE_CONFIG.KEY,
                 production_order: order.production_order,
-                worker_name: worker,
+                worker_name: formData.worker,
                 machine_name: assignedMachine, // Sử dụng máy được gán thực tế
-                shift: shift,
-                notes: notes || 'Bắt đầu sản xuất công đoạn Xả'
+                shift: formData.shift,
+                [getFieldName('input_quantity')]: getInputQuantityFromPreviousStage(order), // Lấy từ stage trước
+                notes: formData.note || `Bắt đầu sản xuất công đoạn ${STAGE_CONFIG.NAME}`
             };
             
             // Gửi request đến API start_production
@@ -3307,17 +2578,17 @@
                 showNotification('✅ Đã bắt đầu sản xuất thành công!', 'success');
                 
                 // Nếu API trả về thông tin thời gian bắt đầu, cập nhật vào đối tượng hiện tại
-                if (result.start_time || result.xa_start_time) {
-                    currentEditingOrder.xa_start_time = result.start_time || result.xa_start_time;
+                if (result.start_time || result[getFieldName('start_time')]) {
+                    setOrderField(currentEditingOrder, 'start_time', result.start_time || result[getFieldName('start_time')]);
                 } else {
                     // Nếu API không trả về thời gian bắt đầu, dùng thời gian hiện tại
-                    currentEditingOrder.xa_start_time = new Date().toISOString();
+                    setOrderField(currentEditingOrder, 'start_time', new Date().toISOString());
                 }
                 
                 // Cập nhật UI ngay lập tức để hiển thị thời gian bắt đầu
                 const startTimeElement = document.querySelector('.detail-section .alert .row .col-6:first-child span');
                 if (startTimeElement) {
-                    startTimeElement.textContent = formatDateTime(currentEditingOrder.xa_start_time);
+                    startTimeElement.textContent = formatDateTime(getOrderField(currentEditingOrder, 'start_time'));
                     startTimeElement.classList.add('text-primary');
                 }
                 
@@ -3371,12 +2642,7 @@
             showLoading('Đang kết thúc sản xuất...');
             
             // Lấy thông tin từ form trong sidebar
-            const goodQty = parseInt(getElementValue('goodQty')) || 0;
-            const ngQty = parseInt(getElementValue('ngQty')) || 0;
-            const handoverQty = parseInt(getElementValue('handoverQty')) || 0;
-            const worker = getElementValue('worker') || '';
-            const shift = getElementValue('shift') || '';
-            const notes = getElementValue('note') || '';
+            const formData = getFormData();
             
             // Lấy máy được gán thực tế cho lệnh này
             const assignedMachine = getOrderMachine(order);
@@ -3386,30 +2652,35 @@
             }
             
             // Validation cơ bản
-            if (!worker.trim()) {
+            if (!formData.worker || !formData.worker.trim()) {
                 showNotification('⚠️ Vui lòng nhập tên thợ phụ trách trong phần "Thông tin sản xuất"', 'warning');
                 return;
             }
             
-            // if (goodQty <= 0 && ngQty <= 0) {
-            //     showNotification('⚠️ Vui lòng nhập số lượng sản xuất (OK hoặc NG)', 'warning');
-            //     return;
-            // }
+            if (formData.goodQty <= 0) {
+                showNotification('⚠️ Vui lòng nhập số lượng sản xuất (OK hoặc NG)', 'warning');
+                return;
+            }
+            
+            // Validate tổng số lượng không vượt quá số lượng đầu vào
+            if (!validateTotalQuantity(order, formData.goodQty, formData.ngQty, formData.ngStartEndQty, formData.returnQty)) {
+                return;
+            }
             
             // Hiển thị thông báo xác nhận máy sẽ được sử dụng
             showNotification(`ℹ️ Sẽ kết thúc sản xuất trên máy: ${assignedMachine}`, 'info');
             
             // Chuẩn bị dữ liệu gửi lên API
             const endData = {
-                stage: 'xa',
+                stage: STAGE_CONFIG.KEY,
                 production_order: order.production_order,
-                worker_name: worker,
+                worker_name: formData.worker,
                 machine_name: assignedMachine, // Sử dụng máy được gán thực tế
-                shift: shift,
-                notes: notes || 'Kết thúc sản xuất từ giao diện XẢ',
-                good_quantity: goodQty,
-                ng_quantity: ngQty,
-                handover_quantity: handoverQty
+                shift: formData.shift,
+                notes: formData.note || `Kết thúc sản xuất từ giao diện ${STAGE_CONFIG.NAME}`,
+                good_quantity: formData.goodQty,
+                ng_quantity: formData.ngQty,
+                handover_quantity: formData.handoverQty
             };
             
             // Gửi request đến API end_production
@@ -3431,7 +2702,7 @@
                 
                 // Cập nhật dữ liệu local nếu cần
                 if (result.end_time) {
-                    currentEditingOrder.xa_end_time = result.end_time;
+                    setOrderField(currentEditingOrder, 'end_time', result.end_time);
                 }
                 
                 await refreshData();
@@ -3448,6 +2719,228 @@
             hideLoading();
         }
     }
+
+    /**
+     * Kết thúc sản xuất và bàn giao ngay lập tức
+     */
+    async function endProductionAndHandover() {
+        const order = currentEditingOrder;
+        if (!order) {
+            showNotification('Lỗi: Không xác định được lệnh sản xuất', 'error');
+            return;
+        }
+        
+        try {
+            showLoading('Đang kết thúc sản xuất và bàn giao...');
+            
+            // Lấy thông tin từ form trong sidebar
+            const formData = getFormData();
+            const goodQuantity = parseInt(getElementValue('goodQty')) || 0;
+            const ngQuantity = parseInt(getElementValue('ngQty')) || 0;
+            const handoverQuantity = parseInt(getElementValue('handoverQty')) || 0;
+            // Lấy máy được gán thực tế cho lệnh này
+            const assignedMachine = getOrderMachine(order);
+            if (!assignedMachine) {
+                showNotification(`⚠️ Lệnh này không được gán cho máy ${STAGE_CONFIG.NAME} nào`, 'warning');
+                return;
+            }
+            
+            // Validation cơ bản
+            if (!formData.worker || !formData.worker.trim()) {
+                showNotification('⚠️ Vui lòng nhập tên thợ phụ trách trong phần "Thông tin sản xuất"', 'warning');
+                return;
+            }
+            
+            if (formData.goodQty <= 0) {
+                showNotification('⚠️ Vui lòng nhập số lượng sản xuất (OK hoặc NG)', 'warning');
+                return;
+            }
+            
+            if (handoverQuantity > goodQuantity) {
+                showNotification('Số lượng chuyển giao không thể lớn hơn số lượng OK', 'error');
+                return;
+            }
+            // Validate tổng số lượng không vượt quá số lượng đầu vào
+            if (!validateTotalQuantity(order, formData.goodQty, formData.ngQty, formData.ngStartEndQty, formData.returnQty)) {
+                return;
+            }
+            
+
+            // Hiển thị thông báo xác nhận
+            showNotification(`ℹ️ Sẽ kết thúc sản xuất và bàn giao ngay lập tức`, 'info');
+            
+            // Chuẩn bị dữ liệu gửi lên API
+            const endData = {
+                stage: STAGE_CONFIG.KEY,
+                production_order: order.production_order,
+                worker_name: formData.worker,
+                machine_name: assignedMachine,
+                shift: formData.shift,
+                notes: formData.note || `Kết thúc sản xuất và bàn giao từ giao diện ${STAGE_CONFIG.NAME}`,
+                good_quantity: formData.goodQty,
+                ng_quantity: formData.ngQty,
+                handover_quantity: formData.handoverQty
+            };
+            
+            // Gửi request đến API end_production
+            const response = await fetch(`${API_BASE_URL}/data/production_orders/${order.id}/end_production`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(endData)
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                // Dừng timer khi kết thúc sản xuất
+                stopProductionTimer();
+                
+                showNotification('✅ Đã kết thúc sản xuất thành công!', 'success');
+                
+                // Cập nhật dữ liệu local nếu cần
+                if (result.end_time) {
+                    setOrderField(currentEditingOrder, 'end_time', result.end_time);
+                }
+                
+                // Bàn giao ngay lập tức
+                await sendStageHandoverWebhook();
+                
+                await refreshData();
+                
+                // Refresh sidebar content
+                showOrderDetails(order.id);
+            } else {
+                throw new Error(`API error: ${response.status} - ${result.message || result.error || 'Unknown error'}`);
+            }
+            
+        } catch (error) {
+            showNotification('Lỗi khi kết thúc sản xuất và bàn giao: ' + error.message, 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+
+
+
+
+
+
+
+ /**
+     * Reset lệnh sản xuất về trạng thái chưa bắt đầu
+     */
+     async function resetProduction() {
+        const order = currentEditingOrder;
+        
+        if (!order) {
+            showNotification('Lỗi: Không xác định được lệnh sản xuất', 'error');
+            return;
+        }
+        
+        // Hiển thị dialog xác nhận
+        const confirmed = confirm('⚠️ Bạn có chắc chắn muốn reset lệnh sản xuất này về trạng thái chưa bắt đầu?\n\nĐiều này sẽ:\n• Xóa thời gian bắt đầu và kết thúc\n• Reset trạng thái về "chưa bắt đầu"\n• Xóa dữ liệu sản xuất (số lượng, ghi chú, v.v.)\n\nHành động này không thể hoàn tác!');
+        
+        if (!confirmed) {
+            return;
+        }
+        
+        try {
+            showLoading('Đang reset lệnh sản xuất...');
+            
+            // Chuẩn bị dữ liệu reset
+            const resetData = {
+                stage: STAGE_CONFIG.KEY,
+                reset_to_not_started: true
+            };
+            
+            // Gửi request đến API để reset
+            const response = await fetch(`${API_BASE_URL}/data/production_orders/${order.id}/reset_production`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(resetData)
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                // Dừng timer nếu đang chạy
+                stopProductionTimer();
+                
+                showNotification('✅ Đã reset lệnh sản xuất thành công!', 'success');
+                
+                // Cập nhật dữ liệu local
+                if (currentEditingOrder) {
+                    setOrderField(currentEditingOrder, 'status', 'waiting');
+                    setOrderField(currentEditingOrder, 'start_time', null);
+                    setOrderField(currentEditingOrder, 'end_time', null);
+                    setOrderField(currentEditingOrder, 'worker', '');
+                    setOrderField(currentEditingOrder, 'shift', '');
+                    setOrderField(currentEditingOrder, 'good_quantity', 0);
+                    setOrderField(currentEditingOrder, 'ng_quantity', 0);
+                    setOrderField(currentEditingOrder, 'handover_quantity', 0);
+                    setOrderField(currentEditingOrder, 'note', '');
+                }
+                
+                await refreshData();
+                
+                // Refresh sidebar content
+                showOrderDetails(order.id);
+                
+            } else {
+                throw new Error(`API error: ${response.status} - ${result.message || result.error || 'Unknown error'}`);
+            }
+            
+        } catch (error) {
+            console.error('Reset production error:', error);
+            
+            // Fallback: Nếu API không hỗ trợ reset, thực hiện reset local
+            if (error.message.includes('404') || error.message.includes('not found')) {
+                showNotification('⚠️ API reset không khả dụng, thực hiện reset local...', 'warning');
+                
+                // Reset local data
+                if (currentEditingOrder) {
+                    setOrderField(currentEditingOrder, 'status', 'waiting');
+                    setOrderField(currentEditingOrder, 'start_time', null);
+                    setOrderField(currentEditingOrder, 'end_time', null);
+                    setOrderField(currentEditingOrder, 'worker', '');
+                    setOrderField(currentEditingOrder, 'shift', '');
+                    setOrderField(currentEditingOrder, 'good_quantity', 0);
+                    setOrderField(currentEditingOrder, 'ng_quantity', 0);
+                    setOrderField(currentEditingOrder, 'handover_quantity', 0);
+                    setOrderField(currentEditingOrder, 'note', '');
+                }
+                
+                // Dừng timer
+                stopProductionTimer();
+                
+                // Refresh UI
+                await refreshData();
+                showOrderDetails(order.id);
+                
+                showNotification('✅ Đã reset lệnh sản xuất (local)!', 'success');
+            } else {
+                showNotification('Lỗi khi reset lệnh sản xuất: ' + error.message, 'error');
+            }
+        } finally {
+            hideLoading();
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
     // Utility functions for time display
     function formatDateTime(dateString) {
@@ -3536,32 +3029,95 @@
     }
 
     /**
-     * Pause/Resume production
+     * Execute handover - Complete production and handover to next stage
      */
-    function pauseProduction() {
-        if (!currentEditingOrder) {
-            showNotification('Vui lòng chọn lệnh sản xuất trước!', 'warning');
+    async function executeHandover() {
+        const order = currentEditingOrder;
+        if (!order) {
+            showNotification('Lỗi: Không xác định được lệnh sản xuất', 'error');
             return;
         }
-
-        const pauseBtn = document.getElementById('pauseBtn');
-        const statusDiv = document.getElementById('productionStatus');
-        const statusText = document.getElementById('productionStatusText');
         
-        if (pauseBtn.innerHTML.includes('Tạm dừng')) {
-            // Pause production
-            pauseBtn.innerHTML = '<i class="bi bi-play-fill"></i> Tiếp tục';
-            statusDiv.className = 'production-status paused';
-            statusText.textContent = 'Tạm dừng';
-            showNotification('Đã tạm dừng sản xuất', 'warning');
-        } else {
-            // Resume production
-            pauseBtn.innerHTML = '<i class="bi bi-pause-fill"></i> Tạm dừng';
-            statusDiv.className = 'production-status running';
-            statusText.textContent = 'Đang sản xuất';
-            showNotification('Đã tiếp tục sản xuất', 'success');
+        try {
+            // Lấy dữ liệu từ form
+            const goodQuantity = parseInt(document.getElementById('goodQty')?.value) || 0;
+            const ngQuantity = parseInt(document.getElementById('ngQty')?.value) || 0;
+            const handoverQuantity = parseInt(document.getElementById('handoverQty')?.value) || 0;
+            const workerName = document.getElementById('worker')?.value || '';
+            const machine = document.getElementById('machine')?.value || '';
+            const shift = document.getElementById('shift')?.value || '';
+            const notes = document.getElementById('note')?.value || '';
+            
+            // Validation
+            if (!workerName.trim()) {
+                showNotification('⚠️ Vui lòng nhập tên thợ phụ trách', 'warning');
+                return;
+            }
+            
+            if (goodQuantity + ngQuantity === 0) {
+                showNotification('Tổng số lượng sản xuất phải lớn hơn 0', 'error');
+                return;
+            }
+            
+            if (handoverQuantity <= 0) {
+                showNotification('Số lượng chuyển giao phải lớn hơn 0', 'error');
+                return;
+            }
+            
+            if (handoverQuantity > goodQuantity) {
+                showNotification('Số lượng chuyển giao không thể lớn hơn số lượng OK', 'error');
+                return;
+            }
+            
+            showLoading('Đang xử lý chuyển giao...');
+            
+            // Chuẩn bị dữ liệu
+            const completeData = {
+                stage: STAGE_CONFIG.KEY,
+                output_quantity: goodQuantity + ngQuantity,
+                good_quantity: goodQuantity,
+                ng_quantity: ngQuantity,
+                worker_name: workerName,
+                machine_name: machine,
+                shift: shift,
+                notes: notes,
+                handover_quantity: handoverQuantity,
+                next_stage: order.next_stage
+            };
+            
+            // Gửi API
+            const response = await fetch(`${API_BASE_URL}/data/production_orders/${order.id}/complete_production`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(completeData)
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                const nextStageName = getStageDisplayName(order.next_stage) || 'HOÀN THÀNH';
+                showNotification(
+                    `✅ Đã hoàn thành và chuyển giao ${handoverQuantity} sản phẩm cho công đoạn ${nextStageName}!`,
+                    'success'
+                );
+                
+                // Refresh và đóng sidebar
+                await refreshData();
+                closeDetailsPanel();
+            } else {
+                throw new Error(result.message || result.error || 'Unknown error');
+            }
+            
+        } catch (error) {
+            showNotification('Lỗi khi xử lý chuyển giao: ' + error.message, 'error');
+        } finally {
+            hideLoading();
         }
     }
+
+
     
     // Hàm tính thời gian đang chạy (từ thời điểm bắt đầu đến hiện tại)
     function calculateRunningTime(startTime, endTime) {
@@ -3583,11 +3139,12 @@
         // Tìm element timer trong sidebar mới
         const statusTimeElement = document.getElementById('statusTime');
         const runningTimeInfoElement = document.getElementById('runningTimeInfo');
+        const endTimeInfoElement = document.getElementById('endTimeInfo');
         // Fallback cho element cũ nếu còn tồn tại
         const timerElement = document.getElementById('productionRunningTime');
         
-        if (currentEditingOrder && currentEditingOrder.xa_start_time) {
-            const time = calculateRunningTime(currentEditingOrder.xa_start_time, currentEditingOrder.xa_end_time);
+        if (currentEditingOrder && getOrderField(currentEditingOrder, 'start_time')) {
+            const time = calculateRunningTime(getOrderField(currentEditingOrder, 'start_time'), getOrderField(currentEditingOrder, 'end_time'));
             
             // Cập nhật timer trong sidebar mới (production status)
             if (statusTimeElement) {
@@ -3595,8 +3152,13 @@
             }
             
             // Cập nhật thời gian chạy trong tab thông tin
-            if (runningTimeInfoElement && !currentEditingOrder.xa_end_time) {
+            if (runningTimeInfoElement && !getOrderField(currentEditingOrder, 'end_time')) {
                 runningTimeInfoElement.textContent = time;
+            }
+            
+            // Cập nhật thời gian kết thúc nếu đã kết thúc
+            if (endTimeInfoElement && getOrderField(currentEditingOrder, 'end_time')) {
+                endTimeInfoElement.textContent = formatDateTime(getOrderField(currentEditingOrder, 'end_time'));
             }
             
             // Cập nhật timer cũ nếu còn tồn tại (fallback)
@@ -3610,6 +3172,9 @@
             }
             if (runningTimeInfoElement) {
                 runningTimeInfoElement.textContent = '--';
+            }
+            if (endTimeInfoElement) {
+                endTimeInfoElement.textContent = '--';
             }
         }
     }
@@ -3658,14 +3223,15 @@
     // Details panel functions
     window.showOrderDetails = showOrderDetails;
     window.closeDetailsPanel = closeDetailsPanel;
-    // window.executeHandover = executeHandover;
+    window.executeHandover = executeHandover;
+    window.sendStageHandoverWebhook = sendStageHandoverWebhook;
     window.startProduction = startProduction;
     window.endProduction = endProduction;
 
     // Tab switching functions
     window.switchTab = switchTab;
     window.resetForm = resetForm;
-    window.pauseProduction = pauseProduction;
+    // window.pauseProduction = pauseProduction;
 
     
 
@@ -3702,12 +3268,7 @@
         const tableContainer = document.querySelector('.table-container');
         const tabContent = document.querySelector('.tab-content');
         
-        // Debug: Log click events (chỉ khi cần thiết)
-        // console.log('Click detected:', e.target);
-        // console.log('Details panel open:', detailsPanel.classList.contains('show'));
-        // console.log('Clicked inside details panel:', detailsPanel.contains(e.target));
-        // console.log('Clicked inside table container:', tableContainer && tableContainer.contains(e.target));
-        // console.log('Clicked inside tab content:', tabContent && tabContent.contains(e.target));
+
         
         // If details panel is open and click is outside table and details panel
         if (detailsPanel.classList.contains('show') && 
@@ -3729,14 +3290,11 @@
      * Hiển thị tab báo cáo
      */
     function showReportTab() {
-        console.log('showReportTab() called');
         
         // Chuyển sang tab báo cáo
         const reportTab = document.getElementById('report-tab');
-        console.log('reportTab element:', reportTab);
         
         if (reportTab) {
-            console.log('Clicking report tab...');
             reportTab.click();
         } else {
             console.error('Report tab not found!');
@@ -3750,19 +3308,16 @@
      * Load dữ liệu báo cáo - các lệnh đã bàn giao
      */
     async function loadReportData() {
-        console.log('loadReportData() called');
-        console.log('ordersData length:', ordersData.length);
+      
         
         try {
             showLoading('Đang tải dữ liệu báo cáo...');
             
-            // Lọc các lệnh đã bàn giao (xa_status = 'handed_over')
-            const handedOverOrders = ordersData.filter(order => 
-                order.xa_status === 'handed_over'
-            );
-            
-            console.log('Handed over orders found:', handedOverOrders.length);
-            console.log('Handed over orders:', handedOverOrders);
+                    // Lọc các lệnh đã bàn giao (status = 'handed_over')
+        const handedOverOrders = ordersData.filter(order => 
+            getOrderField(order, 'status') === 'handed_over'
+        );  
+        
             
             // Render bảng báo cáo
             renderReportTable(handedOverOrders);
@@ -3806,8 +3361,8 @@
 
         // Sắp xếp theo thời gian bàn giao (mới nhất lên đầu)
         const sortedOrders = [...orders].sort((a, b) => {
-            const aTime = a.xa_handover_date ? new Date(a.xa_handover_date).getTime() : 0;
-            const bTime = b.xa_handover_date ? new Date(b.xa_handover_date).getTime() : 0;
+            const aTime = getOrderField(a, 'handover_date') ? new Date(getOrderField(a, 'handover_date')).getTime() : 0;
+            const bTime = getOrderField(b, 'handover_date') ? new Date(getOrderField(b, 'handover_date')).getTime() : 0;
             return bTime - aTime;
         });
 
@@ -3827,16 +3382,16 @@
         row.setAttribute('data-order-id', order.id);
         
         // Tính toán tiến độ
-        const inputQty = order.xa_input_quantity || 0;
+        const inputQty = getOrderField(order, 'input_quantity') || 0;
         const sheet_count = order.sheet_count || 0;
-        const goodQty = order.xa_good_quantity || 0;
-        const ngQty = order.xa_ng_quantity || 0;
+        const goodQty = getOrderField(order, 'good_quantity') || 0;
+        const ngQty = getOrderField(order, 'ng_quantity') || 0;
         const deployedQty = order.deployed_quantity || 0;
         const progressPercent = inputQty > 0 ? Math.round((goodQty / inputQty) * 100) : 0;
         
         // Lấy thông tin bàn giao
-        const handoverDate = order.xa_handover_date ? formatDateTime(order.xa_handover_date) : 'N/A';
-        const handoverQuantity = order.xa_handover_quantity || 0;
+        const handoverDate = getOrderField(order, 'handover_date') ? formatDateTime(getOrderField(order, 'handover_date')) : 'N/A';
+        const handoverQuantity = getOrderField(order, 'handover_quantity') || 0;
         
         // Xác định icon và màu sắc cho trạng thái đã bàn giao
         const statusIcon = 'bi-arrow-right-circle';
@@ -3852,8 +3407,8 @@
                     <i class="bi ${statusIcon} ${statusClass} me-2"></i>
                     <div>
                         <div class="fw-bold">${order.production_order}</div>
-                        <small class="text-muted">${formatDate(order.deployment_date)} - ${order.production_shift}</small>
-                        <small class="text-info d-block">${statusText} - ${handoverDate}</small>
+                        <small class="text-muted">${formatDate(order.deployment_date)} - ${getOrderField(order, 'shift')}</small>
+                        <small class="text-info d-block">${statusText}</small>
                     </div>
                 </div>
             </td>
@@ -3901,8 +3456,7 @@
                 <small class="text-muted">${statusText}</small>
             </td>
             <td class="text-center">
-                <small class="text-muted d-block">${order.assigned_machine || 'N/A'}</small>
-                <small class="text-muted">${order.xa_worker_name || 'N/A'}</small>
+                <small class="text-muted d-block" title="${order.assigned_machine || 'N/A'}">${truncateText(order.assigned_machine || 'N/A', 15)}</small>
             </td>
         `;
         
@@ -3952,7 +3506,7 @@
         filteredOrdersData = originalOrdersData.filter(order => {
             // Lọc theo ngày sản xuất
             if (dateFilter) {
-                const orderDate = order.xa_production_date;
+                const orderDate = getOrderField(order, 'production_date');
                 if (!orderDate || orderDate !== dateFilter) {
                     return false;
                 }
@@ -3960,7 +3514,7 @@
 
             // Lọc theo ca
             if (shiftFilter) {
-                const orderShift = order.xa_shift;
+                const orderShift = getOrderField(order, 'shift');
                 if (!orderShift || orderShift !== shiftFilter) {
                     return false;
                 }
@@ -3982,7 +3536,7 @@
                     order.internal_product_code,
                     order.paper_type,
                     order.assigned_machine,
-                    order.xa_worker_name
+                    getOrderField(order, 'worker_name')
                 ].map(field => (field || '').toLowerCase());
 
                 const hasMatch = searchFields.some(field => field.includes(searchInput));
@@ -4082,16 +3636,16 @@
         const machineFilter = document.getElementById('machineFilter');
         if (!machineFilter) return;
 
-        // Lọc các máy thuộc Stage_xa từ dữ liệu máy
-        const xaMachines = machineStatusData.filter(machine => 
-            machine.stage_machine && machine.stage_machine.includes('Stage_xa')
+        // Lọc các máy thuộc Stage_${STAGE_CONFIG.KEY} từ dữ liệu máy
+        const MStageMachines = machineStatusData.filter(machine => 
+            machine.stage_machine && machine.stage_machine.includes(`Stage_${STAGE_CONFIG.KEY}`)
         ).map(machine => machine.machine_name);
 
         // Xóa options cũ (giữ lại option "Tất cả")
         machineFilter.innerHTML = '<option value="">Tất cả</option>';
 
         // Thêm options mới
-        xaMachines.sort().forEach(machine => {
+        MStageMachines.sort().forEach(machine => {
             const option = document.createElement('option');
             option.value = machine;
             option.textContent = machine;
@@ -4100,7 +3654,7 @@
     }
 
     // Thêm hàm mới để gửi dữ liệu chuyển giao qua webhook n8n
-    async function sendXaHandoverWebhook() {
+    async function sendStageHandoverWebhook() {
         const order = currentEditingOrder;
         if (!order) {
             showNotification('Lỗi: Không xác định được lệnh sản xuất', 'error');
@@ -4129,6 +3683,15 @@
                 return;
             }
             
+            // Lấy thêm dữ liệu NG đầu/cuối và trả
+            const ngStartEndQty = parseInt(getElementValue('ngStartEndQty')) || 0;
+            const returnQty = parseInt(getElementValue('returnQty')) || 0;
+            
+            // Validate tổng số lượng không vượt quá số lượng đầu vào
+            if (!validateTotalQuantity(order, goodQuantity, ngQuantity, ngStartEndQty, returnQty)) {
+                return;
+            }
+            
             const nextStage = order.next_stage;
             if (!nextStage) {
                 showNotification('Không xác định được công đoạn tiếp theo', 'error');
@@ -4142,7 +3705,7 @@
             const webhookData = {
                 order_id: order.id,
                 production_order: order.production_order,
-                stage: 'xa',
+                stage: STAGE_CONFIG.KEY,
                 next_stage: nextStage,
                 workflow_definition: order.workflow_definition,
                 good_quantity: goodQuantity,
@@ -4160,9 +3723,9 @@
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    action: 'xa_handover',
+                    action: `${STAGE_CONFIG.KEY}_handover`,
                     data: webhookData,
-                    source: 'xa_stage_frontend',
+                    source: `${STAGE_CONFIG.KEY}_stage_frontend`,
                     timestamp: new Date().toISOString()
                 })
             });
@@ -4173,15 +3736,14 @@
             
             const result = await response.json();
             
-            // Thông báo thành công
+                        // Thông báo thành công
             const nextStageName = getStageDisplayName(nextStage);
             showNotification(`✅ Đã chuyển giao ${formatNumber(handoverQuantity)} sản phẩm sang công đoạn ${nextStageName}!`, 'success');
             
-            // Refresh dữ liệu
-            await refreshData();
-            
-            // Đóng sidebar
-            closeDetailsPanel();
+            // Reload trang để cập nhật dữ liệu
+            setTimeout(() => {
+                location.reload();
+            }, 100);
             
         } catch (error) {
 
@@ -4193,8 +3755,246 @@
 
   </script>
   
+  <!-- User Info Update Script -->
+  <script>
+    // Update user info when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(checkAuthAndUpdateUser, 100);
+    });
+    
 
-  
+    
+    function checkAuthAndUpdateUser() {
+      if (typeof auth === 'undefined') {
+        setTimeout(checkAuthAndUpdateUser, 100);
+        return;
+      }
+      
+      if (!auth.isLoggedIn()) {
+        showLoginPopup({
+          onLoginSuccess: function(userData) {
+            updateUserInfo();
+            refreshData();
+          },
+          onLoginError: function(error) {
+            console.error('Login failed:', error);
+          }
+        });
+        return;
+      }
+      
+      updateUserInfo();
+    }
+    
+    function updateUserInfo() {
+      const userNameElement = document.getElementById('userName');
+      
+      if (!userNameElement) {
+        setTimeout(updateUserInfo, 100);
+        return;
+      }
+      
+      if (typeof auth === 'undefined') {
+        setTimeout(updateUserInfo, 100);
+        return;
+      }
+      
+      const user = auth.getUser();
+      
+      if (user) {
+        userNameElement.textContent = user.full_name;
+      } else {
+        userNameElement.textContent = 'Chưa đăng nhập';
+      }
+    }
+    
+
+    
+    // Multi-Select Worker Functions
+    function initializeWorkerMultiSelect(order) {
+        const selectedWorkers = document.getElementById('selectedWorkers');
+        const workerSearch = document.getElementById('workerSearch');
+        const workerDropdown = document.getElementById('workerDropdown');
+        const workerOptions = document.getElementById('workerOptions');
+        
+        // Lấy danh sách user từ API
+        let availableWorkers = [];
+        
+        async function loadWorkersFromAPI() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/data/user`);
+                
+                if (response.ok) {
+                    const users = await response.json();
+           
+                    
+                    // Kiểm tra format của response
+                    if (Array.isArray(users)) {
+                        availableWorkers = users.map(user => {
+                            // Format: "Mã nhân viên - Tên nhân viên"
+                            const name = `${user.ma_nhan_vien} - ${user.ten_nhan_vien}`;
+                            return name;
+                        }).filter(name => name && name.trim());
+                    } else if (users.data && Array.isArray(users.data)) {
+                        availableWorkers = users.data.map(user => `${user.ma_nhan_vien} - ${user.ten_nhan_vien}`).filter(name => name);
+                    } else {
+                        console.error('Unexpected API response format:', users);
+                        availableWorkers = [];
+                    }
+                    
+                    // Sau khi load workers, đề xuất user đăng nhập hiện tại
+                    suggestCurrentUser();
+                    
+                    // Nếu dropdown đang mở, cập nhật lại options
+                    if (workerDropdown.style.display === 'block') {
+                        renderDropdownOptions(workerSearch.value);
+                    }
+                } else {
+                    console.error('Failed to load workers from API, status:', response.status);
+                    availableWorkers = [];
+                }
+            } catch (error) {
+                console.error('Error loading workers:', error);
+                availableWorkers = [];
+            }
+        }
+        
+        // Đề xuất user đăng nhập hiện tại
+        function suggestCurrentUser() {
+            if (selectedWorkerList.length === 0 && typeof auth !== 'undefined') {
+                const currentUser = auth.getUser();
+                if (currentUser && currentUser.full_name) {
+                    // Tìm user trong danh sách available workers
+                    const userWorkerName = availableWorkers.find(worker => 
+                        worker.includes(currentUser.full_name) || 
+                        worker.includes(currentUser.ma_nhan_vien)
+                    );
+                    if (userWorkerName) {
+                        selectedWorkerList = [userWorkerName];
+                        renderSelectedWorkers();
+                        updateWorkerInput();
+                    }
+                }
+            }
+        }
+        
+        let selectedWorkerList = [];
+        
+        // Parse existing workers from order data
+        if (getOrderField(order, 'worker_name')) {
+            selectedWorkerList = getOrderField(order, 'worker_name').split(',').map(w => w.trim()).filter(w => w);
+        }
+        
+        // Render selected workers
+        function renderSelectedWorkers() {
+            selectedWorkers.innerHTML = '';
+            selectedWorkerList.forEach(worker => {
+                const tag = document.createElement('div');
+                tag.className = 'selected-tag';
+                tag.innerHTML = `
+                    ${worker}
+                    <button class="remove-btn" onclick="event.stopPropagation(); event.preventDefault(); removeWorker('${worker}')">×</button>
+                `;
+                selectedWorkers.appendChild(tag);
+            });
+        }
+        
+        // Render dropdown options
+        function renderDropdownOptions(filter = '') {
+            
+            
+            workerOptions.innerHTML = '';
+            const filteredWorkers = availableWorkers.filter(worker => 
+                worker.toLowerCase().includes(filter.toLowerCase()) &&
+                !selectedWorkerList.includes(worker)
+            );
+            
+            
+            filteredWorkers.forEach(worker => {
+                const item = document.createElement('div');
+                item.className = 'dropdown-item';
+                item.textContent = worker;
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    addWorker(worker);
+                };
+                workerOptions.appendChild(item);
+            });
+            
+        }
+        
+        // Add worker
+        window.addWorker = function(worker) {
+            if (!selectedWorkerList.includes(worker)) {
+                selectedWorkerList.push(worker);
+                renderSelectedWorkers();
+                renderDropdownOptions(workerSearch.value);
+                updateWorkerInput();
+            }
+            // Không đóng dropdown ngay, để user có thể chọn thêm
+            workerSearch.focus();
+        };
+        
+        // Remove worker
+        window.removeWorker = function(worker) {
+            selectedWorkerList = selectedWorkerList.filter(w => w !== worker);
+            renderSelectedWorkers();
+            renderDropdownOptions(workerSearch.value);
+            updateWorkerInput();
+            // Focus lại vào search input sau khi xóa
+            workerSearch.focus();
+        };
+        
+        // Update hidden input for form submission
+        function updateWorkerInput() {
+            const workerInput = document.getElementById('worker');
+            if (workerInput) {
+                workerInput.value = selectedWorkerList.join(', ');
+            }
+        }
+        
+        // Event listeners
+        workerSearch.addEventListener('focus', () => {
+            workerDropdown.style.display = 'block';
+            renderDropdownOptions();
+        });
+        
+        // Ngăn chặn event propagation cho toàn bộ multi-select container
+        const multiSelectContainer = document.querySelector('.multi-select-container');
+        if (multiSelectContainer) {
+            multiSelectContainer.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+        
+        workerSearch.addEventListener('input', (e) => {
+            renderDropdownOptions(e.target.value);
+        });
+        
+        // Ngăn chặn event propagation cho dropdown
+        workerDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            // Chỉ đóng dropdown nếu click outside multi-select và không phải click vào dropdown item
+            if (!e.target.closest('.multi-select-container') && !e.target.closest('.dropdown-item')) {
+                workerDropdown.style.display = 'none';
+            }
+        });
+        
+        // Initialize
+        loadWorkersFromAPI().then(() => {
+            renderSelectedWorkers();
+            updateWorkerInput();
+        });
+    }
+    
+    // handleLogout đã được định nghĩa ở trên
+  </script>
+
   <!-- Details Panel - Will be generated dynamically -->
   <div class="details-panel" id="detailsPanel">
     <!-- Content will be generated by showOrderDetails() function -->
@@ -4209,5 +4009,8 @@
       <div class="mt-2">Đang tải dữ liệu từ API...</div>
     </div>
   </div>
+  
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

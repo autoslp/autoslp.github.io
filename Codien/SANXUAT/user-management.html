@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý người dùng - Hệ thống sản xuất</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="../js/auth.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar {
+            min-height: calc(100vh - 56px);
+            box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 12px 20px;
+            border-radius: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar .nav-link:hover {
+            color: white;
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255,255,255,0.2);
+            border-left: 4px solid #007bff;
+        }
+        
+        .main-content {
+            padding: 20px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+            border-top: none;
+            font-weight: 600;
+        }
+        
+        .btn-action {
+            padding: 4px 8px;
+            margin: 0 2px;
+        }
+        
+        .role-badge {
+            font-size: 0.75rem;
+        }
+        
+        .status-active {
+            color: #28a745;
+        }
+        
+        .status-inactive {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-industry me-2"></i>
+                Hệ thống sản xuất
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-2"></i>
+                        <span id="userName">Loading...</span>
+                        <span class="badge bg-light text-dark ms-2" id="userRole">...</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><h6 class="dropdown-header">Thông tin tài khoản</h6></li>
+                        <li><span class="dropdown-item-text">
+                            <i class="fas fa-id-card me-2"></i><span id="userId">...</span>
+                        </span></li>
+                        <li><span class="dropdown-item-text">
+                            <i class="fas fa-building me-2"></i><span id="userDept">...</span>
+                        </span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="auth.logout()">
+                            <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0">
+                <div class="sidebar bg-dark text-white">
+                    <div class="sidebar-header p-3 border-bottom">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user-circle me-2"></i>
+                            <span id="sidebarUserName">Loading...</span>
+                        </h5>
+                        <small class="text-muted" id="sidebarUserDept">...</small>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="xa-stage.html">
+                                <i class="fas fa-water me-2"></i>
+                                Công đoạn XẢ
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="xen-stage.html">
+                                <i class="fas fa-layer-group me-2"></i>
+                                Công đoạn XEN
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="bao-cao.html">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                Báo cáo
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="user-management.html">
+                                <i class="fas fa-users-cog me-2"></i>
+                                Quản lý người dùng
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <div class="main-content">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>
+                            <i class="fas fa-users-cog me-2"></i>
+                            Quản lý người dùng
+                        </h2>
+                        <button class="btn btn-primary" onclick="showAddUserModal()">
+                            <i class="fas fa-plus me-2"></i>
+                            Thêm người dùng
+                        </button>
+                    </div>
+
+                    <!-- Search and Filter -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-search"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm người dùng...">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select" id="roleFilter">
+                                        <option value="">Tất cả vai trò</option>
+                                        <option value="Quản lý">Quản lý</option>
+                                        <option value="Nhân viên">Nhân viên</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select" id="departmentFilter">
+                                        <option value="">Tất cả bộ phận</option>
+                                        <option value="Ban Quản lý">Ban Quản lý</option>
+                                        <option value="Thời vụ">Thời vụ</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                                        <i class="fas fa-times me-1"></i>
+                                        Xóa lọc
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Users Table -->
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="usersTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Mã NV</th>
+                                            <th>Tên nhân viên</th>
+                                            <th>Người quản lý</th>
+                                            <th>Bộ phận</th>
+                                            <th>Chức vụ</th>
+                                            <th>Trạng thái</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="usersTableBody">
+                                        <!-- Data will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit User Modal -->
+    <div class="modal fade" id="userModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Thêm người dùng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="userForm">
+                        <div class="mb-3">
+                            <label class="form-label">Mã nhân viên</label>
+                            <input type="text" class="form-control" id="modalMaNhanVien" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tên nhân viên</label>
+                            <input type="text" class="form-control" id="modalTenNhanVien" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Người quản lý</label>
+                            <select class="form-select" id="modalNguoiQuanLy">
+                                <option value="">Không có</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Bộ phận</label>
+                            <select class="form-select" id="modalBoPhan" required>
+                                <option value="">Chọn bộ phận</option>
+                                <option value="Ban Quản lý">Ban Quản lý</option>
+                                <option value="Thời vụ">Thời vụ</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Chức vụ</label>
+                            <select class="form-select" id="modalChucVu" required>
+                                <option value="">Chọn chức vụ</option>
+                                <option value="Quản lý">Quản lý</option>
+                                <option value="Nhân viên">Nhân viên</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu</label>
+                            <input type="password" class="form-control" id="modalMatKhau" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="saveUser()">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_BASE_URL = 'https://api.autoslp.com/api';
+        let usersData = [];
+        let editingUserId = null;
+
+        // Check admin permission
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!auth.isLoggedIn()) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            if (!auth.isAdmin()) {
+                alert('Bạn không có quyền truy cập trang này!');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            updateUserInfo();
+            loadUsers();
+            setupEventListeners();
+        });
+
+        function updateUserInfo() {
+            const user = auth.getUser();
+            if (user) {
+                document.getElementById('userName').textContent = user.full_name;
+                document.getElementById('userRole').textContent = user.role;
+                document.getElementById('userId').textContent = user.username;
+                document.getElementById('userDept').textContent = user.department;
+                
+                document.getElementById('sidebarUserName').textContent = user.full_name;
+                document.getElementById('sidebarUserDept').textContent = user.department;
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/data/user`);
+                if (response.ok) {
+                    usersData = await response.json();
+                    renderUsersTable();
+                    populateManagerSelect();
+                } else {
+                    console.error('Failed to load users');
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        function renderUsersTable() {
+            const tbody = document.getElementById('usersTableBody');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const roleFilter = document.getElementById('roleFilter').value;
+            const deptFilter = document.getElementById('departmentFilter').value;
+
+            const filteredUsers = usersData.filter(user => {
+                const matchesSearch = user.ten_nhan_vien.toLowerCase().includes(searchTerm) ||
+                                    user.ma_nhan_vien.toLowerCase().includes(searchTerm);
+                const matchesRole = !roleFilter || user.chuc_vu === roleFilter;
+                const matchesDept = !deptFilter || user.bo_phan === deptFilter;
+                
+                return matchesSearch && matchesRole && matchesDept;
+            });
+
+            tbody.innerHTML = filteredUsers.map(user => `
+                <tr>
+                    <td><strong>${user.ma_nhan_vien}</strong></td>
+                    <td>${user.ten_nhan_vien}</td>
+                    <td>${user.nguoi_quan_ly || '-'}</td>
+                    <td>${user.bo_phan}</td>
+                    <td>
+                        <span class="badge bg-${user.chuc_vu === 'Quản lý' ? 'primary' : 'success'} role-badge">
+                            ${user.chuc_vu}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-active">
+                            <i class="fas fa-check-circle me-1"></i>
+                            Hoạt động
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary btn-action" onclick="editUser('${user.ma_nhan_vien}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger btn-action" onclick="deleteUser('${user.ma_nhan_vien}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function populateManagerSelect() {
+            const select = document.getElementById('modalNguoiQuanLy');
+            const managers = usersData.filter(user => user.chuc_vu === 'Quản lý');
+            
+            select.innerHTML = '<option value="">Không có</option>' +
+                managers.map(manager => 
+                    `<option value="${manager.ma_nhan_vien}">${manager.ten_nhan_vien}</option>`
+                ).join('');
+        }
+
+        function setupEventListeners() {
+            document.getElementById('searchInput').addEventListener('input', renderUsersTable);
+            document.getElementById('roleFilter').addEventListener('change', renderUsersTable);
+            document.getElementById('departmentFilter').addEventListener('change', renderUsersTable);
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('roleFilter').value = '';
+            document.getElementById('departmentFilter').value = '';
+            renderUsersTable();
+        }
+
+        function showAddUserModal() {
+            editingUserId = null;
+            document.getElementById('modalTitle').textContent = 'Thêm người dùng';
+            document.getElementById('userForm').reset();
+            new bootstrap.Modal(document.getElementById('userModal')).show();
+        }
+
+        function editUser(userId) {
+            const user = usersData.find(u => u.ma_nhan_vien === userId);
+            if (!user) return;
+
+            editingUserId = userId;
+            document.getElementById('modalTitle').textContent = 'Chỉnh sửa người dùng';
+            
+            document.getElementById('modalMaNhanVien').value = user.ma_nhan_vien;
+            document.getElementById('modalTenNhanVien').value = user.ten_nhan_vien;
+            document.getElementById('modalNguoiQuanLy').value = user.nguoi_quan_ly || '';
+            document.getElementById('modalBoPhan').value = user.bo_phan;
+            document.getElementById('modalChucVu').value = user.chuc_vu;
+            document.getElementById('modalMatKhau').value = '';
+
+            new bootstrap.Modal(document.getElementById('userModal')).show();
+        }
+
+        async function saveUser() {
+            const formData = {
+                ma_nhan_vien: document.getElementById('modalMaNhanVien').value,
+                ten_nhan_vien: document.getElementById('modalTenNhanVien').value,
+                nguoi_quan_ly: document.getElementById('modalNguoiQuanLy').value || null,
+                bo_phan: document.getElementById('modalBoPhan').value,
+                chuc_vu: document.getElementById('modalChucVu').value,
+                mat_khau: document.getElementById('modalMatKhau').value
+            };
+
+            if (!formData.ma_nhan_vien || !formData.ten_nhan_vien || !formData.bo_phan || !formData.chuc_vu) {
+                alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+                return;
+            }
+
+            try {
+                // Here you would typically make an API call to save the user
+                // For now, we'll just show a success message
+                alert(editingUserId ? 'Cập nhật người dùng thành công!' : 'Thêm người dùng thành công!');
+                
+                // Close modal and reload data
+                bootstrap.Modal.getInstance(document.getElementById('userModal')).hide();
+                await loadUsers();
+            } catch (error) {
+                console.error('Error saving user:', error);
+                alert('Có lỗi xảy ra khi lưu người dùng!');
+            }
+        }
+
+        function deleteUser(userId) {
+            if (confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
+                // Here you would typically make an API call to delete the user
+                alert('Xóa người dùng thành công!');
+                loadUsers();
+            }
+        }
+    </script>
+</body>
+</html>

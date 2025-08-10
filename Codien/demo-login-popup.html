@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Login Popup - Hệ thống sản xuất</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom Logout Handler -->
+    <script>
+      window.handleLogout = function() {
+        localStorage.removeItem('user_session');
+        document.getElementById('userStatus').style.display = 'none';
+        showLoginPopup({
+          onLoginSuccess: function(userData) {
+            showUserStatus(userData);
+          }
+        });
+      };
+    </script>
+    
+    <script src="js/auth.js"></script>
+    <script src="js/login-popup.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .demo-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            margin-bottom: 20px;
+        }
+        
+        .demo-card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .btn-demo {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        .btn-demo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        
+        .user-status {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .user-status h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-label {
+            font-weight: 600;
+            color: #6c757d;
+        }
+        
+        .status-value {
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="demo-card">
+                    <h2><i class="fas fa-industry me-2"></i>Demo Login Popup</h2>
+                    <p class="text-muted mb-4">Test các tính năng của login popup component</p>
+                    
+                                         <div class="d-flex flex-wrap">
+                         <button class="btn btn-demo" onclick="testBasicLogin()">
+                             <i class="fas fa-sign-in-alt me-2"></i>
+                             Login Cơ bản
+                         </button>
+                         
+                         <button class="btn btn-demo" onclick="testLoginWithCallbacks()">
+                             <i class="fas fa-cogs me-2"></i>
+                             Login với Callbacks
+                         </button>
+                         
+                         <button class="btn btn-demo" onclick="testAutoShow()">
+                             <i class="fas fa-magic me-2"></i>
+                             Auto Show
+                         </button>
+                         
+                         <button class="btn btn-demo btn-outline-secondary" onclick="logout()">
+                             <i class="fas fa-sign-out-alt me-2"></i>
+                             Đăng xuất
+                         </button>
+                     </div>
+                     
+                     <div class="mt-3">
+                         <small class="text-muted">
+                             <i class="fas fa-info-circle me-1"></i>
+                             Nếu đã đăng nhập, thông tin sẽ hiển thị bên dưới
+                         </small>
+                     </div>
+                    
+                    <div id="userStatus" class="user-status" style="display: none;">
+                        <h4><i class="fas fa-user-circle me-2"></i>Trạng thái đăng nhập</h4>
+                        <div id="userDetails">
+                            <!-- User details will be populated here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="demo-card">
+                    <h3><i class="fas fa-info-circle me-2"></i>Hướng dẫn sử dụng</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Thông tin đăng nhập:</h5>
+                            <ul>
+                                <li><strong>Admin:</strong> BOD01 / 123</li>
+                                <li><strong>Worker:</strong> HA04395 / 123</li>
+                                <li><strong>Manager:</strong> SL04205 / 123</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Tính năng:</h5>
+                            <ul>
+                                <li>✅ Login popup modal</li>
+                                <li>✅ Validation form</li>
+                                <li>✅ Loading states</li>
+                                <li>✅ Callback functions</li>
+                                <li>✅ Auto focus</li>
+                                <li>✅ Enter key submit</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
+        });
+        
+        function checkLoginStatus() {
+            const user = auth.getUser();
+            if (user) {
+                showUserStatus(user);
+            }
+        }
+        
+        function showUserStatus(user) {
+            const userDetails = `
+                <div class="status-item">
+                    <span class="status-label">Tên:</span>
+                    <span class="status-value">${user.full_name}</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Chức vụ:</span>
+                    <span class="status-value">
+                        <span class="badge bg-${user.role === 'Quản lý' ? 'primary' : 'success'}">${user.role}</span>
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Mã NV:</span>
+                    <span class="status-value">${user.username}</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Bộ phận:</span>
+                    <span class="status-value">${user.department}</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Thời gian đăng nhập:</span>
+                    <span class="status-value">${new Date(user.login_time).toLocaleString('vi-VN')}</span>
+                </div>
+            `;
+            
+            document.getElementById('userDetails').innerHTML = userDetails;
+            document.getElementById('userStatus').style.display = 'block';
+        }
+        
+        function logout() {
+            auth.logout();
+        }
+        
+        // Test functions
+        function testBasicLogin() {
+            showLoginPopup();
+        }
+        
+        function testLoginWithCallbacks() {
+            showLoginPopup({
+                onLoginSuccess: function(userData) {
+                    showUserStatus(userData);
+                    alert(`Chào mừng ${userData.full_name}!`);
+                },
+                onLoginError: function(error) {
+                    console.error('Login error:', error);
+                }
+            });
+        }
+        
+        function testAutoShow() {
+            new LoginPopup({
+                autoShow: true,
+                onLoginSuccess: function(userData) {
+                    showUserStatus(userData);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
