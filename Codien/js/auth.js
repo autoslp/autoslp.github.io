@@ -40,6 +40,12 @@ class AuthManager {
         return this.session;
     }
     
+    // Refresh session từ localStorage
+    refreshSession() {
+        this.session = this.getSession();
+        return this.session;
+    }
+    
     // Kiểm tra role
     hasRole(role) {
         return this.session?.role === role;
@@ -55,6 +61,70 @@ class AuthManager {
         return this.hasRole('Quản lý') || this.isAdmin();
     }
     
+    // Kiểm tra auth và hiển thị force login nếu cần
+    checkAuthAndShowLogin() {
+        if (!this.isLoggedIn()) {
+            if (window.showForceLoginPopup) {
+                window.showForceLoginPopup();
+            } else if (window.showLoginPopup) {
+                window.showLoginPopup();
+            }
+            return false;
+        }
+        return true;
+    }
+    
+    // Force login check - không cho phép tắt popup
+    forceLoginCheck() {
+        if (!this.isLoggedIn()) {
+            if (window.showForceLoginPopup) {
+                const forceLoginPopup = window.showForceLoginPopup({
+                    onLoginSuccess: (data) => {
+                        // Refresh session sau khi đăng nhập thành công
+                        this.refreshSession();
+                        console.log('Force login successful:', data);
+                        
+                        // Gọi callback nếu có
+                        if (window.onAuthSuccess) {
+                            window.onAuthSuccess(data);
+                        }
+                    },
+                    onLoginError: (error) => {
+                        console.error('Force login failed:', error);
+                        
+                        // Gọi callback nếu có
+                        if (window.onAuthError) {
+                            window.onAuthError(error);
+                        }
+                    }
+                });
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    // Tạo force login popup với custom options
+    createForceLoginPopup(options = {}) {
+        if (window.showForceLoginPopup) {
+            return window.showForceLoginPopup({
+                onLoginSuccess: (data) => {
+                    this.refreshSession();
+                    if (options.onLoginSuccess) {
+                        options.onLoginSuccess(data);
+                    }
+                },
+                onLoginError: (error) => {
+                    if (options.onLoginError) {
+                        options.onLoginError(error);
+                    }
+                },
+                ...options
+            });
+        }
+        return null;
+    }
+    
     // Đăng xuất
     logout() {
         localStorage.removeItem('user_session');
@@ -64,8 +134,10 @@ class AuthManager {
         if (window.handleLogout) {
             window.handleLogout();
         } else {
-            // Fallback: hiển thị login popup
-            if (window.showLoginPopup) {
+            // Fallback: hiển thị force login popup
+            if (window.showForceLoginPopup) {
+                window.showForceLoginPopup();
+            } else if (window.showLoginPopup) {
                 window.showLoginPopup();
             }
         }
@@ -74,6 +146,14 @@ class AuthManager {
 
 // Khởi tạo Auth Manager
 const auth = new AuthManager();
+
+// Tự động kiểm tra auth khi load trang
+document.addEventListener('DOMContentLoaded', function() {
+    // Chỉ kiểm tra nếu chưa có LoginPopup nào được khởi tạo
+    if (!auth.isLoggedIn() && !window.loginPopupInstance) {
+        auth.forceLoginCheck();
+    }
+});
 
 // Export cho sử dụng global
 window.auth = auth;

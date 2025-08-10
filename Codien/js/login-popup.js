@@ -7,6 +7,8 @@ class LoginPopup {
             onLoginError: null,
             onLogout: null,
             autoShow: false,
+            forceLogin: false, // Bắt buộc đăng nhập - không cho phép tắt
+            checkAuthOnInit: true, // Tự động kiểm tra auth khi khởi tạo
             ...options
         };
         
@@ -22,6 +24,11 @@ class LoginPopup {
         this.bindEvents();
         this.isInitialized = true;
         
+        // Kiểm tra auth nếu được yêu cầu
+        if (this.options.checkAuthOnInit) {
+            this.checkAuthStatus();
+        }
+        
         if (this.options.autoShow) {
             this.show();
         }
@@ -29,15 +36,17 @@ class LoginPopup {
     
     createModal() {
         const modalHTML = `
-            <div class="modal fade login-popup-modal" id="loginPopupModal" tabindex="-1">
+            <div class="modal fade login-popup-modal ${this.options.forceLogin ? 'force-login' : ''}" id="loginPopupModal" tabindex="-1" 
+                 data-bs-backdrop="${this.options.forceLogin ? 'static' : 'true'}" 
+                 data-bs-keyboard="${this.options.forceLogin ? 'false' : 'true'}">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            ${!this.options.forceLogin ? '<button type="button" class="btn-close" data-bs-dismiss="modal"></button>' : ''}
                             <div class="w-100">
                                 <i class="fas fa-industry fa-2x mb-3"></i>
                                 <h5>Đăng nhập hệ thống</h5>
-                                <p>Vui lòng nhập thông tin đăng nhập</p>
+                                <p>${this.options.forceLogin ? 'Vui lòng đăng nhập để tiếp tục' : 'Vui lòng nhập thông tin đăng nhập'}</p>
                             </div>
                         </div>
                         <div class="modal-body">
@@ -88,16 +97,58 @@ class LoginPopup {
             </div>
         `;
         
-        // Thêm modal vào body nếu chưa có
-        if (!document.getElementById('loginPopupModal')) {
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        // Xóa modal cũ nếu đã tồn tại
+        const existingModal = document.getElementById('loginPopupModal');
+        if (existingModal) {
+            existingModal.remove();
         }
+        
+        // Thêm modal mới vào body
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
         
         // Thêm CSS styles
         this.addStyles();
         
-        // Khởi tạo Bootstrap modal
-        this.modal = new bootstrap.Modal(document.getElementById('loginPopupModal'));
+        // Khởi tạo Bootstrap modal với options
+        const modalElement = document.getElementById('loginPopupModal');
+        this.modal = new bootstrap.Modal(modalElement, {
+            backdrop: this.options.forceLogin ? 'static' : true,
+            keyboard: !this.options.forceLogin
+        });
+        
+        // Thêm event listener để ngăn chặn đóng modal khi forceLogin
+        if (this.options.forceLogin) {
+            this._preventHideHandler = (e) => {
+                e.preventDefault();
+                return false;
+            };
+            modalElement.addEventListener('hide.bs.modal', this._preventHideHandler);
+            
+            // Ngăn chặn ESC key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modalElement.classList.contains('show')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            });
+            
+            // Disable nút close nếu có
+            const closeBtn = modalElement.querySelector('.btn-close');
+            if (closeBtn) {
+                closeBtn.style.display = 'none';
+                closeBtn.disabled = true;
+            }
+            
+            // Ngăn chặn click outside
+            modalElement.addEventListener('click', (e) => {
+                if (e.target === modalElement) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            });
+        }
     }
     
     addStyles() {
@@ -123,6 +174,10 @@ class LoginPopup {
                 .login-popup-modal .modal-header .btn-close {
                     filter: invert(1);
                     opacity: 0.8;
+                }
+                
+                .login-popup-modal.force-login .btn-close {
+                    display: none !important;
                 }
                 
                 .login-popup-modal .modal-header h5 {
@@ -250,10 +305,8 @@ class LoginPopup {
                     this.options.onLoginSuccess(data);
                 }
                 
-                // Đóng modal sau 1 giây
-                setTimeout(() => {
-                    this.hide();
-                }, 1000);
+                // Đóng modal ngay lập tức
+                this.forceHide();
             } else {
                 // Login thất bại
                 this.showAlert(data.error || 'Đăng nhập thất bại!');
@@ -307,13 +360,44 @@ class LoginPopup {
     
     show() {
         if (this.modal) {
+            // Force update modal options
+            const modalElement = document.getElementById('loginPopupModal');
+            if (modalElement && this.options.forceLogin) {
+                // Đảm bảo backdrop và keyboard được set đúng
+                modalElement.setAttribute('data-bs-backdrop', 'static');
+                modalElement.setAttribute('data-bs-keyboard', 'false');
+            }
             this.modal.show();
         }
     }
     
     hide() {
         if (this.modal) {
+            // Force hide modal
+            this.forceHide();
+        }
+    }
+    
+    forceHide() {
+        if (this.modal) {
+            // Tạm thời disable force login để cho phép hide
+            const modalElement = document.getElementById('loginPopupModal');
+            if (modalElement && this.options.forceLogin) {
+                // Tạm thời remove force login restrictions
+                if (this._preventHideHandler) {
+                    modalElement.removeEventListener('hide.bs.modal', this._preventHideHandler);
+                }
+                modalElement.setAttribute('data-bs-backdrop', 'true');
+                modalElement.setAttribute('data-bs-keyboard', 'true');
+            }
+            
+            // Hide modal
             this.modal.hide();
+            
+            // Clear global instance
+            if (window.loginPopupInstance === this) {
+                window.loginPopupInstance = null;
+            }
         }
     }
     
@@ -333,14 +417,133 @@ class LoginPopup {
         }
         
         this.isInitialized = false;
+        
+        // Xóa global instance nếu đây là instance đó
+        if (window.loginPopupInstance === this) {
+            window.loginPopupInstance = null;
+        }
+    }
+    
+    /**
+     * Kiểm tra trạng thái đăng nhập
+     */
+    checkAuthStatus() {
+        const userSession = localStorage.getItem('user_session');
+        if (!userSession) {
+            // Chưa đăng nhập - hiển thị popup nếu forceLogin
+            if (this.options.forceLogin) {
+                this.show();
+            }
+            return false;
+        }
+        
+        try {
+            const sessionData = JSON.parse(userSession);
+            const now = Date.now();
+            
+            // Kiểm tra token có hết hạn chưa
+            if (sessionData.expiresAt && now > sessionData.expiresAt) {
+                // Token hết hạn - xóa session và hiển thị popup
+                localStorage.removeItem('user_session');
+                if (this.options.forceLogin) {
+                    this.show();
+                }
+                return false;
+            }
+            
+            // Đã đăng nhập hợp lệ
+            return true;
+        } catch (error) {
+            console.error('Error parsing user session:', error);
+            localStorage.removeItem('user_session');
+            if (this.options.forceLogin) {
+                this.show();
+            }
+            return false;
+        }
+    }
+    
+    /**
+     * Lấy thông tin user hiện tại
+     */
+    getCurrentUser() {
+        const userSession = localStorage.getItem('user_session');
+        if (!userSession) return null;
+        
+        try {
+            const sessionData = JSON.parse(userSession);
+            return sessionData.user || null;
+        } catch (error) {
+            console.error('Error parsing user session:', error);
+            return null;
+        }
+    }
+    
+    /**
+     * Đăng xuất
+     */
+    logout() {
+        localStorage.removeItem('user_session');
+        
+        if (this.options.onLogout) {
+            this.options.onLogout();
+        }
+        
+        // Hiển thị popup đăng nhập nếu forceLogin
+        if (this.options.forceLogin) {
+            this.show();
+        }
+    }
+    
+    /**
+     * Kiểm tra xem user đã đăng nhập chưa
+     */
+    isLoggedIn() {
+        return this.checkAuthStatus();
     }
 }
 
 // Global function để dễ sử dụng
 window.showLoginPopup = function(options = {}) {
+    // Kiểm tra xem đã có force login instance chưa
+    if (window.loginPopupInstance && window.loginPopupInstance.options.forceLogin) {
+        // Nếu đã có force login, chỉ show nó
+        if (!window.loginPopupInstance.modal._element.classList.contains('show')) {
+            window.loginPopupInstance.show();
+        }
+        return window.loginPopupInstance;
+    }
+    
+    // Tạo instance mới cho normal login
     const loginPopup = new LoginPopup(options);
     loginPopup.show();
     return loginPopup;
+};
+
+// Global function cho force login
+window.showForceLoginPopup = function(options = {}) {
+    // Kiểm tra xem đã có instance nào chưa
+    if (window.loginPopupInstance) {
+        // Nếu đã có instance, chỉ show nếu chưa hiển thị
+        if (!window.loginPopupInstance.modal._element.classList.contains('show')) {
+            window.loginPopupInstance.show();
+        }
+        return window.loginPopupInstance;
+    }
+    
+    // Tạo instance mới
+    window.loginPopupInstance = new LoginPopup({
+        ...options,
+        forceLogin: true,
+        checkAuthOnInit: true
+    });
+    return window.loginPopupInstance;
+};
+
+// Global function để kiểm tra auth
+window.checkAuth = function() {
+    const loginPopup = new LoginPopup({ forceLogin: true });
+    return loginPopup.isLoggedIn();
 };
 
 // Export cho module systems
