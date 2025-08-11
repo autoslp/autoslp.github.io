@@ -2137,6 +2137,197 @@ app.post('/data/run-custom-sql', (req, res) => {
   });
 });
 
+// ========== API QUẢN LÝ KÍP (SHIFT MANAGEMENT) ==========
+
+/**
+ * API: Ghi nhận kíp - tích hợp vào bàn giao
+ * Endpoint: POST /data/production_orders/:id/record_shift
+ * 
+ * Chức năng:
+ * - Ghi nhận thông tin kíp khi bàn giao
+ * - Tự động tính toán số lượng từ OK và NG
+ * - Cập nhật trạng thái kíp
+ * 
+ * Tham số:
+ * - orderId: ID của lệnh sản xuất
+ * - shift_number: Số thứ tự kíp
+ * - completed_quantity: Tổng số lượng hoàn thành (OK + NG)
+ * - good_quantity: Số lượng OK
+ * - defect_quantity: Số lượng NG
+ * - return_quantity: Số lượng trả
+ * - notes: Ghi chú kíp
+ * - end_time: Thời gian kết thúc kíp
+ */
+app.post('/data/production_orders/:id/record_shift', (req, res) => {
+  const orderId = req.params.id;
+  const { 
+    shift_number,
+    completed_quantity,
+    good_quantity,
+    defect_quantity,
+    return_quantity,
+    notes,
+    end_time
+  } = req.body;
+
+  // Validation
+  if (!shift_number || !completed_quantity || completed_quantity <= 0) {
+    return res.status(400).json({
+      error: 'Thiếu thông tin: shift_number, completed_quantity phải > 0'
+    });
+  }
+
+  if (good_quantity + defect_quantity !== completed_quantity) {
+    return res.status(400).json({
+      error: 'Tổng số lượng OK và NG phải bằng số lượng hoàn thành'
+    });
+  }
+
+  try {
+    // Bắt đầu transaction
+    db.beginTransaction((err) => {
+      if (err) {
+        return res.status(500).json({
+          error: 'Lỗi khởi tạo transaction: ' + err.message
+        });
+      }
+
+      // 1. Ghi nhận kíp vào bảng shifts (nếu có)
+      const insertShiftQuery = `
+        INSERT INTO production_order_shifts (
+          production_order_id, shift_number, completed_quantity,
+          good_quantity, defect_quantity, return_quantity,
+          notes, end_time, status, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'completed', NOW())
+        ON DUPLICATE KEY UPDATE
+          completed_quantity = VALUES(completed_quantity),
+          good_quantity = VALUES(good_quantity),
+          defect_quantity = VALUES(defect_quantity),
+          return_quantity = VALUES(return_quantity),
+          notes = VALUES(notes),
+          end_time = VALUES(end_time),
+          status = 'completed',
+          updated_at = NOW()
+      `;
+
+      db.query(insertShiftQuery, [
+        orderId, shift_number, completed_quantity,
+        good_quantity, defect_quantity, return_quantity,
+        notes, end_time
+      ], (err, shiftResult) => {
+        if (err) {
+          return db.rollback(() => {
+            console.error('❌ Lỗi ghi nhận kíp:', err);
+            res.status(500).json({
+              error: 'Lỗi ghi nhận kíp',
+              details: err.message
+            });
+          });
+        }
+
+        // 2. Cập nhật tổng số lượng đã hoàn thành trong production_orders
+        const updateOrderQuery = `
+          UPDATE production_orders 
+          SET 
+            xen_completed_quantity = COALESCE(xen_completed_quantity, 0) + ?,
+            xen_good_quantity = COALESCE(xen_good_quantity, 0) + ?,
+            xen_ng_quantity = COALESCE(xen_ng_quantity, 0) + ?,
+            xen_return_quantity = COALESCE(xen_return_quantity, 0) + ?,
+            updated_at = CURRENT_TIMESTAMP
+          WHERE id = ?
+        `;
+
+        db.query(updateOrderQuery, [
+          completed_quantity, good_quantity, defect_quantity, return_quantity, orderId
+        ], (err, orderResult) => {
+          if (err) {
+            return db.rollback(() => {
+              console.error('❌ Lỗi cập nhật production_orders:', err);
+              res.status(500).json({
+                error: 'Lỗi cập nhật production_orders',
+                details: err.message
+              });
+            });
+          }
+
+          // Commit transaction
+          db.commit((err) => {
+            if (err) {
+              return db.rollback(() => {
+                console.error('❌ Lỗi commit transaction:', err);
+                res.status(500).json({
+                  error: 'Lỗi commit transaction: ' + err.message
+                });
+              });
+            }
+
+            console.log(`✅ Đã ghi nhận kíp ${shift_number} cho order ${orderId}`);
+            
+            res.json({
+              success: true,
+              message: `Đã ghi nhận kíp ${shift_number} thành công`,
+              order_id: orderId,
+              shift_number: shift_number,
+              shift_data: {
+                completed_quantity: completed_quantity,
+                good_quantity: good_quantity,
+                defect_quantity: defect_quantity,
+                return_quantity: return_quantity,
+                notes: notes,
+                end_time: end_time
+              },
+              affected_rows: {
+                shifts: shiftResult.affectedRows,
+                production_orders: orderResult.affectedRows
+              }
+            });
+          });
+        });
+      });
+    });
+
+  } catch (error) {
+    console.error('❌ Lỗi ghi nhận kíp:', error);
+    res.status(500).json({
+      error: 'Lỗi ghi nhận kíp',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * API: Lấy thông tin kíp của một lệnh sản xuất
+ * Endpoint: GET /data/production_orders/:id/shifts
+ */
+app.get('/data/production_orders/:id/shifts', (req, res) => {
+  const orderId = req.params.id;
+
+  const query = `
+    SELECT 
+      id, shift_number, completed_quantity, good_quantity, defect_quantity,
+      return_quantity, notes, start_time, end_time, status, created_at
+    FROM production_order_shifts 
+    WHERE production_order_id = ?
+    ORDER BY shift_number ASC
+  `;
+
+  db.query(query, [orderId], (err, results) => {
+    if (err) {
+      console.error('❌ Lỗi lấy thông tin kíp:', err);
+      return res.status(500).json({
+        error: 'Lỗi lấy thông tin kíp',
+        details: err.message
+      });
+    }
+
+    res.json({
+      order_id: orderId,
+      total_shifts: results.length,
+      shifts: results
+    });
+  });
+});
+
 // API để kiểm tra chi tiết kiểu dữ liệu
 app.get('/data/check-column-types', (req, res) => {
   const query = `

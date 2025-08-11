@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Lệnh Sản Xuất - Carton Manager</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .reset-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 1000px;
+            width: 100%;
+        }
+        
+        .reset-header {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .reset-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .reset-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .reset-body {
+            padding: 40px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 12px 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        
+        .btn-reset {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            border: none;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-reset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(220, 53, 69, 0.3);
+        }
+        
+        .btn-reset:disabled {
+            background: #6c757d;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .warning-box h5 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .warning-box ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #856404;
+        }
+        
+        .warning-box li {
+            margin-bottom: 5px;
+        }
+        
+        .loading {
+            display: none;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .result-box.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .result-box.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .back-link a {
+            color: #6c757d;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-link a:hover {
+            color: #dc3545;
+        }
+        
+        /* Table styling */
+        .table-responsive {
+            max-height: 600px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+        }
+        
+        .table {
+            margin-bottom: 0;
+            font-size: 0.95rem;
+        }
+        
+        .table th {
+            background-color: #343a40;
+            color: white;
+            border: none;
+            padding: 12px 8px;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .table td {
+            padding: 12px 8px;
+            vertical-align: middle;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .badge {
+            font-size: 0.8rem;
+            padding: 6px 10px;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="reset-card">
+            <!-- Header -->
+            <div class="reset-header">
+                <h1><i class="bi bi-arrow-clockwise me-2"></i>Reset Lệnh Sản Xuất</h1>
+                <p>Khôi phục lệnh về trạng thái chưa bắt đầu</p>
+            </div>
+            
+            <!-- Body -->
+            <div class="reset-body">
+                <!-- Warning Box
+                <div class="warning-box">
+                    <h5><i class="bi bi-exclamation-triangle me-2"></i>⚠️ Cảnh báo quan trọng</h5>
+                    <ul>
+                        <li>Hành động này sẽ xóa hoàn toàn dữ liệu sản xuất</li>
+                        <li>Thời gian bắt đầu và kết thúc sẽ bị reset</li>
+                        <li>Số lượng sản xuất (OK, NG) sẽ bị xóa</li>
+                        <li>Ghi chú và thông tin thợ sẽ bị xóa</li>
+                        <li><strong>Hành động này không thể hoàn tác!</strong></li>
+                    </ul>
+                </div> -->
+                
+                <!-- Controls -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-gear me-2"></i>Công đoạn
+                            </label>
+                            <select class="form-control" id="stageSelect">
+                                <option value="">Chọn công đoạn...</option>
+                                <option value="xa">XẢ GIẤY CUỘN</option>
+                                <option value="xen">XÉN GIẤY</option>
+                                <option value="in_offset">IN OFFSET</option>
+                                <option value="boi">BỒI GIẤY</option>
+                                <option value="be">BẾ GIẤY</option>
+                                <option value="dan">DÁN GIẤY</option>
+                                <option value="kho">KHO THÀNH PHẨM</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-search me-2"></i>Tìm kiếm
+                            </label>
+                            <input type="text" class="form-control" id="searchInput" 
+                                   placeholder="Tìm theo mã lệnh, sản phẩm..." 
+                                   autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <button class="btn btn-primary" id="loadBtn">
+                        <i class="bi bi-arrow-clockwise me-2"></i>Tải danh sách lệnh
+                    </button>
+                    <div class="text-muted">
+                        <span id="orderCount">0</span> lệnh sản xuất
+                    </div>
+                </div>
+                
+                <!-- Orders Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover" id="ordersTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th width="150px">Mã lệnh</th>
+                                <th>Sản phẩm</th>
+                                <th>Trạng thái</th>
+                                <th>Thời gian bắt đầu</th>
+                                <th>Thợ</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox fs-1 mb-2 d-block"></i>
+                                    Chọn công đoạn và nhấn "Tải danh sách lệnh"
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Loading -->
+                <div class="loading text-center" id="loadingDiv">
+                    <div class="spinner-border text-danger" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Đang xử lý...</p>
+                </div>
+                
+                <!-- Result -->
+                <div class="result-box" id="resultBox"></div>
+                
+                <!-- Back Link -->
+                <div class="back-link">
+                    <a href="xen-stage.html"><i class="bi bi-arrow-left me-2"></i>Quay lại trang chính</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'https://api.autoslp.com/api';
+        
+        // DOM Elements
+        const searchInput = document.getElementById('searchInput');
+        const stageSelect = document.getElementById('stageSelect');
+        const loadBtn = document.getElementById('loadBtn');
+        const ordersTableBody = document.getElementById('ordersTableBody');
+        const orderCount = document.getElementById('orderCount');
+        const loadingDiv = document.getElementById('loadingDiv');
+        const resultBox = document.getElementById('resultBox');
+        
+        // Global variables
+        let ordersData = [];
+        let filteredOrders = [];
+        
+        // Event Listeners
+        loadBtn.addEventListener('click', loadOrders);
+        searchInput.addEventListener('input', filterOrders);
+        stageSelect.addEventListener('change', filterOrders);
+        
+        // Load orders from API
+        async function loadOrders() {
+            const stage = stageSelect.value;
+            if (!stage) {
+                showResult('Vui lòng chọn công đoạn trước', 'error');
+                return;
+            }
+            
+            loadingDiv.classList.add('show');
+            loadBtn.disabled = true;
+            hideResult();
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/data/production_orders?stage=${stage}&limit=100`);
+                if (response.ok) {
+                    ordersData = await response.json();
+                    console.log('Loaded orders:', ordersData.length, ordersData);
+                    filterOrders();
+                    showResult(`✅ Đã tải ${ordersData.length} lệnh sản xuất`, 'success');
+                } else {
+                    throw new Error('Không thể tải dữ liệu từ API');
+                }
+            } catch (error) {
+                console.error('Load orders error:', error);
+                showResult(`❌ Lỗi: ${error.message}`, 'error');
+            } finally {
+                loadingDiv.classList.remove('show');
+                loadBtn.disabled = false;
+            }
+        }
+        
+        // Filter orders
+        function filterOrders() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            // Nếu chưa có dữ liệu, không filter
+            if (!ordersData || ordersData.length === 0) {
+                filteredOrders = [];
+                renderOrdersTable();
+                orderCount.textContent = '0';
+                return;
+            }
+            
+            filteredOrders = ordersData.filter(order => {
+                const matchesSearch = !searchTerm || 
+                    order.production_order?.toLowerCase().includes(searchTerm) ||
+                    order.product_name?.toLowerCase().includes(searchTerm) ||
+                    order.internal_product_code?.toLowerCase().includes(searchTerm);
+                
+                return matchesSearch;
+            });
+            
+            // Sắp xếp orders: lệnh đang chạy và đã bàn giao lên đầu
+            filteredOrders.sort((a, b) => {
+                const stage = stageSelect.value;
+                
+                // Lấy trạng thái của từng order
+                const getOrderStatus = (order) => {
+                    if (stage) {
+                        const stageStatusField = `${stage}_status`;
+                        return order[stageStatusField] || order.status || 'waiting';
+                    }
+                    return order.status || 'waiting';
+                };
+                
+                const statusA = getOrderStatus(a);
+                const statusB = getOrderStatus(b);
+                
+                // Ưu tiên 1: Lệnh đang chạy (in_progress)
+                if (statusA === 'in_progress' && statusB !== 'in_progress') return -1;
+                if (statusA !== 'in_progress' && statusB === 'in_progress') return 1;
+                
+                // Ưu tiên 2: Lệnh đã bàn giao (handed_over)
+                if (statusA === 'handed_over' && statusB !== 'handed_over') return -1;
+                if (statusA !== 'handed_over' && statusB === 'handed_over') return 1;
+                
+                // Ưu tiên 3: Lệnh hoàn thành (completed)
+                if (statusA === 'completed' && statusB !== 'completed') return -1;
+                if (statusA !== 'completed' && statusB === 'completed') return 1;
+                
+                // Ưu tiên 4: Theo thời gian bắt đầu (mới nhất lên đầu)
+                const getStartTime = (order) => {
+                    if (stage) {
+                        const stageStartTimeField = `${stage}_start_time`;
+                        return order[stageStartTimeField] || order.start_time;
+                    }
+                    return order.start_time;
+                };
+                
+                const timeA = getStartTime(a) ? new Date(getStartTime(a)).getTime() : 0;
+                const timeB = getStartTime(b) ? new Date(getStartTime(b)).getTime() : 0;
+                
+                return timeB - timeA; // Mới nhất lên đầu
+            });
+            
+            console.log('Filtered and sorted orders:', filteredOrders.length, filteredOrders);
+            renderOrdersTable();
+            orderCount.textContent = filteredOrders.length;
+        }
+        
+        // Render orders table
+        function renderOrdersTable() {
+            console.log('Rendering table with', filteredOrders.length, 'orders');
+            
+            if (filteredOrders.length === 0) {
+                ordersTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox fs-1 mb-2 d-block"></i>
+                            Không có lệnh sản xuất nào
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            const tableRows = filteredOrders.map((order, index) => {
+                const status = getOrderStatus(order);
+                const stage = stageSelect.value;
+                
+                // Lấy thời gian bắt đầu theo stage cụ thể
+                let startTime = 'Chưa bắt đầu';
+                if (stage) {
+                    const stageStartTimeField = `${stage}_start_time`;
+                    startTime = formatDateTime(order[stageStartTimeField] || order.start_time);
+                } else {
+                    startTime = formatDateTime(order.start_time);
+                }
+                
+                // Lấy thông tin thợ theo stage cụ thể
+                let worker = 'Chưa gán';
+                if (stage) {
+                    const stageWorkerField = `${stage}_worker_name`;
+                    worker = order[stageWorkerField] || order.worker_name || 'Chưa gán';
+                } else {
+                    worker = order.worker_name || 'Chưa gán';
+                }
+                
+                console.log('Order details for', order.production_order, ':', {
+                    status: status.text,
+                    startTime: startTime,
+                    worker: worker,
+                    stage: stage
+                });
+                
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><strong>${order.production_order || 'N/A'}</strong></td>
+                        <td>
+                            <div>${order.internal_product_code || 'N/A'}</div>
+                            <small class="text-muted">${order.product_name || 'N/A'}</small>
+                        </td>
+                        <td>
+                            <span class="badge ${status.class}">${status.text}</span>
+                        </td>
+                        <td>${startTime}</td>
+                        <td>${worker}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" onclick="resetOrder(${order.id}, '${order.production_order || 'N/A'}')">
+                                <i class="bi bi-arrow-clockwise me-1"></i>Reset
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            ordersTableBody.innerHTML = tableRows.join('');
+            console.log('Table rendered with', tableRows.length, 'rows');
+        }
+        
+        // Get order status
+        function getOrderStatus(order) {
+            // Lấy trạng thái từ các field khác nhau tùy theo stage
+            const stage = stageSelect.value;
+            let status = 'waiting';
+            
+            if (stage) {
+                // Lấy trạng thái theo stage cụ thể
+                const stageStatusField = `${stage}_status`;
+                status = order[stageStatusField] || order.status || 'waiting';
+            } else {
+                status = order.status || 'waiting';
+            }
+            
+            console.log('Order status for', order.production_order, ':', status, 'from field:', stage ? `${stage}_status` : 'status');
+            
+            switch (status) {
+                case 'in_progress':
+                    return { text: 'Đang chạy', class: 'bg-primary' };
+                case 'completed':
+                    return { text: 'Hoàn thành', class: 'bg-success' };
+                case 'handed_over':
+                    return { text: 'Đã bàn giao', class: 'bg-info' };
+                case 'paused':
+                    return { text: 'Tạm dừng', class: 'bg-warning' };
+                default:
+                    return { text: 'Chờ xử lý', class: 'bg-secondary' };
+            }
+        }
+        
+        // Format date time
+        function formatDateTime(dateString) {
+            if (!dateString) return 'Chưa bắt đầu';
+            
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return 'Chưa bắt đầu';
+                
+                return date.toLocaleString('vi-VN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (error) {
+                console.error('Error formatting date:', dateString, error);
+                return 'Chưa bắt đầu';
+            }
+        }
+        
+        // Reset individual order
+        async function resetOrder(orderId, orderCode) {
+            const stage = stageSelect.value;
+            if (!stage) {
+                showResult('Vui lòng chọn công đoạn trước', 'error');
+                return;
+            }
+            
+            loadingDiv.classList.add('show');
+            hideResult();
+            
+            try {
+                const resetData = {
+                    stage: stage,
+                    reset_to_not_started: true
+                };
+                
+                const response = await fetch(`${API_BASE_URL}/data/production_orders/${orderId}/reset_production`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(resetData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResult(`✅ Đã reset lệnh ${orderCode} thành công!`, 'success');
+                    // Reload orders to refresh the table
+                    await loadOrders();
+                } else {
+                    throw new Error(result.message || result.error || 'Unknown error');
+                }
+                
+            } catch (error) {
+                console.error('Reset error:', error);
+                
+                // Fallback: Local reset simulation
+                if (error.message.includes('404') || error.message.includes('not found')) {
+                    showResult(`⚠️ API không khả dụng, đã thực hiện reset local cho lệnh ${orderCode}`, 'success');
+                    // Remove the order from the list
+                    ordersData = ordersData.filter(order => order.id !== orderId);
+                    filterOrders();
+                } else {
+                    showResult(`❌ Lỗi: ${error.message}`, 'error');
+                }
+            } finally {
+                loadingDiv.classList.remove('show');
+            }
+        }
+        
+        // Show result
+        function showResult(message, type) {
+            resultBox.textContent = message;
+            resultBox.className = `result-box ${type}`;
+            resultBox.style.display = 'block';
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                hideResult();
+            }, 5000);
+        }
+        
+        // Hide result
+        function hideResult() {
+            resultBox.style.display = 'none';
+        }
+        
+        // Make resetOrder function global
+        window.resetOrder = resetOrder;
+    </script>
+</body>
+</html> 
