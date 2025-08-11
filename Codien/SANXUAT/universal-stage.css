@@ -1873,6 +1873,16 @@ body {
       transform: translateY(-1px);
   }
 
+  .details-panel .btn-info-custom {
+      background: #17a2b8;
+      color: white;
+  }
+
+  .details-panel .btn-info-custom:hover {
+      background: #138496;
+      transform: translateY(-1px);
+  }
+
   .details-panel .status-badge {
       display: inline-flex;
       align-items: center;
@@ -1922,4 +1932,78 @@ body {
   .details-panel .tab-content::-webkit-scrollbar-thumb {
       background: var(--primary-purple);
       border-radius: 2px;
+  }
+
+  /* Shifts Tab Styles */
+  .shifts-header {
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 1rem;
+  }
+
+  .shifts-summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+  }
+
+  .shifts-list {
+      max-height: 400px;
+      overflow-y: auto;
+  }
+
+  .shift-item {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6 !important;
+      transition: all 0.2s ease;
+  }
+
+  .shift-item:hover {
+      background: #e9ecef;
+      border-color: #adb5bd !important;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .shift-item h6 {
+      color: #495057;
+      font-weight: 600;
+  }
+
+  .current-shift-info {
+      background: linear-gradient(135deg, #e3f2fd, #f3e5f5) !important;
+      border: 1px solid #bbdefb;
+  }
+
+  .current-shift-info h6 {
+      color: #1976d2;
+      font-weight: 600;
+  }
+
+  .shift-item .badge {
+      font-size: 0.75rem;
+  }
+
+  .shift-item small {
+      font-size: 0.8rem;
+  }
+
+  .shift-item strong {
+      font-weight: 600;
+  }
+
+  /* Responsive adjustments for shifts tab */
+  @media (max-width: 768px) {
+      .shifts-summary {
+          flex-direction: column;
+          gap: 0.25rem;
+      }
+      
+      .shift-item .row {
+          margin: 0;
+      }
+      
+      .shift-item .col-3,
+      .shift-item .col-6 {
+          padding: 0.25rem;
+      }
   }
