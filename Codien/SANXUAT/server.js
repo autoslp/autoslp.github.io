@@ -67,6 +67,66 @@ app.get('/data/user', (req, res) => {
   });
 });
 
+// Login API
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Vui lòng nhập tên đăng nhập và mật khẩu' });
+  }
+  
+  const query = 'SELECT * FROM user WHERE ma_nhan_vien = ? AND mat_khau = ?';
+  db.query(query, [username, password], (err, results) => {
+    if (err) {
+      console.error('Login error:', err);
+      return res.status(500).json({ error: 'Lỗi server' });
+    }
+    
+    if (results.length === 0) {
+      return res.status(401).json({ error: 'Tên đăng nhập hoặc mật khẩu không đúng' });
+    }
+    
+    const user = results[0];
+    
+    // Tạo session data
+    const sessionData = {
+      user_id: user.ma_nhan_vien,
+      username: user.ma_nhan_vien,
+      full_name: user.ten_nhan_vien,
+      manager: user.nguoi_quan_ly,
+      department: user.bo_phan,
+      role: user.chuc_vu,
+      login_time: new Date().toISOString(),
+      expires_at: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString() // 8 giờ
+    };
+    
+    res.json(sessionData);
+  });
+});
+
+// Check session API
+app.get('/check-session', (req, res) => {
+  const sessionData = req.headers['x-session-data'];
+  
+  if (!sessionData) {
+    return res.status(401).json({ error: 'Không có session' });
+  }
+  
+  try {
+    const session = JSON.parse(sessionData);
+    const now = new Date();
+    const expiresAt = new Date(session.expires_at);
+    
+    if (now > expiresAt) {
+      return res.status(401).json({ error: 'Session đã hết hạn' });
+    }
+    
+    res.json({ valid: true, user: session });
+  } catch (error) {
+    res.status(401).json({ error: 'Session không hợp lệ' });
+  }
+});
+
 app.get('/data/congviec', (req, res) => {
   db.query('SELECT * FROM bao_tri_su_co', (err, results) => {
     if (err) return res.status(500).send('? L?i truy v?n b?ng bao_tri_su_co');
@@ -298,7 +358,7 @@ app.get('/data/machine_system_settings/:key', (req, res) => {
 
 // �?nh nghia c�c c?t co b?n lu�n c?n cho t?t c? c�ng do?n
 const BASE_COLUMNS = [
-  'id', 'production_order', 'po_number', 'customer_name', 'product_name',
+  'id', 'production_order', 'po_number', 'customer_name', 'product_name','assigned_machine',
   'order_quantity', 'deployed_quantity', 'required_quantity','internal_product_code','workflow_definition',
   'work_stage', 'status', 'deployment_date', 'created_at', 'updated_at','sheet_count','paper_length','paper_width','paper_type','paper_weight','part_count','color_count','blank_count','order_type'
 ];
@@ -307,9 +367,9 @@ const BASE_COLUMNS = [
 const STAGE_COLUMNS = {
   'xa': [
     'xa_input_quantity', 'xa_output_quantity', 'xa_good_quantity', 'xa_ng_quantity',
-    'xa_status', 'xa_start_time', 'xa_end_time', 'xa_worker_name', 'xa_note',
-    'xen_input_quantity', 'xen_output_quantity', 'xen_good_quantity', 'xen_ng_quantity',
-    'xen_status', 'xen_start_time', 'xen_end_time', 'xen_worker_name', 'xen_note'
+    'xa_status', 'xa_start_time', 'xa_end_time', 'xa_worker_name', 'xa_note','xa_shift',
+    'xen_input_quantity', 'xen_output_quantity', 'xen_good_quantity', 'xen_ng_quantity', 'xa_handover_quantity',
+    'xen_status', 'xen_start_time', 'xen_end_time', 'xen_worker_name', 'xen_note','xa_machine_name'
   ],
   'xen': [
     'xen_input_quantity', 'xen_output_quantity', 'xen_good_quantity', 'xen_ng_quantity',
@@ -503,8 +563,10 @@ app.get('/data/production_orders', (req, res) => {
   
   // B? l?c theo workflow_definition n?u c� stage parameter
   if (req.query.stage) {
-    query += ' AND (workflow_definition LIKE ? OR workflow_definition IS NULL)';
-    params.push(`%${req.query.stage}%`);
+    // Kiểm tra workflow_definition có chứa stage hiện tại
+    // Sử dụng FIND_IN_SET để tìm chính xác stage trong danh sách workflow
+    query += ' AND (FIND_IN_SET(?, workflow_definition) > 0 OR workflow_definition IS NULL)';
+    params.push(req.query.stage);
   }
   
   // B? l?c theo ng�y tri?n khai
@@ -513,7 +575,19 @@ app.get('/data/production_orders', (req, res) => {
     params.push(req.query.deployment_date);
   }
   
-  // B? l?c theo tr?ng th�i
+  // B? l?c theo kho?ng ngày tri?n khai
+  if (req.query.from_date && req.query.to_date) {
+    query += ' AND deployment_date BETWEEN ? AND ?';
+    params.push(req.query.from_date, req.query.to_date);
+  } else if (req.query.from_date) {
+    query += ' AND deployment_date >= ?';
+    params.push(req.query.from_date);
+  } else if (req.query.to_date) {
+    query += ' AND deployment_date <= ?';
+    params.push(req.query.to_date);
+  }
+  
+  // B? l?c theo tr?ng thi
   if (req.query.status) {
     query += ' AND status = ?';
     params.push(req.query.status);
@@ -1762,126 +1836,130 @@ app.get('/api/production_orders/:id/stages', (req, res) => {
 app.post('/data/production_orders/:id/start_production', (req, res) => {
   const orderId = req.params.id;
   const { 
-    stage = 'xa',           // Mặc định là công đoạn XẢ
+    stage = '',           // Mặc định là công đoạn XẢ
+    production_order = '',  // Mã lệnh sản xuất
     worker_name = '',       // Tên thợ sản xuất
     machine_name = '',      // Tên máy sản xuất
     shift = '',             // Ca làm việc
     notes = ''              // Ghi chú
   } = req.body;
 
-  // DEBUG: Log tất cả dữ liệu đầu vào
-  console.log('🔍 DEBUG start_production - Dữ liệu đầu vào:');
-  console.log('  orderId:', orderId, 'type:', typeof orderId);
-  console.log('  req.body:', JSON.stringify(req.body, null, 2));
-  console.log('  stage:', stage, 'type:', typeof stage);
-  console.log('  worker_name:', worker_name, 'type:', typeof worker_name);
-  console.log('  machine_name:', machine_name, 'type:', typeof machine_name);
-  console.log('  shift:', shift, 'type:', typeof shift);
-  console.log('  notes:', notes, 'type:', typeof notes);
-
-  // Kiểm tra thông tin bắt buộc
-  if (!orderId) {
-    return res.status(400).json({ 
-      error: 'Thiếu thông tin: orderId' 
-    });
-  }
-
-  // Tạo câu lệnh SQL để cập nhật thời gian bắt đầu
-  const updateQuery = `
-    UPDATE production_orders 
-    SET 
-      ${stage}_start_time = NOW(),                    -- Cập nhật thời gian bắt đầu = thời gian hiện tại
-      ${stage}_status = 'in_progress',                -- Cập nhật trạng thái = đang sản xuất
-      ${stage}_worker_name = ?,                       -- Ghi lại tên thợ
-      ${stage}_machine_name = ?,                      -- Ghi lại tên máy
-      production_shift = ?,                           -- Cập nhật ca làm việc
-      ${stage}_note = ?,                              -- Ghi lại ghi chú
-      updated_at = CURRENT_TIMESTAMP                  -- Cập nhật thời gian chỉnh sửa
-    WHERE id = ?
-  `;
-
-  const queryParams = [
-    worker_name,      // Tham số 1: tên thợ
-    machine_name,     // Tham số 2: tên máy
-    shift,           // Tham số 3: ca làm việc
-    notes,           // Tham số 4: ghi chú
-    orderId          // Tham số 5: ID lệnh sản xuất
-  ];
-
-  // DEBUG: Log câu lệnh SQL và tham số
-  console.log('🔍 DEBUG start_production - SQL Query:');
-  console.log('  Query:', updateQuery);
-  console.log('  Parameters:', JSON.stringify(queryParams, null, 2));
-  console.log('  Parameter types:', queryParams.map(p => typeof p));
-  
-  // DEBUG: Kiểm tra dữ liệu trước khi update
-  const beforeQuery = `SELECT id, ${stage}_start_time, ${stage}_status, ${stage}_worker_name, ${stage}_machine_name, production_shift, ${stage}_note FROM production_orders WHERE id = ?`;
-  db.query(beforeQuery, [orderId], (beforeErr, beforeResult) => {
-    if (beforeErr) {
-      console.error('❌ Lỗi kiểm tra dữ liệu trước update:', beforeErr);
-    } else {
-      console.log('🔍 DEBUG start_production - Data before update:');
-      console.log('  Before result:', JSON.stringify(beforeResult[0], null, 2));
-    }
-  });
-
-  // Thực hiện câu lệnh SQL
-  db.query(updateQuery, queryParams, (err, result) => {
+  // Bắt đầu transaction để đảm bảo tính nhất quán dữ liệu
+  db.beginTransaction((err) => {
     if (err) {
-      console.error('❌ Lỗi cập nhật thời gian bắt đầu:', err);
-      console.error('🔍 DEBUG - Chi tiết lỗi:');
-      console.error('  Error code:', err.code);
-      console.error('  Error number:', err.errno);
-      console.error('  SQL state:', err.sqlState);
-      console.error('  SQL message:', err.sqlMessage);
       return res.status(500).json({ 
-        error: 'Lỗi cập nhật thời gian bắt đầu', 
-        details: err.message,
-        debug_info: {
-          code: err.code,
-          errno: err.errno,
-          sqlState: err.sqlState,
-          sqlMessage: err.sqlMessage
-        }
+        error: 'Lỗi khởi tạo transaction: ' + err.message 
       });
     }
 
-    // DEBUG: Log kết quả query
-    console.log('🔍 DEBUG start_production - Query Result:');
-    console.log('  affectedRows:', result.affectedRows);
-    console.log('  insertId:', result.insertId);
-    console.log('  message:', result.message);
+    // 1. Cập nhật bảng production_orders
+    const updateOrderQuery = `
+      UPDATE production_orders 
+      SET 
+        ${stage}_start_time = NOW(),                    -- Cập nhật thời gian bắt đầu = thời gian hiện tại
+        ${stage}_status = 'in_progress',                -- Cập nhật trạng thái = đang sản xuất
+        ${stage}_worker_name = ?,                       -- Ghi lại tên thợ
+        ${stage}_machine_name = ?,                      -- Ghi lại tên máy
+        ${stage}_shift = ?,                           -- Cập nhật ca làm việc
+        ${stage}_note = ?,                              -- Ghi lại ghi chú
+        updated_at = CURRENT_TIMESTAMP                  -- Cập nhật thời gian chỉnh sửa
+      WHERE id = ?
+    `;
 
-    // Kiểm tra xem có cập nhật được dòng nào không
-    if (result.affectedRows === 0) {
-      console.log('⚠️ WARNING: No rows affected - Order ID might not exist');
-      return res.status(404).json({ 
-        error: 'Không tìm thấy lệnh sản xuất với ID: ' + orderId 
-      });
-    }
+    const orderQueryParams = [
+      worker_name,      // Tham số 1: tên thợ
+      machine_name,     // Tham số 2: tên máy
+      shift,           // Tham số 3: ca làm việc
+      notes,           // Tham số 4: ghi chú
+      orderId          // Tham số 5: ID lệnh sản xuất
+    ];
 
-    // DEBUG: Kiểm tra dữ liệu sau khi update
-    const checkQuery = `SELECT id, ${stage}_start_time, ${stage}_status, ${stage}_worker_name, ${stage}_machine_name, production_shift, ${stage}_note FROM production_orders WHERE id = ?`;
-    db.query(checkQuery, [orderId], (checkErr, checkResult) => {
-      if (checkErr) {
-        console.error('❌ Lỗi kiểm tra dữ liệu sau update:', checkErr);
-      } else {
-        console.log('🔍 DEBUG start_production - Data after update:');
-        console.log('  Check result:', JSON.stringify(checkResult[0], null, 2));
+    // 2. Cập nhật bảng production_machines
+    const updateMachineQuery = `
+      UPDATE production_machines 
+      SET 
+        current_order_id = ?,                           -- Cập nhật ID lệnh sản xuất hiện tại
+        current_order_code = ?                          -- Cập nhật mã lệnh sản xuất hiện tại
+      WHERE machine_name = ?
+    `;
+
+    const machineQueryParams = [
+      orderId,          // Tham số 1: ID lệnh sản xuất
+      production_order, // Tham số 2: Mã lệnh sản xuất
+      machine_name      // Tham số 3: Tên máy
+    ];
+
+    // Thực hiện cập nhật bảng production_orders trước
+    db.query(updateOrderQuery, orderQueryParams, (err, orderResult) => {
+      if (err) {
+        return db.rollback(() => {
+          res.status(500).json({ 
+            error: 'Lỗi cập nhật production_orders', 
+            details: err.message,
+            debug_info: {
+              code: err.code,
+              errno: err.errno,
+              sqlState: err.sqlState,
+              sqlMessage: err.sqlMessage
+            }
+          });
+        });
       }
-    });
 
-    // Trả về kết quả thành công
-    res.json({
-      success: true,
-      message: `Đã bắt đầu sản xuất công đoạn ${stage.toUpperCase()}`,
-      order_id: orderId,
-      stage: stage,
-      start_time: new Date().toISOString(),
-      worker_name: worker_name,
-      machine_name: machine_name,
-      shift: shift,
-      affected_rows: result.affectedRows
+      // Kiểm tra xem có cập nhật được dòng nào không
+      if (orderResult.affectedRows === 0) {
+        return db.rollback(() => {
+          res.status(404).json({ 
+            error: 'Không tìm thấy lệnh sản xuất với ID: ' + orderId 
+          });
+        });
+      }
+
+      // Thực hiện cập nhật bảng production_machines
+      db.query(updateMachineQuery, machineQueryParams, (err, machineResult) => {
+        if (err) {
+          return db.rollback(() => {
+            res.status(500).json({ 
+              error: 'Lỗi cập nhật production_machines', 
+              details: err.message,
+              debug_info: {
+                code: err.code,
+                errno: err.errno,
+                sqlState: err.sqlState,
+                sqlMessage: err.sqlMessage
+              }
+            });
+          });
+        }
+
+        // Commit transaction nếu tất cả thành công
+        db.commit((err) => {
+          if (err) {
+            return db.rollback(() => {
+              res.status(500).json({ 
+                error: 'Lỗi commit transaction: ' + err.message 
+              });
+            });
+          }
+
+          // Trả về kết quả thành công
+          res.json({
+            success: true,
+            message: `Đã bắt đầu sản xuất công đoạn ${stage.toUpperCase()}`,
+            order_id: orderId,
+            production_order: production_order,
+            stage: stage,
+            start_time: new Date().toISOString(),
+            worker_name: worker_name,
+            machine_name: machine_name,
+            shift: shift,
+            affected_rows: {
+              production_orders: orderResult.affectedRows,
+              production_machines: machineResult.affectedRows
+            }
+          });
+        });
+      });
     });
   });
 });
@@ -1904,83 +1982,355 @@ app.post('/data/production_orders/:id/start_production', (req, res) => {
  * - return_quantity: Hàng trả
  * - notes: Ghi chú
  */
+// API endpoint để kết thúc sản xuất
 app.post('/data/production_orders/:id/end_production', (req, res) => {
   const orderId = req.params.id;
   const { 
-    stage = 'xa',                    // Mặc định là công đoạn XẢ
-    good_quantity = 0,               // Số lượng đạt (OK)
-    ng_quantity = 0,                 // Số lượng NG
-    ng_start_end_quantity = 0,       // NG đầu/cuối
-    return_quantity = 0,             // Hàng trả
-    notes = ''                       // Ghi chú
+    stage = '',           // Mặc định là công đoạn XẢ
+    production_order = '',  // Mã lệnh sản xuất
+    worker_name = '',       // Tên thợ sản xuất
+    machine_name = '',      // Tên máy sản xuất
+    shift = '',             // Ca làm việc
+    notes = '',             // Ghi chú
+    good_quantity = '',      // Số lượng OK
+    ng_quantity = '',        // Số lượng NG
+    handover_quantity = ''   // Số lượng bàn giao
   } = req.body;
 
-  // Kiểm tra thông tin bắt buộc
-  if (!orderId) {
+  // Bắt đầu transaction để đảm bảo tính nhất quán dữ liệu
+  db.beginTransaction((err) => {
+    if (err) {
+      return res.status(500).json({ 
+        error: 'Lỗi khởi tạo transaction: ' + err.message 
+      });
+    }
+
+    // 1. Cập nhật bảng production_orders
+    const updateOrderQuery = `
+      UPDATE production_orders 
+      SET 
+        ${stage}_end_time = NOW(),                      -- Cập nhật thời gian kết thúc = thời gian hiện tại
+        ${stage}_status = 'completed',                  -- Cập nhật trạng thái = hoàn thành
+        ${stage}_worker_name = ?,                       -- Ghi lại tên thợ
+        ${stage}_machine_name = ?,                      -- Ghi lại tên máy
+        ${stage}_shift = ?,                           -- Cập nhật ca làm việc
+        ${stage}_note = ?,                              -- Ghi lại ghi chú
+        ${stage}_good_quantity = ?,                     -- Số lượng OK
+        ${stage}_ng_quantity = ?,                       -- Số lượng NG
+        ${stage}_output_quantity = ?,                   -- Tổng số lượng sản xuất (OK + NG)
+        ${stage}_handover_quantity = ?,                 -- Số lượng bàn giao
+        updated_at = CURRENT_TIMESTAMP                  -- Cập nhật thời gian chỉnh sửa
+      WHERE id = ?
+    `;
+
+    const totalQuantity = parseInt(good_quantity) + parseInt(ng_quantity);
+
+    const orderQueryParams = [
+      worker_name,      // Tham số 1: tên thợ
+      machine_name,     // Tham số 2: tên máy
+      shift,           // Tham số 3: ca làm việc
+      notes,           // Tham số 4: ghi chú
+      good_quantity,   // Tham số 5: số lượng OK
+      ng_quantity,     // Tham số 6: số lượng NG
+      totalQuantity,   // Tham số 7: tổng số lượng
+      handover_quantity,   // Tham số 8: Số lượng bàn giao
+      orderId          // Tham số 9: ID lệnh sản xuất
+    ];
+
+    // 2. Cập nhật bảng production_machines - xóa lệnh hiện tại
+    const updateMachineQuery = `
+      UPDATE production_machines 
+      SET 
+        current_order_id = NULL,                        -- Xóa ID lệnh sản xuất hiện tại
+        current_order_code = NULL                       -- Xóa mã lệnh sản xuất hiện tại
+      WHERE machine_name = ?
+    `;
+
+    const machineQueryParams = [
+      machine_name      // Tham số 1: Tên máy
+    ];
+
+    // Thực hiện cập nhật bảng production_orders trước
+    db.query(updateOrderQuery, orderQueryParams, (err, orderResult) => {
+      if (err) {
+        return db.rollback(() => {
+          res.status(500).json({ 
+            error: 'Lỗi cập nhật production_orders', 
+            details: err.message,
+            debug_info: {
+              code: err.code,
+              errno: err.errno,
+              sqlState: err.sqlState,
+              sqlMessage: err.sqlMessage
+            }
+          });
+        });
+      }
+
+      // Kiểm tra xem có cập nhật được dòng nào không
+      if (orderResult.affectedRows === 0) {
+        return db.rollback(() => {
+          res.status(404).json({ 
+            error: 'Không tìm thấy lệnh sản xuất với ID: ' + orderId 
+          });
+        });
+      }
+
+      // Thực hiện cập nhật bảng production_machines
+      db.query(updateMachineQuery, machineQueryParams, (err, machineResult) => {
+        if (err) {
+          return db.rollback(() => {
+            res.status(500).json({ 
+              error: 'Lỗi cập nhật production_machines', 
+              details: err.message,
+              debug_info: {
+                code: err.code,
+                errno: err.errno,
+                sqlState: err.sqlState,
+                sqlMessage: err.sqlMessage
+              }
+            });
+          });
+        }
+
+        // Commit transaction nếu tất cả thành công
+        db.commit((err) => {
+          if (err) {
+            return db.rollback(() => {
+              res.status(500).json({ 
+                error: 'Lỗi commit transaction: ' + err.message 
+              });
+            });
+          }
+
+          // Trả về kết quả thành công
+          res.json({
+            success: true,
+            message: `Đã kết thúc sản xuất công đoạn ${stage.toUpperCase()}`,
+            order_id: orderId,
+            production_order: production_order,
+            stage: stage,
+            end_time: new Date().toISOString(),
+            worker_name: worker_name,
+            machine_name: machine_name,
+            shift: shift,
+            good_quantity: good_quantity,
+            ng_quantity: ng_quantity,
+            total_quantity: totalQuantity,
+            handover_quantity: handover_quantity,
+            affected_rows: {
+              production_orders: orderResult.affectedRows,
+              production_machines: machineResult.affectedRows
+            }
+          });
+        });
+      });
+    });
+  });
+}); 
+
+/**
+ * API: Reset lệnh sản xuất về trạng thái chưa bắt đầu
+ * Endpoint: POST /data/production_orders/:id/reset_production
+ * 
+ * Chức năng:
+ * - Reset tất cả dữ liệu sản xuất của một stage về trạng thái ban đầu
+ * - Xóa thời gian bắt đầu và kết thúc
+ * - Reset trạng thái về 'not_started'
+ * - Xóa dữ liệu sản xuất (số lượng, ghi chú, v.v.)
+ * 
+ * Tham số:
+ * - orderId: ID của lệnh sản xuất
+ * - stage: Tên công đoạn cần reset (vd: 'xa', 'xen', 'boi')
+ * - reset_to_not_started: Flag xác nhận reset (true/false)
+ */
+app.post('/data/production_orders/:id/reset_production', (req, res) => {
+  const orderId = req.params.id;
+  const { 
+    stage,           // Mặc định là công đoạn XẢ
+    reset_to_not_started = true  // Flag xác nhận reset
+  } = req.body;
+
+  // Log để debug
+  console.log('=== RESET PRODUCTION API CALLED ===');
+  console.log('Order ID:', orderId);
+  console.log('Stage:', stage);
+  console.log('Reset flag:', reset_to_not_started);
+  console.log('Full request body:', req.body);
+  console.log('Request headers:', req.headers);
+
+  // Validate input
+  if (!stage) {
+    console.log('❌ ERROR: Missing stage parameter');
     return res.status(400).json({ 
-      error: 'Thiếu thông tin: orderId' 
+      error: 'Thiếu thông tin: stage' 
     });
   }
 
-  // Tính tổng số lượng output
-  const total_output = good_quantity + ng_quantity + ng_start_end_quantity + return_quantity;
+  if (!reset_to_not_started) {
+    console.log('❌ ERROR: reset_to_not_started must be true');
+    return res.status(400).json({ 
+      error: 'Cần xác nhận reset_to_not_started = true để thực hiện reset' 
+    });
+  }
 
-  // Tạo câu lệnh SQL để cập nhật thời gian kết thúc và kết quả
-  const updateQuery = `
-    UPDATE production_orders 
-    SET 
-      ${stage}_end_time = NOW(),                     -- Cập nhật thời gian kết thúc = thời gian hiện tại
-      ${stage}_status = 'completed',                 -- Cập nhật trạng thái = hoàn thành
-      ${stage}_good_quantity = ?,                    -- Số lượng đạt (OK)
-      ${stage}_ng_quantity = ?,                      -- Số lượng NG
-      stage_ng_start_end_quantity = ?,               -- NG đầu/cuối
-      stage_return_quantity = ?,                     -- Hàng trả
-      ${stage}_output_quantity = ?,                  -- Tổng số lượng output
-      ${stage}_note = ?,                             -- Ghi chú
-      updated_at = CURRENT_TIMESTAMP                 -- Cập nhật thời gian chỉnh sửa
-    WHERE id = ?
-  `;
+  console.log('✅ Validation passed, starting transaction...');
 
-  // Thực hiện câu lệnh SQL
-  db.query(updateQuery, [
-    good_quantity,              // Tham số 1: số lượng đạt
-    ng_quantity,                // Tham số 2: số lượng NG
-    ng_start_end_quantity,      // Tham số 3: NG đầu/cuối
-    return_quantity,            // Tham số 4: hàng trả
-    total_output,               // Tham số 5: tổng output
-    notes,                      // Tham số 6: ghi chú
-    orderId                     // Tham số 7: ID lệnh sản xuất
-  ], (err, result) => {
+  // Bắt đầu transaction để đảm bảo tính nhất quán dữ liệu
+  db.beginTransaction((err) => {
     if (err) {
-      console.error('❌ Lỗi cập nhật thời gian kết thúc:', err);
+      console.log('❌ ERROR: Failed to begin transaction:', err.message);
       return res.status(500).json({ 
-        error: 'Lỗi cập nhật thời gian kết thúc', 
-        details: err.message 
+        error: 'Lỗi khởi tạo transaction: ' + err.message 
       });
     }
 
-    // Kiểm tra xem có cập nhật được dòng nào không
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ 
-        error: 'Không tìm thấy lệnh sản xuất với ID: ' + orderId 
-      });
-    }
+    console.log('✅ Transaction started successfully');
 
-    // Trả về kết quả thành công
-    res.json({
-      success: true,
-      message: `Đã kết thúc sản xuất công đoạn ${stage.toUpperCase()}`,
-      order_id: orderId,
-      stage: stage,
-      end_time: new Date().toISOString(),
-      production_results: {
-        good_quantity: good_quantity,
-        ng_quantity: ng_quantity,
-        ng_start_end_quantity: ng_start_end_quantity,
-        return_quantity: return_quantity,
-        total_output: total_output
-      },
-      affected_rows: result.affectedRows
+    // 1. Reset bảng production_orders - xóa tất cả dữ liệu sản xuất của stage
+    const resetOrderQuery = `
+      UPDATE production_orders 
+      SET 
+        ${stage}_start_time = NULL,                     -- Xóa thời gian bắt đầu
+        ${stage}_end_time = NULL,                       -- Xóa thời gian kết thúc
+        ${stage}_status = 'waiting',                    -- Reset trạng thái về chờ
+        ${stage}_worker_name = NULL,                    -- Xóa tên thợ
+        ${stage}_machine_name = NULL,                   -- Xóa tên máy
+        ${stage}_shift = NULL,                          -- Xóa ca làm việc
+        ${stage}_note = NULL,                           -- Xóa ghi chú
+        ${stage}_good_quantity = 0,                     -- Reset số lượng OK về 0
+        ${stage}_ng_quantity = 0,                       -- Reset số lượng NG về 0
+        ${stage}_output_quantity = 0,                   -- Reset tổng số lượng về 0
+        ${stage}_handover_quantity = 0,                 -- Reset số lượng bàn giao về 0
+        ${stage}_input_quantity = 0,                    -- Reset số lượng đầu vào về 0
+        updated_at = CURRENT_TIMESTAMP                  -- Cập nhật thời gian chỉnh sửa
+      WHERE id = ?
+    `;
+
+    console.log('📝 SQL Query for production_orders:', resetOrderQuery);
+    console.log('🔍 Parameters:', [orderId]);
+
+    // 2. Reset bảng production_machines - xóa lệnh hiện tại nếu có
+    const resetMachineQuery = `
+      UPDATE production_machines 
+      SET 
+        current_order_id = NULL,                        -- Xóa ID lệnh sản xuất hiện tại
+        current_order_code = NULL                       -- Xóa mã lệnh sản xuất hiện tại
+      WHERE current_order_id = ?
+    `;
+
+    // Thực hiện reset bảng production_orders trước
+    console.log('🔄 Executing production_orders reset query...');
+    db.query(resetOrderQuery, [orderId], (err, orderResult) => {
+      if (err) {
+        console.log('❌ ERROR: Failed to reset production_orders:', err.message);
+        console.log('🔍 Error details:', {
+          code: err.code,
+          errno: err.errno,
+          sqlState: err.sqlState,
+          sqlMessage: err.sqlMessage
+        });
+        return db.rollback(() => {
+          res.status(500).json({ 
+            error: 'Lỗi reset production_orders', 
+            details: err.message,
+            debug_info: {
+              code: err.code,
+              errno: err.errno,
+              sqlState: err.sqlState,
+              sqlMessage: err.sqlMessage
+            }
+          });
+        });
+      }
+
+      console.log('✅ production_orders reset successful');
+      console.log('📊 Affected rows:', orderResult.affectedRows);
+
+      // Kiểm tra xem có reset được dòng nào không
+      if (orderResult.affectedRows === 0) {
+        console.log('❌ ERROR: No rows affected - order not found');
+        return db.rollback(() => {
+          res.status(404).json({ 
+            error: 'Không tìm thấy lệnh sản xuất với ID: ' + orderId 
+          });
+        });
+      }
+
+      // Thực hiện reset bảng production_machines
+      console.log('🔄 Executing production_machines reset query...');
+      console.log('📝 SQL Query for production_machines:', resetMachineQuery);
+      console.log('🔍 Parameters:', [orderId]);
+      
+      db.query(resetMachineQuery, [orderId], (err, machineResult) => {
+        if (err) {
+          console.log('❌ ERROR: Failed to reset production_machines:', err.message);
+          console.log('🔍 Error details:', {
+            code: err.code,
+            errno: err.errno,
+            sqlState: err.sqlState,
+            sqlMessage: err.sqlMessage
+          });
+          return db.rollback(() => {
+            res.status(500).json({ 
+              error: 'Lỗi reset production_machines', 
+              details: err.message,
+              debug_info: {
+                code: err.code,
+                errno: err.errno,
+                sqlState: err.sqlState,
+                sqlMessage: err.sqlMessage
+              }
+            });
+          });
+        }
+
+        console.log('✅ production_machines reset successful');
+        console.log('📊 Affected rows:', machineResult.affectedRows);
+
+        // Commit transaction nếu tất cả thành công
+        console.log('🔄 Committing transaction...');
+        db.commit((err) => {
+          if (err) {
+            console.log('❌ ERROR: Failed to commit transaction:', err.message);
+            return db.rollback(() => {
+              res.status(500).json({ 
+                error: 'Lỗi commit transaction: ' + err.message 
+              });
+            });
+          }
+
+          console.log('✅ Transaction committed successfully');
+          console.log('🎉 RESET PRODUCTION COMPLETED SUCCESSFULLY');
+
+          // Trả về kết quả thành công
+          res.json({
+            success: true,
+            message: `Đã reset thành công công đoạn ${stage.toUpperCase()} về trạng thái chờ`,
+            order_id: orderId,
+            stage: stage,
+            reset_time: new Date().toISOString(),
+            reset_fields: [
+              `${stage}_start_time`,
+              `${stage}_end_time`, 
+              `${stage}_status`,
+              `${stage}_worker_name`,
+              `${stage}_machine_name`,
+              `${stage}_shift`,
+              `${stage}_note`,
+              `${stage}_good_quantity`,
+              `${stage}_ng_quantity`,
+              `${stage}_output_quantity`,
+              `${stage}_handover_quantity`,
+              `${stage}_input_quantity`
+            ],
+            affected_rows: {
+              production_orders: orderResult.affectedRows,
+              production_machines: machineResult.affectedRows
+            }
+          });
+        });
+      });
     });
   });
 });
@@ -2137,197 +2487,6 @@ app.post('/data/run-custom-sql', (req, res) => {
   });
 });
 
-// ========== API QUẢN LÝ KÍP (SHIFT MANAGEMENT) ==========
-
-/**
- * API: Ghi nhận kíp - tích hợp vào bàn giao
- * Endpoint: POST /data/production_orders/:id/record_shift
- * 
- * Chức năng:
- * - Ghi nhận thông tin kíp khi bàn giao
- * - Tự động tính toán số lượng từ OK và NG
- * - Cập nhật trạng thái kíp
- * 
- * Tham số:
- * - orderId: ID của lệnh sản xuất
- * - shift_number: Số thứ tự kíp
- * - completed_quantity: Tổng số lượng hoàn thành (OK + NG)
- * - good_quantity: Số lượng OK
- * - defect_quantity: Số lượng NG
- * - return_quantity: Số lượng trả
- * - notes: Ghi chú kíp
- * - end_time: Thời gian kết thúc kíp
- */
-app.post('/data/production_orders/:id/record_shift', (req, res) => {
-  const orderId = req.params.id;
-  const { 
-    shift_number,
-    completed_quantity,
-    good_quantity,
-    defect_quantity,
-    return_quantity,
-    notes,
-    end_time
-  } = req.body;
-
-  // Validation
-  if (!shift_number || !completed_quantity || completed_quantity <= 0) {
-    return res.status(400).json({
-      error: 'Thiếu thông tin: shift_number, completed_quantity phải > 0'
-    });
-  }
-
-  if (good_quantity + defect_quantity !== completed_quantity) {
-    return res.status(400).json({
-      error: 'Tổng số lượng OK và NG phải bằng số lượng hoàn thành'
-    });
-  }
-
-  try {
-    // Bắt đầu transaction
-    db.beginTransaction((err) => {
-      if (err) {
-        return res.status(500).json({
-          error: 'Lỗi khởi tạo transaction: ' + err.message
-        });
-      }
-
-      // 1. Ghi nhận kíp vào bảng shifts (nếu có)
-      const insertShiftQuery = `
-        INSERT INTO production_order_shifts (
-          production_order_id, shift_number, completed_quantity,
-          good_quantity, defect_quantity, return_quantity,
-          notes, end_time, status, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'completed', NOW())
-        ON DUPLICATE KEY UPDATE
-          completed_quantity = VALUES(completed_quantity),
-          good_quantity = VALUES(good_quantity),
-          defect_quantity = VALUES(defect_quantity),
-          return_quantity = VALUES(return_quantity),
-          notes = VALUES(notes),
-          end_time = VALUES(end_time),
-          status = 'completed',
-          updated_at = NOW()
-      `;
-
-      db.query(insertShiftQuery, [
-        orderId, shift_number, completed_quantity,
-        good_quantity, defect_quantity, return_quantity,
-        notes, end_time
-      ], (err, shiftResult) => {
-        if (err) {
-          return db.rollback(() => {
-            console.error('❌ Lỗi ghi nhận kíp:', err);
-            res.status(500).json({
-              error: 'Lỗi ghi nhận kíp',
-              details: err.message
-            });
-          });
-        }
-
-        // 2. Cập nhật tổng số lượng đã hoàn thành trong production_orders
-        const updateOrderQuery = `
-          UPDATE production_orders 
-          SET 
-            xen_completed_quantity = COALESCE(xen_completed_quantity, 0) + ?,
-            xen_good_quantity = COALESCE(xen_good_quantity, 0) + ?,
-            xen_ng_quantity = COALESCE(xen_ng_quantity, 0) + ?,
-            xen_return_quantity = COALESCE(xen_return_quantity, 0) + ?,
-            updated_at = CURRENT_TIMESTAMP
-          WHERE id = ?
-        `;
-
-        db.query(updateOrderQuery, [
-          completed_quantity, good_quantity, defect_quantity, return_quantity, orderId
-        ], (err, orderResult) => {
-          if (err) {
-            return db.rollback(() => {
-              console.error('❌ Lỗi cập nhật production_orders:', err);
-              res.status(500).json({
-                error: 'Lỗi cập nhật production_orders',
-                details: err.message
-              });
-            });
-          }
-
-          // Commit transaction
-          db.commit((err) => {
-            if (err) {
-              return db.rollback(() => {
-                console.error('❌ Lỗi commit transaction:', err);
-                res.status(500).json({
-                  error: 'Lỗi commit transaction: ' + err.message
-                });
-              });
-            }
-
-            console.log(`✅ Đã ghi nhận kíp ${shift_number} cho order ${orderId}`);
-            
-            res.json({
-              success: true,
-              message: `Đã ghi nhận kíp ${shift_number} thành công`,
-              order_id: orderId,
-              shift_number: shift_number,
-              shift_data: {
-                completed_quantity: completed_quantity,
-                good_quantity: good_quantity,
-                defect_quantity: defect_quantity,
-                return_quantity: return_quantity,
-                notes: notes,
-                end_time: end_time
-              },
-              affected_rows: {
-                shifts: shiftResult.affectedRows,
-                production_orders: orderResult.affectedRows
-              }
-            });
-          });
-        });
-      });
-    });
-
-  } catch (error) {
-    console.error('❌ Lỗi ghi nhận kíp:', error);
-    res.status(500).json({
-      error: 'Lỗi ghi nhận kíp',
-      details: error.message
-    });
-  }
-});
-
-/**
- * API: Lấy thông tin kíp của một lệnh sản xuất
- * Endpoint: GET /data/production_orders/:id/shifts
- */
-app.get('/data/production_orders/:id/shifts', (req, res) => {
-  const orderId = req.params.id;
-
-  const query = `
-    SELECT 
-      id, shift_number, completed_quantity, good_quantity, defect_quantity,
-      return_quantity, notes, start_time, end_time, status, created_at
-    FROM production_order_shifts 
-    WHERE production_order_id = ?
-    ORDER BY shift_number ASC
-  `;
-
-  db.query(query, [orderId], (err, results) => {
-    if (err) {
-      console.error('❌ Lỗi lấy thông tin kíp:', err);
-      return res.status(500).json({
-        error: 'Lỗi lấy thông tin kíp',
-        details: err.message
-      });
-    }
-
-    res.json({
-      order_id: orderId,
-      total_shifts: results.length,
-      shifts: results
-    });
-  });
-});
-
 // API để kiểm tra chi tiết kiểu dữ liệu
 app.get('/data/check-column-types', (req, res) => {
   const query = `
@@ -2363,353 +2522,896 @@ app.get('/data/check-column-types', (req, res) => {
   });
 });
 
-// API để kiểm tra tất cả cột của bảng production_orders
-app.get('/data/check-all-columns', (req, res) => {
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ========== API �ON GI?N CHO M�Y ==========
+
+// 1. L?y danh s�ch m�y r?nh
+app.get('/data/available_machines', (req, res) => {
+    const query = `
+        SELECT machine_id, machine_name
+        FROM production_machines
+        WHERE current_order_id IS NULL
+        ORDER BY machine_id
+    `;
+
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('? L?i l?y danh s�ch m�y r?nh:', err);
+            return res.status(500).json({ 
+                error: 'L?i l?y danh s�ch m�y r?nh', 
+                details: err.message 
+            });
+        }
+
+        res.json({
+            available_machines: results
+        });
+    });
+});
+
+// 2. B?t d?u l?nh tr�n m�y
+app.post('/data/start_order_on_machine', (req, res) => {
+    const { machine_id, order_id, order_code } = req.body;
+
+    if (!machine_id || !order_id || !order_code) {
+        return res.status(400).json({ error: 'Thi?u th�ng tin: machine_id, order_id, order_code' });
+    }
+
+    const query = `CALL StartOrderOnMachine(?, ?, ?)`;
+    
+    db.query(query, [machine_id, order_id, order_code], (err, results) => {
+        if (err) {
+            console.error('? L?i b?t d?u l?nh tr�n m�y:', err);
+            return res.status(500).json({ 
+                error: 'L?i b?t d?u l?nh tr�n m�y', 
+                details: err.message 
+            });
+        }
+
+        res.json({
+            success: true,
+            message: `�� b?t d?u l?nh ${order_code} tr�n m�y ${machine_id}`,
+            machine_id: machine_id,
+            order_id: order_id,
+            order_code: order_code
+        });
+    });
+});
+
+// 3. K?t th�c l?nh tr�n m�y
+app.post('/data/end_order_on_machine', (req, res) => {
+    const { machine_id, order_id } = req.body;
+
+    if (!machine_id || !order_id) {
+        return res.status(400).json({ error: 'Thi?u th�ng tin: machine_id, order_id' });
+    }
+
+    const query = `CALL EndOrderOnMachine(?, ?)`;
+    
+    db.query(query, [machine_id, order_id], (err, results) => {
+        if (err) {
+            console.error('? L?i k?t th�c l?nh tr�n m�y:', err);
+            return res.status(500).json({ 
+                error: 'L?i k?t th�c l?nh tr�n m�y', 
+                details: err.message 
+            });
+        }
+
+        res.json({
+            success: true,
+            message: `�� k?t th�c l?nh tr�n m�y ${machine_id}`,
+            machine_id: machine_id,
+            order_id: order_id
+        });
+    });
+});
+
+// 4. L?y tr?ng th�i m�y
+app.get('/data/machine_status', (req, res) => {
+    const query = `SELECT * FROM v_machine_status`;
+
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('? L?i l?y tr?ng th�i m�y:', err);
+            return res.status(500).json({ 
+                error: 'L?i l?y tr?ng th�i m�y', 
+                details: err.message 
+            });
+        }
+
+        res.json({
+            machines: results
+        });
+    });
+});
+
+// 5. Ki?m tra m�y c� r?nh kh�ng
+app.get('/data/check_machine/:machine_id', (req, res) => {
+    const machine_id = req.params.machine_id;
+
+    const query = `SELECT IsMachineAvailable(?) as is_available`;
+    
+    db.query(query, [machine_id], (err, results) => {
+        if (err) {
+            console.error('? L?i ki?m tra m�y:', err);
+            return res.status(500).json({ 
+                error: 'L?i ki?m tra m�y', 
+                details: err.message 
+            });
+        }
+
+        const isAvailable = results[0].is_available === 1;
+        
+        res.json({
+            machine_id: machine_id,
+            is_available: isAvailable
+        });
+    });
+});
+
+
+
+
+
+// API để lấy thông tin máy và lệnh sản xuất hiện tại
+app.get('/data/production_machines', (req, res) => {
   const query = `
-    SELECT
-      COLUMN_NAME,
-      DATA_TYPE,
-      CHARACTER_MAXIMUM_LENGTH,
-      IS_NULLABLE,
-      COLUMN_DEFAULT,
-      COLUMN_COMMENT
-    FROM INFORMATION_SCHEMA.COLUMNS
-    WHERE TABLE_SCHEMA = 'autoslp'
-    AND TABLE_NAME = 'production_orders'
-    AND COLUMN_NAME LIKE '%xa%'
-    ORDER BY ORDINAL_POSITION
+    SELECT 
+      id,
+      stage_machine,
+      machine_id,
+    
+      machine_name,
+      current_order_id,
+      current_order_code,
+      created_at
+    FROM production_machines
+    ORDER BY machine_name
   `;
 
   db.query(query, (err, results) => {
     if (err) {
-      console.error('❌ Lỗi kiểm tra tất cả cột:', err);
       return res.status(500).json({
-        error: 'Lỗi kiểm tra tất cả cột',
+        error: 'Lỗi khi lấy dữ liệu máy sản xuất',
+        details: err.message
+      });
+    }
+
+    res.json(results);
+  });
+});
+
+// API để lấy thông tin máy theo tên máy
+app.get('/data/production_machines/:machine_name', (req, res) => {
+  const machineName = req.params.machine_name;
+  
+  const query = `
+    SELECT 
+      id,
+      machine_id,
+      stage_machine,
+      machine_name,
+      current_order_id,
+      current_order_code,
+      created_at
+    FROM production_machines
+    WHERE machine_name = ?
+  `;
+
+  db.query(query, [machineName], (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        error: 'Lỗi khi lấy dữ liệu máy sản xuất',
+        details: err.message
+      });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({
+        error: 'Không tìm thấy máy: ' + machineName
+      });
+    }
+
+    res.json(results[0]);
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// =====================================================
+// PRODUCTION ORDERS SHIFT APIs
+// Quản lý thông tin chi tiết theo từng ca làm việc
+// =====================================================
+
+// API LẤY DANH SÁCH SHIFT CỦA MỘT LỆNH SẢN XUẤT
+app.get('/data/production_orders/:id/shifts', (req, res) => {
+  const orderId = req.params.id;
+  const { stage, shift_date, status } = req.query;
+
+  let query = `
+    SELECT 
+      pos.*,
+      COALESCE(pos.production_order, po.production_order) as production_order,
+      po.product_name,
+      po.customer_name,
+      po.internal_product_code
+    FROM production_orders_shift pos
+    LEFT JOIN production_orders po ON pos.production_order_id = po.id
+    WHERE pos.production_order_id = ?
+  `;
+  
+  let params = [orderId];
+
+  // Filter theo công đoạn
+  if (stage) {
+    query += ' AND pos.stage = ?';
+    params.push(stage);
+  }
+
+  // Filter theo ngày
+  if (shift_date) {
+    query += ' AND pos.shift_date = ?';
+    params.push(shift_date);
+  }
+
+  // Filter theo trạng thái
+  if (status) {
+    query += ' AND pos.status = ?';
+    params.push(status);
+  }
+
+  query += ' ORDER BY pos.stage, pos.shift_number ASC';
+
+  db.query(query, params, (err, results) => {
+    if (err) {
+      console.error('❌ Lỗi lấy danh sách shift:', err);
+      return res.status(500).json({
+        error: 'Lỗi lấy danh sách shift',
+        details: err.message
+      });
+    }
+
+    res.json({
+      order_id: orderId,
+      total_shifts: results.length,
+      shifts: results
+    });
+  });
+});
+
+// API LẤY CHI TIẾT MỘT SHIFT
+app.get('/data/production_orders_shift/:id', (req, res) => {
+  const shiftId = req.params.id;
+
+  const query = `
+    SELECT 
+      pos.*,
+      COALESCE(pos.production_order, po.production_order) as production_order,
+      po.product_name,
+      po.customer_name,
+      po.internal_product_code,
+      po.order_quantity,
+      po.deployed_quantity
+    FROM production_orders_shift pos
+    LEFT JOIN production_orders po ON pos.production_order_id = po.id
+    WHERE pos.id = ?
+  `;
+
+  db.query(query, [shiftId], (err, results) => {
+    if (err) {
+      console.error('❌ Lỗi lấy chi tiết shift:', err);
+      return res.status(500).json({
+        error: 'Lỗi lấy chi tiết shift',
+        details: err.message
+      });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({
+        error: 'Không tìm thấy shift với ID: ' + shiftId
+      });
+    }
+
+    res.json({
+      success: true,
+      shift: results[0]
+    });
+  });
+});
+
+// API TẠO SHIFT MỚI
+app.post('/data/production_orders_shift', (req, res) => {
+  const {
+    production_order_id,
+    production_order,
+    stage,
+    shift_number,
+    shift_name,
+    shift_date,
+    input_quantity,
+    worker_name,
+    machine_name,
+    start_time,
+    end_time,
+    work_duration_minutes,
+    good_quantity,
+    ng_quantity,
+    ng_start_end_quantity,
+    return_quantity,
+    output_quantity,
+    handover_quantity,
+    efficiency_percent,
+    quality_score,
+    handover_person,
+    receiver_person,
+    ng_reason,
+    quality_notes,
+    is_overtime,
+    overtime_hours,
+    is_night_shift,
+    break_duration_minutes,
+    status,
+    notes
+  } = req.body;
+
+  // Validation
+  if (!production_order_id || !stage || !shift_number) {
+    return res.status(400).json({
+      error: 'Thiếu thông tin bắt buộc: production_order_id, stage, shift_number'
+    });
+  }
+
+  // Bỏ check - cho phép tạo nhiều shift cùng số
+
+    // Tạo shift mới với đầy đủ thông tin
+    const insertQuery = `
+      INSERT INTO production_orders_shift (
+        production_order_id, production_order, stage, shift_number, shift_name, shift_date,
+        input_quantity, worker_name, machine_name, start_time, end_time,
+        work_duration_minutes, good_quantity, ng_quantity, ng_start_end_quantity,
+        return_quantity, output_quantity, handover_quantity, efficiency_percent,
+        quality_score, handover_person, receiver_person, ng_reason, quality_notes,
+        is_overtime, overtime_hours, is_night_shift, break_duration_minutes,
+        status, notes
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const insertParams = [
+      production_order_id, production_order, stage, shift_number, shift_name, shift_date,
+      input_quantity || 0, worker_name, machine_name, start_time, end_time,
+      work_duration_minutes || 0, good_quantity || 0, ng_quantity || 0, ng_start_end_quantity || 0,
+      return_quantity || 0, output_quantity || 0, handover_quantity || 0, efficiency_percent || 0,
+      quality_score || 0, handover_person, receiver_person, ng_reason, quality_notes,
+      is_overtime || 0, overtime_hours || 0, is_night_shift || 0, break_duration_minutes || 0,
+      status || 'in_progress', notes
+    ];
+
+    db.query(insertQuery, insertParams, (insertErr, insertResult) => {
+      if (insertErr) {
+        console.error('❌ Lỗi tạo shift mới:', insertErr);
+        return res.status(500).json({
+          error: 'Lỗi tạo shift mới',
+          details: insertErr.message
+        });
+      }
+
+      const newShiftId = insertResult.insertId;
+
+      // Lấy thông tin shift vừa tạo
+      const getShiftQuery = `
+        SELECT 
+          pos.*,
+          po.production_order,
+          po.product_name,
+          po.customer_name
+        FROM production_orders_shift pos
+        LEFT JOIN production_orders po ON pos.production_order_id = po.id
+        WHERE pos.id = ?
+      `;
+
+      db.query(getShiftQuery, [newShiftId], (getErr, getResults) => {
+        if (getErr) {
+          console.error('❌ Lỗi lấy thông tin shift mới:', getErr);
+        }
+
+        res.status(201).json({
+          success: true,
+          message: `Đã tạo ca ${shift_number} cho công đoạn ${stage}`,
+          shift_id: newShiftId,
+          shift: getResults[0] || { id: newShiftId }
+        });
+      });
+    });
+  });
+
+// API CẬP NHẬT SHIFT
+app.put('/data/production_orders_shift/:id', (req, res) => {
+  const shiftId = req.params.id;
+  const {
+    output_quantity,
+    good_quantity,
+    ng_quantity,
+    ng_start_end_quantity,
+    return_quantity,
+    handover_quantity,
+    end_time,
+    worker_name,
+    machine_name,
+    handover_person,
+    receiver_person,
+    ng_reason,
+    efficiency_percent,
+    quality_score,
+    status,
+    notes,
+    quality_notes,
+    is_overtime,
+    overtime_hours,
+    is_night_shift
+  } = req.body;
+
+  // Tính toán thời gian làm việc nếu có start_time và end_time
+  let work_duration_minutes = 0;
+  if (req.body.start_time && end_time) {
+    const startTime = new Date(req.body.start_time);
+    const endTime = new Date(end_time);
+    work_duration_minutes = Math.round((endTime - startTime) / (1000 * 60));
+  }
+
+  const updateQuery = `
+    UPDATE production_orders_shift 
+    SET 
+      output_quantity = ?,
+      good_quantity = ?,
+      ng_quantity = ?,
+      ng_start_end_quantity = ?,
+      return_quantity = ?,
+      handover_quantity = ?,
+      end_time = ?,
+      worker_name = ?,
+      machine_name = ?,
+      handover_person = ?,
+      receiver_person = ?,
+      ng_reason = ?,
+      efficiency_percent = ?,
+      quality_score = ?,
+      status = ?,
+      notes = ?,
+      quality_notes = ?,
+      work_duration_minutes = ?,
+      is_overtime = ?,
+      overtime_hours = ?,
+      is_night_shift = ?,
+      updated_at = NOW()
+    WHERE id = ?
+  `;
+
+  const updateParams = [
+    output_quantity || 0,
+    good_quantity || 0,
+    ng_quantity || 0,
+    ng_start_end_quantity || 0,
+    return_quantity || 0,
+    handover_quantity || 0,
+    end_time,
+    worker_name,
+    machine_name,
+    handover_person,
+    receiver_person,
+    ng_reason,
+    efficiency_percent || 0,
+    quality_score || 0,
+    status || 'in_progress',
+    notes,
+    quality_notes,
+    work_duration_minutes,
+    is_overtime || 0,
+    overtime_hours || 0,
+    is_night_shift || 0,
+    shiftId
+  ];
+
+  db.query(updateQuery, updateParams, (err, result) => {
+    if (err) {
+      console.error('❌ Lỗi cập nhật shift:', err);
+      return res.status(500).json({
+        error: 'Lỗi cập nhật shift',
+        details: err.message
+      });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        error: 'Không tìm thấy shift với ID: ' + shiftId
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Đã cập nhật shift thành công',
+      shift_id: shiftId,
+      affected_rows: result.affectedRows
+    });
+  });
+});
+
+// API XÓA SHIFT
+app.delete('/data/production_orders_shift/:id', (req, res) => {
+  const shiftId = req.params.id;
+
+  // Kiểm tra xem shift có tồn tại không
+  const checkQuery = 'SELECT production_order_id, stage FROM production_orders_shift WHERE id = ?';
+
+  db.query(checkQuery, [shiftId], (checkErr, checkResults) => {
+    if (checkErr) {
+      console.error('❌ Lỗi kiểm tra shift:', checkErr);
+      return res.status(500).json({
+        error: 'Lỗi kiểm tra shift',
+        details: checkErr.message
+      });
+    }
+
+    if (checkResults.length === 0) {
+      return res.status(404).json({
+        error: 'Không tìm thấy shift với ID: ' + shiftId
+      });
+    }
+
+    const shiftInfo = checkResults[0];
+
+    // Xóa shift
+    const deleteQuery = 'DELETE FROM production_orders_shift WHERE id = ?';
+
+    db.query(deleteQuery, [shiftId], (deleteErr, deleteResult) => {
+      if (deleteErr) {
+        console.error('❌ Lỗi xóa shift:', deleteErr);
+        return res.status(500).json({
+          error: 'Lỗi xóa shift',
+          details: deleteErr.message
+        });
+      }
+
+      res.json({
+        success: true,
+        message: 'Đã xóa shift thành công',
+        shift_id: shiftId,
+        order_id: shiftInfo.production_order_id,
+        stage: shiftInfo.stage,
+        affected_rows: deleteResult.affectedRows
+      });
+    });
+  });
+});
+
+// API KẾT THÚC SHIFT
+app.post('/data/production_orders_shift/:id/complete', (req, res) => {
+  const shiftId = req.params.id;
+  const {
+    output_quantity,
+    good_quantity,
+    ng_quantity,
+    ng_start_end_quantity,
+    return_quantity,
+    handover_quantity,
+    end_time,
+    handover_person,
+    receiver_person,
+    ng_reason,
+    notes
+  } = req.body;
+
+  // Validation
+  if (!output_quantity || !good_quantity || !end_time) {
+    return res.status(400).json({
+      error: 'Thiếu thông tin bắt buộc: output_quantity, good_quantity, end_time'
+    });
+  }
+
+  // Lấy thông tin shift hiện tại
+  const getShiftQuery = 'SELECT * FROM production_orders_shift WHERE id = ?';
+
+  db.query(getShiftQuery, [shiftId], (getErr, getResults) => {
+    if (getErr) {
+      console.error('❌ Lỗi lấy thông tin shift:', getErr);
+      return res.status(500).json({
+        error: 'Lỗi lấy thông tin shift',
+        details: getErr.message
+      });
+    }
+
+    if (getResults.length === 0) {
+      return res.status(404).json({
+        error: 'Không tìm thấy shift với ID: ' + shiftId
+      });
+    }
+
+    const currentShift = getResults[0];
+
+    // Tính toán thời gian làm việc
+    let work_duration_minutes = 0;
+    if (currentShift.start_time && end_time) {
+      const startTime = new Date(currentShift.start_time);
+      const endTime = new Date(end_time);
+      work_duration_minutes = Math.round((endTime - startTime) / (1000 * 60));
+    }
+
+    // Tính hiệu suất
+    const efficiency_percent = currentShift.input_quantity > 0 ? (good_quantity / currentShift.input_quantity) * 100 : 0;
+
+    // Cập nhật shift
+    const updateQuery = `
+      UPDATE production_orders_shift 
+      SET 
+        output_quantity = ?,
+        good_quantity = ?,
+        ng_quantity = ?,
+        ng_start_end_quantity = ?,
+        return_quantity = ?,
+        handover_quantity = ?,
+        end_time = ?,
+        handover_person = ?,
+        receiver_person = ?,
+        ng_reason = ?,
+        efficiency_percent = ?,
+        work_duration_minutes = ?,
+        status = 'completed',
+        notes = ?,
+        updated_at = NOW()
+      WHERE id = ?
+    `;
+
+    const updateParams = [
+      output_quantity,
+      good_quantity,
+      ng_quantity || 0,
+      ng_start_end_quantity || 0,
+      return_quantity || 0,
+      handover_quantity || good_quantity,
+      end_time,
+      handover_person,
+      receiver_person,
+      ng_reason,
+      efficiency_percent,
+      work_duration_minutes,
+      notes,
+      shiftId
+    ];
+
+    db.query(updateQuery, updateParams, (updateErr, updateResult) => {
+      if (updateErr) {
+        console.error('❌ Lỗi kết thúc shift:', updateErr);
+        return res.status(500).json({
+          error: 'Lỗi kết thúc shift',
+          details: updateErr.message
+        });
+      }
+
+      res.json({
+        success: true,
+        message: 'Đã kết thúc shift thành công',
+        shift_id: shiftId,
+        order_id: currentShift.production_order_id,
+        stage: currentShift.stage,
+        shift_number: currentShift.shift_number,
+        completion_data: {
+          output_quantity: output_quantity,
+          good_quantity: good_quantity,
+          ng_quantity: ng_quantity || 0,
+          handover_quantity: handover_quantity || good_quantity,
+          work_duration_minutes: work_duration_minutes,
+          efficiency_percent: efficiency_percent
+        }
+      });
+    });
+  });
+});
+
+// API THỐNG KÊ SHIFT
+app.get('/data/production_orders_shift/statistics', (req, res) => {
+  const { stage, shift_date, worker_name, machine_name } = req.query;
+
+  let query = `
+    SELECT 
+      pos.stage,
+      pos.shift_name,
+      pos.shift_date,
+      COUNT(*) as total_shifts,
+      SUM(pos.good_quantity) as total_good,
+      SUM(pos.ng_quantity) as total_ng,
+      SUM(pos.output_quantity) as total_output,
+      SUM(pos.handover_quantity) as total_handover,
+      AVG(pos.efficiency_percent) as avg_efficiency,
+      SUM(pos.work_duration_minutes) as total_work_minutes,
+      COUNT(DISTINCT pos.worker_name) as unique_workers,
+      COUNT(DISTINCT pos.machine_name) as unique_machines,
+      COUNT(CASE WHEN pos.status = 'completed' THEN 1 END) as completed_shifts,
+      COUNT(CASE WHEN pos.status = 'in_progress' THEN 1 END) as in_progress_shifts
+    FROM production_orders_shift pos
+    WHERE 1=1
+  `;
+  
+  let params = [];
+
+  // Filter theo công đoạn
+  if (stage) {
+    query += ' AND pos.stage = ?';
+    params.push(stage);
+  }
+
+  // Filter theo ngày
+  if (shift_date) {
+    query += ' AND pos.shift_date = ?';
+    params.push(shift_date);
+  }
+
+  // Filter theo worker
+  if (worker_name) {
+    query += ' AND pos.worker_name LIKE ?';
+    params.push(`%${worker_name}%`);
+  }
+
+  // Filter theo machine
+  if (machine_name) {
+    query += ' AND pos.machine_name LIKE ?';
+    params.push(`%${machine_name}%`);
+  }
+
+  query += ' GROUP BY pos.stage, pos.shift_name, pos.shift_date ORDER BY pos.shift_date DESC, pos.stage, pos.shift_name';
+
+  db.query(query, params, (err, results) => {
+    if (err) {
+      console.error('❌ Lỗi thống kê shift:', err);
+      return res.status(500).json({
+        error: 'Lỗi thống kê shift',
         details: err.message
       });
     }
 
     res.json({
       success: true,
-      columns: results
+      statistics: results,
+      filters: {
+        stage: stage,
+        shift_date: shift_date,
+        worker_name: worker_name,
+        machine_name: machine_name
+      }
     });
   });
 });
 
-// API để kiểm tra dữ liệu của một lệnh sản xuất
-app.get('/data/production_orders/:id/check', (req, res) => {
+// API TỔNG HỢP DỮ LIỆU SHIFT VÀ PRODUCTION_ORDERS
+app.get('/data/production_orders/:id/summary', (req, res) => {
   const orderId = req.params.id;
-  
-  const checkQuery = `
-    SELECT 
-      id, 
-      production_order,
-      xa_start_time, 
-      xa_status, 
-      xa_worker_name, 
-      xa_machine_name, 
-      production_shift, 
-      xa_note,
-      updated_at
-    FROM production_orders 
-    WHERE id = ?
-  `;
-  
-  db.query(checkQuery, [orderId], (err, result) => {
-    if (err) {
-      console.error('❌ Lỗi kiểm tra dữ liệu:', err);
-      return res.status(500).json({ 
-        error: 'Lỗi kiểm tra dữ liệu', 
-        details: err.message 
+
+  // Lấy thông tin lệnh sản xuất
+  const orderQuery = 'SELECT * FROM production_orders WHERE id = ?';
+
+  db.query(orderQuery, [orderId], (orderErr, orderResults) => {
+    if (orderErr) {
+      console.error('❌ Lỗi lấy thông tin lệnh sản xuất:', orderErr);
+      return res.status(500).json({
+        error: 'Lỗi lấy thông tin lệnh sản xuất',
+        details: orderErr.message
       });
     }
-    
-    if (result.length === 0) {
-      return res.status(404).json({ 
-        error: 'Không tìm thấy lệnh sản xuất với ID: ' + orderId 
+
+    if (orderResults.length === 0) {
+      return res.status(404).json({
+        error: 'Không tìm thấy lệnh sản xuất với ID: ' + orderId
       });
     }
-    
-    res.json({
-      success: true,
-      data: result[0]
+
+    const order = orderResults[0];
+
+    // Lấy thống kê shift theo từng công đoạn
+    const shiftStatsQuery = `
+      SELECT 
+        stage,
+        COUNT(*) as total_shifts,
+        SUM(good_quantity) as total_good_from_shifts,
+        SUM(ng_quantity) as total_ng_from_shifts,
+        SUM(output_quantity) as total_output_from_shifts,
+        SUM(handover_quantity) as total_handover_from_shifts,
+        AVG(efficiency_percent) as avg_efficiency,
+        SUM(work_duration_minutes) as total_work_minutes
+      FROM production_orders_shift 
+      WHERE production_order_id = ?
+      GROUP BY stage
+    `;
+
+    db.query(shiftStatsQuery, [orderId], (shiftErr, shiftResults) => {
+      if (shiftErr) {
+        console.error('❌ Lỗi lấy thống kê shift:', shiftErr);
+      }
+
+      // Tạo object thống kê theo stage
+      const shiftStats = {};
+      shiftResults.forEach(stat => {
+        shiftStats[stat.stage] = stat;
+      });
+
+      // So sánh dữ liệu từ 2 bảng
+      const comparison = {};
+      const stages = ['xa', 'xen', 'in_offset', 'boi', 'be', 'dan_may', 'kho'];
+      
+      stages.forEach(stage => {
+        const shiftData = shiftStats[stage];
+        const orderData = {
+          good_quantity: order[`${stage}_good_quantity`] || 0,
+          ng_quantity: order[`${stage}_ng_quantity`] || 0,
+          output_quantity: order[`${stage}_output_quantity`] || 0,
+          handover_quantity: order[`${stage}_handover_quantity`] || 0
+        };
+
+        comparison[stage] = {
+          from_production_orders: orderData,
+          from_shifts: shiftData || {
+            total_shifts: 0,
+            total_good_from_shifts: 0,
+            total_ng_from_shifts: 0,
+            total_output_from_shifts: 0,
+            total_handover_from_shifts: 0
+          },
+          difference: shiftData ? {
+            good_diff: orderData.good_quantity - shiftData.total_good_from_shifts,
+            ng_diff: orderData.ng_quantity - shiftData.total_ng_from_shifts,
+            output_diff: orderData.output_quantity - shiftData.total_output_from_shifts,
+            handover_diff: orderData.handover_quantity - shiftData.total_handover_from_shifts
+          } : null
+        };
+      });
+
+      res.json({
+        success: true,
+        order: {
+          id: order.id,
+          production_order: order.production_order,
+          product_name: order.product_name,
+          customer_name: order.customer_name,
+          order_quantity: order.order_quantity,
+          deployed_quantity: order.deployed_quantity
+        },
+        shift_statistics: shiftStats,
+        comparison: comparison,
+        summary: {
+          total_stages_with_shifts: Object.keys(shiftStats).length,
+          total_shifts: shiftResults.reduce((sum, stat) => sum + stat.total_shifts, 0),
+          total_good_from_shifts: shiftResults.reduce((sum, stat) => sum + stat.total_good_from_shifts, 0),
+          total_ng_from_shifts: shiftResults.reduce((sum, stat) => sum + stat.total_ng_from_shifts, 0),
+          total_handover_from_shifts: shiftResults.reduce((sum, stat) => sum + stat.total_handover_from_shifts, 0)
+        }
+      });
     });
   });
 });
 
-// ========== API ĐƠN GIẢN CHO MÁY ==========
 
-// 1. Lấy danh sách máy rảnh
-app.get('/api/available_machines', (req, res) => {
-    const query = `
-        SELECT machine_id, machine_name
-        FROM production_machines 
-        WHERE current_order_id IS NULL
-        ORDER BY machine_id
-    `;
-
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ Lỗi lấy danh sách máy rảnh:', err);
-            return res.status(500).json({ 
-                error: 'Lỗi lấy danh sách máy rảnh', 
-                details: err.message 
-            });
-        }
-
-        res.json({
-            available_machines: results
-        });
-    });
-});
-
-// 2. Bắt đầu lệnh trên máy
-app.post('/api/start_order_on_machine', (req, res) => {
-    const { machine_id, order_id, order_code } = req.body;
-
-    if (!machine_id || !order_id || !order_code) {
-        return res.status(400).json({ error: 'Thiếu thông tin: machine_id, order_id, order_code' });
-    }
-
-    const query = `CALL StartOrderOnMachine(?, ?, ?)`;
-    
-    db.query(query, [machine_id, order_id, order_code], (err, results) => {
-        if (err) {
-            console.error('❌ Lỗi bắt đầu lệnh trên máy:', err);
-            return res.status(500).json({ 
-                error: 'Lỗi bắt đầu lệnh trên máy', 
-                details: err.message 
-            });
-        }
-
-        res.json({
-            success: true,
-            message: `Đã bắt đầu lệnh ${order_code} trên máy ${machine_id}`,
-            machine_id: machine_id,
-            order_id: order_id,
-            order_code: order_code
-        });
-    });
-});
-
-// 3. Kết thúc lệnh trên máy
-app.post('/api/end_order_on_machine', (req, res) => {
-    const { machine_id, order_id } = req.body;
-
-    if (!machine_id || !order_id) {
-        return res.status(400).json({ error: 'Thiếu thông tin: machine_id, order_id' });
-    }
-
-    const query = `CALL EndOrderOnMachine(?, ?)`;
-    
-    db.query(query, [machine_id, order_id], (err, results) => {
-        if (err) {
-            console.error('❌ Lỗi kết thúc lệnh trên máy:', err);
-            return res.status(500).json({ 
-                error: 'Lỗi kết thúc lệnh trên máy', 
-                details: err.message 
-            });
-        }
-
-        res.json({
-            success: true,
-            message: `Đã kết thúc lệnh trên máy ${machine_id}`,
-            machine_id: machine_id,
-            order_id: order_id
-        });
-    });
-});
-
-// 4. Lấy trạng thái máy
-app.get('/api/machine_status', (req, res) => {
-    const query = `
-        SELECT 
-            machine_id,
-            machine_name,
-            CASE 
-                WHEN current_order_id IS NULL THEN 'available'
-                ELSE 'busy'
-            END as status,
-            current_order_code,
-            current_order_id
-        FROM production_machines
-        ORDER BY machine_id
-    `;
-
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ Lỗi lấy trạng thái máy:', err);
-            return res.status(500).json({ 
-                error: 'Lỗi lấy trạng thái máy', 
-                details: err.message 
-            });
-        }
-
-        res.json({
-            machines: results
-        });
-    });
-});
-
-// 1.1. Lấy danh sách máy rảnh (data endpoint)
-app.get('/api/data/available_machines', (req, res) => {
-    const query = `
-        SELECT machine_id, machine_name
-        FROM production_machines 
-        WHERE current_order_id IS NULL
-        ORDER BY machine_id
-    `;
-
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ Lỗi lấy danh sách máy rảnh:', err);
-            return res.status(500).json({ 
-                error: 'Lỗi lấy danh sách máy rảnh', 
-                details: err.message 
-            });
-        }
-
-        res.json({
-            available_machines: results
-        });
-    });
-});
-
-// 2.1. Bắt đầu lệnh trên máy (data endpoint)
-app.post('/api/data/start_order_on_machine', (req, res) => {
-    const { machine_id, order_id, order_code } = req.body;
-
-    if (!machine_id || !order_id || !order_code) {
-        return res.status(400).json({ error: 'Thiếu thông tin: machine_id, order_id, order_code' });
-    }
-
-    const query = `CALL StartOrderOnMachine(?, ?, ?)`;
-    
-    db.query(query, [machine_id, order_id, order_code], (err, results) => {
-        if (err) {
-            console.error('❌ Lỗi bắt đầu lệnh trên máy:', err);
-            return res.status(500).json({ 
-                error: 'Lỗi bắt đầu lệnh trên máy', 
-                details: err.message 
-            });
-        }
-
-        res.json({
-            success: true,
-            message: `Đã bắt đầu lệnh ${order_code} trên máy ${machine_id}`,
-            machine_id: machine_id,
-            order_id: order_id,
-            order_code: order_code
-        });
-    });
-});
-
-// 3.1. Kết thúc lệnh trên máy (data endpoint)
-app.post('/api/data/end_order_on_machine', (req, res) => {
-    const { machine_id, order_id } = req.body;
-
-    if (!machine_id || !order_id) {
-        return res.status(400).json({ error: 'Thiếu thông tin: machine_id, order_id' });
-    }
-
-    const query = `CALL EndOrderOnMachine(?, ?)`;
-    
-    db.query(query, [machine_id, order_id], (err, results) => {
-        if (err) {
-            console.error('❌ Lỗi kết thúc lệnh trên máy:', err);
-            return res.status(500).json({ 
-                error: 'Lỗi kết thúc lệnh trên máy', 
-                details: err.message 
-            });
-        }
-
-        res.json({
-            success: true,
-            message: `Đã kết thúc lệnh trên máy ${machine_id}`,
-            machine_id: machine_id,
-            order_id: order_id
-        });
-    });
-});
-
-// 4.1. Lấy trạng thái máy (data endpoint)
-app.get('/api/data/machine_status', (req, res) => {
-    const query = `
-        SELECT 
-            machine_id,
-            machine_name,
-            CASE 
-                WHEN current_order_id IS NULL THEN 'available'
-                ELSE 'busy'
-            END as status,
-            current_order_code,
-            current_order_id
-        FROM production_machines
-        ORDER BY machine_id
-    `;
-
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('❌ Lỗi lấy trạng thái máy:', err);
-            return res.status(500).json({ 
-                error: 'Lỗi lấy trạng thái máy', 
-                details: err.message 
-            });
-        }
-
-        res.json({
-            machines: results
-        });
-    });
-});
-
-// 5.1. Kiểm tra máy có rảnh không (data endpoint)
-app.get('/api/data/check_machine/:machine_id', (req, res) => {
-    const machine_id = req.params.machine_id;
-
-    const query = `SELECT IsMachineAvailable(?) as is_available`;
-    
-    db.query(query, [machine_id], (err, results) => {
-        if (err) {
-            console.error('❌ Lỗi kiểm tra máy:', err);
-            return res.status(500).json({ 
-                error: 'Lỗi kiểm tra máy', 
-                details: err.message 
-            });
-        }
-
-        const isAvailable = results[0].is_available === 1;
-        
-        res.json({
-            machine_id: machine_id,
-            is_available: isAvailable
-        });
-    });
-});
-
-// 5. Kiểm tra máy có rảnh không
-app.get('/api/check_machine/:machine_id', (req, res) => {
-    const machine_id = req.params.machine_id;
-
-    const query = `SELECT IsMachineAvailable(?) as is_available`;
-    
-    db.query(query, [machine_id], (err, results) => {
-        if (err) {
-            console.error('❌ Lỗi kiểm tra máy:', err);
-            return res.status(500).json({ 
-                error: 'Lỗi kiểm tra máy', 
-                details: err.message 
-            });
-        }
-
-        const isAvailable = results[0].is_available === 1;
-        
-        res.json({
-            machine_id: machine_id,
-            is_available: isAvailable
-        });
-    });
-});
 
 app.listen(port, () => {
   console.log(`🚀 Server đang chạy tại http://localhost:${port}`);
