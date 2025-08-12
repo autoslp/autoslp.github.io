@@ -34,3 +34,4 @@ WHERE TABLE_SCHEMA = 'autoslp'
     AND TABLE_NAME = 'production_orders' 
     AND COLUMN_NAME LIKE '%_total_shifts'
 ORDER BY COLUMN_NAME;
+

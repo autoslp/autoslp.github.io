@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Button Visibility</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-container { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .btn { padding: 10px 20px; margin: 5px; border: none; border-radius: 3px; cursor: pointer; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-info { background: #17a2b8; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .log { margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 3px; font-family: monospace; }
+        .order-status { margin: 10px 0; padding: 10px; background: #e9ecef; border-radius: 3px; }
+        .hidden { display: none !important; }
+        .visible { display: flex !important; }
+    </style>
+</head>
+<body>
+    <h1>Test Button Visibility Logic</h1>
+    
+    <div class="test-container">
+        <h3>Order Status</h3>
+        <div class="order-status">
+            <label>Status: <select id="orderStatus">
+                <option value="waiting">waiting</option>
+                <option value="in_progress">in_progress</option>
+                <option value="completed">completed</option>
+                <option value="paused">paused</option>
+                <option value="handed_over">handed_over</option>
+            </select></label>
+            <br><br>
+            <label>Start Time: <input type="text" id="startTime" placeholder="YYYY-MM-DD HH:MM:SS or leave empty"></label>
+            <br><br>
+                         <label>End Time: <input type="text" id="endTime" placeholder="YYYY-MM-DD HH:MM:SS or leave empty"></label>
+             <br><br>
+             <label>Shift Status: <select id="shiftStatus">
+                 <option value="">No shift</option>
+                 <option value="waiting">waiting</option>
+                 <option value="in_progress">in_progress</option>
+                 <option value="completed">completed</option>
+                 <option value="paused">paused</option>
+                 <option value="handed_over">handed_over</option>
+             </select></label>
+             <br><br>
+             <button class="btn btn-success" onclick="updateOrderStatus()">Update Order Status</button>
+        </div>
+    </div>
+    
+    <div class="test-container">
+        <h3>Button Visibility Test</h3>
+        <div id="buttonContainer">
+            <button class="btn btn-success" id="startBtn">Bắt đầu</button>
+            <button class="btn btn-info" id="handoverShiftBtn">Bàn giao ca</button>
+            <button class="btn btn-secondary" id="resetBtn">Hủy làm</button>
+        </div>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        // Copy các hàm từ xen-stage.html
+        function getOrderField(order, field) {
+            return order[field] || null;
+        }
+        
+        function getButtonDisplayStyle(buttonType, order, currentShift = null) {
+            const startTime = getOrderField(order, 'start_time');
+            const endTime = getOrderField(order, 'end_time');
+            
+            // Chỉ sử dụng status từ shift, không dùng order status
+            // Status hợp lệ: 'waiting', 'in_progress', 'completed', 'paused', 'handed_over'
+            const status = currentShift?.status || 'waiting';
+            
+            console.log(`🔍 Button display check - ${buttonType}:`, {
+                shiftStatus: currentShift?.status,
+                finalStatus: status,
+                startTime: startTime ? 'has start time' : 'no start time',
+                endTime: endTime ? 'has end time' : 'no end time'
+            });
+            
+            switch (buttonType) {
+                case 'start':
+                    // Hiển thị nút "Bắt đầu" khi chưa có start_time và shift đang chờ (waiting)
+                    return (!startTime && status === 'waiting') ? 'display: flex;' : 'display: none;';
+                    
+                case 'handoverShift':
+                    // Hiển thị nút "Bàn giao ca" khi đã có start_time, chưa có end_time và đang trong quá trình
+                    return (startTime && !endTime && status === 'in_progress') ? 'display: flex;' : 'display: none;';
+                    
+                case 'reset':
+                    // Hiển thị nút "Hủy làm" khi đang trong quá trình sản xuất
+                    return (startTime && status === 'in_progress') ? 'display: flex; max-width: 100px;' : 'display: none;';
+                    
+                default:
+                    return 'display: none;';
+            }
+        }
+        
+        function getButtonDisabledState(buttonType, currentShift = null) {
+            // Chỉ sử dụng status từ shift, không dùng order status
+            // Status hợp lệ: 'waiting', 'in_progress', 'completed', 'paused', 'handed_over'
+            const status = currentShift?.status || 'waiting';
+            
+            console.log(`🔍 Button disabled check - ${buttonType}:`, {
+                shiftStatus: currentShift?.status,
+                finalStatus: status
+            });
+            
+            switch (buttonType) {
+                case 'start':
+                    // Disable nút "Bắt đầu" khi shift đã hoàn thành, đã bàn giao, hoặc đang tạm dừng
+                    return (status === 'completed' || status === 'handed_over' || status === 'paused') ? 'disabled' : '';
+                    
+                case 'handoverShift':
+                    // Disable nút "Bàn giao ca" khi shift chưa bắt đầu, đã bàn giao, hoặc đang tạm dừng
+                    return (status === 'waiting' || status === 'handed_over' || status === 'paused') ? 'disabled' : '';
+               
+                case 'reset':
+                    // Disable nút "Hủy làm" khi không trong quá trình sản xuất
+                    return (status !== 'in_progress') ? 'disabled' : '';
+                    
+                default:
+                    return '';
+            }
+        }
+        
+        function updateButtonVisibility(order, currentShift = null) {
+            if (!order) {
+                console.warn('⚠️ No order provided for updateButtonVisibility');
+                return;
+            }
+            
+            const buttons = {
+                'startBtn': 'start',
+                'handoverShiftBtn': 'handoverShift', 
+                'resetBtn': 'reset'
+            };
+            
+            const log = document.getElementById('log');
+            log.innerHTML = '';
+            
+            Object.entries(buttons).forEach(([buttonId, buttonType]) => {
+                const button = document.getElementById(buttonId);
+                if (button) {
+                    const displayStyle = getButtonDisplayStyle(buttonType, order, currentShift);
+                    const disabledState = getButtonDisabledState(buttonType, currentShift);
+                    
+                    button.style.cssText = displayStyle;
+                    button.disabled = disabledState === 'disabled';
+                    
+                    const isVisible = displayStyle.includes('display: flex');
+                    const isDisabled = button.disabled;
+                    const statusText = isVisible ? (isDisabled ? '✅ Hiển thị (Disabled)' : '✅ Hiển thị') : '❌ Ẩn';
+                    
+                    log.innerHTML += `<div>${buttonId} (${buttonType}): ${statusText}</div>`;
+                    
+                    console.log(`🔄 Updated ${buttonId}:`, {
+                        buttonType,
+                        displayStyle,
+                        disabledState,
+                        visible: isVisible,
+                        disabled: isDisabled,
+                        shiftStatus: currentShift?.status || 'no shift'
+                    });
+                } else {
+                    console.warn(`⚠️ Button not found: ${buttonId}`);
+                }
+            });
+        }
+        
+        function updateOrderStatus() {
+            const status = document.getElementById('orderStatus').value;
+            const startTime = document.getElementById('startTime').value.trim();
+            const endTime = document.getElementById('endTime').value.trim();
+            const shiftStatus = document.getElementById('shiftStatus').value;
+            
+            const order = {
+                status: status,
+                start_time: startTime || null,
+                end_time: endTime || null
+            };
+            
+            const currentShift = shiftStatus ? { status: shiftStatus } : null;
+            
+            console.log('📋 Current order:', order);
+            console.log('📋 Current shift:', currentShift);
+            
+            // Cập nhật button visibility
+            updateButtonVisibility(order, currentShift);
+        }
+        
+        // Auto test khi load trang
+        window.onload = function() {
+            console.log('🚀 Test page loaded');
+            updateOrderStatus();
+        };
+    </script>
+</body>
+</html>

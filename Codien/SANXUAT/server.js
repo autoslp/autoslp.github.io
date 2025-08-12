@@ -2922,30 +2922,70 @@ app.post('/data/production_orders_shift', (req, res) => {
 
       const newShiftId = insertResult.insertId;
 
-      // Lấy thông tin shift vừa tạo
-      const getShiftQuery = `
-        SELECT 
-          pos.*,
-          po.production_order,
-          po.product_name,
-          po.customer_name
-        FROM production_orders_shift pos
-        LEFT JOIN production_orders po ON pos.production_order_id = po.id
-        WHERE pos.id = ?
-      `;
+      // Cập nhật bảng production_machines nếu có machine_name
+      if (machine_name) {
+        const updateMachineQuery = `
+          UPDATE production_machines 
+          SET 
+            current_order_id = ?,
+            current_order_code = ?
+          WHERE machine_name = ?
+        `;
 
-      db.query(getShiftQuery, [newShiftId], (getErr, getResults) => {
-        if (getErr) {
-          console.error('❌ Lỗi lấy thông tin shift mới:', getErr);
-        }
+        const machineQueryParams = [
+          production_order_id,
+          production_order,
+          machine_name
+        ];
 
-        res.status(201).json({
-          success: true,
-          message: `Đã tạo ca ${shift_number} cho công đoạn ${stage}`,
-          shift_id: newShiftId,
-          shift: getResults[0] || { id: newShiftId }
+        db.query(updateMachineQuery, machineQueryParams, (machineErr, machineResult) => {
+          if (machineErr) {
+            console.error('❌ Lỗi cập nhật production_machines:', machineErr);
+            // Không return error vì shift đã tạo thành công, chỉ log lỗi
+          } else {
+            console.log('✅ Cập nhật production_machines thành công:', {
+              machine_name,
+              current_order_id: production_order_id,
+              current_order_code: production_order,
+              affected_rows: machineResult.affectedRows
+            });
+          }
+
+          // Tiếp tục với việc lấy thông tin shift
+          completeShiftCreation();
         });
-      });
+      } else {
+        // Nếu không có machine_name, tiếp tục trực tiếp
+        completeShiftCreation();
+      }
+
+      function completeShiftCreation() {
+        // Lấy thông tin shift vừa tạo
+        const getShiftQuery = `
+          SELECT 
+            pos.*,
+            po.production_order,
+            po.product_name,
+            po.customer_name
+          FROM production_orders_shift pos
+          LEFT JOIN production_orders po ON pos.production_order_id = po.id
+          WHERE pos.id = ?
+        `;
+
+        db.query(getShiftQuery, [newShiftId], (getErr, getResults) => {
+          if (getErr) {
+            console.error('❌ Lỗi lấy thông tin shift mới:', getErr);
+          }
+
+          res.status(201).json({
+            success: true,
+            message: `Đã tạo ca ${shift_number} cho công đoạn ${stage}`,
+            shift_id: newShiftId,
+            shift: getResults[0] || { id: newShiftId },
+            machine_updated: !!machine_name
+          });
+        });
+      }
     });
   });
 

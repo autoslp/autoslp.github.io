@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Start Production</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-container { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .btn { padding: 10px 20px; margin: 5px; border: none; border-radius: 3px; cursor: pointer; }
+        .btn-success { background: #28a745; color: white; }
+        .log { margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 3px; font-family: monospace; }
+        .error { background: #ffe6e6; color: #d32f2f; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+    </style>
+</head>
+<body>
+    <h1>Test Start Production Function</h1>
+    
+    <div class="test-container">
+        <h3>Test 1: Kiểm tra các hàm formatDateTime</h3>
+        <button class="btn btn-success" onclick="testFormatDateTime()">Test Format DateTime</button>
+        <div id="log1" class="log"></div>
+    </div>
+    
+    <div class="test-container">
+        <h3>Test 2: Simulate startProduction environment</h3>
+        <button class="btn btn-success" onclick="testStartProduction()">Test Start Production</button>
+        <div id="log2" class="log"></div>
+    </div>
+
+    <script>
+        // Copy các hàm từ xen-stage.html
+        function formatDateTime(dateString) {
+            if (!dateString) return 'N/A';
+        
+            try {
+                // Xóa Z để JS không coi là UTC
+                const localDateString = dateString.replace('Z', '');
+                const date = new Date(localDateString);
+
+                return date.toLocaleString('vi-VN', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            } catch (error) {
+                console.error('Error formatting date:', error);
+                return 'Error';
+            }
+        }
+        
+        function formatDateTimeForInput(dateString) {
+            if (!dateString) return '';
+            
+            try {
+                const date = new Date(dateString);
+                
+                // Kiểm tra date có hợp lệ không
+                if (isNaN(date.getTime())) {
+                    console.error('Invalid date in formatDateTimeForInput:', dateString);
+                    return '';
+                }
+                
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${year}-${month}-${day}T${hours}:${minutes}`;
+            } catch (error) {
+                console.error('Error in formatDateTimeForInput:', error);
+                return '';
+            }
+        }
+        
+        function calculateWorkTime(startTime, endTime) {
+            if (!startTime || !endTime) return 'N/A';
+            
+            try {
+                const start = new Date(startTime);
+                const end = new Date(endTime);
+                
+                // Kiểm tra nếu date không hợp lệ
+                if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+                    console.error('Invalid date in calculateWorkTime:', { startTime, endTime });
+                    return 'Invalid date';
+                }
+                
+                const diffMs = end - start;
+                
+                // Xử lý trường hợp thời gian âm
+                if (diffMs < 0) {
+                    console.warn('Negative time difference in calculateWorkTime:', { startTime, endTime, diffMs });
+                    return '00:00:00';
+                }
+
+                const hours = Math.floor(diffMs / (1000 * 60 * 60));
+                const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+                
+                return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            } catch (error) {
+                console.error('Error calculating work time:', error);
+                return 'Error';
+            }
+        }
+        
+        // Test 1: Kiểm tra các hàm formatDateTime
+        function testFormatDateTime() {
+            const log = document.getElementById('log1');
+            log.innerHTML = '';
+            
+            try {
+                log.innerHTML += '🔍 Testing formatDateTime functions...<br>';
+                
+                // Test formatDateTime
+                const testDate = new Date();
+                const formatted = formatDateTime(testDate.toISOString());
+                log.innerHTML += `✅ formatDateTime: ${formatted}<br>`;
+                
+                // Test formatDateTimeForInput
+                const inputFormatted = formatDateTimeForInput(testDate.toISOString());
+                log.innerHTML += `✅ formatDateTimeForInput: ${inputFormatted}<br>`;
+                
+                // Test calculateWorkTime
+                const workTime = calculateWorkTime(testDate.toISOString(), new Date().toISOString());
+                log.innerHTML += `✅ calculateWorkTime: ${workTime}<br>`;
+                
+                // Test với invalid date
+                const invalidResult = formatDateTimeForInput('invalid-date');
+                log.innerHTML += `✅ Invalid date test: ${invalidResult}<br>`;
+                
+                log.className = 'log success';
+                
+            } catch (error) {
+                log.innerHTML += `❌ Error: ${error.message}<br>`;
+                log.className = 'log error';
+                console.error('Test error:', error);
+            }
+        }
+        
+        // Test 2: Simulate startProduction
+        function testStartProduction() {
+            const log = document.getElementById('log2');
+            log.innerHTML = '';
+            
+            try {
+                log.innerHTML += '🔧 Simulating startProduction environment...<br>';
+                
+                // Tạo môi trường test
+                const now = new Date();
+                
+                // Test formatDateTimeForMySQL function
+                const formatDateTimeForMySQL = (date) => {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+                    const seconds = String(date.getSeconds()).padStart(2, '0');
+                    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                };
+                
+                const mysqlDateTime = formatDateTimeForMySQL(now);
+                log.innerHTML += `✅ MySQL DateTime: ${mysqlDateTime}<br>`;
+                
+                // Test với các loại date khác nhau
+                const testCases = [
+                    new Date(),
+                    '2025-08-12T16:07:54.000Z',
+                    '2025-08-12 16:07:54',
+                    null,
+                    undefined,
+                    'invalid-date'
+                ];
+                
+                testCases.forEach((testCase, index) => {
+                    try {
+                        if (testCase instanceof Date) {
+                            const result = formatDateTimeForMySQL(testCase);
+                            log.innerHTML += `✅ Test ${index + 1} (Date object): ${result}<br>`;
+                        } else if (testCase) {
+                            const result = formatDateTime(testCase);
+                            log.innerHTML += `✅ Test ${index + 1} (String): ${result}<br>`;
+                        } else {
+                            const result = formatDateTime(testCase);
+                            log.innerHTML += `✅ Test ${index + 1} (null/undefined): ${result}<br>`;
+                        }
+                    } catch (error) {
+                        log.innerHTML += `❌ Test ${index + 1} failed: ${error.message}<br>`;
+                    }
+                });
+                
+                log.className = 'log success';
+                
+            } catch (error) {
+                log.innerHTML += `❌ Error: ${error.message}<br>`;
+                log.className = 'log error';
+                console.error('Test error:', error);
+            }
+        }
+        
+        // Auto test khi load trang
+        window.onload = function() {
+            console.log('🚀 Test page loaded');
+            testFormatDateTime();
+        };
+    </script>
+</body>
+</html>

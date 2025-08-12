@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Button Visibility Logic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .button {
+            margin: 5px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-success-custom { background-color: #28a745; color: white; }
+        .btn-info-custom { background-color: #17a2b8; color: white; }
+        .btn-warning-custom { background-color: #ffc107; color: black; }
+        .btn-primary-custom { background-color: #007bff; color: white; }
+        .btn-secondary-custom { background-color: #6c757d; color: white; }
+        .btn-custom:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .status-indicator {
+            padding: 5px 10px;
+            border-radius: 3px;
+            color: white;
+            font-weight: bold;
+            display: inline-block;
+            margin: 5px;
+        }
+        .status-not_started { background-color: #6c757d; }
+        .status-in_progress { background-color: #007bff; }
+        .status-completed { background-color: #28a745; }
+        .status-handed_over { background-color: #17a2b8; }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Button Visibility Logic</h1>
+        <p>Test logic ẩn hiện button dựa trên <strong>shift status</strong> (không dùng order status)</p>
+
+        <div class="test-section">
+            <h3>📋 Cấu hình Test</h3>
+            
+            <div class="form-group">
+                <label for="shiftStatus">Shift Status:</label>
+                <select id="shiftStatus">
+                    <option value="not_started">not_started</option>
+                    <option value="in_progress">in_progress</option>
+                    <option value="completed">completed</option>
+                    <option value="handed_over">handed_over</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="startTime">Start Time:</label>
+                <input type="datetime-local" id="startTime">
+            </div>
+
+            <div class="form-group">
+                <label for="endTime">End Time:</label>
+                <input type="datetime-local" id="endTime">
+            </div>
+
+            <button onclick="testButtonVisibility()" class="button btn-primary-custom">🔄 Test Button Visibility</button>
+        </div>
+
+        <div class="test-section">
+            <h3>🎯 Trạng thái hiện tại</h3>
+            <div id="currentStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔘 Buttons</h3>
+            <div id="buttonsContainer">
+                <button class="btn-custom btn-success-custom" id="startBtn">
+                    <i class="bi bi-play-fill"></i>
+                    Bắt đầu
+                </button>
+                <button class="btn-custom btn-info-custom" id="handoverShiftBtn">
+                    <i class="bi bi-clock-history"></i>
+                    Bàn giao ca
+                </button>
+                <button class="btn-custom btn-warning-custom" id="stopAndHandoverBtn">
+                    <i class="bi bi-clipboard2-check-fill"></i>
+                    Bàn giao sang Stage tiếp theo
+                </button>
+                <button class="btn-custom btn-primary-custom" id="handoverBtn">
+                    <i class="bi bi-clipboard2-check-fill"></i>
+                    Bàn giao
+                </button>
+                <button class="btn-custom btn-secondary-custom" id="resetBtn">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    Hủy làm
+                </button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Kết quả Logic</h3>
+            <div id="logicResults"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 Log</h3>
+            <div id="log" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        // Mock functions từ xen-stage.html
+        function getOrderField(order, field) {
+            const fieldName = getFieldName(field);
+            const value = order[fieldName] || order[field];
+
+            // Trả về null cho các trường thời gian thay vì 0
+            if (field === 'start_time' || field === 'end_time') {
+                return value || null;
+            }
+
+            return value || 0;
+        }
+
+        function getFieldName(field) {
+            const fieldMap = {
+                'production_order': 'production_order',
+                'status': 'status',
+                'start_time': 'start_time',
+                'end_time': 'end_time',
+                'quantity': 'quantity',
+                'completed_quantity': 'completed_quantity',
+                'defect_quantity': 'defect_quantity',
+                'stage': 'stage',
+                'next_stage': 'next_stage'
+            };
+            return fieldMap[field] || field;
+        }
+
+        // Logic mới chỉ sử dụng shift status
+        function getButtonDisplayStyle(buttonType, order, currentShift = null) {
+            const startTime = getOrderField(order, 'start_time');
+            const endTime = getOrderField(order, 'end_time');
+            
+            // Chỉ sử dụng status từ shift, không dùng order status
+            const status = currentShift?.status || 'not_started';
+            
+            log(`🔍 Button display check - ${buttonType}:`, {
+                shiftStatus: currentShift?.status,
+                finalStatus: status,
+                startTime: startTime ? 'has start time' : 'no start time',
+                endTime: endTime ? 'has end time' : 'no end time'
+            });
+            
+            switch (buttonType) {
+                case 'start':
+                    // Hiển thị nút "Bắt đầu" khi chưa có start_time và shift chưa bắt đầu
+                    return (!startTime && status === 'not_started') ? 'display: flex;' : 'display: none;';
+                    
+                case 'handoverShift':
+                    // Hiển thị nút "Bàn giao ca" khi đã có start_time, chưa có end_time và đang trong quá trình
+                    return (startTime && !endTime && status === 'in_progress') ? 'display: flex;' : 'display: none;';
+                    
+                case 'stopAndHandover':
+                    // Hiển thị nút "Bàn giao sang stage tiếp theo" khi đã có start_time, chưa có end_time và đang trong quá trình
+                    return (startTime && !endTime && status === 'in_progress') ? 'display: flex;' : 'display: none;';
+                    
+                case 'handover':
+                    // Hiển thị nút "Bàn giao" khi đã có start_time và end_time, nhưng chưa handed_over
+                    return (startTime && endTime && status !== 'handed_over') ? 'display: flex;' : 'display: none;';
+                    
+                case 'reset':
+                    // Hiển thị nút "Hủy làm" khi đang trong quá trình sản xuất
+                    return (startTime && status === 'in_progress') ? 'display: flex; max-width: 100px;' : 'display: none;';
+                    
+                default:
+                    return 'display: none;';
+            }
+        }
+
+        function getButtonDisabledState(buttonType, currentShift = null) {
+            // Chỉ sử dụng status từ shift, không dùng order status
+            const status = currentShift?.status || 'not_started';
+            
+            log(`🔍 Button disabled check - ${buttonType}:`, {
+                shiftStatus: currentShift?.status,
+                finalStatus: status
+            });
+            
+            switch (buttonType) {
+                case 'start':
+                    // Disable nút "Bắt đầu" khi shift đã hoàn thành hoặc đã bàn giao
+                    return (status === 'completed' || status === 'handed_over') ? 'disabled' : '';
+                    
+                case 'handoverShift':
+                    // Disable nút "Bàn giao ca" khi shift chưa bắt đầu hoặc đã bàn giao
+                    return (status === 'not_started' || status === 'handed_over') ? 'disabled' : '';
+                    
+                case 'stopAndHandover':
+                    // Disable nút "Bàn giao sang stage tiếp theo" khi shift chưa bắt đầu hoặc đã bàn giao
+                    return (status === 'not_started' || status === 'handed_over') ? 'disabled' : '';
+                    
+                case 'handover':
+                    // Disable nút "Bàn giao" khi đã bàn giao
+                    return (status === 'handed_over') ? 'disabled' : '';
+                    
+                case 'reset':
+                    // Disable nút "Hủy làm" khi không trong quá trình sản xuất
+                    return (status !== 'in_progress') ? 'disabled' : '';
+                    
+                default:
+                    return '';
+            }
+        }
+
+        async function updateButtonVisibility(order) {
+            if (!order) {
+                log('⚠️ No order provided for updateButtonVisibility');
+                return;
+            }
+            
+            // Mock currentShift từ dropdown
+            const shiftStatus = document.getElementById('shiftStatus').value;
+            const currentShift = { status: shiftStatus };
+            
+            const buttons = {
+                'startBtn': 'start',
+                'handoverShiftBtn': 'handoverShift', 
+                'stopAndHandoverBtn': 'stopAndHandover',
+                'handoverBtn': 'handover',
+                'resetBtn': 'reset'
+            };
+            
+            Object.entries(buttons).forEach(([buttonId, buttonType]) => {
+                const button = document.getElementById(buttonId);
+                if (button) {
+                    const displayStyle = getButtonDisplayStyle(buttonType, order, currentShift);
+                    const disabledState = getButtonDisabledState(buttonType, currentShift);
+                    
+                    button.style.cssText = displayStyle;
+                    button.disabled = disabledState === 'disabled';
+                    
+                    log(`🔄 Updated ${buttonId}:`, {
+                        buttonType,
+                        displayStyle,
+                        disabledState,
+                        visible: displayStyle.includes('display: flex'),
+                        disabled: button.disabled,
+                        shiftStatus: currentShift?.status || 'no shift'
+                    });
+                } else {
+                    log(`⚠️ Button not found: ${buttonId}`);
+                }
+            });
+        }
+
+        function log(message, data = null) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            let logMessage = `[${timestamp}] ${message}`;
+            
+            if (data) {
+                logMessage += ` ${JSON.stringify(data, null, 2)}`;
+            }
+            
+            logDiv.innerHTML += logMessage + '\n';
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(logMessage);
+        }
+
+        function testButtonVisibility() {
+            // Clear log
+            document.getElementById('log').innerHTML = '';
+            
+            const shiftStatus = document.getElementById('shiftStatus').value;
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+
+            // Tạo order object
+            const order = {
+                production_order: 'TEST-001',
+                status: 'test_status', // Không được sử dụng trong logic mới
+                start_time: startTime || null,
+                end_time: endTime || null,
+                quantity: 100,
+                completed_quantity: 50,
+                defect_quantity: 5,
+                stage: 'xa',
+                next_stage: 'xen'
+            };
+
+            // Tạo currentShift object
+            const currentShift = { status: shiftStatus };
+
+            // Hiển thị trạng thái hiện tại
+            const currentStatusDiv = document.getElementById('currentStatus');
+            currentStatusDiv.innerHTML = `
+                <div class="status-indicator status-${shiftStatus}">Shift Status: ${shiftStatus}</div>
+                <div>Start Time: ${startTime || 'Không có'}</div>
+                <div>End Time: ${endTime || 'Không có'}</div>
+                <div>Order Status: ${order.status} (không được sử dụng)</div>
+            `;
+
+            // Test logic cho từng button
+            const buttons = {
+                'startBtn': 'start',
+                'handoverShiftBtn': 'handoverShift', 
+                'stopAndHandoverBtn': 'stopAndHandover',
+                'handoverBtn': 'handover',
+                'resetBtn': 'reset'
+            };
+
+            let logicResults = '<h4>Kết quả Logic:</h4>';
+            Object.entries(buttons).forEach(([buttonId, buttonType]) => {
+                const displayStyle = getButtonDisplayStyle(buttonType, order, currentShift);
+                const disabledState = getButtonDisabledState(buttonType, currentShift);
+                
+                logicResults += `
+                    <div style="margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        <strong>${buttonId} (${buttonType}):</strong><br>
+                        Display: ${displayStyle}<br>
+                        Disabled: ${disabledState}<br>
+                        Visible: ${displayStyle.includes('display: flex')}<br>
+                        Disabled: ${disabledState === 'disabled'}
+                    </div>
+                `;
+            });
+
+            document.getElementById('logicResults').innerHTML = logicResults;
+
+            // Cập nhật button visibility
+            updateButtonVisibility(order);
+        }
+
+        // Khởi tạo test
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default values
+            const now = new Date();
+            const startTime = new Date(now.getTime() - 2 * 60 * 60 * 1000); // 2 giờ trước
+            const endTime = new Date(now.getTime() - 30 * 60 * 1000); // 30 phút trước
+            
+            document.getElementById('startTime').value = startTime.toISOString().slice(0, 16);
+            document.getElementById('endTime').value = endTime.toISOString().slice(0, 16);
+            
+            // Run initial test
+            testButtonVisibility();
+        });
+    </script>
+</body>
+</html>

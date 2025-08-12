@@ -82,3 +82,4 @@ Nếu có dữ liệu cũ trong trường `total_shifts`, có thể cần script
 2. Test API endpoint `/data/production_orders/:id/end_shift`
 3. Test frontend để đảm bảo hiển thị đúng dữ liệu ca kíp
 4. Test với các giai đoạn khác nhau (xen, xa, in_offset, etc.)
+
