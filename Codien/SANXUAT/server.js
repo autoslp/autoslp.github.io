@@ -4,6 +4,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 
+
 const app = express();
 const port = 3000;
 
@@ -687,53 +688,256 @@ app.post('/data/production_orders', (req, res) => {
   });
 });
 
-// C?p nh?t l?nh s?n xu?t
+/**
+ * Cập nhật lệnh sản xuất - Chỉ xử lý dữ liệu cần thiết
+ * Hỗ trợ cập nhật các trường stage-specific cơ bản:
+ * - status: Trạng thái tổng quát
+ * - [stage]_status: Trạng thái công đoạn
+ * - [stage]_worker_name: Tên thợ
+ * - [stage]_machine_name: Tên máy
+ * - [stage]_start_time: Thời gian bắt đầu
+ */
 app.put('/data/production_orders/:id', (req, res) => {
   const { id } = req.params;
-  const {
-    deployment_date, production_order, po_number, sales_order_code, order_date, delivery_date,
-    internal_product_code, order_type, customer_code, customer_name, product_name, version,
-    not_deployed_reason, sales_note, customer_production_note, order_quantity, inventory,
-    required_quantity, deployed_quantity, offset_waste, waste, sheet_count, product_length,
-    product_width, product_height, paper_length, paper_width, part_count, color_count,
-    customer_group, paper_type, paper_weight, work_stage, status
-  } = req.body;
   
-  const query = `
-    UPDATE production_orders SET 
-      deployment_date = ?, production_order = ?, po_number = ?, sales_order_code = ?, 
-      order_date = ?, delivery_date = ?, internal_product_code = ?, order_type = ?, 
-      customer_code = ?, customer_name = ?, product_name = ?, version = ?,
-      not_deployed_reason = ?, sales_note = ?, customer_production_note = ?, 
-      order_quantity = ?, inventory = ?, required_quantity = ?, deployed_quantity = ?, 
-      offset_waste = ?, waste = ?, sheet_count = ?, product_length = ?, product_width = ?, 
-      product_height = ?, paper_length = ?, paper_width = ?, part_count = ?, color_count = ?,
-      customer_group = ?, paper_type = ?, paper_weight = ?, work_stage = ?, status = ?,
-      updated_at = CURRENT_TIMESTAMP
-    WHERE id = ?
-  `;
+  // Chỉ xử lý các trường cần thiết
+  const updateFields = {};
+  const updateValues = [];
   
-  db.query(query, [
-    deployment_date, production_order, po_number, sales_order_code, order_date, delivery_date,
-    internal_product_code, order_type, customer_code, customer_name, product_name, version,
-    not_deployed_reason, sales_note, customer_production_note, order_quantity || 0, inventory || 0,
-    required_quantity || 0, deployed_quantity || 0, offset_waste || 0, waste || 0, sheet_count || 0,
-    product_length, product_width, product_height, paper_length, paper_width, part_count || 0,
-    color_count || 0, customer_group, paper_type, paper_weight, work_stage, status, id
-  ], (err, result) => {
+  // Các trường cơ bản cần thiết
+  const essentialFields = ['status', 'work_stage'];
+  
+  // Các trường stage-specific cần thiết (pattern: [stage]_[field])
+  const stagePatterns = [
+    '_status', '_worker_name', '_machine_name', '_start_time', '_end_time', '_note', '_shift'
+  ];
+  
+  // Xử lý các trường cơ bản
+  essentialFields.forEach(field => {
+    if (req.body.hasOwnProperty(field)) {
+      let value = req.body[field];
+      
+      // Map các giá trị status từ tiếng Anh sang tiếng Việt
+      if (field === 'status') {
+        const statusMapping = {
+          'waiting': 'Chờ triển khai',
+          'in_progress': 'Đang sản xuất', 
+          'completed': 'Hoàn thành',
+          'cancelled': 'Đã hủy',
+          'paused': 'Tạm dừng'
+        };
+        value = statusMapping[value] || value;
+      }
+      
+      updateFields[field] = value;
+      updateValues.push(value);
+    }
+  });
+  
+  // Xử lý các trường stage-specific
+  Object.keys(req.body).forEach(field => {
+    // Kiểm tra xem có phải là trường stage-specific không
+    const isStageField = stagePatterns.some(pattern => field.endsWith(pattern));
+    
+    if (isStageField && !updateFields.hasOwnProperty(field)) {
+      // Kiểm tra tên field hợp lệ
+      if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(field)) {
+        let value = req.body[field];
+        
+        // Map các giá trị status cho stage-specific fields
+        if (field.endsWith('_status')) {
+          const statusMapping = {
+            'waiting': 'waiting',
+            'in_progress': 'in_progress', 
+            'completed': 'completed',
+            'cancelled': 'cancelled',
+            'paused': 'paused'
+          };
+          value = statusMapping[value] || value;
+        }
+        
+        updateFields[field] = value;
+        updateValues.push(value);
+      }
+    }
+  });
+  
+  // Logic tự động cập nhật trạng thái công đoạn tiếp theo
+  // Kiểm tra xem có cần cập nhật trạng thái công đoạn tiếp theo không
+  let shouldUpdateNextStage = false;
+  let nextStage = null;
+  
+  // Kiểm tra nếu có trường stage-specific status được cập nhật thành 'handed_over'
+  Object.keys(updateFields).forEach(field => {
+    if (field.endsWith('_status') && updateFields[field] === 'handed_over') {
+      shouldUpdateNextStage = true;
+      // Lấy tên stage từ field (ví dụ: in_offset_status -> in_offset)
+      nextStage = field.replace('_status', '');
+    }
+  });
+  
+  // Nếu không tìm thấy trong updateFields, kiểm tra trong req.body
+  if (!shouldUpdateNextStage) {
+    Object.keys(req.body).forEach(field => {
+      if (field.endsWith('_status') && req.body[field] === 'handed_over') {
+        shouldUpdateNextStage = true;
+        nextStage = field.replace('_status', '');
+      }
+    });
+  }
+  
+  // Nếu vẫn không tìm thấy, sử dụng next_stage từ request body
+  if (!shouldUpdateNextStage && req.body.next_stage) {
+    nextStage = req.body.next_stage;
+    shouldUpdateNextStage = true;
+  }
+  
+  // Nếu cần cập nhật trạng thái công đoạn tiếp theo
+  if (shouldUpdateNextStage && nextStage) {
+    const nextStageStatusField = `${nextStage}_status`;
+    
+    // Chỉ cập nhật nếu chưa có trong updateFields
+    if (!updateFields.hasOwnProperty(nextStageStatusField)) {
+      updateFields[nextStageStatusField] = 'waiting';
+      updateValues.push('waiting');
+      console.log(`🔄 Tự động cập nhật trạng thái công đoạn tiếp theo: ${nextStage}_status = waiting`);
+    }
+  }
+  
+  // Nếu vẫn chưa tìm thấy next_stage, thử lấy từ database
+  if (!shouldUpdateNextStage) {
+    // Tạm thời lưu updateFields để query database
+    const tempUpdateFields = { ...updateFields };
+    delete tempUpdateFields['updated_at'];
+    
+    // Tạo query để lấy next_stage từ database
+    const getNextStageQuery = `SELECT next_stage FROM production_orders WHERE id = ?`;
+    
+    db.query(getNextStageQuery, [id], (nextStageErr, nextStageResults) => {
+      if (!nextStageErr && nextStageResults.length > 0 && nextStageResults[0].next_stage) {
+        const dbNextStage = nextStageResults[0].next_stage;
+        const dbNextStageStatusField = `${dbNextStage}_status`;
+        
+        // Chỉ cập nhật nếu chưa có trong updateFields
+        if (!tempUpdateFields.hasOwnProperty(dbNextStageStatusField)) {
+          tempUpdateFields[dbNextStageStatusField] = 'waiting';
+          console.log(`🔄 Tự động cập nhật trạng thái công đoạn tiếp theo từ DB: ${dbNextStage}_status = waiting`);
+        }
+        
+        // Cập nhật lại updateFields và updateValues
+        updateFields[dbNextStageStatusField] = 'waiting';
+        updateValues.push('waiting');
+      }
+      
+      // Tiếp tục với logic cập nhật chính
+      continueWithUpdate();
+    });
+    
+    // Hàm tiếp tục với logic cập nhật
+    function continueWithUpdate() {
+      // Thêm updated_at
+      updateFields['updated_at'] = 'CURRENT_TIMESTAMP';
+      
+      // Kiểm tra có field nào để update không
+      if (Object.keys(updateFields).length === 0) {
+        return res.status(400).json({ 
+          error: 'Không có trường nào để cập nhật',
+          received_fields: Object.keys(req.body)
+        });
+      }
+      
+      // Tạo query động
+      const setClause = Object.keys(updateFields).map(field => {
+        if (field === 'updated_at') {
+          return `${field} = CURRENT_TIMESTAMP`;
+        }
+        return `${field} = ?`;
+      }).join(', ');
+      
+      const query = `UPDATE production_orders SET ${setClause} WHERE id = ?`;
+      const finalUpdateValues = [...updateValues, id];
+      
+      console.log('🔄 Updating production_orders:', {
+        order_id: id,
+        fields: Object.keys(updateFields),
+        values_count: finalUpdateValues.length,
+        update_data: updateFields
+      });
+      
+      db.query(query, finalUpdateValues, (err, result) => {
+        if (err) {
+          console.error('❌ Lỗi cập nhật:', err);
+          return res.status(500).json({ 
+            error: 'Lỗi cập nhật lệnh sản xuất', 
+            details: err.message
+          });
+        }
+        if (result.affectedRows === 0) {
+          return res.status(404).json({ error: 'Không tìm thấy lệnh sản xuất' });
+        }
+        res.json({ 
+          success: true, 
+          message: 'Cập nhật thành công',
+          updated_fields: Object.keys(updateFields),
+          affected_rows: result.affectedRows
+        });
+      });
+    }
+    
+    // Return sớm để tránh thực hiện logic cập nhật chính
+    return;
+  }
+  
+  // Thêm updated_at
+  updateFields['updated_at'] = 'CURRENT_TIMESTAMP';
+  
+  // Kiểm tra có field nào để update không
+  if (Object.keys(updateFields).length === 0) {
+    return res.status(400).json({ 
+      error: 'Không có trường nào để cập nhật',
+      received_fields: Object.keys(req.body)
+    });
+  }
+  
+  // Tạo query động
+  const setClause = Object.keys(updateFields).map(field => {
+    if (field === 'updated_at') {
+      return `${field} = CURRENT_TIMESTAMP`;
+    }
+    return `${field} = ?`;
+  }).join(', ');
+  
+  const query = `UPDATE production_orders SET ${setClause} WHERE id = ?`;
+  updateValues.push(id);
+  
+  console.log('🔄 Updating production_orders:', {
+    order_id: id,
+    fields: Object.keys(updateFields),
+    values_count: updateValues.length,
+    update_data: updateFields
+  });
+  
+  db.query(query, updateValues, (err, result) => {
     if (err) {
-      console.error('? L?i c?p nh?t l?nh s?n xu?t:', err);
-      return res.status(500).json({ error: 'L?i c?p nh?t l?nh s?n xu?t', details: err.message });
+      console.error('❌ Lỗi cập nhật:', err);
+      return res.status(500).json({ 
+        error: 'Lỗi cập nhật lệnh sản xuất', 
+        details: err.message
+      });
     }
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Kh ng t m th?y l?nh s?n xu?t' });
+      return res.status(404).json({ error: 'Không tìm thấy lệnh sản xuất' });
     }
     res.json({ 
       success: true, 
-      message: 'C?p nh?t l?nh s?n xu?t th nh c ng' 
+      message: 'Cập nhật thành công',
+      updated_fields: Object.keys(updateFields),
+      affected_rows: result.affectedRows
     });
   });
 });
+
+
 
 // X a l?nh s?n xu?t
 app.delete('/data/production_orders/:id', (req, res) => {
@@ -2743,6 +2947,7 @@ app.get('/data/production_machines/:machine_name', (req, res) => {
 
 
 
+
 // =====================================================
 // PRODUCTION ORDERS SHIFT APIs
 // Quản lý thông tin chi tiết theo từng ca làm việc
@@ -2844,6 +3049,13 @@ app.get('/data/production_orders_shift/:id', (req, res) => {
   });
 });
 
+
+
+
+
+
+
+
 // API TẠO SHIFT MỚI
 app.post('/data/production_orders_shift', (req, res) => {
   const {
@@ -2921,7 +3133,7 @@ app.post('/data/production_orders_shift', (req, res) => {
       }
 
       const newShiftId = insertResult.insertId;
-
+      
       // Cập nhật bảng production_machines nếu có machine_name
       if (machine_name) {
         const updateMachineQuery = `
@@ -2931,13 +3143,13 @@ app.post('/data/production_orders_shift', (req, res) => {
             current_order_code = ?
           WHERE machine_name = ?
         `;
-
+      
         const machineQueryParams = [
           production_order_id,
           production_order,
           machine_name
         ];
-
+      
         db.query(updateMachineQuery, machineQueryParams, (machineErr, machineResult) => {
           if (machineErr) {
             console.error('❌ Lỗi cập nhật production_machines:', machineErr);
@@ -2950,7 +3162,7 @@ app.post('/data/production_orders_shift', (req, res) => {
               affected_rows: machineResult.affectedRows
             });
           }
-
+      
           // Tiếp tục với việc lấy thông tin shift
           completeShiftCreation();
         });
@@ -2958,7 +3170,7 @@ app.post('/data/production_orders_shift', (req, res) => {
         // Nếu không có machine_name, tiếp tục trực tiếp
         completeShiftCreation();
       }
-
+      
       function completeShiftCreation() {
         // Lấy thông tin shift vừa tạo
         const getShiftQuery = `
@@ -2971,12 +3183,12 @@ app.post('/data/production_orders_shift', (req, res) => {
           LEFT JOIN production_orders po ON pos.production_order_id = po.id
           WHERE pos.id = ?
         `;
-
+      
         db.query(getShiftQuery, [newShiftId], (getErr, getResults) => {
           if (getErr) {
             console.error('❌ Lỗi lấy thông tin shift mới:', getErr);
           }
-
+      
           res.status(201).json({
             success: true,
             message: `Đã tạo ca ${shift_number} cho công đoạn ${stage}`,
@@ -2988,6 +3200,10 @@ app.post('/data/production_orders_shift', (req, res) => {
       }
     });
   });
+
+
+
+
 
 // API CẬP NHẬT SHIFT
 app.put('/data/production_orders_shift/:id', (req, res) => {
@@ -3091,12 +3307,84 @@ app.put('/data/production_orders_shift/:id', (req, res) => {
       });
     }
 
-    res.json({
-      success: true,
-      message: 'Đã cập nhật shift thành công',
-      shift_id: shiftId,
-      affected_rows: result.affectedRows
-    });
+    // Cập nhật bảng production_machines dựa trên status và machine_name
+    if (machine_name) {
+      // Lấy thông tin production_order_id và production_order từ shift
+      const getShiftInfoQuery = `
+        SELECT production_order_id, production_order 
+        FROM production_orders_shift 
+        WHERE id = ?
+      `;
+      
+      db.query(getShiftInfoQuery, [shiftId], (shiftErr, shiftResults) => {
+        if (shiftErr) {
+          console.error('❌ Lỗi lấy thông tin shift:', shiftErr);
+          // Tiếp tục trả về response thành công vì shift đã update thành công
+          completeUpdate();
+        } else if (shiftResults.length > 0) {
+          const shiftInfo = shiftResults[0];
+          
+          // Kiểm tra nếu status là completed hoặc handed_over thì reset machine về 0
+          const isHandover = status === 'completed' || status === 'handed_over';
+          
+          const updateMachineQuery = `
+            UPDATE production_machines 
+            SET 
+              current_order_id = ?,
+              current_order_code = ?
+            WHERE machine_name = ?
+          `;
+        
+          const machineQueryParams = [
+            isHandover ? null : shiftInfo.production_order_id,  // Reset về null nếu bàn giao
+            isHandover ? null : shiftInfo.production_order,     // Reset về null nếu bàn giao
+            machine_name
+          ];
+        
+          db.query(updateMachineQuery, machineQueryParams, (machineErr, machineResult) => {
+            if (machineErr) {
+              console.error('❌ Lỗi cập nhật production_machines:', machineErr);
+              // Không return error vì shift đã update thành công, chỉ log lỗi
+            } else {
+              if (isHandover) {
+                console.log('✅ Reset production_machines thành công (bàn giao):', {
+                  machine_name,
+                  current_order_id: 'null',
+                  current_order_code: 'null',
+                  affected_rows: machineResult.affectedRows
+                });
+              } else {
+                console.log('✅ Cập nhật production_machines thành công:', {
+                  machine_name,
+                  current_order_id: shiftInfo.production_order_id,
+                  current_order_code: shiftInfo.production_order,
+                  affected_rows: machineResult.affectedRows
+                });
+              }
+            }
+        
+            // Tiếp tục với response
+            completeUpdate();
+          });
+        } else {
+          // Không tìm thấy thông tin shift, tiếp tục trả về response
+          completeUpdate();
+        }
+      });
+    } else {
+      // Nếu không có machine_name, tiếp tục trực tiếp
+      completeUpdate();
+    }
+    
+    function completeUpdate() {
+      res.json({
+        success: true,
+        message: 'Đã cập nhật shift thành công',
+        shift_id: shiftId,
+        affected_rows: result.affectedRows,
+        machine_updated: !!machine_name
+      });
+    }
   });
 });
 
@@ -3450,6 +3738,19 @@ app.get('/data/production_orders/:id/summary', (req, res) => {
     });
   });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

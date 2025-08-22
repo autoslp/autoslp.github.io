@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo Cáo Tổng Quan - Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary-color: #726bff;
+      --secondary-color: #667eea;
+      --success-color: #28a745;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
+      --info-color: #17a2b8;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .dashboard-header {
+      background: white;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .stats-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+      border: none;
+    }
+
+    .stats-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .stats-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .stats-number {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .stats-label {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+      height: 400px;
+      position: relative;
+    }
+
+    .table-container {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .progress-custom {
+      height: 8px;
+      border-radius: 10px;
+      background: #e9ecef;
+    }
+
+    .progress-custom .progress-bar {
+      border-radius: 10px;
+    }
+
+    .filter-section {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .btn-primary-custom {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    .btn-primary-custom:hover {
+      background: #5a52d5;
+      border-color: #5a52d5;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h2 class="mb-0"><i class="bi bi-graph-up me-2"></i>Báo Cáo Tổng Quan</h2>
+        <p class="text-muted mb-0">Thống kê và phân tích công việc Cơ điện</p>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary" onclick="window.print()">
+          <i class="bi bi-printer me-1"></i>In báo cáo
+        </button>
+        <button class="btn btn-primary-custom" onclick="refreshData()">
+          <i class="bi bi-arrow-clockwise me-1"></i>Làm mới
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <!-- Bộ lọc -->
+    <div class="filter-section">
+      <div class="row">
+        <div class="col-md-3">
+          <label class="form-label">Khu vực</label>
+          <select class="form-select" id="filterKhuVuc">
+            <option value="">Tất cả khu vực</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Trạng thái</label>
+          <select class="form-select" id="filterTrangThai">
+            <option value="">Tất cả trạng thái</option>
+            <option value="completed">Đã hoàn thành</option>
+            <option value="processing">Đang xử lý</option>
+            <option value="waiting">Chờ xử lý</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Từ ngày</label>
+          <input type="date" class="form-control" id="filterFromDate">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Đến ngày</label>
+          <input type="date" class="form-control" id="filterToDate">
+        </div>
+      </div>
+    </div>
+
+    <!-- Thống kê tổng quan -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="stats-card">
+          <div class="stats-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <i class="bi bi-list-task"></i>
+          </div>
+          <div class="stats-number" id="totalWorks">0</div>
+          <div class="stats-label">Tổng công việc</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stats-card">
+          <div class="stats-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <i class="bi bi-check-circle"></i>
+          </div>
+          <div class="stats-number" id="completedWorks">0</div>
+          <div class="stats-label">Đã hoàn thành</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stats-card">
+          <div class="stats-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <i class="bi bi-gear"></i>
+          </div>
+          <div class="stats-number" id="processingWorks">0</div>
+          <div class="stats-label">Đang xử lý</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stats-card">
+          <div class="stats-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <i class="bi bi-percent"></i>
+          </div>
+          <div class="stats-number" id="completionRate">0%</div>
+          <div class="stats-label">Tỷ lệ hoàn thành</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Biểu đồ -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <div class="chart-container">
+          <h5 class="mb-3"><i class="bi bi-pie-chart me-2"></i>Phân bố trạng thái</h5>
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="chart-container">
+          <h5 class="mb-3"><i class="bi bi-bar-chart me-2"></i>Công việc theo khu vực</h5>
+          <canvas id="areaChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bảng dữ liệu chi tiết -->
+    <div class="table-container">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0"><i class="bi bi-table me-2"></i>Danh sách công việc</h5>
+        <div class="d-flex gap-2">
+          <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm..." style="width: 200px;">
+          <select class="form-select" id="sortBy" style="width: 150px;">
+            <option value="stt">Sắp xếp theo STT</option>
+            <option value="date">Sắp xếp theo ngày</option>
+            <option value="status">Sắp xếp theo trạng thái</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover" id="worksTable">
+          <thead class="table-light">
+            <tr>
+              <th>STT</th>
+              <th>Khu vực</th>
+              <th>Máy</th>
+              <th>Người yêu cầu</th>
+              <th>Thời gian yêu cầu</th>
+              <th>Trạng thái</th>
+              <th>Tiến độ</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody id="worksTableBody">
+            <!-- Dữ liệu sẽ được load động -->
+          </tbody>
+        </table>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <div>
+          Hiển thị <span id="showingCount">0</span> / <span id="totalCount">0</span> công việc
+        </div>
+        <nav>
+          <ul class="pagination pagination-sm mb-0" id="pagination">
+            <!-- Phân trang sẽ được tạo động -->
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Biến toàn cục
+    let allWorks = [];
+    let filteredWorks = [];
+    let currentPage = 1;
+    const itemsPerPage = 10;
+
+    // Khởi tạo trang
+    document.addEventListener('DOMContentLoaded', function() {
+      loadData();
+      setupEventListeners();
+    });
+
+    // Thiết lập event listeners
+    function setupEventListeners() {
+      document.getElementById('filterKhuVuc').addEventListener('change', filterData);
+      document.getElementById('filterTrangThai').addEventListener('change', filterData);
+      document.getElementById('filterFromDate').addEventListener('change', filterData);
+      document.getElementById('filterToDate').addEventListener('change', filterData);
+      document.getElementById('searchInput').addEventListener('input', filterData);
+      document.getElementById('sortBy').addEventListener('change', filterData);
+    }
+
+    // Load dữ liệu từ API
+    async function loadData() {
+      try {
+        const response = await fetch('https://api.autoslp.com/api/data/congviec');
+        const data = await response.json();
+        
+        if (Array.isArray(data)) {
+          allWorks = data;
+          filteredWorks = [...allWorks];
+          updateStatistics();
+          updateCharts();
+          populateFilters();
+          renderTable();
+        }
+      } catch (error) {
+        console.error('Lỗi khi load dữ liệu:', error);
+      }
+    }
+
+    // Cập nhật thống kê
+    function updateStatistics() {
+      const total = allWorks.length;
+      const completed = allWorks.filter(work => isWorkCompleted(work)).length;
+      const processing = allWorks.filter(work => isWorkProcessing(work)).length;
+      const waiting = allWorks.filter(work => isWorkWaiting(work)).length;
+      const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+      document.getElementById('totalWorks').textContent = total;
+      document.getElementById('completedWorks').textContent = completed;
+      document.getElementById('processingWorks').textContent = processing;
+      document.getElementById('completionRate').textContent = completionRate + '%';
+    }
+
+    // Kiểm tra trạng thái công việc
+    function isWorkCompleted(work) {
+      const banGiao = work.thoi_gian_ban_giao || work.thoiGianBanGiao;
+      return banGiao && banGiao.toString().trim() !== '';
+    }
+
+    function isWorkProcessing(work) {
+      const lamChinh = work.nguoi_lam_chinh || work.nguoiLamChinh;
+      const lamPhu1 = work.nguoi_lam_phu_1 || work.nguoiLamPhu1;
+      const lamPhu2 = work.nguoi_lam_phu_2 || work.nguoiLamPhu2;
+      return (lamChinh && lamChinh.trim() !== '') || 
+             (lamPhu1 && lamPhu1.trim() !== '') || 
+             (lamPhu2 && lamPhu2.trim() !== '');
+    }
+
+    function isWorkWaiting(work) {
+      return !isWorkCompleted(work) && !isWorkProcessing(work);
+    }
+
+    // Cập nhật biểu đồ
+    function updateCharts() {
+      updateStatusChart();
+      updateAreaChart();
+    }
+
+    function updateStatusChart() {
+      const ctx = document.getElementById('statusChart').getContext('2d');
+      
+      const completed = allWorks.filter(work => isWorkCompleted(work)).length;
+      const processing = allWorks.filter(work => isWorkProcessing(work)).length;
+      const waiting = allWorks.filter(work => isWorkWaiting(work)).length;
+
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Đã hoàn thành', 'Đang xử lý', 'Chờ xử lý'],
+          datasets: [{
+            data: [completed, processing, waiting],
+            backgroundColor: [
+              '#28a745',
+              '#ffc107',
+              '#dc3545'
+            ],
+            borderWidth: 2,
+            borderColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    }
+
+    function updateAreaChart() {
+      const ctx = document.getElementById('areaChart').getContext('2d');
+      
+      // Thống kê theo khu vực
+      const areaStats = {};
+      allWorks.forEach(work => {
+        const area = work.khu_vuc || work.khuVuc || 'Không xác định';
+        if (!areaStats[area]) {
+          areaStats[area] = { total: 0, completed: 0 };
+        }
+        areaStats[area].total++;
+        if (isWorkCompleted(work)) {
+          areaStats[area].completed++;
+        }
+      });
+
+      const areas = Object.keys(areaStats);
+      const completedData = areas.map(area => areaStats[area].completed);
+      const totalData = areas.map(area => areaStats[area].total);
+
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: areas,
+          datasets: [{
+            label: 'Đã hoàn thành',
+            data: completedData,
+            backgroundColor: '#28a745',
+            borderColor: '#28a745',
+            borderWidth: 1
+          }, {
+            label: 'Tổng cộng',
+            data: totalData,
+            backgroundColor: '#6c757d',
+            borderColor: '#6c757d',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    }
+
+    // Populate filters
+    function populateFilters() {
+      const areas = [...new Set(allWorks.map(work => work.khu_vuc || work.khuVuc).filter(Boolean))];
+      const areaSelect = document.getElementById('filterKhuVuc');
+      
+      areas.forEach(area => {
+        const option = document.createElement('option');
+        option.value = area;
+        option.textContent = area;
+        areaSelect.appendChild(option);
+      });
+    }
+
+    // Filter data
+    function filterData() {
+      const areaFilter = document.getElementById('filterKhuVuc').value;
+      const statusFilter = document.getElementById('filterTrangThai').value;
+      const fromDate = document.getElementById('filterFromDate').value;
+      const toDate = document.getElementById('filterToDate').value;
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const sortBy = document.getElementById('sortBy').value;
+
+      filteredWorks = allWorks.filter(work => {
+        // Filter by area
+        if (areaFilter && (work.khu_vuc || work.khuVuc) !== areaFilter) return false;
+        
+        // Filter by status
+        if (statusFilter) {
+          if (statusFilter === 'completed' && !isWorkCompleted(work)) return false;
+          if (statusFilter === 'processing' && !isWorkProcessing(work)) return false;
+          if (statusFilter === 'waiting' && !isWorkWaiting(work)) return false;
+        }
+        
+        // Filter by date
+        if (fromDate || toDate) {
+          const workDate = work.thoi_gian_yeu_cau || work.thoiGianYeuCau;
+          if (workDate) {
+            const date = new Date(workDate);
+            if (fromDate && date < new Date(fromDate)) return false;
+            if (toDate && date > new Date(toDate)) return false;
+          }
+        }
+        
+        // Filter by search term
+        if (searchTerm) {
+          const searchFields = [
+            work.stt?.toString(),
+            work.khu_vuc || work.khuVuc,
+            work.may,
+            work.nguoi_yeu_cau || work.nguoiYeuCau
+          ].filter(Boolean);
+          
+          if (!searchFields.some(field => field.toLowerCase().includes(searchTerm))) {
+            return false;
+          }
+        }
+        
+        return true;
+      });
+
+      // Sort data
+      filteredWorks.sort((a, b) => {
+        switch (sortBy) {
+          case 'date':
+            const dateA = new Date(a.thoi_gian_yeu_cau || a.thoiGianYeuCau || 0);
+            const dateB = new Date(b.thoi_gian_yeu_cau || b.thoiGianYeuCau || 0);
+            return dateB - dateA;
+          case 'status':
+            const statusA = getWorkStatus(a);
+            const statusB = getWorkStatus(b);
+            return statusA.localeCompare(statusB);
+          default:
+            return (a.stt || 0) - (b.stt || 0);
+        }
+      });
+
+      currentPage = 1;
+      renderTable();
+    }
+
+    function getWorkStatus(work) {
+      if (isWorkCompleted(work)) return 'Đã hoàn thành';
+      if (isWorkProcessing(work)) return 'Đang xử lý';
+      return 'Chờ xử lý';
+    }
+
+    // Render table
+    function renderTable() {
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const pageData = filteredWorks.slice(startIndex, endIndex);
+      
+      const tbody = document.getElementById('worksTableBody');
+      tbody.innerHTML = '';
+      
+      pageData.forEach(work => {
+        const row = document.createElement('tr');
+        const status = getWorkStatus(work);
+        const progress = calculateProgress(work);
+        
+        row.innerHTML = `
+          <td><strong>${work.stt || '-'}</strong></td>
+          <td>${work.khu_vuc || work.khuVuc || '-'}</td>
+          <td>${work.may || '-'}</td>
+          <td>${work.nguoi_yeu_cau || work.nguoiYeuCau || '-'}</td>
+          <td>${formatDate(work.thoi_gian_yeu_cau || work.thoiGianYeuCau)}</td>
+          <td>
+            <span class="status-badge ${getStatusClass(status)}">${status}</span>
+          </td>
+          <td>
+            <div class="progress-custom">
+              <div class="progress-bar bg-${getProgressColor(progress)}" style="width: ${progress}%"></div>
+            </div>
+            <small class="text-muted">${progress}%</small>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary" onclick="viewDetail(${work.stt})">
+              <i class="bi bi-eye"></i>
+            </button>
+          </td>
+        `;
+        
+        tbody.appendChild(row);
+      });
+      
+      updatePagination();
+      updateCounts();
+    }
+
+    function calculateProgress(work) {
+      if (isWorkCompleted(work)) return 100;
+      if (isWorkProcessing(work)) return 50;
+      return 0;
+    }
+
+    function getStatusClass(status) {
+      switch (status) {
+        case 'Đã hoàn thành': return 'bg-success text-white';
+        case 'Đang xử lý': return 'bg-warning text-dark';
+        case 'Chờ xử lý': return 'bg-danger text-white';
+        default: return 'bg-secondary text-white';
+      }
+    }
+
+    function getProgressColor(progress) {
+      if (progress >= 80) return 'success';
+      if (progress >= 50) return 'warning';
+      return 'danger';
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('vi-VN');
+    }
+
+    function updatePagination() {
+      const totalPages = Math.ceil(filteredWorks.length / itemsPerPage);
+      const pagination = document.getElementById('pagination');
+      pagination.innerHTML = '';
+      
+      // Previous button
+      const prevLi = document.createElement('li');
+      prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+      prevLi.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Trước</a>`;
+      pagination.appendChild(prevLi);
+      
+      // Page numbers
+      for (let i = 1; i <= totalPages; i++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+        li.innerHTML = `<a class="page-link" href="#" onclick="changePage(${i})">${i}</a>`;
+        pagination.appendChild(li);
+      }
+      
+      // Next button
+      const nextLi = document.createElement('li');
+      nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+      nextLi.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Sau</a>`;
+      pagination.appendChild(nextLi);
+    }
+
+    function changePage(page) {
+      const totalPages = Math.ceil(filteredWorks.length / itemsPerPage);
+      if (page >= 1 && page <= totalPages) {
+        currentPage = page;
+        renderTable();
+      }
+    }
+
+    function updateCounts() {
+      document.getElementById('showingCount').textContent = Math.min(filteredWorks.length, itemsPerPage);
+      document.getElementById('totalCount').textContent = filteredWorks.length;
+    }
+
+    function viewDetail(stt) {
+      window.open(`chitietcongviec.html?stt=${stt}`, '_blank');
+    }
+
+    function refreshData() {
+      loadData();
+    }
+
+    // Export functions
+    window.viewDetail = viewDetail;
+    window.changePage = changePage;
+    window.refreshData = refreshData;
+  </script>
+</body>
+</html> 

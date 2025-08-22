@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo Cáo Nhân Sự & Hiệu Suất</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary-color: #726bff;
+      --secondary-color: #667eea;
+      --success-color: #28a745;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .staff-header {
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .staff-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+      transition: transform 0.3s ease;
+    }
+
+    .staff-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .staff-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .staff-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+
+    .performance-indicator {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .performance-excellent {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .performance-good {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+
+    .performance-average {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .performance-poor {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .staff-list {
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .staff-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+      transition: background-color 0.2s ease;
+    }
+
+    .staff-item:hover {
+      background-color: #f8f9fa;
+    }
+
+    .staff-item-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+      margin-right: 1rem;
+    }
+
+    .progress-custom {
+      height: 8px;
+      border-radius: 10px;
+      background: #e9ecef;
+    }
+
+    .progress-custom .progress-bar {
+      border-radius: 10px;
+    }
+
+    .filter-section {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .btn-primary-custom {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    .btn-primary-custom:hover {
+      background: #5a52d5;
+      border-color: #5a52d5;
+    }
+
+    .rating-stars {
+      color: #ffc107;
+      font-size: 1.2rem;
+    }
+
+    .work-timeline {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .timeline-item {
+      padding: 0.5rem 0;
+      border-left: 2px solid #e9ecef;
+      margin-left: 1rem;
+      padding-left: 1rem;
+      position: relative;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -6px;
+      top: 1rem;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--primary-color);
+    }
+
+    .timeline-item.completed::before {
+      background: var(--success-color);
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="staff-header">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h2><i class="bi bi-people me-2"></i>Báo Cáo Nhân Sự & Hiệu Suất</h2>
+          <p class="text-muted mb-0">Phân tích hiệu suất và đánh giá nhân viên bộ phận Cơ điện</p>
+        </div>
+        <div class="col-md-4 text-end">
+          <div class="d-flex gap-2 justify-content-end">
+            <button class="btn btn-outline-primary" onclick="exportStaffReport()">
+              <i class="bi bi-download me-1"></i>Xuất báo cáo
+            </button>
+            <button class="btn btn-primary-custom" onclick="refreshData()">
+              <i class="bi bi-arrow-clockwise me-1"></i>Làm mới
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-section">
+      <div class="row">
+        <div class="col-md-3">
+          <label class="form-label">Bộ phận</label>
+          <select class="form-select" id="filterDepartment">
+            <option value="">Tất cả bộ phận</option>
+            <option value="cơ điện">Cơ điện</option>
+            <option value="sản xuất">Sản xuất</option>
+            <option value="bảo trì">Bảo trì</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Chức vụ</label>
+          <select class="form-select" id="filterPosition">
+            <option value="">Tất cả chức vụ</option>
+            <option value="quản lý">Quản lý</option>
+            <option value="nhân viên">Nhân viên</option>
+            <option value="kỹ thuật viên">Kỹ thuật viên</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Hiệu suất</label>
+          <select class="form-select" id="filterPerformance">
+            <option value="">Tất cả mức độ</option>
+            <option value="excellent">Xuất sắc</option>
+            <option value="good">Tốt</option>
+            <option value="average">Trung bình</option>
+            <option value="poor">Cần cải thiện</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Thời gian</label>
+          <select class="form-select" id="filterTimeRange">
+            <option value="30">30 ngày qua</option>
+            <option value="90">90 ngày qua</option>
+            <option value="180">6 tháng qua</option>
+            <option value="365">1 năm qua</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overall Statistics -->
+    <div class="staff-stats">
+      <div class="stat-card">
+        <div class="stat-number" id="totalStaff">0</div>
+        <div class="stat-label">Tổng nhân viên</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="activeStaff">0</div>
+        <div class="stat-label">Nhân viên hoạt động</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="avgCompletionTime">0h</div>
+        <div class="stat-label">Thời gian hoàn thành TB</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="avgRating">0.0</div>
+        <div class="stat-label">Đánh giá trung bình</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <div class="staff-card">
+          <h5 class="mb-3"><i class="bi bi-bar-chart me-2"></i>Hiệu suất theo nhân viên</h5>
+          <canvas id="staffPerformanceChart" height="300"></canvas>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="staff-card">
+          <h5 class="mb-3"><i class="bi bi-pie-chart me-2"></i>Phân bố hiệu suất</h5>
+          <canvas id="performanceDistributionChart" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Staff List and Details -->
+    <div class="row">
+      <div class="col-md-8">
+        <div class="staff-card">
+          <h5 class="mb-3"><i class="bi bi-list-ul me-2"></i>Danh sách nhân viên</h5>
+          <div class="staff-list" id="staffList">
+            <!-- Staff list will be generated here -->
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="staff-card">
+          <h5 class="mb-3"><i class="bi bi-trophy me-2"></i>Top nhân viên xuất sắc</h5>
+          <div id="topPerformers">
+            <!-- Top performers will be listed here -->
+          </div>
+        </div>
+        <div class="staff-card">
+          <h5 class="mb-3"><i class="bi bi-exclamation-triangle me-2"></i>Cần hỗ trợ</h5>
+          <div id="needsSupport">
+            <!-- Staff needing support will be listed here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Staff Detail Modal -->
+  <div class="modal fade" id="staffDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staffDetailModalTitle">
+            <i class="bi bi-person me-2"></i>Chi tiết nhân viên
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="staffDetailModalBody">
+          <!-- Staff detail content will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let allWorks = [];
+    let allUsers = [];
+    let staffStats = {};
+    let staffPerformanceChart, performanceDistributionChart;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      loadData();
+      setupEventListeners();
+    });
+
+    function setupEventListeners() {
+      document.getElementById('filterDepartment').addEventListener('change', filterData);
+      document.getElementById('filterPosition').addEventListener('change', filterData);
+      document.getElementById('filterPerformance').addEventListener('change', filterData);
+      document.getElementById('filterTimeRange').addEventListener('change', filterData);
+    }
+
+    async function loadData() {
+      try {
+        // Load works data
+        const worksResponse = await fetch('https://api.autoslp.com/api/data/congviec');
+        const worksData = await worksResponse.json();
+        
+        // Load users data
+        const usersResponse = await fetch('https://api.autoslp.com/api/data/user');
+        const usersData = await usersResponse.json();
+        
+        if (Array.isArray(worksData)) {
+          allWorks = worksData;
+        }
+        
+        if (Array.isArray(usersData)) {
+          allUsers = usersData;
+        }
+        
+        processStaffData();
+        updateStatistics();
+        updateCharts();
+        updateStaffList();
+        updateTopPerformers();
+        updateNeedsSupport();
+      } catch (error) {
+        console.error('Lỗi khi load dữ liệu:', error);
+      }
+    }
+
+    function processStaffData() {
+      staffStats = {};
+      
+      // Initialize staff from users data
+      allUsers.forEach(user => {
+        const staffName = user.ten_nhan_vien || user.ma_nhan_vien || 'Không xác định';
+        staffStats[staffName] = {
+          info: user,
+          works: [],
+          completedWorks: [],
+          processingWorks: [],
+          totalWorks: 0,
+          completionRate: 0,
+          avgCompletionTime: 0,
+          rating: 0,
+          performance: 'average'
+        };
+      });
+      
+      // Process works data
+      allWorks.forEach(work => {
+        // Check main worker
+        const mainWorker = work.nguoi_lam_chinh || work.nguoiLamChinh;
+        if (mainWorker && staffStats[mainWorker]) {
+          staffStats[mainWorker].works.push(work);
+          staffStats[mainWorker].totalWorks++;
+          
+          if (isWorkCompleted(work)) {
+            staffStats[mainWorker].completedWorks.push(work);
+          } else if (isWorkProcessing(work)) {
+            staffStats[mainWorker].processingWorks.push(work);
+          }
+        }
+        
+        // Check support workers
+        const support1 = work.nguoi_lam_phu_1 || work.nguoiLamPhu1;
+        const support2 = work.nguoi_lam_phu_2 || work.nguoiLamPhu2;
+        
+        [support1, support2].forEach(support => {
+          if (support && staffStats[support]) {
+            staffStats[support].works.push(work);
+            staffStats[support].totalWorks++;
+            
+            if (isWorkCompleted(work)) {
+              staffStats[support].completedWorks.push(work);
+            } else if (isWorkProcessing(work)) {
+              staffStats[support].processingWorks.push(work);
+            }
+          }
+        });
+      });
+      
+      // Calculate performance metrics
+      Object.keys(staffStats).forEach(staffName => {
+        const stats = staffStats[staffName];
+        
+        // Calculate completion rate
+        stats.completionRate = stats.totalWorks > 0 ? 
+          (stats.completedWorks.length / stats.totalWorks) * 100 : 0;
+        
+        // Calculate average completion time
+        const completionTimes = stats.completedWorks.map(work => {
+          const startTime = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+          const endTime = new Date(work.thoi_gian_ban_giao || work.thoiGianBanGiao);
+          return (endTime - startTime) / (1000 * 60 * 60); // hours
+        }).filter(time => time > 0);
+        
+        stats.avgCompletionTime = completionTimes.length > 0 ? 
+          completionTimes.reduce((a, b) => a + b, 0) / completionTimes.length : 0;
+        
+        // Calculate rating based on completion rate and time
+        let rating = 0;
+        if (stats.completionRate >= 90) rating += 2;
+        else if (stats.completionRate >= 70) rating += 1.5;
+        else if (stats.completionRate >= 50) rating += 1;
+        
+        if (stats.avgCompletionTime <= 4) rating += 2;
+        else if (stats.avgCompletionTime <= 8) rating += 1.5;
+        else if (stats.avgCompletionTime <= 12) rating += 1;
+        
+        stats.rating = Math.min(5, Math.max(0, rating));
+        
+        // Determine performance level
+        if (stats.rating >= 4) stats.performance = 'excellent';
+        else if (stats.rating >= 3) stats.performance = 'good';
+        else if (stats.rating >= 2) stats.performance = 'average';
+        else stats.performance = 'poor';
+      });
+    }
+
+    function updateStatistics() {
+      const staffList = Object.keys(staffStats);
+      const activeStaff = staffList.filter(staff => staffStats[staff].totalWorks > 0).length;
+      
+      const allCompletionTimes = Object.values(staffStats)
+        .map(stats => stats.avgCompletionTime)
+        .filter(time => time > 0);
+      
+      const avgCompletionTime = allCompletionTimes.length > 0 ? 
+        allCompletionTimes.reduce((a, b) => a + b, 0) / allCompletionTimes.length : 0;
+      
+      const allRatings = Object.values(staffStats)
+        .map(stats => stats.rating)
+        .filter(rating => rating > 0);
+      
+      const avgRating = allRatings.length > 0 ? 
+        (allRatings.reduce((a, b) => a + b, 0) / allRatings.length).toFixed(1) : 0;
+      
+      document.getElementById('totalStaff').textContent = staffList.length;
+      document.getElementById('activeStaff').textContent = activeStaff;
+      document.getElementById('avgCompletionTime').textContent = Math.round(avgCompletionTime) + 'h';
+      document.getElementById('avgRating').textContent = avgRating;
+    }
+
+    function updateCharts() {
+      updateStaffPerformanceChart();
+      updatePerformanceDistributionChart();
+    }
+
+    function updateStaffPerformanceChart() {
+      const ctx = document.getElementById('staffPerformanceChart').getContext('2d');
+      
+      if (staffPerformanceChart) {
+        staffPerformanceChart.destroy();
+      }
+
+      const activeStaff = Object.entries(staffStats)
+        .filter(([, stats]) => stats.totalWorks > 0)
+        .sort(([, a], [, b]) => b.completionRate - a.completionRate)
+        .slice(0, 10);
+
+      const labels = activeStaff.map(([name]) => name);
+      const completionRates = activeStaff.map(([, stats]) => stats.completionRate);
+      const avgTimes = activeStaff.map(([, stats]) => stats.avgCompletionTime);
+
+      staffPerformanceChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Tỷ lệ hoàn thành (%)',
+            data: completionRates,
+            backgroundColor: 'rgba(114, 107, 255, 0.8)',
+            borderColor: '#726bff',
+            borderWidth: 1,
+            yAxisID: 'y'
+          }, {
+            label: 'Thời gian TB (giờ)',
+            data: avgTimes,
+            backgroundColor: 'rgba(255, 193, 7, 0.8)',
+            borderColor: '#ffc107',
+            borderWidth: 1,
+            yAxisID: 'y1',
+            type: 'line'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              type: 'linear',
+              display: true,
+              position: 'left',
+              beginAtZero: true,
+              max: 100
+            },
+            y1: {
+              type: 'linear',
+              display: true,
+              position: 'right',
+              beginAtZero: true,
+              grid: {
+                drawOnChartArea: false,
+              },
+            }
+          }
+        }
+      });
+    }
+
+    function updatePerformanceDistributionChart() {
+      const ctx = document.getElementById('performanceDistributionChart').getContext('2d');
+      
+      if (performanceDistributionChart) {
+        performanceDistributionChart.destroy();
+      }
+
+      const performanceCounts = {
+        excellent: 0,
+        good: 0,
+        average: 0,
+        poor: 0
+      };
+
+      Object.values(staffStats).forEach(stats => {
+        if (stats.totalWorks > 0) {
+          performanceCounts[stats.performance]++;
+        }
+      });
+
+      performanceDistributionChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Xuất sắc', 'Tốt', 'Trung bình', 'Cần cải thiện'],
+          datasets: [{
+            data: [
+              performanceCounts.excellent,
+              performanceCounts.good,
+              performanceCounts.average,
+              performanceCounts.poor
+            ],
+            backgroundColor: [
+              '#28a745',
+              '#17a2b8',
+              '#ffc107',
+              '#dc3545'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    }
+
+    function updateStaffList() {
+      const container = document.getElementById('staffList');
+      container.innerHTML = '';
+      
+      const activeStaff = Object.entries(staffStats)
+        .filter(([, stats]) => stats.totalWorks > 0)
+        .sort(([, a], [, b]) => b.completionRate - a.completionRate);
+      
+      activeStaff.forEach(([staffName, stats]) => {
+        const staffItem = document.createElement('div');
+        staffItem.className = 'staff-item';
+        
+        const avatarColor = generateAvatarColor(staffName);
+        const firstChar = staffName.charAt(0).toUpperCase();
+        
+        staffItem.innerHTML = `
+          <div class="staff-item-avatar" style="background: ${avatarColor};">${firstChar}</div>
+          <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="mb-0">${staffName}</h6>
+              <div class="d-flex align-items-center gap-2">
+                <span class="performance-indicator performance-${stats.performance}">
+                  ${getPerformanceText(stats.performance)}
+                </span>
+                <div class="rating-stars">
+                  ${generateStars(stats.rating)}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-3">
+                <small class="text-muted">Công việc: ${stats.totalWorks}</small>
+              </div>
+              <div class="col-md-3">
+                <small class="text-muted">Hoàn thành: ${stats.completedWorks.length}</small>
+              </div>
+              <div class="col-md-3">
+                <small class="text-muted">Tỷ lệ: ${Math.round(stats.completionRate)}%</small>
+              </div>
+              <div class="col-md-3">
+                <small class="text-muted">TB: ${Math.round(stats.avgCompletionTime)}h</small>
+              </div>
+            </div>
+            <div class="progress-custom mt-2">
+              <div class="progress-bar bg-success" style="width: ${stats.completionRate}%"></div>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-outline-primary ms-2" onclick="showStaffDetail('${staffName}')">
+            <i class="bi bi-eye"></i>
+          </button>
+        `;
+        
+        container.appendChild(staffItem);
+      });
+    }
+
+    function updateTopPerformers() {
+      const container = document.getElementById('topPerformers');
+      container.innerHTML = '';
+      
+      const topPerformers = Object.entries(staffStats)
+        .filter(([, stats]) => stats.totalWorks > 0 && stats.performance === 'excellent')
+        .sort(([, a], [, b]) => b.rating - a.rating)
+        .slice(0, 5);
+      
+      topPerformers.forEach(([staffName, stats], index) => {
+        const item = document.createElement('div');
+        item.className = 'd-flex align-items-center p-2 border-bottom';
+        
+        const avatarColor = generateAvatarColor(staffName);
+        const firstChar = staffName.charAt(0).toUpperCase();
+        
+        item.innerHTML = `
+          <div class="staff-item-avatar me-2" style="background: ${avatarColor}; width: 40px; height: 40px; font-size: 1rem;">${firstChar}</div>
+          <div class="flex-grow-1">
+            <div class="fw-bold">${index + 1}. ${staffName}</div>
+            <div class="rating-stars">${generateStars(stats.rating)}</div>
+            <small class="text-muted">${stats.totalWorks} công việc, ${Math.round(stats.completionRate)}% hoàn thành</small>
+          </div>
+        `;
+        
+        container.appendChild(item);
+      });
+    }
+
+    function updateNeedsSupport() {
+      const container = document.getElementById('needsSupport');
+      container.innerHTML = '';
+      
+      const needsSupport = Object.entries(staffStats)
+        .filter(([, stats]) => stats.totalWorks > 0 && stats.performance === 'poor')
+        .sort(([, a], [, b]) => a.rating - b.rating)
+        .slice(0, 5);
+      
+      needsSupport.forEach(([staffName, stats]) => {
+        const item = document.createElement('div');
+        item.className = 'd-flex align-items-center p-2 border-bottom';
+        
+        const avatarColor = generateAvatarColor(staffName);
+        const firstChar = staffName.charAt(0).toUpperCase();
+        
+        item.innerHTML = `
+          <div class="staff-item-avatar me-2" style="background: ${avatarColor}; width: 40px; height: 40px; font-size: 1rem;">${firstChar}</div>
+          <div class="flex-grow-1">
+            <div class="fw-bold">${staffName}</div>
+            <div class="rating-stars">${generateStars(stats.rating)}</div>
+            <small class="text-muted">Cần hỗ trợ về hiệu suất</small>
+          </div>
+        `;
+        
+        container.appendChild(item);
+      });
+    }
+
+    function showStaffDetail(staffName) {
+      const stats = staffStats[staffName];
+      const modal = new bootstrap.Modal(document.getElementById('staffDetailModal'));
+      
+      document.getElementById('staffDetailModalTitle').textContent = `Chi tiết nhân viên: ${staffName}`;
+      
+      const modalBody = document.getElementById('staffDetailModalBody');
+      const avatarColor = generateAvatarColor(staffName);
+      const firstChar = staffName.charAt(0).toUpperCase();
+      
+      modalBody.innerHTML = `
+        <div class="row mb-3">
+          <div class="col-md-4 text-center">
+            <div class="staff-avatar mx-auto" style="background: ${avatarColor};">${firstChar}</div>
+            <h5 class="mt-2">${staffName}</h5>
+            <div class="rating-stars mb-2">${generateStars(stats.rating)}</div>
+            <span class="performance-indicator performance-${stats.performance}">
+              ${getPerformanceText(stats.performance)}
+            </span>
+          </div>
+          <div class="col-md-8">
+            <div class="row">
+              <div class="col-md-6">
+                <h6>Thống kê tổng quan</h6>
+                <ul class="list-unstyled">
+                  <li><i class="bi bi-list-task me-2"></i>Tổng công việc: ${stats.totalWorks}</li>
+                  <li><i class="bi bi-check-circle me-2"></i>Đã hoàn thành: ${stats.completedWorks.length}</li>
+                  <li><i class="bi bi-gear me-2"></i>Đang xử lý: ${stats.processingWorks.length}</li>
+                  <li><i class="bi bi-percent me-2"></i>Tỷ lệ hoàn thành: ${Math.round(stats.completionRate)}%</li>
+                  <li><i class="bi bi-clock me-2"></i>Thời gian TB: ${Math.round(stats.avgCompletionTime)} giờ</li>
+                </ul>
+              </div>
+              <div class="col-md-6">
+                <h6>Thông tin cá nhân</h6>
+                <ul class="list-unstyled">
+                  <li><i class="bi bi-person-badge me-2"></i>Mã NV: ${stats.info.ma_nhan_vien || 'N/A'}</li>
+                  <li><i class="bi bi-building me-2"></i>Bộ phận: ${stats.info.bo_phan || 'N/A'}</li>
+                  <li><i class="bi bi-briefcase me-2"></i>Chức vụ: ${stats.info.chuc_vu || 'N/A'}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <h6>Công việc gần đây</h6>
+            <div class="work-timeline">
+              ${stats.works.slice(0, 10).map(work => `
+                <div class="timeline-item ${isWorkCompleted(work) ? 'completed' : ''}">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <strong>${work.may || 'Không xác định'}</strong> - ${work.khu_vuc || work.khuVuc || 'Không xác định'}
+                      <br><small class="text-muted">${work.nguoi_yeu_cau || work.nguoiYeuCau || 'Không xác định'}</small>
+                    </div>
+                    <div class="text-end">
+                      <span class="badge ${getWorkStatusClass(work)}">${getWorkStatus(work)}</span>
+                      <br><small class="text-muted">${formatDate(work.thoi_gian_yeu_cau || work.thoiGianYeuCau)}</small>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+      
+      modal.show();
+    }
+
+    function filterData() {
+      // Implementation for filtering data
+      updateStaffList();
+      updateTopPerformers();
+      updateNeedsSupport();
+    }
+
+    function generateAvatarColor(name) {
+      const colors = [
+        'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+        'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+        'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+        'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
+      ];
+      
+      let hash = 0;
+      for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      
+      return colors[Math.abs(hash) % colors.length];
+    }
+
+    function generateStars(rating) {
+      const fullStars = Math.floor(rating);
+      const hasHalfStar = rating % 1 >= 0.5;
+      const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+      
+      return '★'.repeat(fullStars) + 
+             (hasHalfStar ? '☆' : '') + 
+             '☆'.repeat(emptyStars);
+    }
+
+    function getPerformanceText(performance) {
+      switch (performance) {
+        case 'excellent': return 'Xuất sắc';
+        case 'good': return 'Tốt';
+        case 'average': return 'Trung bình';
+        case 'poor': return 'Cần cải thiện';
+        default: return 'Không xác định';
+      }
+    }
+
+    function isWorkCompleted(work) {
+      const banGiao = work.thoi_gian_ban_giao || work.thoiGianBanGiao;
+      return banGiao && banGiao.toString().trim() !== '';
+    }
+
+    function isWorkProcessing(work) {
+      const lamChinh = work.nguoi_lam_chinh || work.nguoiLamChinh;
+      const lamPhu1 = work.nguoi_lam_phu_1 || work.nguoiLamPhu1;
+      const lamPhu2 = work.nguoi_lam_phu_2 || work.nguoiLamPhu2;
+      return (lamChinh && lamChinh.trim() !== '') || 
+             (lamPhu1 && lamPhu1.trim() !== '') || 
+             (lamPhu2 && lamPhu2.trim() !== '');
+    }
+
+    function getWorkStatus(work) {
+      if (isWorkCompleted(work)) return 'Đã hoàn thành';
+      if (isWorkProcessing(work)) return 'Đang xử lý';
+      return 'Chờ xử lý';
+    }
+
+    function getWorkStatusClass(work) {
+      if (isWorkCompleted(work)) return 'bg-success';
+      if (isWorkProcessing(work)) return 'bg-warning text-dark';
+      return 'bg-danger';
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('vi-VN');
+    }
+
+    function exportStaffReport() {
+      // Implementation for exporting staff report
+      alert('Tính năng xuất báo cáo đang được phát triển');
+    }
+
+    function refreshData() {
+      loadData();
+    }
+
+    // Export functions
+    window.showStaffDetail = showStaffDetail;
+    window.exportStaffReport = exportStaffReport;
+    window.refreshData = refreshData;
+  </script>
+</body>
+</html> 

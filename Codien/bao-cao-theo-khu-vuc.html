@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo Cáo Theo Khu Vực & Máy Móc</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary-color: #726bff;
+      --secondary-color: #667eea;
+      --success-color: #28a745;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .area-header {
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .area-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+      transition: transform 0.3s ease;
+    }
+
+    .area-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .area-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+
+    .heatmap-container {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .heatmap-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .heatmap-item {
+      padding: 1rem;
+      border-radius: 10px;
+      text-align: center;
+      color: white;
+      font-weight: 500;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .heatmap-item:hover {
+      transform: scale(1.05);
+    }
+
+    .heatmap-item.low {
+      background: linear-gradient(135deg, #28a745, #20c997);
+    }
+
+    .heatmap-item.medium {
+      background: linear-gradient(135deg, #ffc107, #fd7e14);
+    }
+
+    .heatmap-item.high {
+      background: linear-gradient(135deg, #dc3545, #e83e8c);
+    }
+
+    .machine-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .machine-item {
+      display: flex;
+      justify-content: between;
+      align-items: center;
+      padding: 0.75rem;
+      border-bottom: 1px solid #eee;
+      transition: background-color 0.2s ease;
+    }
+
+    .machine-item:hover {
+      background-color: #f8f9fa;
+    }
+
+    .machine-status {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+
+    .machine-status.operational {
+      background-color: var(--success-color);
+    }
+
+    .machine-status.warning {
+      background-color: var(--warning-color);
+    }
+
+    .machine-status.critical {
+      background-color: var(--danger-color);
+    }
+
+    .area-detail-modal .modal-body {
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .progress-custom {
+      height: 8px;
+      border-radius: 10px;
+      background: #e9ecef;
+    }
+
+    .progress-custom .progress-bar {
+      border-radius: 10px;
+    }
+
+    .filter-section {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .btn-primary-custom {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    .btn-primary-custom:hover {
+      background: #5a52d5;
+      border-color: #5a52d5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="area-header">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h2><i class="bi bi-geo-alt me-2"></i>Báo Cáo Theo Khu Vực & Máy Móc</h2>
+          <p class="text-muted mb-0">Phân tích hiệu suất và tình trạng theo từng khu vực sản xuất</p>
+        </div>
+        <div class="col-md-4 text-end">
+          <div class="d-flex gap-2 justify-content-end">
+            <button class="btn btn-outline-primary" onclick="exportAreaReport()">
+              <i class="bi bi-download me-1"></i>Xuất báo cáo
+            </button>
+            <button class="btn btn-primary-custom" onclick="refreshData()">
+              <i class="bi bi-arrow-clockwise me-1"></i>Làm mới
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-section">
+      <div class="row">
+        <div class="col-md-3">
+          <label class="form-label">Khu vực</label>
+          <select class="form-select" id="filterArea">
+            <option value="">Tất cả khu vực</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Loại máy</label>
+          <select class="form-select" id="filterMachineType">
+            <option value="">Tất cả loại máy</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Trạng thái</label>
+          <select class="form-select" id="filterStatus">
+            <option value="">Tất cả trạng thái</option>
+            <option value="operational">Hoạt động tốt</option>
+            <option value="warning">Cần chú ý</option>
+            <option value="critical">Cần bảo trì</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Thời gian</label>
+          <select class="form-select" id="filterTimeRange">
+            <option value="7">7 ngày qua</option>
+            <option value="30">30 ngày qua</option>
+            <option value="90">90 ngày qua</option>
+            <option value="365">1 năm qua</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overall Statistics -->
+    <div class="area-stats">
+      <div class="stat-item">
+        <div class="stat-number" id="totalAreas">0</div>
+        <div class="stat-label">Tổng số khu vực</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="totalMachines">0</div>
+        <div class="stat-label">Tổng số máy</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="operationalMachines">0</div>
+        <div class="stat-label">Máy hoạt động tốt</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="criticalMachines">0</div>
+        <div class="stat-label">Máy cần bảo trì</div>
+      </div>
+    </div>
+
+    <!-- Heatmap -->
+    <div class="heatmap-container">
+      <h5 class="mb-3"><i class="bi bi-grid-3x3-gap me-2"></i>Bản đồ nhiệt khu vực</h5>
+      <p class="text-muted">Màu sắc thể hiện mức độ sử dụng và tần suất sự cố</p>
+      <div class="heatmap-grid" id="areaHeatmap">
+        <!-- Heatmap items will be generated here -->
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <div class="area-card">
+          <h5 class="mb-3"><i class="bi bi-pie-chart me-2"></i>Phân bố công việc theo khu vực</h5>
+          <canvas id="areaDistributionChart" height="300"></canvas>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="area-card">
+          <h5 class="mb-3"><i class="bi bi-bar-chart me-2"></i>Hiệu suất theo khu vực</h5>
+          <canvas id="areaPerformanceChart" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Area Details -->
+    <div class="row">
+      <div class="col-md-8">
+        <div class="area-card">
+          <h5 class="mb-3"><i class="bi bi-list-ul me-2"></i>Chi tiết khu vực</h5>
+          <div class="table-responsive">
+            <table class="table table-hover" id="areaDetailsTable">
+              <thead class="table-light">
+                <tr>
+                  <th>Khu vực</th>
+                  <th>Số máy</th>
+                  <th>Công việc</th>
+                  <th>Hoàn thành</th>
+                  <th>Tỷ lệ</th>
+                  <th>Trạng thái</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="areaDetailsTableBody">
+                <!-- Area details will be loaded here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="area-card">
+          <h5 class="mb-3"><i class="bi bi-cpu me-2"></i>Top máy có vấn đề</h5>
+          <div class="machine-list" id="problemMachines">
+            <!-- Problem machines will be listed here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Area Detail Modal -->
+  <div class="modal fade" id="areaDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="areaDetailModalTitle">
+            <i class="bi bi-geo-alt me-2"></i>Chi tiết khu vực
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="areaDetailModalBody">
+          <!-- Area detail content will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let allWorks = [];
+    let allMachines = [];
+    let areaStats = {};
+    let areaDistributionChart, areaPerformanceChart;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      loadData();
+      setupEventListeners();
+    });
+
+    function setupEventListeners() {
+      document.getElementById('filterArea').addEventListener('change', filterData);
+      document.getElementById('filterMachineType').addEventListener('change', filterData);
+      document.getElementById('filterStatus').addEventListener('change', filterData);
+      document.getElementById('filterTimeRange').addEventListener('change', filterData);
+    }
+
+    async function loadData() {
+      try {
+        // Load works data
+        const worksResponse = await fetch('https://api.autoslp.com/api/data/congviec');
+        const worksData = await worksResponse.json();
+        
+        // Load machines data
+        const machinesResponse = await fetch('https://api.autoslp.com/api/data/may');
+        const machinesData = await machinesResponse.json();
+        
+        if (Array.isArray(worksData)) {
+          allWorks = worksData;
+        }
+        
+        if (Array.isArray(machinesData)) {
+          allMachines = machinesData;
+        }
+        
+        processData();
+        updateStatistics();
+        updateCharts();
+        updateHeatmap();
+        updateAreaDetails();
+        updateProblemMachines();
+        populateFilters();
+      } catch (error) {
+        console.error('Lỗi khi load dữ liệu:', error);
+      }
+    }
+
+    function processData() {
+      // Process area statistics
+      areaStats = {};
+      
+      // Initialize areas from machines data
+      allMachines.forEach(machine => {
+        const area = machine.khu_vuc || 'Không xác định';
+        if (!areaStats[area]) {
+          areaStats[area] = {
+            machines: [],
+            works: [],
+            totalWorks: 0,
+            completedWorks: 0,
+            processingWorks: 0,
+            waitingWorks: 0
+          };
+        }
+        areaStats[area].machines.push(machine);
+      });
+      
+      // Process works data
+      allWorks.forEach(work => {
+        const area = work.khu_vuc || work.khuVuc || 'Không xác định';
+        if (!areaStats[area]) {
+          areaStats[area] = {
+            machines: [],
+            works: [],
+            totalWorks: 0,
+            completedWorks: 0,
+            processingWorks: 0,
+            waitingWorks: 0
+          };
+        }
+        
+        areaStats[area].works.push(work);
+        areaStats[area].totalWorks++;
+        
+        if (isWorkCompleted(work)) {
+          areaStats[area].completedWorks++;
+        } else if (isWorkProcessing(work)) {
+          areaStats[area].processingWorks++;
+        } else {
+          areaStats[area].waitingWorks++;
+        }
+      });
+    }
+
+    function updateStatistics() {
+      const areas = Object.keys(areaStats);
+      const totalMachines = allMachines.length;
+      const operationalMachines = allMachines.filter(machine => getMachineStatus(machine) === 'operational').length;
+      const criticalMachines = allMachines.filter(machine => getMachineStatus(machine) === 'critical').length;
+      
+      document.getElementById('totalAreas').textContent = areas.length;
+      document.getElementById('totalMachines').textContent = totalMachines;
+      document.getElementById('operationalMachines').textContent = operationalMachines;
+      document.getElementById('criticalMachines').textContent = criticalMachines;
+    }
+
+    function updateCharts() {
+      updateAreaDistributionChart();
+      updateAreaPerformanceChart();
+    }
+
+    function updateAreaDistributionChart() {
+      const ctx = document.getElementById('areaDistributionChart').getContext('2d');
+      
+      if (areaDistributionChart) {
+        areaDistributionChart.destroy();
+      }
+
+      const areas = Object.keys(areaStats);
+      const workData = areas.map(area => areaStats[area].totalWorks);
+      const completedData = areas.map(area => areaStats[area].completedWorks);
+
+      areaDistributionChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: areas,
+          datasets: [{
+            data: workData,
+            backgroundColor: [
+              '#667eea',
+              '#764ba2',
+              '#f093fb',
+              '#f5576c',
+              '#4facfe',
+              '#00f2fe',
+              '#43e97b',
+              '#38f9d7'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    }
+
+    function updateAreaPerformanceChart() {
+      const ctx = document.getElementById('areaPerformanceChart').getContext('2d');
+      
+      if (areaPerformanceChart) {
+        areaPerformanceChart.destroy();
+      }
+
+      const areas = Object.keys(areaStats);
+      const completionRates = areas.map(area => {
+        const stats = areaStats[area];
+        return stats.totalWorks > 0 ? Math.round((stats.completedWorks / stats.totalWorks) * 100) : 0;
+      });
+
+      areaPerformanceChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: areas,
+          datasets: [{
+            label: 'Tỷ lệ hoàn thành (%)',
+            data: completionRates,
+            backgroundColor: 'rgba(114, 107, 255, 0.8)',
+            borderColor: '#726bff',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100
+            }
+          }
+        }
+      });
+    }
+
+    function updateHeatmap() {
+      const heatmap = document.getElementById('areaHeatmap');
+      heatmap.innerHTML = '';
+      
+      Object.keys(areaStats).forEach(area => {
+        const stats = areaStats[area];
+        const completionRate = stats.totalWorks > 0 ? 
+          (stats.completedWorks / stats.totalWorks) * 100 : 0;
+        
+        let heatmapClass = 'low';
+        if (completionRate < 50) heatmapClass = 'high';
+        else if (completionRate < 80) heatmapClass = 'medium';
+        
+        const heatmapItem = document.createElement('div');
+        heatmapItem.className = `heatmap-item ${heatmapClass}`;
+        heatmapItem.innerHTML = `
+          <div style="font-size: 1.2rem; font-weight: bold;">${area}</div>
+          <div style="font-size: 0.9rem; opacity: 0.9;">${stats.totalWorks} công việc</div>
+          <div style="font-size: 0.8rem; opacity: 0.8;">${Math.round(completionRate)}% hoàn thành</div>
+        `;
+        heatmapItem.onclick = () => showAreaDetail(area);
+        heatmap.appendChild(heatmapItem);
+      });
+    }
+
+    function updateAreaDetails() {
+      const tbody = document.getElementById('areaDetailsTableBody');
+      tbody.innerHTML = '';
+      
+      Object.keys(areaStats).forEach(area => {
+        const stats = areaStats[area];
+        const completionRate = stats.totalWorks > 0 ? 
+          Math.round((stats.completedWorks / stats.totalWorks) * 100) : 0;
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><strong>${area}</strong></td>
+          <td>${stats.machines.length}</td>
+          <td>${stats.totalWorks}</td>
+          <td>${stats.completedWorks}</td>
+          <td>
+            <div class="progress-custom">
+              <div class="progress-bar bg-success" style="width: ${completionRate}%"></div>
+            </div>
+            <small class="text-muted">${completionRate}%</small>
+          </td>
+          <td>
+            <span class="badge ${getAreaStatusClass(completionRate)}">${getAreaStatus(completionRate)}</span>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary" onclick="showAreaDetail('${area}')">
+              <i class="bi bi-eye"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function updateProblemMachines() {
+      const container = document.getElementById('problemMachines');
+      container.innerHTML = '';
+      
+      // Find machines with most issues
+      const machineIssues = {};
+      allWorks.forEach(work => {
+        const machine = work.may;
+        if (machine) {
+          if (!machineIssues[machine]) {
+            machineIssues[machine] = 0;
+          }
+          machineIssues[machine]++;
+        }
+      });
+      
+      const problemMachines = Object.entries(machineIssues)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 10);
+      
+      problemMachines.forEach(([machine, issueCount]) => {
+        const item = document.createElement('div');
+        item.className = 'machine-item';
+        item.innerHTML = `
+          <div class="d-flex align-items-center">
+            <div class="machine-status ${getMachineStatusClass(issueCount)}"></div>
+            <div>
+              <div><strong>${machine}</strong></div>
+              <small class="text-muted">${issueCount} sự cố</small>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-outline-primary" onclick="viewMachineDetail('${machine}')">
+            <i class="bi bi-eye"></i>
+          </button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function populateFilters() {
+      // Populate area filter
+      const areaSelect = document.getElementById('filterArea');
+      const areas = Object.keys(areaStats);
+      areas.forEach(area => {
+        const option = document.createElement('option');
+        option.value = area;
+        option.textContent = area;
+        areaSelect.appendChild(option);
+      });
+      
+      // Populate machine type filter
+      const machineTypes = [...new Set(allMachines.map(machine => machine.loai_may).filter(Boolean))];
+      const machineTypeSelect = document.getElementById('filterMachineType');
+      machineTypes.forEach(type => {
+        const option = document.createElement('option');
+        option.value = type;
+        option.textContent = type;
+        machineTypeSelect.appendChild(option);
+      });
+    }
+
+    function filterData() {
+      // Implementation for filtering data
+      updateAreaDetails();
+      updateProblemMachines();
+    }
+
+    function showAreaDetail(area) {
+      const stats = areaStats[area];
+      const modal = new bootstrap.Modal(document.getElementById('areaDetailModal'));
+      
+      document.getElementById('areaDetailModalTitle').textContent = `Chi tiết khu vực: ${area}`;
+      
+      const modalBody = document.getElementById('areaDetailModalBody');
+      modalBody.innerHTML = `
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <h6>Thống kê tổng quan</h6>
+            <ul class="list-unstyled">
+              <li><i class="bi bi-cpu me-2"></i>Số máy: ${stats.machines.length}</li>
+              <li><i class="bi bi-list-task me-2"></i>Tổng công việc: ${stats.totalWorks}</li>
+              <li><i class="bi bi-check-circle me-2"></i>Đã hoàn thành: ${stats.completedWorks}</li>
+              <li><i class="bi bi-gear me-2"></i>Đang xử lý: ${stats.processingWorks}</li>
+              <li><i class="bi bi-hourglass me-2"></i>Chờ xử lý: ${stats.waitingWorks}</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <h6>Danh sách máy</h6>
+            <div style="max-height: 200px; overflow-y: auto;">
+              ${stats.machines.map(machine => `
+                <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
+                  <span>${machine.ten_may || 'Không xác định'}</span>
+                  <span class="badge ${getMachineStatusClass(getMachineIssueCount(machine.ten_may))}">
+                    ${getMachineIssueCount(machine.ten_may)} sự cố
+                  </span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <h6>Công việc gần đây</h6>
+            <div style="max-height: 300px; overflow-y: auto;">
+              ${stats.works.slice(0, 10).map(work => `
+                <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
+                  <div>
+                    <strong>${work.may || 'Không xác định'}</strong>
+                    <br><small class="text-muted">${work.nguoi_yeu_cau || work.nguoiYeuCau || 'Không xác định'}</small>
+                  </div>
+                  <div class="text-end">
+                    <span class="badge ${getWorkStatusClass(work)}">${getWorkStatus(work)}</span>
+                    <br><small class="text-muted">${formatDate(work.thoi_gian_yeu_cau || work.thoiGianYeuCau)}</small>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+      
+      modal.show();
+    }
+
+    function viewMachineDetail(machine) {
+      // Implementation for viewing machine detail
+      alert(`Xem chi tiết máy: ${machine}`);
+    }
+
+    function getMachineStatus(machine) {
+      const issueCount = getMachineIssueCount(machine.ten_may);
+      if (issueCount === 0) return 'operational';
+      if (issueCount <= 3) return 'warning';
+      return 'critical';
+    }
+
+    function getMachineIssueCount(machineName) {
+      return allWorks.filter(work => work.may === machineName).length;
+    }
+
+    function getMachineStatusClass(issueCount) {
+      if (issueCount === 0) return 'operational';
+      if (issueCount <= 3) return 'warning';
+      return 'critical';
+    }
+
+    function getAreaStatus(completionRate) {
+      if (completionRate >= 80) return 'Tốt';
+      if (completionRate >= 50) return 'Trung bình';
+      return 'Cần cải thiện';
+    }
+
+    function getAreaStatusClass(completionRate) {
+      if (completionRate >= 80) return 'bg-success';
+      if (completionRate >= 50) return 'bg-warning text-dark';
+      return 'bg-danger';
+    }
+
+    function isWorkCompleted(work) {
+      const banGiao = work.thoi_gian_ban_giao || work.thoiGianBanGiao;
+      return banGiao && banGiao.toString().trim() !== '';
+    }
+
+    function isWorkProcessing(work) {
+      const lamChinh = work.nguoi_lam_chinh || work.nguoiLamChinh;
+      const lamPhu1 = work.nguoi_lam_phu_1 || work.nguoiLamPhu1;
+      const lamPhu2 = work.nguoi_lam_phu_2 || work.nguoiLamPhu2;
+      return (lamChinh && lamChinh.trim() !== '') || 
+             (lamPhu1 && lamPhu1.trim() !== '') || 
+             (lamPhu2 && lamPhu2.trim() !== '');
+    }
+
+    function getWorkStatus(work) {
+      if (isWorkCompleted(work)) return 'Đã hoàn thành';
+      if (isWorkProcessing(work)) return 'Đang xử lý';
+      return 'Chờ xử lý';
+    }
+
+    function getWorkStatusClass(work) {
+      if (isWorkCompleted(work)) return 'bg-success';
+      if (isWorkProcessing(work)) return 'bg-warning text-dark';
+      return 'bg-danger';
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('vi-VN');
+    }
+
+    function exportAreaReport() {
+      // Implementation for exporting area report
+      alert('Tính năng xuất báo cáo đang được phát triển');
+    }
+
+    function refreshData() {
+      loadData();
+    }
+
+    // Export functions
+    window.showAreaDetail = showAreaDetail;
+    window.viewMachineDetail = viewMachineDetail;
+    window.exportAreaReport = exportAreaReport;
+    window.refreshData = refreshData;
+  </script>
+</body>
+</html> 

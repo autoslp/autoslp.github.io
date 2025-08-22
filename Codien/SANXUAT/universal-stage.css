@@ -1946,10 +1946,7 @@ body {
       gap: 0.5rem;
   }
 
-  .shifts-list {
-      max-height: 400px;
-      overflow-y: auto;
-  }
+
 
   .shift-item {
       background: #f8f9fa;

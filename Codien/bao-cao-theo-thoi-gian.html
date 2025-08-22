@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo Cáo Theo Thời Gian</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary-color: #726bff;
+      --secondary-color: #667eea;
+      --success-color: #28a745;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .time-header {
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .time-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+      transition: transform 0.3s ease;
+    }
+
+    .time-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .timeline-container {
+      position: relative;
+      padding: 2rem 0;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding: 1rem 0;
+      border-left: 3px solid #e9ecef;
+      margin-left: 2rem;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: 1.5rem;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: var(--primary-color);
+    }
+
+    .timeline-item.completed::before {
+      background: var(--success-color);
+    }
+
+    .timeline-item.processing::before {
+      background: var(--warning-color);
+    }
+
+    .timeline-item.waiting::before {
+      background: var(--danger-color);
+    }
+
+    .timeline-content {
+      margin-left: 1rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+
+    .time-metric {
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .time-metric-number {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    .time-metric-label {
+      color: #666;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+
+    .trend-indicator {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.5rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .trend-up {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .trend-down {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .trend-stable {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .chart-wrapper {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .period-selector {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .btn-period {
+      border: 2px solid var(--primary-color);
+      color: var(--primary-color);
+      background: transparent;
+      transition: all 0.3s ease;
+    }
+
+    .btn-period:hover,
+    .btn-period.active {
+      background: var(--primary-color);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="time-header">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h2><i class="bi bi-clock-history me-2"></i>Báo Cáo Theo Thời Gian</h2>
+          <p class="text-muted mb-0">Phân tích xu hướng và hiệu suất công việc theo thời gian</p>
+        </div>
+        <div class="col-md-4 text-end">
+          <div class="d-flex gap-2 justify-content-end">
+            <button class="btn btn-outline-primary" onclick="exportReport()">
+              <i class="bi bi-download me-1"></i>Xuất báo cáo
+            </button>
+            <button class="btn btn-primary" onclick="refreshData()">
+              <i class="bi bi-arrow-clockwise me-1"></i>Làm mới
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Period Selector -->
+    <div class="period-selector">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <h5 class="mb-3"><i class="bi bi-calendar-range me-2"></i>Chọn khoảng thời gian</h5>
+          <div class="btn-group" role="group">
+            <button type="button" class="btn btn-period active" data-period="7">7 ngày</button>
+            <button type="button" class="btn btn-period" data-period="30">30 ngày</button>
+            <button type="button" class="btn btn-period" data-period="90">90 ngày</button>
+            <button type="button" class="btn btn-period" data-period="365">1 năm</button>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="row">
+            <div class="col-md-6">
+              <label class="form-label">Từ ngày</label>
+              <input type="date" class="form-control" id="fromDate">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Đến ngày</label>
+              <input type="date" class="form-control" id="toDate">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Time Metrics -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="time-card">
+          <div class="time-metric">
+            <div class="time-metric-number" id="avgCompletionTime">0</div>
+            <div class="time-metric-label">Thời gian hoàn thành TB (giờ)</div>
+            <div class="trend-indicator trend-down mt-2">
+              <i class="bi bi-arrow-down me-1"></i>Giảm 12%
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="time-card">
+          <div class="time-metric">
+            <div class="time-metric-number" id="avgResponseTime">0</div>
+            <div class="time-metric-label">Thời gian phản hồi TB (giờ)</div>
+            <div class="trend-indicator trend-up mt-2">
+              <i class="bi bi-arrow-up me-1"></i>Tăng 8%
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="time-card">
+          <div class="time-metric">
+            <div class="time-metric-number" id="completionRate">0%</div>
+            <div class="time-metric-label">Tỷ lệ hoàn thành</div>
+            <div class="trend-indicator trend-up mt-2">
+              <i class="bi bi-arrow-up me-1"></i>Tăng 15%
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="time-card">
+          <div class="time-metric">
+            <div class="time-metric-number" id="totalWorks">0</div>
+            <div class="time-metric-label">Tổng công việc</div>
+            <div class="trend-indicator trend-stable mt-2">
+              <i class="bi bi-dash me-1"></i>Ổn định
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row mb-4">
+      <div class="col-md-8">
+        <div class="chart-wrapper">
+          <h5 class="mb-3"><i class="bi bi-graph-up me-2"></i>Xu hướng công việc theo thời gian</h5>
+          <canvas id="trendChart" height="300"></canvas>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="chart-wrapper">
+          <h5 class="mb-3"><i class="bi bi-pie-chart me-2"></i>Phân bố thời gian xử lý</h5>
+          <canvas id="timeDistributionChart" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Analysis -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <div class="chart-wrapper">
+          <h5 class="mb-3"><i class="bi bi-speedometer2 me-2"></i>Hiệu suất theo giờ trong ngày</h5>
+          <canvas id="hourlyPerformanceChart" height="250"></canvas>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="chart-wrapper">
+          <h5 class="mb-3"><i class="bi bi-calendar-week me-2"></i>Hiệu suất theo ngày trong tuần</h5>
+          <canvas id="weeklyPerformanceChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="time-card">
+      <h5 class="mb-3"><i class="bi bi-clock me-2"></i>Timeline công việc gần đây</h5>
+      <div class="timeline-container" id="workTimeline">
+        <!-- Timeline items will be generated here -->
+      </div>
+    </div>
+
+    <!-- Detailed Analysis -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <div class="time-card">
+          <h5 class="mb-3"><i class="bi bi-list-check me-2"></i>Top công việc nhanh nhất</h5>
+          <div id="fastestWorks">
+            <!-- Fastest works will be listed here -->
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="time-card">
+          <h5 class="mb-3"><i class="bi bi-exclamation-triangle me-2"></i>Công việc cần chú ý</h5>
+          <div id="attentionWorks">
+            <!-- Works needing attention will be listed here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let allWorks = [];
+    let currentPeriod = 7;
+    let trendChart, timeDistributionChart, hourlyPerformanceChart, weeklyPerformanceChart;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      loadData();
+      setupEventListeners();
+      setDefaultDates();
+    });
+
+    function setupEventListeners() {
+      // Period buttons
+      document.querySelectorAll('.btn-period').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.btn-period').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          currentPeriod = parseInt(this.dataset.period);
+          updateDateRange();
+          updateCharts();
+        });
+      });
+
+      // Date inputs
+      document.getElementById('fromDate').addEventListener('change', updateCharts);
+      document.getElementById('toDate').addEventListener('change', updateCharts);
+    }
+
+    function setDefaultDates() {
+      const toDate = new Date();
+      const fromDate = new Date();
+      fromDate.setDate(fromDate.getDate() - currentPeriod);
+      
+      document.getElementById('fromDate').value = fromDate.toISOString().split('T')[0];
+      document.getElementById('toDate').value = toDate.toISOString().split('T')[0];
+    }
+
+    function updateDateRange() {
+      const toDate = new Date();
+      const fromDate = new Date();
+      fromDate.setDate(fromDate.getDate() - currentPeriod);
+      
+      document.getElementById('fromDate').value = fromDate.toISOString().split('T')[0];
+      document.getElementById('toDate').value = toDate.toISOString().split('T')[0];
+    }
+
+    async function loadData() {
+      try {
+        const response = await fetch('https://api.autoslp.com/api/data/congviec');
+        const data = await response.json();
+        
+        if (Array.isArray(data)) {
+          allWorks = data;
+          updateMetrics();
+          updateCharts();
+          updateTimeline();
+          updateAnalysis();
+        }
+      } catch (error) {
+        console.error('Lỗi khi load dữ liệu:', error);
+      }
+    }
+
+    function updateMetrics() {
+      const fromDate = new Date(document.getElementById('fromDate').value);
+      const toDate = new Date(document.getElementById('toDate').value);
+      
+      const filteredWorks = allWorks.filter(work => {
+        const workDate = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+        return workDate >= fromDate && workDate <= toDate;
+      });
+
+      const completedWorks = filteredWorks.filter(work => isWorkCompleted(work));
+      
+      // Calculate average completion time
+      const completionTimes = completedWorks.map(work => {
+        const startTime = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+        const endTime = new Date(work.thoi_gian_ban_giao || work.thoiGianBanGiao);
+        return (endTime - startTime) / (1000 * 60 * 60); // hours
+      }).filter(time => time > 0);
+
+      const avgCompletionTime = completionTimes.length > 0 ? 
+        Math.round(completionTimes.reduce((a, b) => a + b, 0) / completionTimes.length) : 0;
+
+      // Calculate average response time
+      const responseTimes = filteredWorks.filter(work => {
+        return work.thoi_gian_bat_dau_lam || work.thoigianbatdaulam;
+      }).map(work => {
+        const requestTime = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+        const startTime = new Date(work.thoi_gian_bat_dau_lam || work.thoigianbatdaulam);
+        return (startTime - requestTime) / (1000 * 60 * 60); // hours
+      }).filter(time => time > 0);
+
+      const avgResponseTime = responseTimes.length > 0 ? 
+        Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length) : 0;
+
+      // Calculate completion rate
+      const completionRate = filteredWorks.length > 0 ? 
+        Math.round((completedWorks.length / filteredWorks.length) * 100) : 0;
+
+      document.getElementById('avgCompletionTime').textContent = avgCompletionTime;
+      document.getElementById('avgResponseTime').textContent = avgResponseTime;
+      document.getElementById('completionRate').textContent = completionRate + '%';
+      document.getElementById('totalWorks').textContent = filteredWorks.length;
+    }
+
+    function updateCharts() {
+      updateMetrics();
+      updateTrendChart();
+      updateTimeDistributionChart();
+      updateHourlyPerformanceChart();
+      updateWeeklyPerformanceChart();
+    }
+
+    function updateTrendChart() {
+      const ctx = document.getElementById('trendChart').getContext('2d');
+      
+      if (trendChart) {
+        trendChart.destroy();
+      }
+
+      const fromDate = new Date(document.getElementById('fromDate').value);
+      const toDate = new Date(document.getElementById('toDate').value);
+      
+      // Group works by date
+      const dailyStats = {};
+      const currentDate = new Date(fromDate);
+      
+      while (currentDate <= toDate) {
+        const dateStr = currentDate.toISOString().split('T')[0];
+        dailyStats[dateStr] = { total: 0, completed: 0, processing: 0, waiting: 0 };
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      allWorks.forEach(work => {
+        const workDate = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+        const dateStr = workDate.toISOString().split('T')[0];
+        
+        if (dailyStats[dateStr]) {
+          dailyStats[dateStr].total++;
+          if (isWorkCompleted(work)) {
+            dailyStats[dateStr].completed++;
+          } else if (isWorkProcessing(work)) {
+            dailyStats[dateStr].processing++;
+          } else {
+            dailyStats[dateStr].waiting++;
+          }
+        }
+      });
+
+      const labels = Object.keys(dailyStats);
+      const completedData = labels.map(date => dailyStats[date].completed);
+      const processingData = labels.map(date => dailyStats[date].processing);
+      const waitingData = labels.map(date => dailyStats[date].waiting);
+
+      trendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Đã hoàn thành',
+            data: completedData,
+            borderColor: '#28a745',
+            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+            tension: 0.4
+          }, {
+            label: 'Đang xử lý',
+            data: processingData,
+            borderColor: '#ffc107',
+            backgroundColor: 'rgba(255, 193, 7, 0.1)',
+            tension: 0.4
+          }, {
+            label: 'Chờ xử lý',
+            data: waitingData,
+            borderColor: '#dc3545',
+            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    }
+
+    function updateTimeDistributionChart() {
+      const ctx = document.getElementById('timeDistributionChart').getContext('2d');
+      
+      if (timeDistributionChart) {
+        timeDistributionChart.destroy();
+      }
+
+      const fromDate = new Date(document.getElementById('fromDate').value);
+      const toDate = new Date(document.getElementById('toDate').value);
+      
+      const filteredWorks = allWorks.filter(work => {
+        const workDate = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+        return workDate >= fromDate && workDate <= toDate;
+      });
+
+      const timeRanges = {
+        '0-2h': 0,
+        '2-4h': 0,
+        '4-8h': 0,
+        '8-24h': 0,
+        '>24h': 0
+      };
+
+      filteredWorks.forEach(work => {
+        if (isWorkCompleted(work)) {
+          const startTime = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+          const endTime = new Date(work.thoi_gian_ban_giao || work.thoiGianBanGiao);
+          const duration = (endTime - startTime) / (1000 * 60 * 60); // hours
+          
+          if (duration <= 2) timeRanges['0-2h']++;
+          else if (duration <= 4) timeRanges['2-4h']++;
+          else if (duration <= 8) timeRanges['4-8h']++;
+          else if (duration <= 24) timeRanges['8-24h']++;
+          else timeRanges['>24h']++;
+        }
+      });
+
+      timeDistributionChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(timeRanges),
+          datasets: [{
+            data: Object.values(timeRanges),
+            backgroundColor: [
+              '#28a745',
+              '#20c997',
+              '#ffc107',
+              '#fd7e14',
+              '#dc3545'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    }
+
+    function updateHourlyPerformanceChart() {
+      const ctx = document.getElementById('hourlyPerformanceChart').getContext('2d');
+      
+      if (hourlyPerformanceChart) {
+        hourlyPerformanceChart.destroy();
+      }
+
+      const hourlyStats = {};
+      for (let i = 0; i < 24; i++) {
+        hourlyStats[i] = { total: 0, completed: 0 };
+      }
+
+      allWorks.forEach(work => {
+        const workDate = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+        const hour = workDate.getHours();
+        hourlyStats[hour].total++;
+        if (isWorkCompleted(work)) {
+          hourlyStats[hour].completed++;
+        }
+      });
+
+      const labels = Object.keys(hourlyStats).map(h => `${h}:00`);
+      const completionRates = Object.values(hourlyStats).map(stat => 
+        stat.total > 0 ? Math.round((stat.completed / stat.total) * 100) : 0
+      );
+
+      hourlyPerformanceChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Tỷ lệ hoàn thành (%)',
+            data: completionRates,
+            backgroundColor: 'rgba(114, 107, 255, 0.8)',
+            borderColor: '#726bff',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100
+            }
+          }
+        }
+      });
+    }
+
+    function updateWeeklyPerformanceChart() {
+      const ctx = document.getElementById('weeklyPerformanceChart').getContext('2d');
+      
+      if (weeklyPerformanceChart) {
+        weeklyPerformanceChart.destroy();
+      }
+
+      const weeklyStats = {
+        'Chủ nhật': { total: 0, completed: 0 },
+        'Thứ 2': { total: 0, completed: 0 },
+        'Thứ 3': { total: 0, completed: 0 },
+        'Thứ 4': { total: 0, completed: 0 },
+        'Thứ 5': { total: 0, completed: 0 },
+        'Thứ 6': { total: 0, completed: 0 },
+        'Thứ 7': { total: 0, completed: 0 }
+      };
+
+      const dayNames = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+
+      allWorks.forEach(work => {
+        const workDate = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+        const dayName = dayNames[workDate.getDay()];
+        weeklyStats[dayName].total++;
+        if (isWorkCompleted(work)) {
+          weeklyStats[dayName].completed++;
+        }
+      });
+
+      const labels = Object.keys(weeklyStats);
+      const completionRates = Object.values(weeklyStats).map(stat => 
+        stat.total > 0 ? Math.round((stat.completed / stat.total) * 100) : 0
+      );
+
+      weeklyPerformanceChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Tỷ lệ hoàn thành (%)',
+            data: completionRates,
+            backgroundColor: 'rgba(102, 126, 234, 0.8)',
+            borderColor: '#667eea',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100
+            }
+          }
+        }
+      });
+    }
+
+    function updateTimeline() {
+      const timeline = document.getElementById('workTimeline');
+      const fromDate = new Date(document.getElementById('fromDate').value);
+      const toDate = new Date(document.getElementById('toDate').value);
+      
+      const filteredWorks = allWorks.filter(work => {
+        const workDate = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+        return workDate >= fromDate && workDate <= toDate;
+      }).sort((a, b) => {
+        const dateA = new Date(a.thoi_gian_yeu_cau || a.thoiGianYeuCau);
+        const dateB = new Date(b.thoi_gian_yeu_cau || b.thoiGianYeuCau);
+        return dateB - dateA;
+      }).slice(0, 10); // Show last 10 works
+
+      timeline.innerHTML = '';
+      
+      filteredWorks.forEach(work => {
+        const timelineItem = document.createElement('div');
+        timelineItem.className = `timeline-item ${getWorkStatusClass(work)}`;
+        
+        const status = getWorkStatus(work);
+        const date = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+        
+        timelineItem.innerHTML = `
+          <div class="timeline-content">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="mb-1">${work.may || 'Không xác định'} - ${work.khu_vuc || work.khuVuc || 'Không xác định'}</h6>
+                <p class="mb-1 text-muted">${work.nguoi_yeu_cau || work.nguoiYeuCau || 'Không xác định'}</p>
+                <small class="text-muted">${date.toLocaleDateString('vi-VN')} ${date.toLocaleTimeString('vi-VN')}</small>
+              </div>
+              <span class="badge ${getStatusBadgeClass(status)}">${status}</span>
+            </div>
+          </div>
+        `;
+        
+        timeline.appendChild(timelineItem);
+      });
+    }
+
+    function updateAnalysis() {
+      updateFastestWorks();
+      updateAttentionWorks();
+    }
+
+    function updateFastestWorks() {
+      const fastestWorks = allWorks.filter(work => isWorkCompleted(work))
+        .map(work => {
+          const startTime = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+          const endTime = new Date(work.thoi_gian_ban_giao || work.thoiGianBanGiao);
+          const duration = (endTime - startTime) / (1000 * 60 * 60); // hours
+          return { ...work, duration };
+        })
+        .sort((a, b) => a.duration - b.duration)
+        .slice(0, 5);
+
+      const container = document.getElementById('fastestWorks');
+      container.innerHTML = '';
+      
+      fastestWorks.forEach((work, index) => {
+        const item = document.createElement('div');
+        item.className = 'd-flex justify-content-between align-items-center p-2 border-bottom';
+        item.innerHTML = `
+          <div>
+            <strong>${index + 1}. ${work.may || 'Không xác định'}</strong>
+            <br><small class="text-muted">${work.khu_vuc || work.khuVuc || 'Không xác định'}</small>
+          </div>
+          <span class="badge bg-success">${Math.round(work.duration)}h</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function updateAttentionWorks() {
+      const attentionWorks = allWorks.filter(work => {
+        const requestTime = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+        const now = new Date();
+        const hoursSinceRequest = (now - requestTime) / (1000 * 60 * 60);
+        return !isWorkCompleted(work) && hoursSinceRequest > 24;
+      }).slice(0, 5);
+
+      const container = document.getElementById('attentionWorks');
+      container.innerHTML = '';
+      
+      attentionWorks.forEach((work, index) => {
+        const requestTime = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+        const now = new Date();
+        const hoursSinceRequest = Math.round((now - requestTime) / (1000 * 60 * 60));
+        
+        const item = document.createElement('div');
+        item.className = 'd-flex justify-content-between align-items-center p-2 border-bottom';
+        item.innerHTML = `
+          <div>
+            <strong>${index + 1}. ${work.may || 'Không xác định'}</strong>
+            <br><small class="text-muted">${work.khu_vuc || work.khuVuc || 'Không xác định'}</small>
+          </div>
+          <span class="badge bg-danger">${hoursSinceRequest}h</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function isWorkCompleted(work) {
+      const banGiao = work.thoi_gian_ban_giao || work.thoiGianBanGiao;
+      return banGiao && banGiao.toString().trim() !== '';
+    }
+
+    function isWorkProcessing(work) {
+      const lamChinh = work.nguoi_lam_chinh || work.nguoiLamChinh;
+      const lamPhu1 = work.nguoi_lam_phu_1 || work.nguoiLamPhu1;
+      const lamPhu2 = work.nguoi_lam_phu_2 || work.nguoiLamPhu2;
+      return (lamChinh && lamChinh.trim() !== '') || 
+             (lamPhu1 && lamPhu1.trim() !== '') || 
+             (lamPhu2 && lamPhu2.trim() !== '');
+    }
+
+    function getWorkStatus(work) {
+      if (isWorkCompleted(work)) return 'Đã hoàn thành';
+      if (isWorkProcessing(work)) return 'Đang xử lý';
+      return 'Chờ xử lý';
+    }
+
+    function getWorkStatusClass(work) {
+      if (isWorkCompleted(work)) return 'completed';
+      if (isWorkProcessing(work)) return 'processing';
+      return 'waiting';
+    }
+
+    function getStatusBadgeClass(status) {
+      switch (status) {
+        case 'Đã hoàn thành': return 'bg-success';
+        case 'Đang xử lý': return 'bg-warning text-dark';
+        case 'Chờ xử lý': return 'bg-danger';
+        default: return 'bg-secondary';
+      }
+    }
+
+    function exportReport() {
+      // Implementation for exporting report
+      alert('Tính năng xuất báo cáo đang được phát triển');
+    }
+
+    function refreshData() {
+      loadData();
+    }
+
+    // Export functions
+    window.exportReport = exportReport;
+    window.refreshData = refreshData;
+  </script>
+</body>
+</html> 

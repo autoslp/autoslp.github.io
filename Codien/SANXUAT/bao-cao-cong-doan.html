@@ -1,0 +1,2096 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo tiến độ công đoạn - Lệnh sản xuất</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --success-green: #16a34a;
+            --warning-orange: #ca8a04;
+            --danger-red: #dc2626;
+            --info-cyan: #0891b2;
+            --muted-gray: #6b7280;
+        }
+
+        body {
+            background-color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .progress-overview {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .timeline-container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .stage-timeline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .stage-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            min-width: 60px;
+        }
+
+        .stage-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .stage-icon.completed {
+            background: var(--success-green);
+        }
+
+        .stage-icon.in-progress {
+            background: var(--primary-blue);
+            animation: pulse 2s infinite;
+        }
+
+        .stage-icon.waiting {
+            background: var(--muted-gray);
+        }
+
+        .stage-name {
+            font-size: 10px;
+            text-align: center;
+            font-weight: 500;
+            color: var(--muted-gray);
+        }
+
+        .stage-details {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .stage-details.completed {
+            border-left-color: var(--success-green);
+        }
+
+        .stage-details.in-progress {
+            border-left-color: var(--primary-blue);
+        }
+
+        .stage-details.waiting {
+            border-left-color: var(--muted-gray);
+        }
+
+        .stage-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stage-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .stage-status.completed {
+            background: #dcfce7;
+            color: var(--success-green);
+        }
+
+        .stage-status.in-progress {
+            background: #dbeafe;
+            color: var(--primary-blue);
+        }
+
+        .stage-status.waiting {
+            background: #f3f4f6;
+            color: var(--muted-gray);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .metric-card {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: var(--muted-gray);
+            text-transform: uppercase;
+        }
+
+        .alerts-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .alert-item.warning {
+            background: #fef3c7;
+            color: var(--warning-orange);
+        }
+
+        .alert-item.danger {
+            background: #fecaca;
+            color: var(--danger-red);
+        }
+
+        .alert-item.info {
+            background: #cffafe;
+            color: var(--info-cyan);
+        }
+
+        .stats-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--muted-gray);
+            text-transform: uppercase;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: var(--muted-gray);
+        }
+
+        .error-message {
+            background: #fecaca;
+            color: var(--danger-red);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .search-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .form-control-custom {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control-custom:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-primary-custom {
+            background: var(--primary-blue);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary-custom:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        /* Orders Summary Table Styles */
+        .orders-summary-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #f8fafc;
+            cursor: pointer;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+        }
+
+        .order-row {
+            transition: all 0.2s ease;
+        }
+
+        .order-row:hover {
+            background-color: #e3f2fd !important;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.waiting {
+            background: #f3f4f6;
+            color: var(--muted-gray);
+        }
+
+        .status-badge.in-progress {
+            background: #dbeafe;
+            color: var(--primary-blue);
+        }
+
+        .status-badge.completed {
+            background: #dcfce7;
+            color: var(--success-green);
+        }
+
+        .status-badge.handed-over {
+            background: #cffafe;
+            color: var(--info-cyan);
+        }
+
+        .progress-bar-thin {
+            height: 6px;
+            border-radius: 3px;
+            background-color: #e5e7eb;
+        }
+
+        .progress-bar-thin .progress-bar {
+            border-radius: 3px;
+        }
+
+        .btn-view-report {
+            padding: 4px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+
+        .pagination-sm .page-link {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .table-responsive {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table thead th {
+            border-top: none;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .order-code {
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        .product-name {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .customer-name {
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* New Timeline Styles */
+        .stage-card {
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stage-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .stage-card.current-stage {
+            border-color: #fbbf24;
+            box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+        }
+
+        .stage-card.border-success {
+            border-color: var(--success-green);
+        }
+
+        .stage-card.border-primary {
+            border-color: var(--primary-blue);
+        }
+
+        .stage-card.border-secondary {
+            border-color: var(--muted-gray);
+        }
+
+        .stage-icon-large {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .stage-card .card-body {
+            padding: 1rem;
+        }
+
+        .stage-card .card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .stage-card .badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .stage-card .progress {
+            background-color: #f3f4f6;
+        }
+
+        .stage-card small {
+            font-size: 0.75rem;
+        }
+
+        /* Responsive adjustments for timeline */
+        @media (max-width: 768px) {
+            .stage-card .card-body {
+                padding: 0.75rem;
+            }
+            
+            .stage-card .card-title {
+                font-size: 0.8rem;
+            }
+            
+            .stage-icon-large i {
+                font-size: 1.5rem !important;
+            }
+        }
+
+        /* Shifts Summary Styles */
+        .shifts-summary-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .shifts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .shift-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .shift-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .shift-card.active {
+            border-color: var(--primary-blue);
+            background: #eff6ff;
+        }
+
+        .shift-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .shift-stage {
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        .shift-status {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .shift-status.in_progress {
+            background: #dbeafe;
+            color: var(--primary-blue);
+        }
+
+        .shift-status.completed {
+            background: #dcfce7;
+            color: var(--success-green);
+        }
+
+        .shift-status.waiting {
+            background: #f3f4f6;
+            color: var(--muted-gray);
+        }
+
+        .shift-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 12px;
+        }
+
+        .shift-detail {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .shift-detail i {
+            color: var(--muted-gray);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header-card">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="bi bi-graph-up me-2"></i>
+                        Báo cáo tiến độ công đoạn
+                    </h1>
+                    <p class="mb-0 opacity-75">Theo dõi chi tiết tiến độ sản xuất của lệnh</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="d-flex align-items-center justify-content-end gap-3">
+                        <div>
+                            <small class="opacity-75">Ngày tạo báo cáo</small><br>
+                            <strong id="reportDate"></strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Summary Table -->
+        <div class="orders-summary-section">
+            <div class="row align-items-center mb-3">
+                <div class="col-md-6">
+                    <h4 class="mb-0">
+                        <i class="bi bi-table me-2"></i>
+                        Tổng hợp lệnh sản xuất
+                    </h4>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadRecentOrdersTable()">
+                            <i class="bi bi-clock-history me-1"></i>Gần đây
+                        </button>
+                        <button type="button" class="btn btn-outline-success btn-sm" onclick="loadActiveOrdersTable()">
+                            <i class="bi bi-play-circle me-1"></i>Đang chạy
+                        </button>
+                        <button type="button" class="btn btn-outline-info btn-sm" onclick="loadCompletedOrdersTable()">
+                            <i class="bi bi-check-circle me-1"></i>Hoàn thành
+                        </button>
+                        <button type="button" class="btn btn-outline-warning btn-sm" onclick="loadAllOrdersTable()">
+                            <i class="bi bi-list-ul me-1"></i>Tất cả
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Loading State for Table -->
+            <div id="tableLoadingState" class="loading" style="display: none;">
+                <i class="bi bi-arrow-clockwise fs-1 mb-3 d-block"></i>
+                <h5>Đang tải danh sách lệnh...</h5>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="table-responsive">
+                <table class="table table-hover table-striped" id="ordersTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Mã lệnh</th>
+                            <th>Sản phẩm</th>
+                            <th>Khách hàng</th>
+                            <th>Số lượng</th>
+                            <th>Trạng thái</th>
+                            <th>Tiến độ</th>
+                            <th>Ngày tạo</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox fs-1 mb-2 d-block"></i>
+                                Chưa có dữ liệu lệnh sản xuất
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="text-muted">
+                    Hiển thị <span id="currentPageInfo">0-0</span> của <span id="totalOrders">0</span> lệnh
+                </div>
+                <nav aria-label="Orders pagination">
+                    <ul class="pagination pagination-sm mb-0" id="ordersPagination">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Trước</a>
+                        </li>
+                        <li class="page-item active">
+                            <a class="page-link" href="#">1</a>
+                        </li>
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">Sau</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="row align-items-end">
+                <div class="col-md-4">
+                    <label for="orderSearch" class="form-label fw-bold">Tìm kiếm lệnh sản xuất</label>
+                    <input type="text" class="form-control form-control-custom" id="orderSearch" 
+                           placeholder="Nhập mã lệnh (VD: 01-2503-00077)">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary-custom w-100" onclick="searchOrder()">
+                        <i class="bi bi-search me-1"></i>Tìm kiếm
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary" onclick="loadRecentOrders()">
+                            <i class="bi bi-clock-history me-1"></i>Lệnh gần đây
+                        </button>
+                        <button class="btn btn-outline-success" onclick="loadActiveOrders()">
+                            <i class="bi bi-play-circle me-1"></i>Lệnh đang chạy
+                        </button>
+                        <button class="btn btn-outline-info" onclick="loadCompletedOrders()">
+                            <i class="bi bi-check-circle me-1"></i>Lệnh hoàn thành
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="loading" style="display: none;">
+            <i class="bi bi-arrow-clockwise fs-1 mb-3 d-block"></i>
+            <h4>Đang tải dữ liệu...</h4>
+            <p>Vui lòng chờ trong giây lát</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="error-message" style="display: none;">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <span id="errorMessage"></span>
+        </div>
+
+        <!-- Content Area -->
+        <div id="contentArea" style="display: none;">
+            <!-- Progress Overview -->
+            <div class="progress-overview">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h3 class="mb-2">
+                            <i class="bi bi-clipboard-data me-2"></i>
+                            Tổng quan tiến độ
+                        </h3>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="progress flex-grow-1" style="height: 10px;">
+                                <div id="overallProgress" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <span id="progressText" class="fw-bold">0%</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="text-success">
+                                    <i class="bi bi-check-circle fs-3"></i>
+                                    <div class="fw-bold" id="completedStages">0</div>
+                                    <small>Hoàn thành</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-primary">
+                                    <i class="bi bi-play-circle fs-3"></i>
+                                    <div class="fw-bold" id="inProgressStages">0</div>
+                                    <small>Đang xử lý</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-muted">
+                                    <i class="bi bi-clock fs-3"></i>
+                                    <div class="fw-bold" id="waitingStages">0</div>
+                                    <small>Chờ xử lý</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="timeline-container">
+                <h4 class="mb-3">
+                    <i class="bi bi-timeline me-2"></i>
+                    Timeline công đoạn
+                </h4>
+                <div id="stageTimeline" class="stage-timeline">
+                    <!-- Timeline sẽ được tạo động -->
+                </div>
+            </div>
+
+            <!-- Shifts Summary -->
+            <div class="shifts-summary-section">
+                <h4 class="mb-3">
+                    <i class="bi bi-clock-history me-2"></i>
+                    Tổng hợp ca làm việc
+                </h4>
+                <div id="shiftsSummaryContainer">
+                    <!-- Shifts summary sẽ được tạo động -->
+                </div>
+            </div>
+
+            <!-- Alerts Section -->
+            <div class="alerts-section">
+                <h4 class="mb-3">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Cảnh báo & Đề xuất
+                </h4>
+                <div id="alertsContainer">
+                    <!-- Alerts sẽ được tạo động -->
+                </div>
+            </div>
+
+            <!-- Stage Details -->
+            <div id="stageDetailsContainer">
+                <!-- Stage details sẽ được tạo động -->
+            </div>
+
+            <!-- Statistics -->
+            <div class="stats-section">
+                <h4 class="mb-3">
+                    <i class="bi bi-bar-chart me-2"></i>
+                    Thống kê tổng hợp
+                </h4>
+                <div id="statsContainer" class="stats-grid">
+                    <!-- Stats sẽ được tạo động -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Configuration
+        const API_BASE_URL = 'https://api.autoslp.com/api';
+        const WEBHOOK_BASE_URL = 'https://api.autoslp.com:5678/webhook';
+        
+        // Stage configuration - sử dụng cấu trúc tương tự in-offset-stage.html
+        const STAGE_CONFIGS = {
+            xa: { KEY: 'xa', NAME: 'XẢ', DISPLAY: 'XẢ GIẤY CUỘN' },
+            xen: { KEY: 'xen', NAME: 'XÉN', DISPLAY: 'XÉN GIẤY' },
+            in_offset: { KEY: 'in_offset', NAME: 'IN OFFSET', DISPLAY: 'IN OFFSET' },
+            xen_toa: { KEY: 'xen_toa', NAME: 'XÉN TẠO', DISPLAY: 'XÉN TẠO' },
+            kcs_in: { KEY: 'kcs_in', NAME: 'KCS ĐẦU VÀO', DISPLAY: 'KCS ĐẦU VÀO' },
+            kcs_sau_in: { KEY: 'kcs_sau_in', NAME: 'KCS SAU IN', DISPLAY: 'KCS SAU IN' },
+            lang: { KEY: 'lang', NAME: 'LẠNG', DISPLAY: 'LẠNG GIẤY' },
+            in_luoi: { KEY: 'in_luoi', NAME: 'IN LƯỚI', DISPLAY: 'IN LƯỚI' },
+            boi: { KEY: 'boi', NAME: 'BỒI', DISPLAY: 'BỒI GIẤY' },
+            be: { KEY: 'be', NAME: 'BẾ', DISPLAY: 'BẾ GIẤY' },
+            boc_le: { KEY: 'boc_le', NAME: 'BÓC LẺ', DISPLAY: 'BÓC LẺ' },
+            dan_3m: { KEY: 'dan_3m', NAME: 'DÁN 3M', DISPLAY: 'DÁN 3M' },
+            dan_may: { KEY: 'dan_may', NAME: 'DÁN MÁY', DISPLAY: 'DÁN MÁY' },
+            hoan_thien: { KEY: 'hoan_thien', NAME: 'HOÀN THIỆN', DISPLAY: 'HOÀN THIỆN' },
+            ghim: { KEY: 'ghim', NAME: 'GHIM', DISPLAY: 'GHIM' },
+            gap: { KEY: 'gap', NAME: 'GẤP', DISPLAY: 'GẤP' },
+            nhap_kho: { KEY: 'nhap_kho', NAME: 'NHẬP KHO', DISPLAY: 'NHẬP KHO' }
+        };
+
+        // Stage configuration cho báo cáo
+        const STAGES = [
+            { key: 'xa', name: 'Xả', icon: 'bi-scissors', config: STAGE_CONFIGS.xa },
+            { key: 'in_offset', name: 'In Offset', icon: 'bi-printer', config: STAGE_CONFIGS.in_offset },
+            { key: 'xen', name: 'Xén', icon: 'bi-cut', config: STAGE_CONFIGS.xen },
+            { key: 'xen_toa', name: 'Xén tạo', icon: 'bi-gear', config: STAGE_CONFIGS.xen_toa },
+            { key: 'kcs_in', name: 'KCS đầu vào', icon: 'bi-search', config: STAGE_CONFIGS.kcs_in },
+            { key: 'kcs_sau_in', name: 'KCS sau in', icon: 'bi-search', config: STAGE_CONFIGS.kcs_sau_in },
+            { key: 'lang', name: 'Lạng', icon: 'bi-layers', config: STAGE_CONFIGS.lang },
+            { key: 'in_luoi', name: 'In lưới', icon: 'bi-grid', config: STAGE_CONFIGS.in_luoi },
+            { key: 'boi', name: 'Bồi', icon: 'bi-stack', config: STAGE_CONFIGS.boi },
+            { key: 'be', name: 'Bế', icon: 'bi-puzzle', config: STAGE_CONFIGS.be },
+            { key: 'boc_le', name: 'Bóc lẻ', icon: 'bi-box', config: STAGE_CONFIGS.boc_le },
+            { key: 'dan_3m', name: 'Dán 3M', icon: 'bi-tag', config: STAGE_CONFIGS.dan_3m },
+            { key: 'dan_may', name: 'Dán máy', icon: 'bi-tools', config: STAGE_CONFIGS.dan_may },
+            { key: 'hoan_thien', name: 'Hoàn thiện', icon: 'bi-check2-all', config: STAGE_CONFIGS.hoan_thien },
+            { key: 'ghim', name: 'Ghìm', icon: 'bi-pin', config: STAGE_CONFIGS.ghim },
+            { key: 'gap', name: 'Gấp', icon: 'bi-arrow-down-up', config: STAGE_CONFIGS.gap },
+            { key: 'nhap_kho', name: 'Nhập kho', icon: 'bi-box-arrow-in-down', config: STAGE_CONFIGS.nhap_kho }
+        ];
+
+        let currentOrder = null;
+        let allOrdersData = []; // Dữ liệu tất cả lệnh
+        let currentPage = 1;
+        let ordersPerPage = 10;
+        let currentFilter = 'recent'; // recent, active, completed, all
+        let shiftsData = []; // Dữ liệu shifts từ production_orders_shift
+
+        /**
+         * =================================================================
+         * API FUNCTIONS - HÀM XỬ LÝ API
+         * =================================================================
+         */
+
+        /**
+         * Fetch với timeout và retry
+         */
+        async function fetchWithTimeout(url, options = {}, timeout = 10000) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                return response;
+            } catch (error) {
+                clearTimeout(timeoutId);
+                throw error;
+            }
+        }
+
+        /**
+         * Fetch với retry logic
+         */
+        async function fetchWithRetry(url, options = {}, maxRetries = 3) {
+            let lastError;
+            
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    const timeout = attempt === 1 ? 10000 : 3000;
+                    const response = await fetchWithTimeout(url, options, timeout);
+                    
+                    if (response.ok) {
+                        return response;
+                    }
+                    
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    
+                } catch (error) {
+                    lastError = error;
+                    
+                    if (attempt < maxRetries) {
+                        const delay = Math.min(1000 * attempt, 2000);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    }
+                }
+            }
+            
+            throw lastError;
+        }
+
+        /**
+         * =================================================================
+         * HELPER FUNCTIONS - HÀM HỖ TRỢ
+         * =================================================================
+         */
+
+        /**
+         * Lấy tên field theo stage
+         */
+        function getFieldName(stageKey, field) {
+            return `${stageKey}_${field}`;
+        }
+
+        /**
+         * Lấy giá trị field từ order
+         */
+        function getOrderField(order, stageKey, field) {
+            const fieldName = getFieldName(stageKey, field);
+            return order[fieldName] || order[field] || 0;
+        }
+
+        /**
+         * Lấy stage tiếp theo từ workflow definition
+         */
+        function getNextStageFromWorkflow(workflowDef, currentStage) {
+            if (!workflowDef) {
+                return null;
+            }
+            
+            const stages = workflowDef.split(',').map(s => s.trim());
+            const currentIndex = stages.indexOf(currentStage);
+            
+            if (currentIndex === -1 || currentIndex >= stages.length - 1) {
+                return null;
+            }
+            
+            const nextStage = stages[currentIndex + 1];
+            return nextStage;
+        }
+
+        /**
+         * Lấy stage trước đó từ workflow
+         */
+        function getPreviousStageFromWorkflow(workflowDef, currentStage) {
+            if (!workflowDef) {
+                return null;
+            }
+            
+            const stages = workflowDef.split(',').map(s => s.trim());
+            const currentIndex = stages.indexOf(currentStage);
+            
+            if (currentIndex === -1 || currentIndex <= 0) {
+                return null;
+            }
+            
+            const previousStage = stages[currentIndex - 1];
+            return previousStage;
+        }
+
+        /**
+         * Transform API data
+         */
+        function transformApiData(apiData) {
+            if (!Array.isArray(apiData)) {
+                return [];
+            }
+
+            const transformedData = [];
+            
+            for (let i = 0; i < apiData.length; i++) {
+                transformedData[i] = transformOrder(apiData[i]);
+            }
+            
+            return transformedData;
+        }
+
+        /**
+         * Transform một order
+         */
+        function transformOrder(order) {
+            let workflowDef = order.workflow_definition;
+            
+            // Tạo đối tượng kết quả với tất cả các stage
+            const transformedOrder = {
+                id: order.id || order.order_id || order.production_order_id,
+                production_order: order.order_code || order.production_order,
+                order_type: order.order_type || '',
+                product_name: order.product_name,
+                internal_product_code: order.internal_product_code,
+                customer_name: order.customer_name,
+                total_quantity: order.quantity || order.total_quantity,
+                deployed_quantity: order.deployed_quantity || 0,
+                sheet_count: order.sheet_count || 0,
+                paper_type: order.paper_type || '',
+                paper_weight: order.paper_weight || 0,
+                paper_length: order.paper_length || 0,
+                paper_width: order.paper_width || 0,
+                blank_count: order.blank_count || 0,
+                delivery_date: order.delivery_date,
+                deployment_date: order.deployment_date || order.created_at,
+                assigned_machine: order.assigned_machine || '',
+                workflow_definition: workflowDef,
+                created_at: order.created_at,
+                updated_at: order.updated_at
+            };
+
+            // Thêm dữ liệu cho từng stage
+            STAGES.forEach(stage => {
+                const stageKey = stage.key;
+                transformedOrder[getFieldName(stageKey, 'input_quantity')] = getOrderField(order, stageKey, 'input_quantity');
+                transformedOrder[getFieldName(stageKey, 'output_quantity')] = getOrderField(order, stageKey, 'output_quantity');
+                transformedOrder[getFieldName(stageKey, 'good_quantity')] = getOrderField(order, stageKey, 'good_quantity');
+                transformedOrder[getFieldName(stageKey, 'ng_quantity')] = getOrderField(order, stageKey, 'ng_quantity');
+                transformedOrder[getFieldName(stageKey, 'handover_quantity')] = getOrderField(order, stageKey, 'handover_quantity');
+                transformedOrder[getFieldName(stageKey, 'ng_start_end_quantity')] = getOrderField(order, stageKey, 'ng_start_end_quantity');
+                transformedOrder[getFieldName(stageKey, 'return_quantity')] = getOrderField(order, stageKey, 'return_quantity');
+                transformedOrder[getFieldName(stageKey, 'status')] = getOrderField(order, stageKey, 'status') || 'waiting';
+                transformedOrder[getFieldName(stageKey, 'machine_name')] = getOrderField(order, stageKey, 'machine_name');
+                transformedOrder[getFieldName(stageKey, 'worker_name')] = getOrderField(order, stageKey, 'worker_name');
+                transformedOrder[getFieldName(stageKey, 'note')] = getOrderField(order, stageKey, 'note') || '';
+                transformedOrder[getFieldName(stageKey, 'start_time')] = getOrderField(order, stageKey, 'start_time');
+                transformedOrder[getFieldName(stageKey, 'end_time')] = getOrderField(order, stageKey, 'end_time');
+                transformedOrder[getFieldName(stageKey, 'shift')] = getOrderField(order, stageKey, 'shift');
+            });
+            
+            return transformedOrder;
+        }
+
+        /**
+         * =================================================================
+         * PAGE INITIALIZATION - KHỞI TẠO TRANG
+         * =================================================================
+         */
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            setReportDate();
+            loadRecentOrdersTable(); // Load bảng tổng hợp thay vì chỉ load 1 lệnh
+            loadShiftsData(); // Load dữ liệu shifts khi khởi tạo
+        });
+
+        function setReportDate() {
+            const now = new Date();
+            document.getElementById('reportDate').textContent = now.toLocaleDateString('vi-VN');
+        }
+
+        /**
+         * =================================================================
+         * DATA LOADING FUNCTIONS - HÀM TẢI DỮ LIỆU
+         * =================================================================
+         */
+
+        // Search order function
+        async function searchOrder() {
+            const orderCode = document.getElementById('orderSearch').value.trim();
+            if (!orderCode) {
+                showError('Vui lòng nhập mã lệnh sản xuất');
+                return;
+            }
+
+            showLoading();
+            try {
+                // Load shifts data trước
+                await loadShiftsData();
+                
+                const response = await fetchWithRetry(`${API_BASE_URL}/data/production_orders?production_order=${orderCode}`, {}, 3);
+                const apiData = await response.json();
+                
+                if (response.ok && apiData.length > 0) {
+                    const transformedData = transformApiData(apiData);
+                    currentOrder = transformedData[0];
+                    renderOrderReport(currentOrder);
+                } else {
+                    showError('Không tìm thấy lệnh sản xuất với mã: ' + orderCode);
+                }
+            } catch (error) {
+                showError('Lỗi khi tìm kiếm lệnh: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Load recent orders
+        async function loadRecentOrders() {
+            showLoading();
+            try {
+                // Load shifts data trước
+                await loadShiftsData();
+                
+                const response = await fetchWithRetry(`${API_BASE_URL}/data/production_orders?limit=10&sort=created_at&order=desc`, {}, 3);
+                const apiData = await response.json();
+                
+                if (response.ok && apiData.length > 0) {
+                    const transformedData = transformApiData(apiData);
+                    currentOrder = transformedData[0];
+                    renderOrderReport(currentOrder);
+                } else {
+                    showError('Không có dữ liệu lệnh sản xuất');
+                }
+            } catch (error) {
+                showError('Lỗi khi tải dữ liệu: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Load active orders
+        async function loadActiveOrders() {
+            showLoading();
+            try {
+                // Load shifts data trước
+                await loadShiftsData();
+                
+                const response = await fetchWithRetry(`${API_BASE_URL}/data/production_orders?status=Đang sản xuất&limit=10`, {}, 3);
+                const apiData = await response.json();
+                
+                if (response.ok && apiData.length > 0) {
+                    const transformedData = transformApiData(apiData);
+                    currentOrder = transformedData[0];
+                    renderOrderReport(currentOrder);
+                } else {
+                    showError('Không có lệnh đang chạy');
+                }
+            } catch (error) {
+                showError('Lỗi khi tải dữ liệu: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Load completed orders
+        async function loadCompletedOrders() {
+            showLoading();
+            try {
+                // Load shifts data trước
+                await loadShiftsData();
+                
+                const response = await fetchWithRetry(`${API_BASE_URL}/data/production_orders?status=Hoàn thành&limit=10`, {}, 3);
+                const apiData = await response.json();
+                
+                if (response.ok && apiData.length > 0) {
+                    const transformedData = transformApiData(apiData);
+                    currentOrder = transformedData[0];
+                    renderOrderReport(currentOrder);
+                } else {
+                    showError('Không có lệnh hoàn thành');
+                }
+            } catch (error) {
+                showError('Lỗi khi tải dữ liệu: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        /**
+         * =================================================================
+         * RENDERING FUNCTIONS - HÀM HIỂN THỊ
+         * =================================================================
+         */
+
+        // Get stage status
+        function getStageStatus(order, stage) {
+            const status = getOrderField(order, stage, 'status');
+            const startTime = getOrderField(order, stage, 'start_time');
+            const endTime = getOrderField(order, stage, 'end_time');
+            
+            // Kiểm tra xem có shift đang chạy cho stage này không
+            const activeShift = getActiveShiftForStage(order.id, stage);
+            
+            if (status === 'completed' || status === 'handed_over') {
+                return 'completed';
+            } else if (activeShift || status === 'in_progress' || startTime) {
+                return 'in_progress';
+            } else {
+                return 'waiting';
+            }
+        }
+
+        // Calculate overall progress
+        function calculateOverallProgress(order) {
+            // Lấy danh sách công đoạn từ workflow_definition
+            const workflowStages = getWorkflowStages(order.workflow_definition);
+            
+            let completedStages = 0;
+            let inProgressStages = 0;
+            let currentStage = null;
+            
+            workflowStages.forEach(stage => {
+                const status = getStageStatus(order, stage.key);
+                if (status === 'completed') {
+                    completedStages++;
+                } else if (status === 'in_progress') {
+                    inProgressStages++;
+                    if (!currentStage) {
+                        currentStage = stage;
+                    }
+                }
+            });
+            
+            return {
+                completed: completedStages,
+                inProgress: inProgressStages,
+                waiting: workflowStages.length - completedStages - inProgressStages,
+                total: workflowStages.length,
+                percentage: Math.round((completedStages / workflowStages.length) * 100),
+                currentStage: currentStage,
+                workflowStages: workflowStages
+            };
+        }
+
+        // Get workflow stages from workflow_definition
+        function getWorkflowStages(workflowDefinition) {
+            if (!workflowDefinition) {
+                return STAGES; // Fallback to default stages
+            }
+            
+            const stageKeys = workflowDefinition.split(',').map(s => s.trim());
+            const workflowStages = [];
+            
+            stageKeys.forEach(key => {
+                const stage = STAGES.find(s => s.key === key);
+                if (stage) {
+                    workflowStages.push(stage);
+                }
+            });
+            
+            return workflowStages.length > 0 ? workflowStages : STAGES;
+        }
+
+        // Get stage metrics
+        function getStageMetrics(order, stage) {
+            const inputQty = getOrderField(order, stage, 'input_quantity') || 0;
+            const goodQty = getOrderField(order, stage, 'good_quantity') || 0;
+            const ngQty = getOrderField(order, stage, 'ng_quantity') || 0;
+            const handoverQty = getOrderField(order, stage, 'handover_quantity') || 0;
+            const ngStartEndQty = getOrderField(order, stage, 'ng_start_end_quantity') || 0;
+            const returnQty = getOrderField(order, stage, 'return_quantity') || 0;
+            
+            const efficiency = inputQty > 0 ? Math.round((goodQty / inputQty) * 100) : 0;
+            const progress = inputQty > 0 ? Math.round((handoverQty / inputQty) * 100) : 0;
+            
+            return {
+                input: inputQty,
+                good: goodQty,
+                ng: ngQty,
+                handover: handoverQty,
+                ngStartEnd: ngStartEndQty,
+                return: returnQty,
+                efficiency: efficiency,
+                progress: progress
+            };
+        }
+
+        // Render order report
+        function renderOrderReport(order) {
+            const progress = calculateOverallProgress(order);
+            
+            // Update header
+            document.getElementById('orderSearch').value = order.production_order;
+            
+            // Update progress overview
+            document.getElementById('overallProgress').style.width = progress.percentage + '%';
+            document.getElementById('progressText').textContent = progress.percentage + '%';
+            document.getElementById('completedStages').textContent = progress.completed;
+            document.getElementById('inProgressStages').textContent = progress.inProgress;
+            document.getElementById('waitingStages').textContent = progress.waiting;
+            
+            // Render timeline
+            renderTimeline(order, progress);
+            
+            // Render shifts summary
+            renderShiftsSummary();
+            
+            // Render alerts
+            renderAlerts(order, progress);
+            
+            // Render stage details
+            renderStageDetails(order);
+            
+            // Render statistics
+            renderStatistics(order);
+            
+            // Show content
+            document.getElementById('contentArea').style.display = 'block';
+        }
+
+        // Render timeline
+        function renderTimeline(order, progress) {
+            const timelineContainer = document.getElementById('stageTimeline');
+            timelineContainer.innerHTML = '';
+            
+            // Thay đổi từ timeline ngang sang layout cards
+            timelineContainer.className = 'row g-3';
+            
+            progress.workflowStages.forEach((stage, index) => {
+                const status = getStageStatus(order, stage.key);
+                const isCurrent = progress.currentStage && progress.currentStage.key === stage.key;
+                const metrics = getStageMetrics(order, stage.key);
+                
+                // Lấy thông tin shift đang chạy
+                const activeShift = getActiveShiftForStage(order.id, stage.key);
+                const currentWorkerInfo = getCurrentWorkerAndMachine(order.id, stage.key);
+                
+                const col = document.createElement('div');
+                col.className = 'col-md-3 col-sm-6';
+                
+                let statusClass = 'waiting';
+                let statusIcon = 'bi-clock';
+                let statusText = 'Chờ xử lý';
+                let cardClass = 'border-secondary';
+                
+                if (status === 'completed') {
+                    statusClass = 'completed';
+                    statusIcon = 'bi-check-circle';
+                    statusText = 'Hoàn thành';
+                    cardClass = 'border-success';
+                } else if (status === 'in_progress') {
+                    statusClass = 'in-progress';
+                    statusIcon = 'bi-play-circle';
+                    statusText = 'Đang xử lý';
+                    cardClass = 'border-primary';
+                }
+                
+                col.innerHTML = `
+                    <div class="card h-100 ${cardClass} stage-card ${isCurrent ? 'current-stage' : ''}" 
+                         style="cursor: pointer; transition: all 0.3s ease;"
+                         onclick="scrollToStageDetails('${stage.key}')">
+                        <div class="card-body text-center p-3">
+                            <div class="stage-icon-large mb-2">
+                                <i class="${statusIcon} fs-2 ${statusClass === 'completed' ? 'text-success' : statusClass === 'in_progress' ? 'text-primary' : 'text-muted'}"></i>
+                            </div>
+                            <h6 class="card-title mb-1">${stage.name}</h6>
+                            <span class="badge ${statusClass === 'completed' ? 'bg-success' : statusClass === 'in_progress' ? 'bg-primary' : 'bg-secondary'} mb-2">
+                                ${statusText}
+                            </span>
+                            ${isCurrent ? '<div class="badge bg-warning text-dark mb-2">Hiện tại</div>' : ''}
+                            ${activeShift ? '<div class="badge bg-info text-white mb-2">Đang chạy</div>' : ''}
+                            <div class="progress mb-2" style="height: 4px;">
+                                <div class="progress-bar ${statusClass === 'completed' ? 'bg-success' : statusClass === 'in_progress' ? 'bg-primary' : 'bg-secondary'}" 
+                                     style="width: ${metrics.progress}%"></div>
+                            </div>
+                            <small class="text-muted">
+                                ${metrics.input > 0 ? `${metrics.good}/${metrics.input}` : '0/0'} | ${metrics.progress}%
+                            </small>
+                            ${currentWorkerInfo ? `
+                            <div class="mt-2 pt-2 border-top">
+                                <small class="text-muted">
+                                    <i class="bi bi-person me-1"></i>${currentWorkerInfo.worker}<br>
+                                    <i class="bi bi-gear me-1"></i>${currentWorkerInfo.machine}
+                                </small>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                timelineContainer.appendChild(col);
+            });
+        }
+
+        // Scroll to stage details
+        function scrollToStageDetails(stageKey) {
+            const stageElement = document.querySelector(`[data-stage="${stageKey}"]`);
+            if (stageElement) {
+                stageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Render alerts
+        function renderAlerts(order, progress) {
+            const alertsContainer = document.getElementById('alertsContainer');
+            alertsContainer.innerHTML = '';
+            
+            const alerts = [];
+            
+            // Check for delays
+            if (progress.percentage < 50 && progress.completed > 0) {
+                alerts.push({
+                    type: 'warning',
+                    icon: 'bi-clock',
+                    message: 'Tiến độ chậm so với kế hoạch. Cần tăng tốc độ sản xuất.'
+                });
+            }
+            
+            // Check current stage efficiency
+            if (progress.currentStage) {
+                const metrics = getStageMetrics(order, progress.currentStage.key);
+                if (metrics.efficiency < 90) {
+                    alerts.push({
+                        type: 'danger',
+                        icon: 'bi-exclamation-triangle',
+                        message: `Hiệu suất thấp tại ${progress.currentStage.name}: ${metrics.efficiency}%`
+                    });
+                }
+            }
+            
+            // Check NG rate
+            progress.workflowStages.forEach(stage => {
+                const status = getStageStatus(order, stage.key);
+                if (status === 'completed' || status === 'in_progress') {
+                    const metrics = getStageMetrics(order, stage.key);
+                    const ngRate = metrics.input > 0 ? Math.round((metrics.ng / metrics.input) * 100) : 0;
+                    
+                    if (ngRate > 10) {
+                        alerts.push({
+                            type: 'danger',
+                            icon: 'bi-x-circle',
+                            message: `Tỷ lệ NG cao tại ${stage.name}: ${ngRate}%`
+                        });
+                    }
+                }
+            });
+            
+            // Add next stage recommendation
+            if (progress.currentStage) {
+                const currentIndex = progress.workflowStages.findIndex(s => s.key === progress.currentStage.key);
+                if (currentIndex < progress.workflowStages.length - 1) {
+                    const nextStage = progress.workflowStages[currentIndex + 1];
+                    alerts.push({
+                        type: 'info',
+                        icon: 'bi-arrow-right',
+                        message: `Công đoạn tiếp theo: ${nextStage.name}. Chuẩn bị máy và phân công thợ.`
+                    });
+                }
+            }
+            
+            // Render alerts
+            alerts.forEach(alert => {
+                const alertElement = document.createElement('div');
+                alertElement.className = `alert-item ${alert.type}`;
+                alertElement.innerHTML = `
+                    <i class="${alert.icon}"></i>
+                    <span>${alert.message}</span>
+                `;
+                alertsContainer.appendChild(alertElement);
+            });
+            
+            if (alerts.length === 0) {
+                alertsContainer.innerHTML = `
+                    <div class="alert-item info">
+                        <i class="bi bi-check-circle"></i>
+                        <span>Tất cả công đoạn đang hoạt động bình thường</span>
+                    </div>
+                `;
+            }
+        }
+
+        // Render stage details
+        function renderStageDetails(order) {
+            const container = document.getElementById('stageDetailsContainer');
+            container.innerHTML = '';
+            
+            const progress = calculateOverallProgress(order);
+            
+            progress.workflowStages.forEach(stage => {
+                const status = getStageStatus(order, stage.key);
+                const metrics = getStageMetrics(order, stage.key);
+                
+                const stageDetail = document.createElement('div');
+                stageDetail.className = `stage-details ${status}`;
+                stageDetail.setAttribute('data-stage', stage.key); // Add data attribute for scrolling
+                
+                let statusText = 'Chờ xử lý';
+                let statusIcon = 'bi-clock';
+                
+                if (status === 'completed') {
+                    statusText = 'Hoàn thành';
+                    statusIcon = 'bi-check-circle';
+                } else if (status === 'in_progress') {
+                    statusText = 'Đang xử lý';
+                    statusIcon = 'bi-play-circle';
+                }
+                
+                const startTime = getOrderField(order, stage.key, 'start_time') ? formatDateTime(getOrderField(order, stage.key, 'start_time')) : 'Chưa bắt đầu';
+                const endTime = getOrderField(order, stage.key, 'end_time') ? formatDateTime(getOrderField(order, stage.key, 'end_time')) : 'Chưa kết thúc';
+                
+                // Lấy thông tin worker và machine từ shifts data
+                const currentShiftInfo = getCurrentWorkerAndMachine(order.id, stage.key);
+                const worker = currentShiftInfo ? currentShiftInfo.worker : (getOrderField(order, stage.key, 'worker_name') || 'Chưa phân công');
+                const machine = currentShiftInfo ? currentShiftInfo.machine : (getOrderField(order, stage.key, 'machine_name') || 'Chưa phân công');
+                
+                // Lấy thông tin shifts cho stage này
+                const allShiftsForStage = getAllShiftsForOrder(order.id).filter(shift => shift.stage === stage.key);
+                const activeShift = getActiveShiftForStage(order.id, stage.key);
+                
+                stageDetail.innerHTML = `
+                    <div class="stage-header">
+                        <i class="${statusIcon} fs-4"></i>
+                        <h5 class="mb-0">${stage.name.toUpperCase()}</h5>
+                        <span class="stage-status ${status}">${statusText}</span>
+                        ${activeShift ? '<span class="badge bg-warning ms-2">Đang chạy</span>' : ''}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-6">
+                                    <strong>Thời gian bắt đầu:</strong><br>
+                                    <span class="text-muted">${startTime}</span>
+                                </div>
+                                <div class="col-6">
+                                    <strong>Thời gian kết thúc:</strong><br>
+                                    <span class="text-muted">${endTime}</span>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-6">
+                                    <strong>Thợ:</strong><br>
+                                    <span class="text-muted">${worker}</span>
+                                </div>
+                                <div class="col-6">
+                                    <strong>Máy:</strong><br>
+                                    <span class="text-muted">${machine}</span>
+                                </div>
+                            </div>
+                            ${allShiftsForStage.length > 0 ? `
+                            <div class="row mt-2">
+                                <div class="col-12">
+                                    <strong>Thông tin ca làm việc:</strong><br>
+                                    <small class="text-muted">
+                                        Tổng số ca: ${allShiftsForStage.length} | 
+                                        ${activeShift ? 'Ca hiện tại: ' + formatDateTime(activeShift.start_time) : 'Không có ca đang chạy'}
+                                    </small>
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                        <div class="col-md-6">
+                            <div class="metrics-grid">
+                                <div class="metric-card">
+                                    <div class="metric-value text-primary">${metrics.input}</div>
+                                    <div class="metric-label">Số lượng đầu vào</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value text-success">${metrics.good}</div>
+                                    <div class="metric-label">Số lượng đạt</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value text-danger">${metrics.ng}</div>
+                                    <div class="metric-label">Số lượng NG</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value text-info">${metrics.handover}</div>
+                                    <div class="metric-label">Số lượng bàn giao</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value text-warning">${metrics.efficiency}%</div>
+                                    <div class="metric-label">Hiệu suất</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-value text-secondary">${metrics.progress}%</div>
+                                    <div class="metric-label">Tiến độ</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(stageDetail);
+            });
+        }
+
+        // Render statistics
+        function renderStatistics(order) {
+            const container = document.getElementById('statsContainer');
+            container.innerHTML = '';
+            
+            const progress = calculateOverallProgress(order);
+            
+            let totalInput = 0;
+            let totalGood = 0;
+            let totalNG = 0;
+            let totalHandover = 0;
+            let totalEfficiency = 0;
+            let completedStages = 0;
+            
+            progress.workflowStages.forEach(stage => {
+                const status = getStageStatus(order, stage.key);
+                const metrics = getStageMetrics(order, stage.key);
+                
+                if (status === 'completed' || status === 'in_progress') {
+                    totalInput += metrics.input;
+                    totalGood += metrics.good;
+                    totalNG += metrics.ng;
+                    totalHandover += metrics.handover;
+                    totalEfficiency += metrics.efficiency;
+                    completedStages++;
+                }
+            });
+            
+            const avgEfficiency = completedStages > 0 ? Math.round(totalEfficiency / completedStages) : 0;
+            const ngRate = totalInput > 0 ? Math.round((totalNG / totalInput) * 100) : 0;
+            
+            const stats = [
+                { label: 'Tổng số lượng sản xuất', value: totalInput, icon: 'bi-box' },
+                { label: 'Tổng số lượng đạt', value: totalGood, icon: 'bi-check-circle' },
+                { label: 'Tổng số lượng NG', value: totalNG, icon: 'bi-x-circle' },
+                { label: 'Tổng số lượng bàn giao', value: totalHandover, icon: 'bi-arrow-right' },
+                { label: 'Hiệu suất trung bình', value: avgEfficiency + '%', icon: 'bi-graph-up' },
+                { label: 'Tỷ lệ NG trung bình', value: ngRate + '%', icon: 'bi-exclamation-triangle' }
+            ];
+            
+            stats.forEach(stat => {
+                const statElement = document.createElement('div');
+                statElement.className = 'stat-card';
+                statElement.innerHTML = `
+                    <i class="${stat.icon} fs-2 text-primary mb-2"></i>
+                    <div class="stat-number">${stat.value}</div>
+                    <div class="stat-label">${stat.label}</div>
+                `;
+                container.appendChild(statElement);
+            });
+        }
+
+        /**
+         * =================================================================
+         * UTILITY FUNCTIONS - HÀM TIỆN ÍCH
+         * =================================================================
+         */
+
+        // Utility functions
+        function formatDateTime(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleString('vi-VN');
+        }
+
+        function showLoading() {
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('contentArea').style.display = 'none';
+            document.getElementById('errorState').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingState').style.display = 'none';
+        }
+
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorState').style.display = 'block';
+            document.getElementById('contentArea').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'none';
+        }
+
+        // Auto-search on Enter key
+        document.getElementById('orderSearch').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchOrder();
+            }
+        });
+
+        /**
+         * =================================================================
+         * TABLE MANAGEMENT FUNCTIONS - HÀM QUẢN LÝ BẢNG
+         * =================================================================
+         */
+
+        // Load recent orders for table
+        async function loadRecentOrdersTable() {
+            currentFilter = 'recent';
+            await loadOrdersForTable('recent');
+        }
+
+        // Load active orders for table
+        async function loadActiveOrdersTable() {
+            currentFilter = 'active';
+            await loadOrdersForTable('active');
+        }
+
+        // Load completed orders for table
+        async function loadCompletedOrdersTable() {
+            currentFilter = 'completed';
+            await loadOrdersForTable('completed');
+        }
+
+        // Load all orders for table
+        async function loadAllOrdersTable() {
+            currentFilter = 'all';
+            await loadOrdersForTable('all');
+        }
+
+        // Load orders for table based on filter
+        async function loadOrdersForTable(filter) {
+            showTableLoading();
+            try {
+                // Load shifts data trước
+                await loadShiftsData();
+                
+                let url = `${API_BASE_URL}/data/production_orders?limit=100`;
+                
+                switch(filter) {
+                    case 'recent':
+                        url += '&sort=created_at&order=desc';
+                        break;
+                    case 'active':
+                        url += '&status=Đang sản xuất';
+                        break;
+                    case 'completed':
+                        url += '&status=Hoàn thành';
+                        break;
+                    case 'all':
+                        // Load all orders
+                        break;
+                }
+                
+                const response = await fetchWithRetry(url, {}, 3);
+                const apiData = await response.json();
+                
+                if (response.ok) {
+                    allOrdersData = transformApiData(apiData);
+                    currentPage = 1;
+                    renderOrdersTable();
+                    updatePagination();
+                } else {
+                    showTableError('Không thể tải dữ liệu lệnh sản xuất');
+                }
+            } catch (error) {
+                showTableError('Lỗi khi tải dữ liệu: ' + error.message);
+            } finally {
+                hideTableLoading();
+            }
+        }
+
+        // Render orders table
+        function renderOrdersTable() {
+            const tbody = document.getElementById('ordersTableBody');
+            
+            if (allOrdersData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox fs-1 mb-2 d-block"></i>
+                            Không có dữ liệu lệnh sản xuất
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            const startIndex = (currentPage - 1) * ordersPerPage;
+            const endIndex = startIndex + ordersPerPage;
+            const pageData = allOrdersData.slice(startIndex, endIndex);
+            
+            tbody.innerHTML = '';
+            
+            pageData.forEach(order => {
+                const progress = calculateOverallProgress(order);
+                const status = getOrderStatus(order);
+                
+                const row = document.createElement('tr');
+                row.className = 'order-row';
+                row.onclick = () => viewOrderReport(order);
+                
+                row.innerHTML = `
+                    <td>
+                        <span class="order-code">${order.production_order}</span>
+                    </td>
+                    <td>
+                        <div class="product-name" title="${order.product_name}">
+                            ${order.product_name || 'N/A'}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="customer-name" title="${order.customer_name}">
+                            ${order.customer_name || 'N/A'}
+                        </div>
+                    </td>
+                    <td>
+                        <strong>${order.total_quantity?.toLocaleString() || 0}</strong>
+                    </td>
+                    <td>
+                        <span class="status-badge ${status.class}">${status.text}</span>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="progress progress-bar-thin flex-grow-1">
+                                <div class="progress-bar bg-success" style="width: ${progress.percentage}%"></div>
+                            </div>
+                            <small class="text-muted">${progress.percentage}%</small>
+                        </div>
+                    </td>
+                    <td>
+                        <small class="text-muted">${formatDate(order.created_at)}</small>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary btn-view-report btn-sm" onclick="event.stopPropagation(); viewOrderReport(${JSON.stringify(order).replace(/"/g, '&quot;')})">
+                            <i class="bi bi-eye me-1"></i>Xem
+                        </button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            updatePageInfo();
+        }
+
+        // Get order status
+        function getOrderStatus(order) {
+            const mainStatus = order.status || 'waiting';
+            
+            // Kiểm tra xem có shift đang chạy không
+            const isCurrentlyRunning = isOrderCurrentlyRunning(order.id);
+            
+            if (isCurrentlyRunning) {
+                return { class: 'in-progress', text: 'Đang chạy' };
+            }
+            
+            switch(mainStatus) {
+                case 'waiting':
+                case 'Chờ xử lý':
+                    return { class: 'waiting', text: 'Chờ xử lý' };
+                case 'in_progress':
+                case 'Đang sản xuất':
+                    return { class: 'in-progress', text: 'Đang chạy' };
+                case 'completed':
+                case 'Hoàn thành':
+                    return { class: 'completed', text: 'Hoàn thành' };
+                case 'handed_over':
+                case 'Bàn giao':
+                    return { class: 'handed-over', text: 'Bàn giao' };
+                default:
+                    return { class: 'waiting', text: 'Chờ xử lý' };
+            }
+        }
+
+        // Update pagination
+        function updatePagination() {
+            const totalPages = Math.ceil(allOrdersData.length / ordersPerPage);
+            const pagination = document.getElementById('ordersPagination');
+            
+            if (totalPages <= 1) {
+                pagination.innerHTML = `
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Trước</a>
+                    </li>
+                    <li class="page-item active">
+                        <a class="page-link" href="#">1</a>
+                    </li>
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">Sau</a>
+                    </li>
+                `;
+                return;
+            }
+            
+            let paginationHTML = '';
+            
+            // Previous button
+            paginationHTML += `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Trước</a>
+                </li>
+            `;
+            
+            // Page numbers
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                    </li>
+                `;
+            }
+            
+            // Next button
+            paginationHTML += `
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Sau</a>
+                </li>
+            `;
+            
+            pagination.innerHTML = paginationHTML;
+        }
+
+        // Change page
+        function changePage(page) {
+            const totalPages = Math.ceil(allOrdersData.length / ordersPerPage);
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                renderOrdersTable();
+                updatePagination();
+            }
+        }
+
+        // Update page info
+        function updatePageInfo() {
+            const startIndex = (currentPage - 1) * ordersPerPage + 1;
+            const endIndex = Math.min(currentPage * ordersPerPage, allOrdersData.length);
+            
+            document.getElementById('currentPageInfo').textContent = `${startIndex}-${endIndex}`;
+            document.getElementById('totalOrders').textContent = allOrdersData.length;
+        }
+
+        // View order report
+        function viewOrderReport(order) {
+            currentOrder = order;
+            renderOrderReport(order);
+            
+            // Scroll to content area
+            document.getElementById('contentArea').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        // Table loading functions
+        function showTableLoading() {
+            document.getElementById('tableLoadingState').style.display = 'block';
+            document.getElementById('ordersTable').style.display = 'none';
+        }
+
+        function hideTableLoading() {
+            document.getElementById('tableLoadingState').style.display = 'none';
+            document.getElementById('ordersTable').style.display = 'table';
+        }
+
+        function showTableError(message) {
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="text-center text-danger py-4">
+                        <i class="bi bi-exclamation-triangle fs-1 mb-2 d-block"></i>
+                        ${message}
+                    </td>
+                </tr>
+            `;
+        }
+
+        // Format date utility
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('vi-VN');
+        }
+
+        /**
+         * =================================================================
+         * SHIFTS DATA FUNCTIONS - HÀM XỬ LÝ DỮ LIỆU SHIFTS
+         * =================================================================
+         */
+
+        /**
+         * Load dữ liệu shifts từ API
+         */
+        async function loadShiftsData() {
+            try {
+                console.log('🔍 Loading shifts data from API...');
+                const response = await fetchWithRetry(`${API_BASE_URL}/data/production_orders_shift`, {}, 3);
+                if (response.ok) {
+                    shiftsData = await response.json();
+                    console.log('✅ Shifts data loaded:', shiftsData.length, 'shifts');
+                } else {
+                    console.error('❌ Lỗi khi tải dữ liệu shifts:', response.status);
+                    shiftsData = [];
+                }
+            } catch (error) {
+                console.error('❌ Lỗi khi tải dữ liệu shifts:', error);
+                shiftsData = [];
+            }
+        }
+
+        /**
+         * Lấy shifts đang chạy cho một order
+         */
+        function getActiveShiftsForOrder(orderId) {
+            if (!shiftsData || shiftsData.length === 0) return [];
+            
+            return shiftsData.filter(shift => 
+                shift.production_order_id === orderId && 
+                (shift.status === 'in_progress' || shift.status === 'Đang sản xuất')
+            );
+        }
+
+        /**
+         * Lấy shift đang chạy cho một stage cụ thể
+         */
+        function getActiveShiftForStage(orderId, stageKey) {
+            const activeShifts = getActiveShiftsForOrder(orderId);
+            return activeShifts.find(shift => shift.stage === stageKey);
+        }
+
+        /**
+         * Lấy tất cả shifts của một order
+         */
+        function getAllShiftsForOrder(orderId) {
+            if (!shiftsData || shiftsData.length === 0) return [];
+            
+            return shiftsData.filter(shift => shift.production_order_id === orderId);
+        }
+
+        /**
+         * Kiểm tra xem order có đang chạy không
+         */
+        function isOrderCurrentlyRunning(orderId) {
+            const activeShifts = getActiveShiftsForOrder(orderId);
+            return activeShifts.length > 0;
+        }
+
+        /**
+         * Lấy thông tin worker và machine đang làm việc
+         */
+        function getCurrentWorkerAndMachine(orderId, stageKey) {
+            const activeShift = getActiveShiftForStage(orderId, stageKey);
+            if (activeShift) {
+                return {
+                    worker: activeShift.worker_name || 'Chưa phân công',
+                    machine: activeShift.machine_name || 'Chưa phân công',
+                    startTime: activeShift.start_time,
+                    shiftId: activeShift.id
+                };
+            }
+            return null;
+        }
+
+        /**
+         * =================================================================
+         * SHIFTS SUMMARY FUNCTIONS - HÀM HIỂN THỊ TỔNG HỢP CA LÀM VIỆC
+         * =================================================================
+         */
+
+        function renderShiftsSummary() {
+            const shiftsSummaryContainer = document.getElementById('shiftsSummaryContainer');
+            shiftsSummaryContainer.innerHTML = '';
+
+            const activeShifts = getActiveShiftsForOrder(currentOrder.id);
+            const allShifts = getAllShiftsForOrder(currentOrder.id);
+
+            if (allShifts.length === 0) {
+                shiftsSummaryContainer.innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-1 mb-2 d-block"></i>
+                        Không có dữ liệu ca làm việc cho lệnh này.
+                    </div>
+                `;
+                return;
+            }
+
+            const shiftsGrid = document.createElement('div');
+            shiftsGrid.className = 'shifts-grid';
+
+            allShifts.forEach(shift => {
+                const shiftCard = document.createElement('div');
+                shiftCard.className = `shift-card ${getActiveShiftsForOrder(currentOrder.id).find(s => s.id === shift.id) ? 'active' : ''}`;
+                shiftCard.innerHTML = `
+                    <div class="shift-header">
+                        <h6 class="shift-stage">${shift.stage.toUpperCase()}</h6>
+                        <span class="shift-status ${shift.status}">${shift.status}</span>
+                    </div>
+                    <div class="shift-details">
+                        <div class="shift-detail"><i class="bi bi-person"></i>${shift.worker_name || 'Chưa phân công'}</div>
+                        <div class="shift-detail"><i class="bi bi-gear"></i>${shift.machine_name || 'Chưa phân công'}</div>
+                        <div class="shift-detail"><i class="bi bi-calendar"></i>${formatDate(shift.start_time)}</div>
+                        <div class="shift-detail"><i class="bi bi-calendar-check"></i>${shift.end_time ? formatDate(shift.end_time) : 'Đang chạy'}</div>
+                    </div>
+                `;
+                shiftsGrid.appendChild(shiftCard);
+            });
+
+            shiftsSummaryContainer.appendChild(shiftsGrid);
+        }
+    </script>
+</body>
+</html> 

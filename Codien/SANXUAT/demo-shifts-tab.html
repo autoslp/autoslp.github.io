@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo - Tab Thông tin ca</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --success-color: #16a34a;
+            --warning-color: #ca8a04;
+            --danger-color: #dc2626;
+            --info-color: #0891b2;
+            --secondary-color: #6b7280;
+            --light-bg: #f8fafc;
+            --border-color: #e2e8f0;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .demo-header {
+            background: linear-gradient(135deg, var(--primary-color), #1d4ed8);
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .demo-header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .demo-header p {
+            margin: 8px 0 0 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .shifts-container {
+            padding: 24px;
+        }
+
+        .shifts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .shifts-header h6 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .shifts-stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--light-bg);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            flex: 1;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--secondary-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .shifts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .shift-item {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shift-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
+        }
+
+        .shift-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-color);
+        }
+
+        .shift-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .shift-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .shift-title i {
+            color: var(--primary-color);
+            font-size: 16px;
+        }
+
+        .shift-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: var(--success-color);
+        }
+
+        .status-in-progress {
+            background: #fef3c7;
+            color: var(--warning-color);
+        }
+
+        .status-pending {
+            background: #e0e7ff;
+            color: var(--primary-color);
+        }
+
+        .shift-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .shift-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .shift-detail-label {
+            font-size: 12px;
+            color: var(--secondary-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .shift-detail-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .shift-times {
+            display: flex;
+            gap: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            font-size: 13px;
+            color: var(--secondary-color);
+        }
+
+        .shift-times span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .shift-times i {
+            font-size: 14px;
+        }
+
+        .shift-progress {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--light-bg);
+            border-radius: 8px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-color), var(--primary-color));
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: var(--secondary-color);
+            text-align: center;
+        }
+
+        .shift-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-action {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-view {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #1d4ed8;
+            color: white;
+        }
+
+        .btn-edit {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #a16207;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--secondary-color);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state h5 {
+            margin-bottom: 8px;
+            color: #1f2937;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .shifts-stats {
+                flex-direction: column;
+            }
+            
+            .shift-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .shift-times {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1><i class="bi bi-clock-history me-2"></i>Demo - Tab Thông tin ca</h1>
+            <p>Giao diện hiển thị lịch sử ca làm việc với 10 mẫu demo</p>
+        </div>
+
+        <div class="shifts-container">
+            <div class="shifts-header">
+                <h6><i class="bi bi-clock-history me-2"></i>Lịch sử ca làm việc</h6>
+                <span class="badge bg-primary">10 ca</span>
+            </div>
+
+            <!-- Thống kê tổng quan -->
+            <div class="shifts-stats">
+                <div class="stat-card">
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">Đã hoàn thành</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">1</div>
+                    <div class="stat-label">Đang chạy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">1</div>
+                    <div class="stat-label">Chờ bắt đầu</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">12,450</div>
+                    <div class="stat-label">Tổng sản lượng</div>
+                </div>
+            </div>
+
+            <!-- Danh sách ca làm việc -->
+            <div class="shifts-list" id="shiftsList">
+                <!-- Ca 1: Đang chạy -->
+                <div class="shift-item">
+                    <div class="shift-header">
+                        <div class="shift-title">
+                            <i class="bi bi-clock"></i>
+                            Ca 1 - Kíp 1
+                        </div>
+                        <span class="shift-status status-in-progress">Đang chạy</span>
+                    </div>
+                    
+                    <div class="shift-details">
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thợ phụ trách</div>
+                            <div class="shift-detail-value">SL04205 - Nguyễn Duy Công</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Máy sản xuất</div>
+                            <div class="shift-detail-value">Xén 1</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng OK</div>
+                            <div class="shift-detail-value">1,200</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng NG</div>
+                            <div class="shift-detail-value">20</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Hiệu suất</div>
+                            <div class="shift-detail-value">98.4%</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thời gian làm việc</div>
+                            <div class="shift-detail-value">6 giờ 23 phút</div>
+                        </div>
+                    </div>
+
+                    <div class="shift-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 75%"></div>
+                        </div>
+                        <div class="progress-text">75% hoàn thành - Còn 2 giờ 37 phút</div>
+                    </div>
+                    
+                    <div class="shift-times">
+                        <span><i class="bi bi-play-circle"></i>Bắt đầu: 08:00 - 13/08/2025</span>
+                        <span><i class="bi bi-clock"></i>Đang chạy: 14:23</span>
+                    </div>
+
+                    <div class="shift-actions">
+                        <a href="#" class="btn-action btn-view">
+                            <i class="bi bi-eye"></i>Xem chi tiết
+                        </a>
+                        <a href="#" class="btn-action btn-edit">
+                            <i class="bi bi-pencil"></i>Chỉnh sửa
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Ca 2: Hoàn thành -->
+                <div class="shift-item">
+                    <div class="shift-header">
+                        <div class="shift-title">
+                            <i class="bi bi-clock"></i>
+                            Ca 2 - Kíp 2
+                        </div>
+                        <span class="shift-status status-completed">Hoàn thành</span>
+                    </div>
+                    
+                    <div class="shift-detail">
+                        <div class="shift-detail-label">Thợ phụ trách</div>
+                        <div class="shift-detail-value">SL04206 - Trần Văn Minh</div>
+                    </div>
+                    <div class="shift-detail">
+                        <div class="shift-detail-label">Máy sản xuất</div>
+                        <div class="shift-detail-value">Xén 2</div>
+                    </div>
+                    <div class="shift-detail">
+                        <div class="shift-detail-label">Số lượng OK</div>
+                        <div class="shift-detail-value">1,350</div>
+                    </div>
+                    <div class="shift-detail">
+                        <div class="shift-detail-label">Số lượng NG</div>
+                        <div class="shift-detail-value">15</div>
+                    </div>
+                    <div class="shift-detail">
+                        <div class="shift-detail-label">Hiệu suất</div>
+                        <div class="shift-detail-value">98.9%</div>
+                    </div>
+                    <div class="shift-detail">
+                        <div class="shift-detail-label">Thời gian làm việc</div>
+                        <div class="shift-detail-value">8 giờ 00 phút</div>
+                    </div>
+                    
+                    <div class="shift-times">
+                        <span><i class="bi bi-play-circle"></i>Bắt đầu: 18:00 - 12/08/2025</span>
+                        <span><i class="bi bi-stop-circle"></i>Kết thúc: 02:00 - 13/08/2025</span>
+                    </div>
+
+                    <div class="shift-actions">
+                        <a href="#" class="btn-action btn-view">
+                            <i class="bi bi-eye"></i>Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Ca 3: Hoàn thành -->
+                <div class="shift-item">
+                    <div class="shift-header">
+                        <div class="shift-title">
+                            <i class="bi bi-clock"></i>
+                            Ca 1 - Kíp 1
+                        </div>
+                        <span class="shift-status status-completed">Hoàn thành</span>
+                    </div>
+                    
+                    <div class="shift-details">
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thợ phụ trách</div>
+                            <div class="shift-detail-value">SL04207 - Lê Thị Hương</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Máy sản xuất</div>
+                            <div class="shift-detail-value">Xén 1</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng OK</div>
+                            <div class="shift-detail-value">1,180</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng NG</div>
+                            <div class="shift-detail-value">25</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Hiệu suất</div>
+                            <div class="shift-detail-value">97.9%</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thời gian làm việc</div>
+                            <div class="shift-detail-value">7 giờ 45 phút</div>
+                        </div>
+                    </div>
+                    
+                    <div class="shift-times">
+                        <span><i class="bi bi-play-circle"></i>Bắt đầu: 08:00 - 12/08/2025</span>
+                        <span><i class="bi bi-stop-circle"></i>Kết thúc: 15:45 - 12/08/2025</span>
+                    </div>
+
+                    <div class="shift-actions">
+                        <a href="#" class="btn-action btn-view">
+                            <i class="bi bi-eye"></i>Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Ca 4: Hoàn thành -->
+                <div class="shift-item">
+                    <div class="shift-header">
+                        <div class="shift-title">
+                            <i class="bi bi-clock"></i>
+                            Ca 2 - Kíp 2
+                        </div>
+                        <span class="shift-status status-completed">Hoàn thành</span>
+                    </div>
+                    
+                    <div class="shift-details">
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thợ phụ trách</div>
+                            <div class="shift-detail-value">SL04208 - Phạm Văn Tuấn</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Máy sản xuất</div>
+                            <div class="shift-detail-value">Xén 2</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng OK</div>
+                            <div class="shift-detail-value">1,420</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng NG</div>
+                            <div class="shift-detail-value">18</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Hiệu suất</div>
+                            <div class="shift-detail-value">98.7%</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thời gian làm việc</div>
+                            <div class="shift-detail-value">8 giờ 00 phút</div>
+                        </div>
+                    </div>
+                    
+                    <div class="shift-times">
+                        <span><i class="bi bi-play-circle"></i>Bắt đầu: 18:00 - 11/08/2025</span>
+                        <span><i class="bi bi-stop-circle"></i>Kết thúc: 02:00 - 12/08/2025</span>
+                    </div>
+
+                    <div class="shift-actions">
+                        <a href="#" class="btn-action btn-view">
+                            <i class="bi bi-eye"></i>Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Ca 5: Hoàn thành -->
+                <div class="shift-item">
+                    <div class="shift-header">
+                        <div class="shift-title">
+                            <i class="bi bi-clock"></i>
+                            Ca 1 - Kíp 1
+                        </div>
+                        <span class="shift-status status-completed">Hoàn thành</span>
+                    </div>
+                    
+                    <div class="shift-details">
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thợ phụ trách</div>
+                            <div class="shift-detail-value">SL04209 - Hoàng Văn Nam</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Máy sản xuất</div>
+                            <div class="shift-detail-value">Xén 1</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng OK</div>
+                            <div class="shift-detail-value">1,300</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng NG</div>
+                            <div class="shift-detail-value">22</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Hiệu suất</div>
+                            <div class="shift-detail-value">98.3%</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thời gian làm việc</div>
+                            <div class="shift-detail-value">7 giờ 30 phút</div>
+                        </div>
+                    </div>
+                    
+                    <div class="shift-times">
+                        <span><i class="bi bi-play-circle"></i>Bắt đầu: 08:00 - 11/08/2025</span>
+                        <span><i class="bi bi-stop-circle"></i>Kết thúc: 15:30 - 11/08/2025</span>
+                    </div>
+
+                    <div class="shift-actions">
+                        <a href="#" class="btn-action btn-view">
+                            <i class="bi bi-eye"></i>Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Ca 6: Hoàn thành -->
+                <div class="shift-item">
+                    <div class="shift-header">
+                        <div class="shift-title">
+                            <i class="bi bi-clock"></i>
+                            Ca 2 - Kíp 2
+                        </div>
+                        <span class="shift-status status-completed">Hoàn thành</span>
+                    </div>
+                    
+                    <div class="shift-details">
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thợ phụ trách</div>
+                            <div class="shift-detail-value">SL04210 - Nguyễn Thị Lan</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Máy sản xuất</div>
+                            <div class="shift-detail-value">Xén 2</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng OK</div>
+                            <div class="shift-detail-value">1,380</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng NG</div>
+                            <div class="shift-detail-value">16</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Hiệu suất</div>
+                            <div class="shift-detail-value">98.9%</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thời gian làm việc</div>
+                            <div class="shift-detail-value">8 giờ 00 phút</div>
+                        </div>
+                    </div>
+                    
+                    <div class="shift-times">
+                        <span><i class="bi bi-play-circle"></i>Bắt đầu: 18:00 - 10/08/2025</span>
+                        <span><i class="bi bi-stop-circle"></i>Kết thúc: 02:00 - 11/08/2025</span>
+                    </div>
+
+                    <div class="shift-actions">
+                        <a href="#" class="btn-action btn-view">
+                            <i class="bi bi-eye"></i>Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Ca 7: Hoàn thành -->
+                <div class="shift-item">
+                    <div class="shift-header">
+                        <div class="shift-title">
+                            <i class="bi bi-clock"></i>
+                            Ca 1 - Kíp 1
+                        </div>
+                        <span class="shift-status status-completed">Hoàn thành</span>
+                    </div>
+                    
+                    <div class="shift-details">
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thợ phụ trách</div>
+                            <div class="shift-detail-value">SL04211 - Trần Văn Hùng</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Máy sản xuất</div>
+                            <div class="shift-detail-value">Xén 1</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng OK</div>
+                            <div class="shift-detail-value">1,250</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng NG</div>
+                            <div class="shift-detail-value">28</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Hiệu suất</div>
+                            <div class="shift-detail-value">97.8%</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thời gian làm việc</div>
+                            <div class="shift-detail-value">7 giờ 15 phút</div>
+                        </div>
+                    </div>
+                    
+                    <div class="shift-times">
+                        <span><i class="bi bi-play-circle"></i>Bắt đầu: 08:00 - 10/08/2025</span>
+                        <span><i class="bi bi-stop-circle"></i>Kết thúc: 15:15 - 10/08/2025</span>
+                    </div>
+
+                    <div class="shift-actions">
+                        <a href="#" class="btn-action btn-view">
+                            <i class="bi bi-eye"></i>Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Ca 8: Hoàn thành -->
+                <div class="shift-item">
+                    <div class="shift-header">
+                        <div class="shift-title">
+                            <i class="bi bi-clock"></i>
+                            Ca 2 - Kíp 2
+                        </div>
+                        <span class="shift-status status-completed">Hoàn thành</span>
+                    </div>
+                    
+                    <div class="shift-details">
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thợ phụ trách</div>
+                            <div class="shift-detail-value">SL04212 - Lê Văn Thành</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Máy sản xuất</div>
+                            <div class="shift-detail-value">Xén 2</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng OK</div>
+                            <div class="shift-detail-value">1,400</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng NG</div>
+                            <div class="shift-detail-value">12</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Hiệu suất</div>
+                            <div class="shift-detail-value">99.1%</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thời gian làm việc</div>
+                            <div class="shift-detail-value">8 giờ 00 phút</div>
+                        </div>
+                    </div>
+                    
+                    <div class="shift-times">
+                        <span><i class="bi bi-play-circle"></i>Bắt đầu: 18:00 - 09/08/2025</span>
+                        <span><i class="bi bi-stop-circle"></i>Kết thúc: 02:00 - 10/08/2025</span>
+                    </div>
+
+                    <div class="shift-actions">
+                        <a href="#" class="btn-action btn-view">
+                            <i class="bi bi-eye"></i>Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Ca 9: Hoàn thành -->
+                <div class="shift-item">
+                    <div class="shift-header">
+                        <div class="shift-title">
+                            <i class="bi bi-clock"></i>
+                            Ca 1 - Kíp 1
+                        </div>
+                        <span class="shift-status status-completed">Hoàn thành</span>
+                    </div>
+                    
+                    <div class="shift-details">
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thợ phụ trách</div>
+                            <div class="shift-detail-value">SL04213 - Phạm Thị Mai</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Máy sản xuất</div>
+                            <div class="shift-detail-value">Xén 1</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng OK</div>
+                            <div class="shift-detail-value">1,320</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng NG</div>
+                            <div class="shift-detail-value">24</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Hiệu suất</div>
+                            <div class="shift-detail-value">98.2%</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thời gian làm việc</div>
+                            <div class="shift-detail-value">7 giờ 45 phút</div>
+                        </div>
+                    </div>
+                    
+                    <div class="shift-times">
+                        <span><i class="bi bi-play-circle"></i>Bắt đầu: 08:00 - 09/08/2025</span>
+                        <span><i class="bi bi-stop-circle"></i>Kết thúc: 15:45 - 09/08/2025</span>
+                    </div>
+
+                    <div class="shift-actions">
+                        <a href="#" class="btn-action btn-view">
+                            <i class="bi bi-eye"></i>Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Ca 10: Chờ bắt đầu -->
+                <div class="shift-item">
+                    <div class="shift-header">
+                        <div class="shift-title">
+                            <i class="bi bi-clock"></i>
+                            Ca 2 - Kíp 2
+                        </div>
+                        <span class="shift-status status-pending">Chờ bắt đầu</span>
+                    </div>
+                    
+                    <div class="shift-details">
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thợ phụ trách</div>
+                            <div class="shift-detail-value">Chưa phân công</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Máy sản xuất</div>
+                            <div class="shift-detail-value">Xén 2</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng OK</div>
+                            <div class="shift-detail-value">0</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng NG</div>
+                            <div class="shift-detail-value">0</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Hiệu suất</div>
+                            <div class="shift-detail-value">--</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thời gian làm việc</div>
+                            <div class="shift-detail-value">--</div>
+                        </div>
+                    </div>
+                    
+                    <div class="shift-times">
+                        <span><i class="bi bi-clock"></i>Dự kiến: 18:00 - 13/08/2025</span>
+                        <span><i class="bi bi-dash-circle"></i>Chưa bắt đầu</span>
+                    </div>
+
+                    <div class="shift-actions">
+                        <a href="#" class="btn-action btn-edit">
+                            <i class="bi bi-play"></i>Bắt đầu ca
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

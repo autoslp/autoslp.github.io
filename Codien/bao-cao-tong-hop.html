@@ -1,0 +1,2081 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo Cáo Tổng Hợp - Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary-color: #726bff;
+      --secondary-color: #667eea;
+      --success-color: #28a745;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .main-header {
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .report-section {
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .nav-pills .nav-link {
+      border-radius: 25px;
+      margin: 0 0.25rem;
+      padding: 0.75rem 1.5rem;
+      color: var(--primary-color);
+      border: 2px solid var(--primary-color);
+      background: transparent;
+      transition: all 0.3s ease;
+    }
+
+    .nav-pills .nav-link:hover,
+    .nav-pills .nav-link.active {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      border-left: 4px solid var(--primary-color);
+      transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .stat-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+      margin: 0 auto 1rem;
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .btn-primary-custom {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    .btn-primary-custom:hover {
+      background: #5a52d5;
+      border-color: #5a52d5;
+    }
+
+    .section-title {
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .quick-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .quick-action-btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 25px;
+      border: 2px solid var(--primary-color);
+      background: transparent;
+      color: var(--primary-color);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .quick-action-btn:hover {
+      background: var(--primary-color);
+      color: white;
+      text-decoration: none;
+    }
+
+    .summary-card {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .loading-spinner {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .heatmap-item.low {
+      background: linear-gradient(135deg, #28a745, #20c997);
+    }
+
+    .heatmap-item.medium {
+      background: linear-gradient(135deg, #ffc107, #fd7e14);
+    }
+
+    .heatmap-item.high {
+      background: linear-gradient(135deg, #dc3545, #e83e8c);
+    }
+
+    .machine-status.operational {
+      background-color: var(--success-color);
+    }
+
+    .machine-status.warning {
+      background-color: var(--warning-color);
+    }
+
+    .machine-status.critical {
+      background-color: var(--danger-color);
+    }
+
+    .timeline-item {
+      padding: 0.5rem 0;
+      border-left: 2px solid #e9ecef;
+      margin-left: 1rem;
+      padding-left: 1rem;
+      position: relative;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -6px;
+      top: 1rem;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--primary-color);
+    }
+
+    .timeline-item.completed::before {
+      background: var(--success-color);
+    }
+
+    .timeline-item.processing::before {
+      background: var(--warning-color);
+    }
+
+    .timeline-item.waiting::before {
+      background: var(--danger-color);
+    }
+
+    .timeline-content {
+      margin-left: 1rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+
+    .rating-stars {
+      color: #ffc107;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid py-4">
+    <!-- Main Header -->
+    <div class="main-header">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h1><i class="bi bi-graph-up me-2"></i>Báo Cáo Tổng Hợp</h1>
+          <p class="text-muted mb-0">Dashboard tổng hợp thống kê và phân tích toàn diện hệ thống Cơ điện</p>
+        </div>
+        <div class="col-md-4 text-end">
+          <div class="d-flex gap-2 justify-content-end">
+            <button class="btn btn-outline-primary" onclick="exportFullReport()">
+              <i class="bi bi-download me-1"></i>Xuất báo cáo
+            </button>
+            <button class="btn btn-primary-custom" onclick="refreshAllData()">
+              <i class="bi bi-arrow-clockwise me-1"></i>Làm mới
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="report-section">
+      <h4 class="section-title"><i class="bi bi-compass me-2"></i>Điều hướng báo cáo</h4>
+      <ul class="nav nav-pills justify-content-center" id="reportTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="overview-tab" data-bs-toggle="pill" data-bs-target="#overview" type="button" role="tab">
+            <i class="bi bi-house-door me-1"></i>Tổng quan
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="timeline-tab" data-bs-toggle="pill" data-bs-target="#timeline" type="button" role="tab">
+            <i class="bi bi-clock-history me-1"></i>Theo thời gian
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="area-tab" data-bs-toggle="pill" data-bs-target="#area" type="button" role="tab">
+            <i class="bi bi-geo-alt me-1"></i>Theo khu vực
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="staff-tab" data-bs-toggle="pill" data-bs-target="#staff" type="button" role="tab">
+            <i class="bi bi-people me-1"></i>Theo nhân sự
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Đang tải...</span>
+      </div>
+      <p class="mt-2">Đang tải dữ liệu báo cáo...</p>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-message" id="errorMessage">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      <span id="errorText">Có lỗi xảy ra khi tải dữ liệu</span>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="reportTabContent">
+      <!-- Overview Tab -->
+      <div class="tab-pane fade show active" id="overview" role="tabpanel">
+        <!-- Overview content will be loaded here -->
+      </div>
+
+      <!-- Timeline Tab -->
+      <div class="tab-pane fade" id="timeline" role="tabpanel">
+        <!-- Timeline content will be loaded here -->
+      </div>
+
+      <!-- Area Tab -->
+      <div class="tab-pane fade" id="area" role="tabpanel">
+        <!-- Area content will be loaded here -->
+      </div>
+
+      <!-- Staff Tab -->
+      <div class="tab-pane fade" id="staff" role="tabpanel">
+        <!-- Staff content will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Global variables
+    let allWorks = [];
+    let allUsers = [];
+    let allMachines = [];
+    let currentTab = 'overview';
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      showLoading();
+      loadAllData();
+      setupEventListeners();
+    });
+
+    function setupEventListeners() {
+      // Tab change events
+      document.querySelectorAll('[data-bs-toggle="pill"]').forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function(event) {
+          currentTab = event.target.getAttribute('data-bs-target').replace('#', '');
+          loadTabContent(currentTab);
+        });
+      });
+    }
+
+    function showLoading() {
+      document.getElementById('loadingSpinner').style.display = 'block';
+      document.getElementById('errorMessage').style.display = 'none';
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingSpinner').style.display = 'none';
+    }
+
+    function showError(message) {
+      document.getElementById('errorText').textContent = message;
+      document.getElementById('errorMessage').style.display = 'block';
+      hideLoading();
+    }
+
+    async function loadAllData() {
+      try {
+        // Load all data sources
+        const [worksResponse, usersResponse, machinesResponse] = await Promise.all([
+          fetch('https://api.autoslp.com/api/data/congviec'),
+          fetch('https://api.autoslp.com/api/data/user'),
+          fetch('https://api.autoslp.com/api/data/may')
+        ]);
+
+        const worksData = await worksResponse.json();
+        const usersData = await usersResponse.json();
+        const machinesData = await machinesResponse.json();
+
+        if (Array.isArray(worksData)) {
+          allWorks = worksData;
+        }
+        if (Array.isArray(usersData)) {
+          allUsers = usersData;
+        }
+        if (Array.isArray(machinesData)) {
+          allMachines = machinesData;
+        }
+
+        hideLoading();
+        loadTabContent(currentTab);
+      } catch (error) {
+        console.error('Lỗi khi load dữ liệu:', error);
+        showError('Không thể kết nối đến server. Vui lòng thử lại sau.');
+      }
+    }
+
+    function loadTabContent(tabName) {
+      switch (tabName) {
+        case 'overview':
+          loadOverviewContent();
+          break;
+        case 'timeline':
+          loadTimelineContent();
+          break;
+        case 'area':
+          loadAreaContent();
+          break;
+        case 'staff':
+          loadStaffContent();
+          break;
+      }
+    }
+
+    function loadOverviewContent() {
+      const container = document.getElementById('overview');
+      container.innerHTML = `
+        <div class="summary-card">
+          <h4><i class="bi bi-info-circle me-2"></i>Tổng quan hệ thống</h4>
+          <p>Báo cáo tổng hợp toàn diện về tình hình công việc, hiệu suất và quản lý hệ thống Cơ điện</p>
+        </div>
+        
+        <div class="stats-grid" id="overviewStats">
+          <!-- Stats will be loaded here -->
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="chart-container">
+              <h5><i class="bi bi-pie-chart me-2"></i>Phân bố trạng thái công việc</h5>
+              <canvas id="overviewStatusChart" height="300"></canvas>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="chart-container">
+              <h5><i class="bi bi-bar-chart me-2"></i>Hiệu suất theo khu vực</h5>
+              <canvas id="overviewAreaChart" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Bảng dữ liệu chi tiết -->
+        <div class="chart-container">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0"><i class="bi bi-table me-2"></i>Danh sách công việc</h5>
+            <div class="d-flex gap-2">
+              <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm..." style="width: 200px;">
+              <select class="form-select" id="sortBy" style="width: 150px;">
+                <option value="stt">Sắp xếp theo STT</option>
+                <option value="date">Sắp xếp theo ngày</option>
+                <option value="status">Sắp xếp theo trạng thái</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover" id="worksTable">
+              <thead class="table-light">
+                <tr>
+                  <th>STT</th>
+                  <th>Khu vực</th>
+                  <th>Máy</th>
+                  <th>Người yêu cầu</th>
+                  <th>Thời gian yêu cầu</th>
+                  <th>Trạng thái</th>
+                  <th>Tiến độ</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="worksTableBody">
+                <!-- Dữ liệu sẽ được load động -->
+              </tbody>
+            </table>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mt-3">
+            <div>
+              Hiển thị <span id="showingCount">0</span> / <span id="totalCount">0</span> công việc
+            </div>
+            <nav>
+              <ul class="pagination pagination-sm mb-0" id="pagination">
+                <!-- Phân trang sẽ được tạo động -->
+              </ul>
+            </nav>
+          </div>
+        </div>
+      `;
+      
+      updateOverviewStats();
+      updateOverviewCharts();
+      updateWorksTable();
+      setupTableEventListeners();
+    }
+
+    function updateOverviewStats() {
+      const statsContainer = document.getElementById('overviewStats');
+      if (!statsContainer) return;
+
+      const totalWorks = allWorks.length;
+      const completedWorks = allWorks.filter(work => isWorkCompleted(work)).length;
+      const processingWorks = allWorks.filter(work => isWorkProcessing(work)).length;
+      const waitingWorks = allWorks.filter(work => isWorkWaiting(work)).length;
+      const completionRate = totalWorks > 0 ? Math.round((completedWorks / totalWorks) * 100) : 0;
+
+      statsContainer.innerHTML = `
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <i class="bi bi-list-task"></i>
+          </div>
+          <div class="stat-number">${totalWorks}</div>
+          <div class="stat-label">Tổng công việc</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <i class="bi bi-check-circle"></i>
+          </div>
+          <div class="stat-number">${completedWorks}</div>
+          <div class="stat-label">Đã hoàn thành</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <i class="bi bi-gear"></i>
+          </div>
+          <div class="stat-number">${processingWorks}</div>
+          <div class="stat-label">Đang xử lý</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <i class="bi bi-percent"></i>
+          </div>
+          <div class="stat-number">${completionRate}%</div>
+          <div class="stat-label">Tỷ lệ hoàn thành</div>
+        </div>
+      `;
+    }
+
+    function updateOverviewCharts() {
+      // Status distribution chart
+      const statusCtx = document.getElementById('overviewStatusChart');
+      if (statusCtx) {
+        const completed = allWorks.filter(work => isWorkCompleted(work)).length;
+        const processing = allWorks.filter(work => isWorkProcessing(work)).length;
+        const waiting = allWorks.filter(work => isWorkWaiting(work)).length;
+
+        new Chart(statusCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Đã hoàn thành', 'Đang xử lý', 'Chờ xử lý'],
+            datasets: [{
+              data: [completed, processing, waiting],
+              backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false
+          }
+        });
+      }
+
+      // Area performance chart
+      const areaCtx = document.getElementById('overviewAreaChart');
+      if (areaCtx) {
+        const areaStats = {};
+        allWorks.forEach(work => {
+          const area = work.khu_vuc || work.khuVuc || 'Không xác định';
+          if (!areaStats[area]) {
+            areaStats[area] = { total: 0, completed: 0 };
+          }
+          areaStats[area].total++;
+          if (isWorkCompleted(work)) {
+            areaStats[area].completed++;
+          }
+        });
+
+        const areas = Object.keys(areaStats);
+        const completionRates = areas.map(area => {
+          const stats = areaStats[area];
+          return stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+        });
+
+        new Chart(areaCtx, {
+          type: 'bar',
+          data: {
+            labels: areas,
+            datasets: [{
+              label: 'Tỷ lệ hoàn thành (%)',
+              data: completionRates,
+              backgroundColor: 'rgba(114, 107, 255, 0.8)'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function loadTimelineContent() {
+      const container = document.getElementById('timeline');
+      container.innerHTML = `
+        <div class="summary-card">
+          <h4><i class="bi bi-clock-history me-2"></i>Phân tích theo thời gian</h4>
+          <p>Báo cáo chi tiết về xu hướng công việc, hiệu suất theo thời gian và phân tích định kỳ</p>
+        </div>
+        
+        <!-- Time Metrics -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+              <i class="bi bi-clock"></i>
+            </div>
+            <div class="stat-number" id="avgCompletionTime">0</div>
+            <div class="stat-label">Thời gian hoàn thành TB (giờ)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+              <i class="bi bi-speedometer2"></i>
+            </div>
+            <div class="stat-number" id="avgResponseTime">0</div>
+            <div class="stat-label">Thời gian phản hồi TB (giờ)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+              <i class="bi bi-percent"></i>
+            </div>
+            <div class="stat-number" id="completionRate">0%</div>
+            <div class="stat-label">Tỷ lệ hoàn thành</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+              <i class="bi bi-list-task"></i>
+            </div>
+            <div class="stat-number" id="totalWorks">0</div>
+            <div class="stat-label">Tổng công việc</div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-8">
+            <div class="chart-container">
+              <h5><i class="bi bi-graph-up me-2"></i>Xu hướng công việc theo thời gian</h5>
+              <canvas id="timelineTrendChart" height="300"></canvas>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="chart-container">
+              <h5><i class="bi bi-pie-chart me-2"></i>Phân bố thời gian xử lý</h5>
+              <canvas id="timelineDistributionChart" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Performance Analysis -->
+        <div class="row">
+          <div class="col-md-6">
+            <div class="chart-container">
+              <h5><i class="bi bi-speedometer2 me-2"></i>Hiệu suất theo giờ trong ngày</h5>
+              <canvas id="hourlyPerformanceChart" height="250"></canvas>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="chart-container">
+              <h5><i class="bi bi-calendar-week me-2"></i>Hiệu suất theo ngày trong tuần</h5>
+              <canvas id="weeklyPerformanceChart" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Timeline -->
+        <div class="chart-container">
+          <h5><i class="bi bi-clock me-2"></i>Timeline công việc gần đây</h5>
+          <div id="workTimeline" style="max-height: 400px; overflow-y: auto;">
+            <!-- Timeline items will be generated here -->
+          </div>
+        </div>
+        
+        <!-- Detailed Analysis -->
+        <div class="row">
+          <div class="col-md-6">
+            <div class="chart-container">
+              <h5><i class="bi bi-list-check me-2"></i>Top công việc nhanh nhất</h5>
+              <div id="fastestWorks">
+                <!-- Fastest works will be listed here -->
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="chart-container">
+              <h5><i class="bi bi-exclamation-triangle me-2"></i>Công việc cần chú ý</h5>
+              <div id="attentionWorks">
+                <!-- Works needing attention will be listed here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      updateTimelineCharts();
+      updateTimelineMetrics();
+      updateTimeline();
+      updateAnalysis();
+    }
+
+    function updateTimelineCharts() {
+      // Timeline trend chart
+      const trendCtx = document.getElementById('timelineTrendChart');
+      if (trendCtx) {
+        // Group works by date (last 30 days)
+        const dailyStats = {};
+        const today = new Date();
+        for (let i = 29; i >= 0; i--) {
+          const date = new Date(today);
+          date.setDate(date.getDate() - i);
+          const dateStr = date.toISOString().split('T')[0];
+          dailyStats[dateStr] = { total: 0, completed: 0 };
+        }
+
+        allWorks.forEach(work => {
+          const workDate = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+          const dateStr = workDate.toISOString().split('T')[0];
+          if (dailyStats[dateStr]) {
+            dailyStats[dateStr].total++;
+            if (isWorkCompleted(work)) {
+              dailyStats[dateStr].completed++;
+            }
+          }
+        });
+
+        const labels = Object.keys(dailyStats);
+        const completedData = labels.map(date => dailyStats[date].completed);
+        const totalData = labels.map(date => dailyStats[date].total);
+
+        new Chart(trendCtx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Công việc mới',
+              data: totalData,
+              borderColor: '#667eea',
+              backgroundColor: 'rgba(102, 126, 234, 0.1)',
+              tension: 0.4
+            }, {
+              label: 'Công việc hoàn thành',
+              data: completedData,
+              borderColor: '#28a745',
+              backgroundColor: 'rgba(40, 167, 69, 0.1)',
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false
+          }
+        });
+      }
+
+      // Time distribution chart
+      const distributionCtx = document.getElementById('timelineDistributionChart');
+      if (distributionCtx) {
+        const timeRanges = {
+          '0-2h': 0,
+          '2-4h': 0,
+          '4-8h': 0,
+          '8-24h': 0,
+          '>24h': 0
+        };
+
+        allWorks.forEach(work => {
+          if (isWorkCompleted(work)) {
+            const startTime = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+            const endTime = new Date(work.thoi_gian_ban_giao || work.thoiGianBanGiao);
+            const duration = (endTime - startTime) / (1000 * 60 * 60); // hours
+            
+            if (duration <= 2) timeRanges['0-2h']++;
+            else if (duration <= 4) timeRanges['2-4h']++;
+            else if (duration <= 8) timeRanges['4-8h']++;
+            else if (duration <= 24) timeRanges['8-24h']++;
+            else timeRanges['>24h']++;
+          }
+        });
+
+        new Chart(distributionCtx, {
+          type: 'doughnut',
+          data: {
+            labels: Object.keys(timeRanges),
+            datasets: [{
+              data: Object.values(timeRanges),
+              backgroundColor: ['#28a745', '#20c997', '#ffc107', '#fd7e14', '#dc3545']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false
+          }
+        });
+      }
+    }
+
+    function loadAreaContent() {
+      const container = document.getElementById('area');
+      container.innerHTML = `
+        <div class="summary-card">
+          <h4><i class="bi bi-geo-alt me-2"></i>Phân tích theo khu vực</h4>
+          <p>Báo cáo chi tiết về hiệu suất và tình trạng máy móc theo từng khu vực sản xuất</p>
+        </div>
+        
+        <div class="stats-grid" id="areaStats">
+          <!-- Area stats will be loaded here -->
+        </div>
+        
+        <!-- Heatmap -->
+        <div class="chart-container">
+          <h5><i class="bi bi-grid-3x3-gap me-2"></i>Bản đồ nhiệt khu vực</h5>
+          <p class="text-muted">Màu sắc thể hiện mức độ sử dụng và tần suất sự cố</p>
+          <div class="heatmap-grid" id="areaHeatmap" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
+            <!-- Heatmap items will be generated here -->
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="chart-container">
+              <h5><i class="bi bi-pie-chart me-2"></i>Phân bố công việc theo khu vực</h5>
+              <canvas id="areaDistributionChart" height="300"></canvas>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="chart-container">
+              <h5><i class="bi bi-bar-chart me-2"></i>Hiệu suất theo khu vực</h5>
+              <canvas id="areaPerformanceChart" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Area Details -->
+        <div class="row">
+          <div class="col-md-8">
+            <div class="chart-container">
+              <h5><i class="bi bi-list-ul me-2"></i>Chi tiết khu vực</h5>
+              <div class="table-responsive">
+                <table class="table table-hover" id="areaDetailsTable">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Khu vực</th>
+                      <th>Số máy</th>
+                      <th>Công việc</th>
+                      <th>Hoàn thành</th>
+                      <th>Tỷ lệ</th>
+                      <th>Trạng thái</th>
+                      <th>Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="areaDetailsTableBody">
+                    <!-- Area details will be loaded here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="chart-container">
+              <h5><i class="bi bi-cpu me-2"></i>Top máy có vấn đề</h5>
+              <div class="machine-list" id="problemMachines" style="max-height: 400px; overflow-y: auto;">
+                <!-- Problem machines will be listed here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      updateAreaStats();
+      updateAreaCharts();
+      updateAreaHeatmap();
+      updateAreaDetails();
+      updateProblemMachines();
+    }
+
+    function updateAreaStats() {
+      const statsContainer = document.getElementById('areaStats');
+      if (!statsContainer) return;
+
+      const areaStats = {};
+      allWorks.forEach(work => {
+        const area = work.khu_vuc || work.khuVuc || 'Không xác định';
+        if (!areaStats[area]) {
+          areaStats[area] = { total: 0, completed: 0, machines: new Set() };
+        }
+        areaStats[area].total++;
+        if (isWorkCompleted(work)) {
+          areaStats[area].completed++;
+        }
+        if (work.may) {
+          areaStats[area].machines.add(work.may);
+        }
+      });
+
+      const areas = Object.keys(areaStats);
+      const totalAreas = areas.length;
+      const totalMachines = allMachines.length;
+      const operationalMachines = allMachines.filter(machine => getMachineStatus(machine) === 'operational').length;
+      const criticalMachines = allMachines.filter(machine => getMachineStatus(machine) === 'critical').length;
+
+      statsContainer.innerHTML = `
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <i class="bi bi-geo-alt"></i>
+          </div>
+          <div class="stat-number">${totalAreas}</div>
+          <div class="stat-label">Tổng số khu vực</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <i class="bi bi-cpu"></i>
+          </div>
+          <div class="stat-number">${totalMachines}</div>
+          <div class="stat-label">Tổng số máy</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <i class="bi bi-check-circle"></i>
+          </div>
+          <div class="stat-number">${operationalMachines}</div>
+          <div class="stat-label">Máy hoạt động tốt</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <i class="bi bi-exclamation-triangle"></i>
+          </div>
+          <div class="stat-number">${criticalMachines}</div>
+          <div class="stat-label">Máy cần bảo trì</div>
+        </div>
+      `;
+    }
+
+    function updateAreaCharts() {
+      // Area distribution chart
+      const distributionCtx = document.getElementById('areaDistributionChart');
+      if (distributionCtx) {
+        const areaStats = {};
+        allWorks.forEach(work => {
+          const area = work.khu_vuc || work.khuVuc || 'Không xác định';
+          if (!areaStats[area]) {
+            areaStats[area] = 0;
+          }
+          areaStats[area]++;
+        });
+
+        const areas = Object.keys(areaStats);
+        const workData = areas.map(area => areaStats[area]);
+
+        new Chart(distributionCtx, {
+          type: 'doughnut',
+          data: {
+            labels: areas,
+            datasets: [{
+              data: workData,
+              backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe', '#43e97b', '#38f9d7']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false
+          }
+        });
+      }
+
+      // Area performance chart
+      const performanceCtx = document.getElementById('areaPerformanceChart');
+      if (performanceCtx) {
+        const areaStats = {};
+        allWorks.forEach(work => {
+          const area = work.khu_vuc || work.khuVuc || 'Không xác định';
+          if (!areaStats[area]) {
+            areaStats[area] = { total: 0, completed: 0 };
+          }
+          areaStats[area].total++;
+          if (isWorkCompleted(work)) {
+            areaStats[area].completed++;
+          }
+        });
+
+        const areas = Object.keys(areaStats);
+        const completionRates = areas.map(area => {
+          const stats = areaStats[area];
+          return stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+        });
+
+        new Chart(performanceCtx, {
+          type: 'bar',
+          data: {
+            labels: areas,
+            datasets: [{
+              label: 'Tỷ lệ hoàn thành (%)',
+              data: completionRates,
+              backgroundColor: 'rgba(114, 107, 255, 0.8)'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function loadStaffContent() {
+      const container = document.getElementById('staff');
+      container.innerHTML = `
+        <div class="summary-card">
+          <h4><i class="bi bi-people me-2"></i>Phân tích nhân sự</h4>
+          <p>Báo cáo chi tiết về hiệu suất, đánh giá và quản lý nhân viên bộ phận Cơ điện</p>
+        </div>
+        
+        <div class="stats-grid" id="staffStats">
+          <!-- Staff stats will be loaded here -->
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="chart-container">
+              <h5><i class="bi bi-bar-chart me-2"></i>Hiệu suất theo nhân viên</h5>
+              <canvas id="staffPerformanceChart" height="300"></canvas>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="chart-container">
+              <h5><i class="bi bi-pie-chart me-2"></i>Phân bố hiệu suất</h5>
+              <canvas id="performanceDistributionChart" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Staff List and Details -->
+        <div class="row">
+          <div class="col-md-8">
+            <div class="chart-container">
+              <h5><i class="bi bi-list-ul me-2"></i>Danh sách nhân viên</h5>
+              <div class="staff-list" id="staffList" style="max-height: 500px; overflow-y: auto;">
+                <!-- Staff list will be generated here -->
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="chart-container">
+              <h5><i class="bi bi-trophy me-2"></i>Top nhân viên xuất sắc</h5>
+              <div id="topPerformers">
+                <!-- Top performers will be listed here -->
+              </div>
+            </div>
+            <div class="chart-container">
+              <h5><i class="bi bi-exclamation-triangle me-2"></i>Cần hỗ trợ</h5>
+              <div id="needsSupport">
+                <!-- Staff needing support will be listed here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      updateStaffStats();
+      updateStaffCharts();
+      updateStaffList();
+      updateTopPerformers();
+      updateNeedsSupport();
+    }
+
+    function updateStaffStats() {
+      const statsContainer = document.getElementById('staffStats');
+      if (!statsContainer) return;
+
+      // Calculate staff statistics
+      const staffStats = {};
+      allUsers.forEach(user => {
+        const staffName = user.ten_nhan_vien || user.ma_nhan_vien || 'Không xác định';
+        staffStats[staffName] = {
+          totalWorks: 0,
+          completedWorks: 0,
+          completionRate: 0,
+          avgCompletionTime: 0
+        };
+      });
+
+      allWorks.forEach(work => {
+        const mainWorker = work.nguoi_lam_chinh || work.nguoiLamChinh;
+        const support1 = work.nguoi_lam_phu_1 || work.nguoiLamPhu1;
+        const support2 = work.nguoi_lam_phu_2 || work.nguoiLamPhu2;
+
+        [mainWorker, support1, support2].forEach(worker => {
+          if (worker && staffStats[worker]) {
+            staffStats[worker].totalWorks++;
+            if (isWorkCompleted(work)) {
+              staffStats[worker].completedWorks++;
+            }
+          }
+        });
+      });
+
+      Object.values(staffStats).forEach(stats => {
+        stats.completionRate = stats.totalWorks > 0 ? 
+          (stats.completedWorks / stats.totalWorks) * 100 : 0;
+      });
+
+      const totalStaff = Object.keys(staffStats).length;
+      const activeStaff = Object.values(staffStats).filter(stats => stats.totalWorks > 0).length;
+      const avgCompletionRate = Object.values(staffStats)
+        .filter(stats => stats.totalWorks > 0)
+        .reduce((sum, stats) => sum + stats.completionRate, 0) / 
+        Math.max(activeStaff, 1);
+      const excellentStaff = Object.values(staffStats)
+        .filter(stats => stats.totalWorks > 0 && stats.completionRate >= 80).length;
+
+      statsContainer.innerHTML = `
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <i class="bi bi-people"></i>
+          </div>
+          <div class="stat-number">${totalStaff}</div>
+          <div class="stat-label">Tổng nhân viên</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <i class="bi bi-person-check"></i>
+          </div>
+          <div class="stat-number">${activeStaff}</div>
+          <div class="stat-label">Nhân viên hoạt động</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <i class="bi bi-percent"></i>
+          </div>
+          <div class="stat-number">${Math.round(avgCompletionRate)}%</div>
+          <div class="stat-label">Hiệu suất TB</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <i class="bi bi-trophy"></i>
+          </div>
+          <div class="stat-number">${excellentStaff}</div>
+          <div class="stat-label">Nhân viên xuất sắc</div>
+        </div>
+      `;
+    }
+
+    function updateStaffCharts() {
+      // Staff performance chart
+      const performanceCtx = document.getElementById('staffPerformanceChart');
+      if (performanceCtx) {
+        const staffStats = {};
+        allUsers.forEach(user => {
+          const staffName = user.ten_nhan_vien || user.ma_nhan_vien || 'Không xác định';
+          staffStats[staffName] = { totalWorks: 0, completedWorks: 0 };
+        });
+
+        allWorks.forEach(work => {
+          const mainWorker = work.nguoi_lam_chinh || work.nguoiLamChinh;
+          const support1 = work.nguoi_lam_phu_1 || work.nguoiLamPhu1;
+          const support2 = work.nguoi_lam_phu_2 || work.nguoiLamPhu2;
+
+          [mainWorker, support1, support2].forEach(worker => {
+            if (worker && staffStats[worker]) {
+              staffStats[worker].totalWorks++;
+              if (isWorkCompleted(work)) {
+                staffStats[worker].completedWorks++;
+              }
+            }
+          });
+        });
+
+        const activeStaff = Object.entries(staffStats)
+          .filter(([, stats]) => stats.totalWorks > 0)
+          .sort(([, a], [, b]) => b.completedWorks - a.completedWorks)
+          .slice(0, 10);
+
+        const labels = activeStaff.map(([name]) => name);
+        const completionRates = activeStaff.map(([, stats]) => 
+          Math.round((stats.completedWorks / stats.totalWorks) * 100)
+        );
+
+        new Chart(performanceCtx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Tỷ lệ hoàn thành (%)',
+              data: completionRates,
+              backgroundColor: 'rgba(114, 107, 255, 0.8)'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100
+              }
+            }
+          }
+        });
+      }
+
+      // Performance distribution chart
+      const distributionCtx = document.getElementById('performanceDistributionChart');
+      if (distributionCtx) {
+        const staffStats = {};
+        allUsers.forEach(user => {
+          const staffName = user.ten_nhan_vien || user.ma_nhan_vien || 'Không xác định';
+          staffStats[staffName] = { totalWorks: 0, completedWorks: 0 };
+        });
+
+        allWorks.forEach(work => {
+          const mainWorker = work.nguoi_lam_chinh || work.nguoiLamChinh;
+          const support1 = work.nguoi_lam_phu_1 || work.nguoiLamPhu1;
+          const support2 = work.nguoi_lam_phu_2 || work.nguoiLamPhu2;
+
+          [mainWorker, support1, support2].forEach(worker => {
+            if (worker && staffStats[worker]) {
+              staffStats[worker].totalWorks++;
+              if (isWorkCompleted(work)) {
+                staffStats[worker].completedWorks++;
+              }
+            }
+          });
+        });
+
+        const performanceCounts = {
+          excellent: 0,
+          good: 0,
+          average: 0,
+          poor: 0
+        };
+
+        Object.values(staffStats).forEach(stats => {
+          if (stats.totalWorks > 0) {
+            const completionRate = (stats.completedWorks / stats.totalWorks) * 100;
+            if (completionRate >= 80) performanceCounts.excellent++;
+            else if (completionRate >= 60) performanceCounts.good++;
+            else if (completionRate >= 40) performanceCounts.average++;
+            else performanceCounts.poor++;
+          }
+        });
+
+        new Chart(distributionCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Xuất sắc', 'Tốt', 'Trung bình', 'Cần cải thiện'],
+            datasets: [{
+              data: [
+                performanceCounts.excellent,
+                performanceCounts.good,
+                performanceCounts.average,
+                performanceCounts.poor
+              ],
+              backgroundColor: ['#28a745', '#17a2b8', '#ffc107', '#dc3545']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false
+          }
+        });
+      }
+    }
+
+    // Additional functions for comprehensive reporting
+    
+    // Table functions
+    let filteredWorks = [];
+    let currentPage = 1;
+    const itemsPerPage = 10;
+
+    function setupTableEventListeners() {
+      document.getElementById('searchInput')?.addEventListener('input', filterWorksData);
+      document.getElementById('sortBy')?.addEventListener('change', filterWorksData);
+    }
+
+    function filterWorksData() {
+      const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+      const sortBy = document.getElementById('sortBy')?.value || 'stt';
+
+      filteredWorks = allWorks.filter(work => {
+        const searchFields = [
+          work.stt?.toString(),
+          work.khu_vuc || work.khuVuc,
+          work.may,
+          work.nguoi_yeu_cau || work.nguoiYeuCau
+        ].filter(Boolean);
+        
+        return searchFields.some(field => field.toLowerCase().includes(searchTerm));
+      });
+
+      // Sort data
+      filteredWorks.sort((a, b) => {
+        switch (sortBy) {
+          case 'date':
+            const dateA = new Date(a.thoi_gian_yeu_cau || a.thoiGianYeuCau || 0);
+            const dateB = new Date(b.thoi_gian_yeu_cau || b.thoiGianYeuCau || 0);
+            return dateB - dateA;
+          case 'status':
+            const statusA = getWorkStatus(a);
+            const statusB = getWorkStatus(b);
+            return statusA.localeCompare(statusB);
+          default:
+            return (a.stt || 0) - (b.stt || 0);
+        }
+      });
+
+      currentPage = 1;
+      updateWorksTable();
+    }
+
+    function updateWorksTable() {
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const pageData = filteredWorks.slice(startIndex, endIndex);
+      
+      const tbody = document.getElementById('worksTableBody');
+      if (!tbody) return;
+      
+      tbody.innerHTML = '';
+      
+      pageData.forEach(work => {
+        const row = document.createElement('tr');
+        const status = getWorkStatus(work);
+        const progress = calculateProgress(work);
+        
+        row.innerHTML = `
+          <td><strong>${work.stt || '-'}</strong></td>
+          <td>${work.khu_vuc || work.khuVuc || '-'}</td>
+          <td>${work.may || '-'}</td>
+          <td>${work.nguoi_yeu_cau || work.nguoiYeuCau || '-'}</td>
+          <td>${formatDate(work.thoi_gian_yeu_cau || work.thoiGianYeuCau)}</td>
+          <td>
+            <span class="badge ${getStatusBadgeClass(status)}">${status}</span>
+          </td>
+          <td>
+            <div class="progress-custom">
+              <div class="progress-bar bg-${getProgressColor(progress)}" style="width: ${progress}%"></div>
+            </div>
+            <small class="text-muted">${progress}%</small>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary" onclick="viewWorkDetail(${work.stt})">
+              <i class="bi bi-eye"></i>
+            </button>
+          </td>
+        `;
+        
+        tbody.appendChild(row);
+      });
+      
+      updatePagination();
+      updateCounts();
+    }
+
+    function updatePagination() {
+      const totalPages = Math.ceil(filteredWorks.length / itemsPerPage);
+      const pagination = document.getElementById('pagination');
+      if (!pagination) return;
+      
+      pagination.innerHTML = '';
+      
+      // Previous button
+      const prevLi = document.createElement('li');
+      prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+      prevLi.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Trước</a>`;
+      pagination.appendChild(prevLi);
+      
+      // Page numbers
+      for (let i = 1; i <= totalPages; i++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+        li.innerHTML = `<a class="page-link" href="#" onclick="changePage(${i})">${i}</a>`;
+        pagination.appendChild(li);
+      }
+      
+      // Next button
+      const nextLi = document.createElement('li');
+      nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+      nextLi.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Sau</a>`;
+      pagination.appendChild(nextLi);
+    }
+
+    function changePage(page) {
+      const totalPages = Math.ceil(filteredWorks.length / itemsPerPage);
+      if (page >= 1 && page <= totalPages) {
+        currentPage = page;
+        updateWorksTable();
+      }
+    }
+
+    function updateCounts() {
+      const showingElement = document.getElementById('showingCount');
+      const totalElement = document.getElementById('totalCount');
+      if (showingElement) showingElement.textContent = Math.min(filteredWorks.length, itemsPerPage);
+      if (totalElement) totalElement.textContent = filteredWorks.length;
+    }
+
+    // Timeline functions
+    function updateTimelineMetrics() {
+      const completedWorks = allWorks.filter(work => isWorkCompleted(work));
+      
+      // Calculate average completion time
+      const completionTimes = completedWorks.map(work => {
+        const startTime = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+        const endTime = new Date(work.thoi_gian_ban_giao || work.thoiGianBanGiao);
+        return (endTime - startTime) / (1000 * 60 * 60); // hours
+      }).filter(time => time > 0);
+
+      const avgCompletionTime = completionTimes.length > 0 ? 
+        Math.round(completionTimes.reduce((a, b) => a + b, 0) / completionTimes.length) : 0;
+
+      // Calculate average response time
+      const responseTimes = allWorks.filter(work => {
+        return work.thoi_gian_bat_dau_lam || work.thoigianbatdaulam;
+      }).map(work => {
+        const requestTime = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+        const startTime = new Date(work.thoi_gian_bat_dau_lam || work.thoigianbatdaulam);
+        return (startTime - requestTime) / (1000 * 60 * 60); // hours
+      }).filter(time => time > 0);
+
+      const avgResponseTime = responseTimes.length > 0 ? 
+        Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length) : 0;
+
+      // Calculate completion rate
+      const completionRate = allWorks.length > 0 ? 
+        Math.round((completedWorks.length / allWorks.length) * 100) : 0;
+
+      // Update elements
+      const avgCompletionElement = document.getElementById('avgCompletionTime');
+      const avgResponseElement = document.getElementById('avgResponseTime');
+      const completionRateElement = document.getElementById('completionRate');
+      const totalWorksElement = document.getElementById('totalWorks');
+
+      if (avgCompletionElement) avgCompletionElement.textContent = avgCompletionTime;
+      if (avgResponseElement) avgResponseElement.textContent = avgResponseTime;
+      if (completionRateElement) completionRateElement.textContent = completionRate + '%';
+      if (totalWorksElement) totalWorksElement.textContent = allWorks.length;
+    }
+
+    function updateTimeline() {
+      const timeline = document.getElementById('workTimeline');
+      if (!timeline) return;
+
+      const recentWorks = allWorks
+        .sort((a, b) => {
+          const dateA = new Date(a.thoi_gian_yeu_cau || a.thoiGianYeuCau);
+          const dateB = new Date(b.thoi_gian_yeu_cau || b.thoiGianYeuCau);
+          return dateB - dateA;
+        })
+        .slice(0, 10);
+
+      timeline.innerHTML = '';
+      
+      recentWorks.forEach(work => {
+        const timelineItem = document.createElement('div');
+        timelineItem.className = `timeline-item ${getWorkStatusClass(work)}`;
+        
+        const status = getWorkStatus(work);
+        const date = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+        
+        timelineItem.innerHTML = `
+          <div class="timeline-content">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="mb-1">${work.may || 'Không xác định'} - ${work.khu_vuc || work.khuVuc || 'Không xác định'}</h6>
+                <p class="mb-1 text-muted">${work.nguoi_yeu_cau || work.nguoiYeuCau || 'Không xác định'}</p>
+                <small class="text-muted">${date.toLocaleDateString('vi-VN')} ${date.toLocaleTimeString('vi-VN')}</small>
+              </div>
+              <span class="badge ${getStatusBadgeClass(status)}">${status}</span>
+            </div>
+          </div>
+        `;
+        
+        timeline.appendChild(timelineItem);
+      });
+    }
+
+    function updateAnalysis() {
+      updateFastestWorks();
+      updateAttentionWorks();
+    }
+
+    function updateFastestWorks() {
+      const container = document.getElementById('fastestWorks');
+      if (!container) return;
+
+      const fastestWorks = allWorks.filter(work => isWorkCompleted(work))
+        .map(work => {
+          const startTime = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+          const endTime = new Date(work.thoi_gian_ban_giao || work.thoiGianBanGiao);
+          const duration = (endTime - startTime) / (1000 * 60 * 60); // hours
+          return { ...work, duration };
+        })
+        .sort((a, b) => a.duration - b.duration)
+        .slice(0, 5);
+
+      container.innerHTML = '';
+      
+      fastestWorks.forEach((work, index) => {
+        const item = document.createElement('div');
+        item.className = 'd-flex justify-content-between align-items-center p-2 border-bottom';
+        item.innerHTML = `
+          <div>
+            <strong>${index + 1}. ${work.may || 'Không xác định'}</strong>
+            <br><small class="text-muted">${work.khu_vuc || work.khuVuc || 'Không xác định'}</small>
+          </div>
+          <span class="badge bg-success">${Math.round(work.duration)}h</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function updateAttentionWorks() {
+      const container = document.getElementById('attentionWorks');
+      if (!container) return;
+
+      const attentionWorks = allWorks.filter(work => {
+        const requestTime = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+        const now = new Date();
+        const hoursSinceRequest = (now - requestTime) / (1000 * 60 * 60);
+        return !isWorkCompleted(work) && hoursSinceRequest > 24;
+      }).slice(0, 5);
+
+      container.innerHTML = '';
+      
+      attentionWorks.forEach((work, index) => {
+        const requestTime = new Date(work.thoi_gian_yeu_cau || work.thoiGianYeuCau);
+        const now = new Date();
+        const hoursSinceRequest = Math.round((now - requestTime) / (1000 * 60 * 60));
+        
+        const item = document.createElement('div');
+        item.className = 'd-flex justify-content-between align-items-center p-2 border-bottom';
+        item.innerHTML = `
+          <div>
+            <strong>${index + 1}. ${work.may || 'Không xác định'}</strong>
+            <br><small class="text-muted">${work.khu_vuc || work.khuVuc || 'Không xác định'}</small>
+          </div>
+          <span class="badge bg-danger">${hoursSinceRequest}h</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Area functions
+    function updateAreaHeatmap() {
+      const heatmap = document.getElementById('areaHeatmap');
+      if (!heatmap) return;
+      
+      heatmap.innerHTML = '';
+      
+      const areaStats = {};
+      allWorks.forEach(work => {
+        const area = work.khu_vuc || work.khuVuc || 'Không xác định';
+        if (!areaStats[area]) {
+          areaStats[area] = { total: 0, completed: 0 };
+        }
+        areaStats[area].total++;
+        if (isWorkCompleted(work)) {
+          areaStats[area].completed++;
+        }
+      });
+      
+      Object.keys(areaStats).forEach(area => {
+        const stats = areaStats[area];
+        const completionRate = stats.total > 0 ? 
+          (stats.completed / stats.total) * 100 : 0;
+        
+        let heatmapClass = 'low';
+        if (completionRate < 50) heatmapClass = 'high';
+        else if (completionRate < 80) heatmapClass = 'medium';
+        
+        const heatmapItem = document.createElement('div');
+        heatmapItem.className = `heatmap-item ${heatmapClass}`;
+        heatmapItem.style.cssText = `
+          padding: 1rem;
+          border-radius: 10px;
+          text-align: center;
+          color: white;
+          font-weight: 500;
+          position: relative;
+          cursor: pointer;
+          transition: transform 0.2s ease;
+        `;
+        heatmapItem.innerHTML = `
+          <div style="font-size: 1.2rem; font-weight: bold;">${area}</div>
+          <div style="font-size: 0.9rem; opacity: 0.9;">${stats.total} công việc</div>
+          <div style="font-size: 0.8rem; opacity: 0.8;">${Math.round(completionRate)}% hoàn thành</div>
+        `;
+        heatmapItem.onclick = () => showAreaDetail(area);
+        heatmap.appendChild(heatmapItem);
+      });
+    }
+
+    function updateAreaDetails() {
+      const tbody = document.getElementById('areaDetailsTableBody');
+      if (!tbody) return;
+      
+      tbody.innerHTML = '';
+      
+      const areaStats = {};
+      allWorks.forEach(work => {
+        const area = work.khu_vuc || work.khuVuc || 'Không xác định';
+        if (!areaStats[area]) {
+          areaStats[area] = { total: 0, completed: 0, machines: new Set() };
+        }
+        areaStats[area].total++;
+        if (isWorkCompleted(work)) {
+          areaStats[area].completed++;
+        }
+        if (work.may) {
+          areaStats[area].machines.add(work.may);
+        }
+      });
+      
+      Object.keys(areaStats).forEach(area => {
+        const stats = areaStats[area];
+        const completionRate = stats.total > 0 ? 
+          Math.round((stats.completed / stats.total) * 100) : 0;
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><strong>${area}</strong></td>
+          <td>${stats.machines.size}</td>
+          <td>${stats.total}</td>
+          <td>${stats.completed}</td>
+          <td>
+            <div class="progress-custom">
+              <div class="progress-bar bg-success" style="width: ${completionRate}%"></div>
+            </div>
+            <small class="text-muted">${completionRate}%</small>
+          </td>
+          <td>
+            <span class="badge ${getAreaStatusClass(completionRate)}">${getAreaStatus(completionRate)}</span>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary" onclick="showAreaDetail('${area}')">
+              <i class="bi bi-eye"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function updateProblemMachines() {
+      const container = document.getElementById('problemMachines');
+      if (!container) return;
+      
+      container.innerHTML = '';
+      
+      // Find machines with most issues
+      const machineIssues = {};
+      allWorks.forEach(work => {
+        const machine = work.may;
+        if (machine) {
+          if (!machineIssues[machine]) {
+            machineIssues[machine] = 0;
+          }
+          machineIssues[machine]++;
+        }
+      });
+      
+      const problemMachines = Object.entries(machineIssues)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 10);
+      
+      problemMachines.forEach(([machine, issueCount]) => {
+        const item = document.createElement('div');
+        item.className = 'machine-item';
+        item.style.cssText = `
+          display: flex;
+          justify-content: between;
+          align-items: center;
+          padding: 0.75rem;
+          border-bottom: 1px solid #eee;
+          transition: background-color 0.2s ease;
+        `;
+        item.innerHTML = `
+          <div class="d-flex align-items-center">
+            <div class="machine-status ${getMachineStatusClass(issueCount)}" style="width: 12px; height: 12px; border-radius: 50%; margin-right: 0.5rem;"></div>
+            <div>
+              <div><strong>${machine}</strong></div>
+              <small class="text-muted">${issueCount} sự cố</small>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-outline-primary" onclick="viewMachineDetail('${machine}')">
+            <i class="bi bi-eye"></i>
+          </button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Staff functions
+    function updateStaffList() {
+      const container = document.getElementById('staffList');
+      if (!container) return;
+      
+      container.innerHTML = '';
+      
+      const staffStats = {};
+      allUsers.forEach(user => {
+        const staffName = user.ten_nhan_vien || user.ma_nhan_vien || 'Không xác định';
+        staffStats[staffName] = {
+          info: user,
+          totalWorks: 0,
+          completedWorks: 0,
+          completionRate: 0,
+          avgCompletionTime: 0,
+          rating: 0,
+          performance: 'average'
+        };
+      });
+      
+      allWorks.forEach(work => {
+        const mainWorker = work.nguoi_lam_chinh || work.nguoiLamChinh;
+        const support1 = work.nguoi_lam_phu_1 || work.nguoiLamPhu1;
+        const support2 = work.nguoi_lam_phu_2 || work.nguoiLamPhu2;
+
+        [mainWorker, support1, support2].forEach(worker => {
+          if (worker && staffStats[worker]) {
+            staffStats[worker].totalWorks++;
+            if (isWorkCompleted(work)) {
+              staffStats[worker].completedWorks++;
+            }
+          }
+        });
+      });
+      
+      Object.values(staffStats).forEach(stats => {
+        stats.completionRate = stats.totalWorks > 0 ? 
+          (stats.completedWorks / stats.totalWorks) * 100 : 0;
+      });
+
+      const activeStaff = Object.entries(staffStats)
+        .filter(([, stats]) => stats.totalWorks > 0)
+        .sort(([, a], [, b]) => b.completionRate - a.completionRate);
+      
+      activeStaff.forEach(([staffName, stats]) => {
+        const staffItem = document.createElement('div');
+        staffItem.className = 'staff-item';
+        staffItem.style.cssText = `
+          display: flex;
+          align-items: center;
+          padding: 1rem;
+          border-bottom: 1px solid #eee;
+          transition: background-color 0.2s ease;
+        `;
+        
+        const avatarColor = generateAvatarColor(staffName);
+        const firstChar = staffName.charAt(0).toUpperCase();
+        
+        staffItem.innerHTML = `
+          <div class="staff-item-avatar" style="width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; margin-right: 1rem; background: ${avatarColor};">${firstChar}</div>
+          <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="mb-0">${staffName}</h6>
+              <div class="d-flex align-items-center gap-2">
+                <span class="performance-indicator performance-${stats.performance}">${getPerformanceText(stats.performance)}</span>
+                <div class="rating-stars">${generateStars(stats.rating)}</div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-3">
+                <small class="text-muted">Công việc: ${stats.totalWorks}</small>
+              </div>
+              <div class="col-md-3">
+                <small class="text-muted">Hoàn thành: ${stats.completedWorks}</small>
+              </div>
+              <div class="col-md-3">
+                <small class="text-muted">Tỷ lệ: ${Math.round(stats.completionRate)}%</small>
+              </div>
+              <div class="col-md-3">
+                <small class="text-muted">TB: ${Math.round(stats.avgCompletionTime)}h</small>
+              </div>
+            </div>
+            <div class="progress-custom mt-2">
+              <div class="progress-bar bg-success" style="width: ${stats.completionRate}%"></div>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-outline-primary ms-2" onclick="showStaffDetail('${staffName}')">
+            <i class="bi bi-eye"></i>
+          </button>
+        `;
+        
+        container.appendChild(staffItem);
+      });
+    }
+
+    function updateTopPerformers() {
+      const container = document.getElementById('topPerformers');
+      if (!container) return;
+      
+      container.innerHTML = '';
+      
+      const staffStats = {};
+      allUsers.forEach(user => {
+        const staffName = user.ten_nhan_vien || user.ma_nhan_vien || 'Không xác định';
+        staffStats[staffName] = { totalWorks: 0, completedWorks: 0 };
+      });
+      
+      allWorks.forEach(work => {
+        const mainWorker = work.nguoi_lam_chinh || work.nguoiLamChinh;
+        const support1 = work.nguoi_lam_phu_1 || work.nguoiLamPhu1;
+        const support2 = work.nguoi_lam_phu_2 || work.nguoiLamPhu2;
+
+        [mainWorker, support1, support2].forEach(worker => {
+          if (worker && staffStats[worker]) {
+            staffStats[worker].totalWorks++;
+            if (isWorkCompleted(work)) {
+              staffStats[worker].completedWorks++;
+            }
+          }
+        });
+      });
+      
+      Object.values(staffStats).forEach(stats => {
+        stats.completionRate = stats.totalWorks > 0 ? 
+          (stats.completedWorks / stats.totalWorks) * 100 : 0;
+      });
+
+      const topPerformers = Object.entries(staffStats)
+        .filter(([, stats]) => stats.totalWorks > 0 && stats.completionRate >= 80)
+        .sort(([, a], [, b]) => b.completionRate - a.completionRate)
+        .slice(0, 5);
+      
+      topPerformers.forEach(([staffName, stats], index) => {
+        const item = document.createElement('div');
+        item.className = 'd-flex align-items-center p-2 border-bottom';
+        
+        const avatarColor = generateAvatarColor(staffName);
+        const firstChar = staffName.charAt(0).toUpperCase();
+        
+        item.innerHTML = `
+          <div class="staff-item-avatar me-2" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; background: ${avatarColor}; font-size: 1rem;">${firstChar}</div>
+          <div class="flex-grow-1">
+            <div class="fw-bold">${index + 1}. ${staffName}</div>
+            <div class="rating-stars">${generateStars(stats.rating || 4)}</div>
+            <small class="text-muted">${stats.totalWorks} công việc, ${Math.round(stats.completionRate)}% hoàn thành</small>
+          </div>
+        `;
+        
+        container.appendChild(item);
+      });
+    }
+
+    function updateNeedsSupport() {
+      const container = document.getElementById('needsSupport');
+      if (!container) return;
+      
+      container.innerHTML = '';
+      
+      const staffStats = {};
+      allUsers.forEach(user => {
+        const staffName = user.ten_nhan_vien || user.ma_nhan_vien || 'Không xác định';
+        staffStats[staffName] = { totalWorks: 0, completedWorks: 0 };
+      });
+      
+      allWorks.forEach(work => {
+        const mainWorker = work.nguoi_lam_chinh || work.nguoiLamChinh;
+        const support1 = work.nguoi_lam_phu_1 || work.nguoiLamPhu1;
+        const support2 = work.nguoi_lam_phu_2 || work.nguoiLamPhu2;
+
+        [mainWorker, support1, support2].forEach(worker => {
+          if (worker && staffStats[worker]) {
+            staffStats[worker].totalWorks++;
+            if (isWorkCompleted(work)) {
+              staffStats[worker].completedWorks++;
+            }
+          }
+        });
+      });
+      
+      Object.values(staffStats).forEach(stats => {
+        stats.completionRate = stats.totalWorks > 0 ? 
+          (stats.completedWorks / stats.totalWorks) * 100 : 0;
+      });
+
+      const needsSupport = Object.entries(staffStats)
+        .filter(([, stats]) => stats.totalWorks > 0 && stats.completionRate < 40)
+        .sort(([, a], [, b]) => a.completionRate - b.completionRate)
+        .slice(0, 5);
+      
+      needsSupport.forEach(([staffName, stats]) => {
+        const item = document.createElement('div');
+        item.className = 'd-flex align-items-center p-2 border-bottom';
+        
+        const avatarColor = generateAvatarColor(staffName);
+        const firstChar = staffName.charAt(0).toUpperCase();
+        
+        item.innerHTML = `
+          <div class="staff-item-avatar me-2" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; background: ${avatarColor}; font-size: 1rem;">${firstChar}</div>
+          <div class="flex-grow-1">
+            <div class="fw-bold">${staffName}</div>
+            <div class="rating-stars">${generateStars(stats.rating || 2)}</div>
+            <small class="text-muted">Cần hỗ trợ về hiệu suất</small>
+          </div>
+        `;
+        
+        container.appendChild(item);
+      });
+    }
+
+    // Utility functions
+    function isWorkCompleted(work) {
+      const banGiao = work.thoi_gian_ban_giao || work.thoiGianBanGiao;
+      return banGiao && banGiao.toString().trim() !== '';
+    }
+
+    function isWorkProcessing(work) {
+      const lamChinh = work.nguoi_lam_chinh || work.nguoiLamChinh;
+      const lamPhu1 = work.nguoi_lam_phu_1 || work.nguoiLamPhu1;
+      const lamPhu2 = work.nguoi_lam_phu_2 || work.nguoiLamPhu2;
+      return (lamChinh && lamChinh.trim() !== '') || 
+             (lamPhu1 && lamPhu1.trim() !== '') || 
+             (lamPhu2 && lamPhu2.trim() !== '');
+    }
+
+    function isWorkWaiting(work) {
+      return !isWorkCompleted(work) && !isWorkProcessing(work);
+    }
+
+    function getWorkStatus(work) {
+      if (isWorkCompleted(work)) return 'Đã hoàn thành';
+      if (isWorkProcessing(work)) return 'Đang xử lý';
+      return 'Chờ xử lý';
+    }
+
+    function getWorkStatusClass(work) {
+      if (isWorkCompleted(work)) return 'completed';
+      if (isWorkProcessing(work)) return 'processing';
+      return 'waiting';
+    }
+
+    function getStatusBadgeClass(status) {
+      switch (status) {
+        case 'Đã hoàn thành': return 'bg-success';
+        case 'Đang xử lý': return 'bg-warning text-dark';
+        case 'Chờ xử lý': return 'bg-danger';
+        default: return 'bg-secondary';
+      }
+    }
+
+    function calculateProgress(work) {
+      if (isWorkCompleted(work)) return 100;
+      if (isWorkProcessing(work)) return 50;
+      return 0;
+    }
+
+    function getProgressColor(progress) {
+      if (progress >= 80) return 'success';
+      if (progress >= 50) return 'warning';
+      return 'danger';
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('vi-VN');
+    }
+
+    function getMachineStatus(machine) {
+      const issueCount = getMachineIssueCount(machine.ten_may);
+      if (issueCount === 0) return 'operational';
+      if (issueCount <= 3) return 'warning';
+      return 'critical';
+    }
+
+    function getMachineIssueCount(machineName) {
+      return allWorks.filter(work => work.may === machineName).length;
+    }
+
+    function getMachineStatusClass(issueCount) {
+      if (issueCount === 0) return 'operational';
+      if (issueCount <= 3) return 'warning';
+      return 'critical';
+    }
+
+    function getAreaStatus(completionRate) {
+      if (completionRate >= 80) return 'Tốt';
+      if (completionRate >= 50) return 'Trung bình';
+      return 'Cần cải thiện';
+    }
+
+    function getAreaStatusClass(completionRate) {
+      if (completionRate >= 80) return 'bg-success';
+      if (completionRate >= 50) return 'bg-warning text-dark';
+      return 'bg-danger';
+    }
+
+    function generateAvatarColor(name) {
+      const colors = [
+        'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+        'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+        'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+        'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
+      ];
+      
+      let hash = 0;
+      for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      
+      return colors[Math.abs(hash) % colors.length];
+    }
+
+    function generateStars(rating) {
+      const fullStars = Math.floor(rating);
+      const hasHalfStar = rating % 1 >= 0.5;
+      const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+      
+      return '★'.repeat(fullStars) + 
+             (hasHalfStar ? '☆' : '') + 
+             '☆'.repeat(emptyStars);
+    }
+
+    function getPerformanceText(performance) {
+      switch (performance) {
+        case 'excellent': return 'Xuất sắc';
+        case 'good': return 'Tốt';
+        case 'average': return 'Trung bình';
+        case 'poor': return 'Cần cải thiện';
+        default: return 'Không xác định';
+      }
+    }
+
+    // Action functions
+    function viewWorkDetail(stt) {
+      window.open(`chitietcongviec.html?stt=${stt}`, '_blank');
+    }
+
+    function showAreaDetail(area) {
+      alert(`Xem chi tiết khu vực: ${area}`);
+    }
+
+    function viewMachineDetail(machine) {
+      alert(`Xem chi tiết máy: ${machine}`);
+    }
+
+    function showStaffDetail(staffName) {
+      alert(`Xem chi tiết nhân viên: ${staffName}`);
+    }
+
+    function exportFullReport() {
+      alert('Tính năng xuất báo cáo tổng hợp đang được phát triển');
+    }
+
+    function refreshAllData() {
+      showLoading();
+      loadAllData();
+    }
+
+    // Export functions
+    window.exportFullReport = exportFullReport;
+    window.refreshAllData = refreshAllData;
+    window.viewWorkDetail = viewWorkDetail;
+    window.showAreaDetail = showAreaDetail;
+    window.viewMachineDetail = viewMachineDetail;
+    window.showStaffDetail = showStaffDetail;
+    window.changePage = changePage;
+  </script>
+</body>
+</html> 
