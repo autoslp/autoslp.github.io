@@ -92,10 +92,6 @@ BEGIN
     DECLARE total_ng INT DEFAULT 0;
     DECLARE total_output INT DEFAULT 0;
     DECLARE total_handover INT DEFAULT 0;
-    DECLARE last_shift_status VARCHAR(50) DEFAULT NULL;
-    DECLARE last_shift_id INT DEFAULT NULL;
-    DECLARE last_shift_start_time DATETIME DEFAULT NULL;
-    DECLARE last_shift_end_time DATETIME DEFAULT NULL;
     
     -- Tính tổng từ bảng shift
     SELECT 
@@ -107,22 +103,6 @@ BEGIN
     FROM production_orders_shift 
     WHERE production_order_id = order_id AND stage = stage_name;
     
-    -- Lấy thông tin ca làm việc cuối cùng của lệnh sản xuất
-    SELECT 
-        id, 
-        status, 
-        start_time, 
-        end_time
-    INTO 
-        last_shift_id, 
-        last_shift_status, 
-        last_shift_start_time, 
-        last_shift_end_time
-    FROM production_orders_shift 
-    WHERE production_order_id = order_id AND stage = stage_name
-    ORDER BY shift_number DESC, id DESC
-    LIMIT 1;
-    
     -- Cập nhật vào bảng production_orders sử dụng CASE WHEN
     IF stage_name = 'xa' THEN
         UPDATE production_orders 
@@ -131,18 +111,6 @@ BEGIN
             xa_ng_quantity = total_ng,
             xa_output_quantity = total_output,
             xa_handover_quantity = total_handover,
-            -- Cập nhật trạng thái lệnh dựa trên trạng thái ca cuối cùng
-            xa_status = CASE
-                WHEN last_shift_status = 'in_progress' THEN 'in_progress'
-                WHEN last_shift_status = 'paused' THEN 'paused'
-                WHEN last_shift_status = 'completed' AND total_handover > 0 THEN 'handed_over'
-                WHEN last_shift_status = 'completed' THEN 'completed'
-                WHEN last_shift_status = 'cancelled' THEN 'waiting'
-                WHEN last_shift_status IS NULL THEN 'waiting'
-                ELSE 'waiting'
-            END,
-            xa_start_time = last_shift_start_time,
-            xa_end_time = last_shift_end_time,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = order_id;
     ELSEIF stage_name = 'xen' THEN
@@ -152,18 +120,6 @@ BEGIN
             xen_ng_quantity = total_ng,
             xen_output_quantity = total_output,
             xen_handover_quantity = total_handover,
-            -- Cập nhật trạng thái lệnh dựa trên trạng thái ca cuối cùng
-            xen_status = CASE
-                WHEN last_shift_status = 'in_progress' THEN 'in_progress'
-                WHEN last_shift_status = 'paused' THEN 'paused'
-                WHEN last_shift_status = 'completed' AND total_handover > 0 THEN 'handed_over'
-                WHEN last_shift_status = 'completed' THEN 'completed'
-                WHEN last_shift_status = 'cancelled' THEN 'waiting'
-                WHEN last_shift_status IS NULL THEN 'waiting'
-                ELSE 'waiting'
-            END,
-            xen_start_time = last_shift_start_time,
-            xen_end_time = last_shift_end_time,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = order_id;
     ELSEIF stage_name = 'in_offset' THEN
@@ -173,18 +129,6 @@ BEGIN
             in_offset_ng_quantity = total_ng,
             in_offset_output_quantity = total_output,
             in_offset_handover_quantity = total_handover,
-            -- Cập nhật trạng thái lệnh dựa trên trạng thái ca cuối cùng
-            in_offset_status = CASE
-                WHEN last_shift_status = 'in_progress' THEN 'in_progress'
-                WHEN last_shift_status = 'paused' THEN 'paused'
-                WHEN last_shift_status = 'completed' AND total_handover > 0 THEN 'handed_over'
-                WHEN last_shift_status = 'completed' THEN 'completed'
-                WHEN last_shift_status = 'cancelled' THEN 'waiting'
-                WHEN last_shift_status IS NULL THEN 'waiting'
-                ELSE 'waiting'
-            END,
-            in_offset_start_time = last_shift_start_time,
-            in_offset_end_time = last_shift_end_time,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = order_id;
     ELSEIF stage_name = 'boi' THEN
@@ -194,18 +138,6 @@ BEGIN
             boi_ng_quantity = total_ng,
             boi_output_quantity = total_output,
             boi_handover_quantity = total_handover,
-            -- Cập nhật trạng thái lệnh dựa trên trạng thái ca cuối cùng
-            boi_status = CASE
-                WHEN last_shift_status = 'in_progress' THEN 'in_progress'
-                WHEN last_shift_status = 'paused' THEN 'paused'
-                WHEN last_shift_status = 'completed' AND total_handover > 0 THEN 'handed_over'
-                WHEN last_shift_status = 'completed' THEN 'completed'
-                WHEN last_shift_status = 'cancelled' THEN 'waiting'
-                WHEN last_shift_status IS NULL THEN 'waiting'
-                ELSE 'waiting'
-            END,
-            boi_start_time = last_shift_start_time,
-            boi_end_time = last_shift_end_time,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = order_id;
     ELSEIF stage_name = 'be' THEN
@@ -215,18 +147,6 @@ BEGIN
             be_ng_quantity = total_ng,
             be_output_quantity = total_output,
             be_handover_quantity = total_handover,
-            -- Cập nhật trạng thái lệnh dựa trên trạng thái ca cuối cùng
-            be_status = CASE
-                WHEN last_shift_status = 'in_progress' THEN 'in_progress'
-                WHEN last_shift_status = 'paused' THEN 'paused'
-                WHEN last_shift_status = 'completed' AND total_handover > 0 THEN 'handed_over'
-                WHEN last_shift_status = 'completed' THEN 'completed'
-                WHEN last_shift_status = 'cancelled' THEN 'waiting'
-                WHEN last_shift_status IS NULL THEN 'waiting'
-                ELSE 'waiting'
-            END,
-            be_start_time = last_shift_start_time,
-            be_end_time = last_shift_end_time,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = order_id;
     ELSEIF stage_name = 'dan_may' THEN
@@ -236,18 +156,6 @@ BEGIN
             dan_may_ng_quantity = total_ng,
             dan_may_output_quantity = total_output,
             dan_may_handover_quantity = total_handover,
-            -- Cập nhật trạng thái lệnh dựa trên trạng thái ca cuối cùng
-            dan_may_status = CASE
-                WHEN last_shift_status = 'in_progress' THEN 'in_progress'
-                WHEN last_shift_status = 'paused' THEN 'paused'
-                WHEN last_shift_status = 'completed' AND total_handover > 0 THEN 'handed_over'
-                WHEN last_shift_status = 'completed' THEN 'completed'
-                WHEN last_shift_status = 'cancelled' THEN 'waiting'
-                WHEN last_shift_status IS NULL THEN 'waiting'
-                ELSE 'waiting'
-            END,
-            dan_may_start_time = last_shift_start_time,
-            dan_may_end_time = last_shift_end_time,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = order_id;
     ELSEIF stage_name = 'kho' THEN
@@ -257,91 +165,9 @@ BEGIN
             kho_ng_quantity = total_ng,
             kho_output_quantity = total_output,
             kho_handover_quantity = total_handover,
-            -- Cập nhật trạng thái lệnh dựa trên trạng thái ca cuối cùng
-            kho_status = CASE
-                WHEN last_shift_status = 'in_progress' THEN 'in_progress'
-                WHEN last_shift_status = 'paused' THEN 'paused'
-                WHEN last_shift_status = 'completed' AND total_handover > 0 THEN 'handed_over'
-                WHEN last_shift_status = 'completed' THEN 'completed'
-                WHEN last_shift_status = 'cancelled' THEN 'waiting'
-                WHEN last_shift_status IS NULL THEN 'waiting'
-                ELSE 'waiting'
-            END,
-            kho_start_time = last_shift_start_time,
-            kho_end_time = last_shift_end_time,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = order_id;
     END IF;
-    
-    -- Cập nhật trạng thái chung của lệnh sản xuất dựa trên trạng thái của các công đoạn
-    UPDATE production_orders
-    SET status = (
-        SELECT 
-            CASE
-                -- Nếu có bất kỳ công đoạn nào đang in_progress, thì lệnh là in_progress
-                WHEN EXISTS (
-                    SELECT 1 FROM production_orders po
-                    WHERE po.id = order_id AND (
-                        po.xa_status = 'in_progress' OR
-                        po.xen_status = 'in_progress' OR
-                        po.in_offset_status = 'in_progress' OR
-                        po.boi_status = 'in_progress' OR
-                        po.be_status = 'in_progress' OR
-                        po.dan_may_status = 'in_progress' OR
-                        po.kho_status = 'in_progress'
-                    )
-                ) THEN 'in_progress'
-                
-                -- Nếu có bất kỳ công đoạn nào đang paused, thì lệnh là paused
-                WHEN EXISTS (
-                    SELECT 1 FROM production_orders po
-                    WHERE po.id = order_id AND (
-                        po.xa_status = 'paused' OR
-                        po.xen_status = 'paused' OR
-                        po.in_offset_status = 'paused' OR
-                        po.boi_status = 'paused' OR
-                        po.be_status = 'paused' OR
-                        po.dan_may_status = 'paused' OR
-                        po.kho_status = 'paused'
-                    )
-                ) THEN 'paused'
-                
-                -- Nếu công đoạn cuối cùng đã handed_over, thì lệnh là completed
-                WHEN (
-                    SELECT 
-                        CASE
-                            -- Kiểm tra workflow_definition để xác định công đoạn cuối cùng
-                            WHEN po.workflow_definition = 'xa-xen-boi-be-dan_may-kho' AND po.kho_status = 'handed_over' THEN TRUE
-                            WHEN po.workflow_definition = 'xa-xen-in_offset-be-dan_may-kho' AND po.kho_status = 'handed_over' THEN TRUE
-                            WHEN po.workflow_definition = 'xa-xen-in_offset-kho' AND po.kho_status = 'handed_over' THEN TRUE
-                            WHEN po.workflow_definition = 'xa-xen-kho' AND po.kho_status = 'handed_over' THEN TRUE
-                            ELSE FALSE
-                        END
-                    FROM production_orders po
-                    WHERE po.id = order_id
-                ) THEN 'completed'
-                
-                -- Nếu đang có bất kỳ công đoạn nào là waiting, thì lệnh là waiting
-                WHEN EXISTS (
-                    SELECT 1 FROM production_orders po
-                    WHERE po.id = order_id AND (
-                        po.xa_status = 'waiting' OR
-                        po.xen_status = 'waiting' OR
-                        po.in_offset_status = 'waiting' OR
-                        po.boi_status = 'waiting' OR
-                        po.be_status = 'waiting' OR
-                        po.dan_may_status = 'waiting' OR
-                        po.kho_status = 'waiting'
-                    )
-                ) THEN 'waiting'
-                
-                -- Mặc định trạng thái là waiting
-                ELSE 'waiting'
-            END
-        FROM production_orders
-        WHERE id = order_id
-    )
-    WHERE id = order_id;
     
 END$$
 
@@ -429,99 +255,3 @@ CREATE INDEX `idx_machine_date` ON `production_orders_shift` (`machine_name`, `s
 
 -- Index cho thống kê theo thời gian
 CREATE INDEX `idx_start_time_stage` ON `production_orders_shift` (`start_time`, `stage`); 
-
--- Tạo DELIMITER để update trường {stage}_handover_quantity_json
-DELIMITER //
-
--- Stored Procedure: Cập nhật dữ liệu JSON kệ vào production_orders
-CREATE PROCEDURE UpdateStageHandoverJSON(
-    IN p_order_id INT,
-    IN p_stage VARCHAR(50),
-    IN p_ke_data_json JSON
-)
-BEGIN
-    DECLARE v_column_name VARCHAR(100);
-    DECLARE v_sql TEXT;
-    
-    -- Tạo tên cột động: {stage}_handover_quantity_json
-    SET v_column_name = CONCAT(p_stage, '_handover_quantity_json');
-    
-    -- Tạo câu SQL động để update
-    SET v_sql = CONCAT('UPDATE production_orders SET ', v_column_name, ' = ? WHERE id = ?');
-    
-    -- Thực hiện update với prepared statement
-    SET @sql = v_sql;
-    SET @ke_data = p_ke_data_json;
-    SET @order_id = p_order_id;
-    
-    PREPARE stmt FROM @sql;
-    EXECUTE stmt USING @ke_data, @order_id;
-    DEALLOCATE PREPARE stmt;
-    
-    -- Log kết quả
-    SELECT 
-        p_order_id as order_id,
-        p_stage as stage,
-        v_column_name as updated_column,
-        'JSON updated successfully' as message;
-        
-END //
-
--- Stored Procedure: Lấy dữ liệu JSON kệ từ production_orders
-CREATE PROCEDURE GetStageHandoverJSON(
-    IN p_order_id INT,
-    IN p_stage VARCHAR(50)
-)
-BEGIN
-    DECLARE v_column_name VARCHAR(100);
-    DECLARE v_sql TEXT;
-    
-    -- Tạo tên cột động
-    SET v_column_name = CONCAT(p_stage, '_handover_quantity_json');
-    
-    -- Tạo câu SQL động để select
-    SET v_sql = CONCAT('SELECT id, production_order, ', v_column_name, ' as ke_data FROM production_orders WHERE id = ?');
-    
-    -- Thực hiện select với prepared statement
-    SET @sql = v_sql;
-    SET @order_id = p_order_id;
-    
-    PREPARE stmt FROM @sql;
-    EXECUTE stmt USING @order_id;
-    DEALLOCATE PREPARE stmt;
-    
-END //
-
--- Stored Procedure: Xóa dữ liệu JSON kệ (set về NULL)
-CREATE PROCEDURE ClearStageHandoverJSON(
-    IN p_order_id INT,
-    IN p_stage VARCHAR(50)
-)
-BEGIN
-    DECLARE v_column_name VARCHAR(100);
-    DECLARE v_sql TEXT;
-    
-    -- Tạo tên cột động
-    SET v_column_name = CONCAT(p_stage, '_handover_quantity_json');
-    
-    -- Tạo câu SQL động để set NULL
-    SET v_sql = CONCAT('UPDATE production_orders SET ', v_column_name, ' = NULL WHERE id = ?');
-    
-    -- Thực hiện update
-    SET @sql = v_sql;
-    SET @order_id = p_order_id;
-    
-    PREPARE stmt FROM @sql;
-    EXECUTE stmt USING @order_id;
-    DEALLOCATE PREPARE stmt;
-    
-    -- Log kết quả
-    SELECT 
-        p_order_id as order_id,
-        p_stage as stage,
-        v_column_name as cleared_column,
-        'JSON cleared successfully' as message;
-        
-END //
-
-DELIMITER ; 

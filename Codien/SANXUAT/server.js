@@ -3651,106 +3651,64 @@ app.get('/data/production_orders/:id/summary', (req, res) => {
 // Quản lý dữ liệu JSON kệ cho ca kíp sản xuất
 // =====================================================
 
-// API LƯU DỮ LIỆU JSON KỆ VÀO PRODUCTION_ORDERS
+// API LƯU DỮ LIỆU JSON KỆ VÀO PRODUCTION_ORDERS (KHÔNG LƯU BẢNG SHIFT_JSON NỮA)
 app.post('/data/production_orders/:id/save_ke_json', (req, res) => {
   const orderId = req.params.id;
-  const { 
-    stage, 
-    ke_data_json,
-    production_order 
-  } = req.body;
+  const { stage, ke_data_json } = req.body;
 
-  // Validation
   if (!stage || !ke_data_json) {
-    return res.status(400).json({
-      error: 'Thiếu thông tin bắt buộc: stage, ke_data_json'
-    });
+    return res.status(400).json({ error: 'Thiếu thông tin bắt buộc: stage, ke_data_json' });
   }
 
-  // Bắt đầu transaction
-  db.beginTransaction((err) => {
-    if (err) {
-      return res.status(500).json({
-        error: 'Lỗi khởi tạo transaction: ' + err.message
-      });
+  const handoverColumn = `${stage}_handover_quantity_json`;
+  const jsonStr = JSON.stringify(ke_data_json);
+
+  // Lấy workflow_definition để xác định next stage
+  const workflowQuery = 'SELECT workflow_definition FROM production_orders WHERE id = ? LIMIT 1';
+  db.query(workflowQuery, [orderId], (wfErr, wfResults) => {
+    if (wfErr) {
+      console.error('❌ Lỗi đọc workflow_definition:', wfErr);
+      return res.status(500).json({ error: 'Lỗi đọc workflow_definition', details: wfErr.message });
     }
 
-    // 1. Lưu vào bảng production_orders_shift_json
-    const insertShiftJsonQuery = `
-      INSERT INTO production_orders_shift_json (
-        production_order_id, production_order, stage, ke_data_json
-      ) VALUES (?, ?, ?, ?)
-      ON DUPLICATE KEY UPDATE 
-        ke_data_json = VALUES(ke_data_json),
-        updated_at = CURRENT_TIMESTAMP
-    `;
+    let nextStage = null;
+    try {
+      const workflow = wfResults && wfResults[0] ? (wfResults[0].workflow_definition || '') : '';
+      if (workflow) {
+        const stages = workflow.split(',').map(s => s.trim()).filter(Boolean);
+        const idx = stages.indexOf(stage);
+        if (idx !== -1 && idx < stages.length - 1) {
+          nextStage = stages[idx + 1];
+        }
+      }
+    } catch (e) {
+      // ignore, nextStage sẽ là null
+    }
 
-    const shiftJsonParams = [
-      orderId,
-      production_order || '',
-      stage,
-      JSON.stringify(ke_data_json)
-    ];
+    // Chuẩn bị câu lệnh UPDATE: ghi {stage}_handover_quantity_json và (nếu có) {nextStage}_input_quantity_json
+    let updateSql = `UPDATE production_orders SET ${handoverColumn} = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+    let params = [jsonStr, orderId];
 
-    db.query(insertShiftJsonQuery, shiftJsonParams, (err, shiftResult) => {
+    if (nextStage) {
+      const nextInputColumn = `${nextStage}_input_quantity_json`;
+      updateSql = `UPDATE production_orders SET ${handoverColumn} = ?, ${nextInputColumn} = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+      params = [jsonStr, jsonStr, orderId];
+    }
+
+    db.query(updateSql, params, (err, result) => {
       if (err) {
-        return db.rollback(() => {
-          console.error('❌ Lỗi lưu production_orders_shift_json:', err);
-          res.status(500).json({
-            error: 'Lỗi lưu dữ liệu shift JSON',
-            details: err.message
-          });
-        });
+        console.error('❌ Lỗi cập nhật production_orders:', err);
+        return res.status(500).json({ error: 'Lỗi cập nhật production_orders', details: err.message });
       }
 
-      // 2. Cập nhật trường {stage}_handover_quantity_json trong production_orders
-      const columnName = `${stage}_handover_quantity_json`;
-      const updateOrderQuery = `
-        UPDATE production_orders 
-        SET ${columnName} = ?, updated_at = CURRENT_TIMESTAMP
-        WHERE id = ?
-      `;
-
-      const orderParams = [
-        JSON.stringify(ke_data_json),
-        orderId
-      ];
-
-      db.query(updateOrderQuery, orderParams, (err, orderResult) => {
-        if (err) {
-          return db.rollback(() => {
-            console.error('❌ Lỗi cập nhật production_orders:', err);
-            res.status(500).json({
-              error: 'Lỗi cập nhật production_orders',
-              details: err.message
-            });
-          });
-        }
-
-        // Commit transaction
-        db.commit((err) => {
-          if (err) {
-            return db.rollback(() => {
-              console.error('❌ Lỗi commit transaction:', err);
-              res.status(500).json({
-                error: 'Lỗi hoàn tất giao dịch: ' + err.message
-              });
-            });
-          }
-
-          res.json({
-            success: true,
-            message: `Đã lưu dữ liệu JSON kệ cho công đoạn ${stage.toUpperCase()}`,
-            order_id: orderId,
-            stage: stage,
-            column_updated: columnName,
-            ke_data: ke_data_json,
-            affected_rows: {
-              shift_json: shiftResult.affectedRows || shiftResult.insertId ? 1 : 0,
-              production_orders: orderResult.affectedRows
-            }
-          });
-        });
+      return res.json({
+        success: true,
+        message: `Đã lưu JSON kệ vào ${handoverColumn}` + (nextStage ? ` và ${nextStage}_input_quantity_json` : ''),
+        order_id: orderId,
+        stage,
+        next_stage: nextStage,
+        columns_updated: nextStage ? [handoverColumn, `${nextStage}_input_quantity_json`] : [handoverColumn],
+        affected_rows: { production_orders: result.affectedRows }
       });
     });
   });
@@ -3807,56 +3765,7 @@ app.get('/data/production_orders/:id/ke_json/:stage', (req, res) => {
   });
 });
 
-// API LẤY DỮ LIỆU JSON KỆ TỪ BẢNG SHIFT_JSON
-app.get('/data/production_orders_shift_json/:order_id/:stage', (req, res) => {
-  const orderId = req.params.order_id;
-  const stage = req.params.stage;
-
-  const query = `
-    SELECT * FROM production_orders_shift_json 
-    WHERE production_order_id = ? AND stage = ?
-    ORDER BY created_at DESC
-    LIMIT 1
-  `;
-
-  db.query(query, [orderId, stage], (err, results) => {
-    if (err) {
-      console.error('❌ Lỗi lấy dữ liệu shift JSON:', err);
-      return res.status(500).json({
-        error: 'Lỗi lấy dữ liệu shift JSON',
-        details: err.message
-      });
-    }
-
-    if (results.length === 0) {
-      return res.status(404).json({
-        error: 'Không tìm thấy dữ liệu JSON kệ cho công đoạn ' + stage
-      });
-    }
-
-    const shiftJson = results[0];
-    let keData = null;
-
-    try {
-      if (shiftJson.ke_data_json) {
-        keData = JSON.parse(shiftJson.ke_data_json);
-      }
-    } catch (parseError) {
-      console.error('❌ Lỗi parse JSON:', parseError);
-      keData = null;
-    }
-
-    res.json({
-      success: true,
-      shift_json_id: shiftJson.id,
-      order_id: orderId,
-      stage: stage,
-      ke_data: keData,
-      created_at: shiftJson.created_at,
-      updated_at: shiftJson.updated_at
-    });
-  });
-});
+// (đã xóa) API lấy dữ liệu từ production_orders_shift_json
 
 // API XÓA DỮ LIỆU JSON KỆ
 app.delete('/data/production_orders/:id/ke_json/:stage', (req, res) => {
@@ -3871,64 +3780,45 @@ app.delete('/data/production_orders/:id/ke_json/:stage', (req, res) => {
       });
     }
 
-    // 1. Xóa từ bảng production_orders_shift_json
-    const deleteShiftJsonQuery = `
-      DELETE FROM production_orders_shift_json 
-      WHERE production_order_id = ? AND stage = ?
+    // Xóa trường {stage}_handover_quantity_json trong production_orders
+    const columnName = `${stage}_handover_quantity_json`;
+    const updateOrderQuery = `
+      UPDATE production_orders 
+      SET ${columnName} = NULL, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
     `;
 
-    db.query(deleteShiftJsonQuery, [orderId, stage], (err, shiftResult) => {
+    db.query(updateOrderQuery, [orderId], (err, orderResult) => {
       if (err) {
         return db.rollback(() => {
-          console.error('❌ Lỗi xóa shift JSON:', err);
+          console.error('❌ Lỗi cập nhật production_orders:', err);
           res.status(500).json({
-            error: 'Lỗi xóa dữ liệu shift JSON',
+            error: 'Lỗi cập nhật production_orders',
             details: err.message
           });
         });
       }
 
-      // 2. Xóa trường {stage}_handover_quantity_json trong production_orders
-      const columnName = `${stage}_handover_quantity_json`;
-      const updateOrderQuery = `
-        UPDATE production_orders 
-        SET ${columnName} = NULL, updated_at = CURRENT_TIMESTAMP
-        WHERE id = ?
-      `;
-
-      db.query(updateOrderQuery, [orderId], (err, orderResult) => {
+      // Commit transaction
+      db.commit((err) => {
         if (err) {
           return db.rollback(() => {
-            console.error('❌ Lỗi cập nhật production_orders:', err);
+            console.error('❌ Lỗi hoàn tất giao dịch:', err);
             res.status(500).json({
-              error: 'Lỗi cập nhật production_orders',
-              details: err.message
+              error: 'Lỗi hoàn tất giao dịch: ' + err.message
             });
           });
         }
 
-        // Commit transaction
-        db.commit((err) => {
-          if (err) {
-            return db.rollback(() => {
-              console.error('❌ Lỗi commit transaction:', err);
-              res.status(500).json({
-                error: 'Lỗi hoàn tất giao dịch: ' + err.message
-              });
-            });
+        res.json({
+          success: true,
+          message: `Đã xóa dữ liệu JSON kệ cho công đoạn ${stage.toUpperCase()}`,
+          order_id: orderId,
+          stage: stage,
+          column_cleared: columnName,
+          affected_rows: {
+            production_orders_updated: orderResult.affectedRows
           }
-
-          res.json({
-            success: true,
-            message: `Đã xóa dữ liệu JSON kệ cho công đoạn ${stage.toUpperCase()}`,
-            order_id: orderId,
-            stage: stage,
-            column_cleared: columnName,
-            affected_rows: {
-              shift_json_deleted: shiftResult.affectedRows,
-              production_orders_updated: orderResult.affectedRows
-            }
-          });
         });
       });
     });
@@ -3936,129 +3826,11 @@ app.delete('/data/production_orders/:id/ke_json/:stage', (req, res) => {
 });
 
 // API THỐNG KÊ DỮ LIỆU JSON KỆ
-app.get('/data/production_orders_shift_json/statistics', (req, res) => {
-  const { stage, date_from, date_to } = req.query;
-
-  let query = `
-    SELECT 
-      posj.stage,
-      COUNT(*) as total_records,
-      COUNT(DISTINCT posj.production_order_id) as unique_orders,
-      MIN(posj.created_at) as earliest_record,
-      MAX(posj.updated_at) as latest_update
-    FROM production_orders_shift_json posj
-    WHERE 1=1
-  `;
-  
-  let params = [];
-
-  // Filter theo công đoạn
-  if (stage) {
-    query += ' AND posj.stage = ?';
-    params.push(stage);
-  }
-
-  // Filter theo ngày
-  if (date_from) {
-    query += ' AND DATE(posj.created_at) >= ?';
-    params.push(date_from);
-  }
-
-  if (date_to) {
-    query += ' AND DATE(posj.created_at) <= ?';
-    params.push(date_to);
-  }
-
-  query += ' GROUP BY posj.stage ORDER BY posj.stage';
-
-  db.query(query, params, (err, results) => {
-    if (err) {
-      console.error('❌ Lỗi thống kê shift JSON:', err);
-      return res.status(500).json({
-        error: 'Lỗi thống kê shift JSON',
-        details: err.message
-      });
-    }
-
-    res.json({
-      success: true,
-      statistics: results,
-      filters: {
-        stage: stage,
-        date_from: date_from,
-        date_to: date_to
-      },
-      total_stages: results.length,
-      total_records: results.reduce((sum, stat) => sum + stat.total_records, 0)
-    });
-  });
-});
+// (đã xóa) /data/production_orders_shift_json/statistics
 
 // API LẤY LỊCH SỬ THAY ĐỔI JSON KỆ
-app.get('/data/production_orders_shift_json/:order_id/history', (req, res) => {
-  const orderId = req.params.order_id;
-  const { stage, limit = 10 } = req.query;
+// (đã xóa) /data/production_orders_shift_json/:order_id/history
 
-  let query = `
-    SELECT 
-      posj.*,
-      po.production_order,
-      po.product_name
-    FROM production_orders_shift_json posj
-    LEFT JOIN production_orders po ON posj.production_order_id = po.id
-    WHERE posj.production_order_id = ?
-  `;
-  
-  let params = [orderId];
-
-  // Filter theo công đoạn
-  if (stage) {
-    query += ' AND posj.stage = ?';
-    params.push(stage);
-  }
-
-  query += ' ORDER BY posj.updated_at DESC LIMIT ?';
-  params.push(parseInt(limit));
-
-  db.query(query, params, (err, results) => {
-    if (err) {
-      console.error('❌ Lỗi lấy lịch sử shift JSON:', err);
-      return res.status(500).json({
-        error: 'Lỗi lấy lịch sử shift JSON',
-        details: err.message
-      });
-    }
-
-    // Parse JSON data cho mỗi record
-    const history = results.map(record => {
-      let keData = null;
-      try {
-        if (record.ke_data_json) {
-          keData = JSON.parse(record.ke_data_json);
-        }
-      } catch (parseError) {
-        console.error('❌ Lỗi parse JSON cho record:', record.id, parseError);
-      }
-
-      return {
-        id: record.id,
-        stage: record.stage,
-        ke_data: keData,
-        created_at: record.created_at,
-        updated_at: record.updated_at,
-        production_order: record.production_order,
-        product_name: record.product_name
-      };
-    });
-
-    res.json({
-      success: true,
-      order_id: orderId,
-      total_records: history.length,
-      history: history
-    });
-  });
-});
 
 
 
@@ -4200,6 +3972,199 @@ app.delete('/data/production_orders/:id/handover_json/:stage', (req, res) => {
 		});
 	});
 });
+
+
+
+
+
+// ...existing code...
+
+// Helper: resolve stage to input column name (avoid SQL injection)
+function resolveInputColumn(stage) {
+    const mapping = {
+        xa: 'xa_input_quantity_json',
+        xen: 'xen_input_quantity_json',
+        in_offset: 'in_offset_input_quantity_json'
+    };
+    return mapping[stage] || null;
+}
+
+// GET: read {stage}_input_quantity_json directly from production_orders
+app.get('/data/production_orders/:id/input_json/:stage', (req, res) => {
+    const orderId = req.params.id;
+    const stage = req.params.stage;
+    const columnName = resolveInputColumn(stage);
+
+    if (!columnName) {
+        return res.status(400).json({ error: 'Stage không hợp lệ' });
+    }
+
+    const selectQuery = `SELECT ${columnName} AS ke_data_json FROM production_orders WHERE id = ? LIMIT 1`;
+    console.log('🔎 [get_input_json] SQL:', selectQuery, 'params:', { orderId, stage, columnName });
+
+    db.query(selectQuery, [orderId], (error, results) => {
+        if (error) {
+            console.error('❌ Lỗi khi đọc JSON kệ input từ production_orders:', error);
+            return res.status(500).json({ error: 'Lỗi khi đọc JSON kệ input từ production_orders' });
+        }
+
+        const row = results && results[0] ? results[0] : null;
+        return res.json({
+            success: true,
+            data: row ? row.ke_data_json : null,
+            meta: { order_id: orderId, stage, column: columnName }
+        });
+    });
+});
+
+// POST: update {stage}_input_quantity_json directly in production_orders
+app.post('/data/production_orders/:id/input_json/:stage', (req, res) => {
+    const orderId = req.params.id;
+    const stage = req.params.stage;
+    const { ke_data_json } = req.body;
+    const columnName = resolveInputColumn(stage);
+
+    if (!columnName) {
+        return res.status(400).json({ error: 'Stage không hợp lệ' });
+    }
+
+    if (!ke_data_json) {
+        return res.status(400).json({ error: 'Thiếu dữ liệu ke_data_json' });
+    }
+
+    const updateQuery = `UPDATE production_orders SET ${columnName} = ? WHERE id = ?`;
+    console.log('💾 [update_input_json] SQL:', updateQuery, 'params:', { orderId, stage, columnName });
+
+    db.query(updateQuery, [JSON.stringify(ke_data_json), orderId], (error, results) => {
+        if (error) {
+            console.error('❌ Lỗi khi cập nhật JSON kệ input trong production_orders:', error);
+            return res.status(500).json({ error: 'Lỗi khi cập nhật JSON kệ input trong production_orders' });
+        }
+
+        return res.json({
+            success: true,
+            message: 'Đã cập nhật JSON kệ input thành công',
+            meta: { order_id: orderId, stage, column: columnName, affected_rows: results.affectedRows }
+        });
+    });
+});
+
+// DELETE: clear {stage}_input_quantity_json (set NULL) directly in production_orders
+app.delete('/data/production_orders/:id/input_json/:stage', (req, res) => {
+    const orderId = req.params.id;
+    const stage = req.params.stage;
+    const columnName = resolveInputColumn(stage);
+
+    if (!columnName) {
+        return res.status(400).json({ error: 'Stage không hợp lệ' });
+    }
+
+    const deleteQuery = `UPDATE production_orders SET ${columnName} = NULL WHERE id = ?`;
+    console.log('🗑️  [delete_input_json] SQL:', deleteQuery, 'params:', { orderId, stage, columnName });
+
+    db.query(deleteQuery, [orderId], (error, results) => {
+        if (error) {
+            console.error('❌ Lỗi khi xóa JSON kệ input trong production_orders:', error);
+            return res.status(500).json({ error: 'Lỗi khi xóa JSON kệ input trong production_orders' });
+        }
+
+        return res.json({
+            success: true,
+            message: 'Đã xóa JSON kệ input thành công',
+            meta: { order_id: orderId, stage, column: columnName, affected_rows: results.affectedRows }
+        });
+    });
+});
+
+// API debug: check if columns exist in production_orders table
+app.get('/debug/production_orders/json_columns', (req, res) => {
+    const query = `
+        SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = 'autoslp' 
+        AND TABLE_NAME = 'production_orders'
+        AND COLUMN_NAME LIKE '%_quantity_json'
+        ORDER BY COLUMN_NAME
+    `;
+
+    db.query(query, (error, results) => {
+        if (error) {
+            console.error('❌ Lỗi khi kiểm tra cấu trúc bảng:', error);
+            return res.status(500).json({ error: 'Lỗi khi kiểm tra cấu trúc bảng' });
+        }
+
+        return res.json({
+            success: true,
+            message: 'Danh sách cột JSON trong bảng production_orders',
+            columns: results,
+            total_json_columns: results.length
+        });
+    });
+});
+
+// API debug: check specific order data
+app.get('/debug/production_orders/:id/all_json', (req, res) => {
+    const orderId = req.params.id;
+    
+    const query = `
+        SELECT 
+            id, production_order,
+            xa_input_quantity_json, xa_handover_quantity_json,
+            xen_input_quantity_json, xen_handover_quantity_json,
+            in_offset_input_quantity_json, in_offset_handover_quantity_json
+        FROM production_orders 
+        WHERE id = ?
+    `;
+
+    db.query(query, [orderId], (error, results) => {
+        if (error) {
+            console.error('❌ Lỗi khi lấy dữ liệu debug:', error);
+            return res.status(500).json({ error: 'Lỗi khi lấy dữ liệu debug' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Không tìm thấy order với ID: ' + orderId });
+        }
+
+        const order = results[0];
+        const jsonColumns = {};
+
+        // Parse JSON data for each column
+        Object.keys(order).forEach(key => {
+            if (key.includes('_json') && order[key]) {
+                try {
+                    jsonColumns[key] = JSON.parse(order[key]);
+                } catch (e) {
+                    jsonColumns[key] = { error: 'Invalid JSON', raw: order[key] };
+                }
+            } else if (key.includes('_json')) {
+                jsonColumns[key] = null;
+            }
+        });
+
+        return res.json({
+            success: true,
+            order_id: orderId,
+            production_order: order.production_order,
+            json_data: jsonColumns,
+            raw_data: order
+        });
+    });
+});
+
+// ...existing code...
+
+
+
+
+
+
+
+
+
+
+
+
 
 app.listen(port, () => {
   console.log(`🚀 Server đang chạy tại http://localhost:${port}`);

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Công đoạn xả - Carton Manager</title>
+  <title>Công đoạn Xén - Carton Manager</title>
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -421,6 +421,445 @@
       transform: translateY(0);
       box-shadow: 0 2px 4px rgba(23, 162, 184, 0.3);
     }
+    
+    /* Quantity Table Styles */
+    .quantity-table {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+    
+    .table-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .table-header h6 {
+      margin: 0;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    
+    .table-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .btn-add-row {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.875rem;
+    }
+    
+    .btn-add-row:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-1px);
+    }
+    
+    .table-container {
+      overflow-x: auto;
+    }
+    
+    .quantity-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .quantity-table th {
+      background: #f8f9fa;
+      padding: 12px 8px;
+      text-align: center;
+      font-weight: 600;
+      color: #495057;
+      border-bottom: 2px solid #dee2e6;
+      font-size: 0.875rem;
+    }
+    
+    .quantity-table td {
+      padding: 10px 8px;
+      text-align: center;
+      border-bottom: 1px solid #dee2e6;
+      vertical-align: middle;
+      font-size: 0.875rem;
+    }
+    
+    .quantity-table tr:hover {
+      background: #f8f9fa;
+    }
+    
+    /* .quantity-input {
+      width: 80px;
+      padding: 6px 8px;
+      border: 2px solid #e9ecef;
+      border-radius: 6px;
+      text-align: center;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      font-size: 0.875rem;
+    } */
+    
+    /* .quantity-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+    } */
+    
+    .quantity-input.ok {
+      border-color: #28a745;
+      color: #28a745;
+    }
+    
+    .quantity-input.ng {
+      border-color: #dc3545;
+      color: #dc3545;
+    }
+    
+    .btn-remove-row {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.75rem;
+    }
+    
+    .btn-remove-row:hover {
+      background: #c82333;
+      transform: scale(1.05);
+    }
+     
+         /* ========================================
+     * CSS RIÊNG CHO PHẦN CHỌN KỆ
+     * ======================================== */
+     
+     /* Saved Ke Section Styles */
+     .saved-ke-section {
+       background: #f8f9fa;
+       border-radius: 12px;
+       padding: 20px;
+       margin-top: 25px;
+     }
+     
+     .saved-ke-header {
+       text-align: center;
+       margin-bottom: 20px;
+     }
+     
+     .saved-ke-actions {
+       display: flex;
+       gap: 10px;
+       justify-content: center;
+       margin-top: 15px;
+     }
+     
+     .saved-ke-content {
+       background: white;
+       border-radius: 8px;
+       padding: 15px;
+       border: 1px solid #dee2e6;
+     }
+     
+     .saved-ke-item {
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+       padding: 12px;
+       border-bottom: 1px solid #e9ecef;
+       background: #f8f9fa;
+       border-radius: 6px;
+       margin-bottom: 8px;
+     }
+     
+     .saved-ke-item:last-child {
+       border-bottom: none;
+       margin-bottom: 0;
+     }
+     
+     .saved-ke-info {
+       flex: 1;
+     }
+     
+     .saved-ke-name {
+       font-weight: 600;
+       color: #495057;
+       margin-bottom: 4px;
+     }
+     
+     .saved-ke-details {
+       font-size: 0.9rem;
+       color: #6c757d;
+     }
+     
+     .saved-ke-quantity {
+       font-weight: 700;
+       color: #28a745;
+       font-size: 1.1rem;
+       margin-left: 15px;
+     }
+     
+     /* Kệ Toggle Styles */
+     .ke-toggle-list {
+       margin-bottom: 20px;
+     }
+     
+     .ke-toggle-grid {
+       display: grid;
+       grid-template-columns: 1fr 1fr;
+       gap: 12px;
+       margin-bottom: 20px;
+     }
+     
+     .ke-toggle-item {
+       background: white;
+       border-radius: 12px;
+       border: 2px solid #e9ecef;
+       overflow: hidden;
+       transition: all 0.3s ease;
+       min-height: 80px;
+       cursor: pointer;
+     }
+     
+     .ke-toggle-item:hover {
+       transform: translateY(-2px);
+       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+     }
+     
+     .ke-toggle-item.selected {
+       border-color: #667eea;
+       box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+       background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+     }
+     
+     .ke-toggle-header {
+       background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+       padding: 15px;
+       display: flex;
+       align-items: center;
+       transition: all 0.3s ease;
+       height: 100%;
+     }
+     
+     .ke-toggle-item.selected .ke-toggle-header {
+       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+       color: white;
+     }
+     
+     .ke-info {
+       display: flex;
+       flex-direction: column;
+       gap: 3px;
+       width: 100%;
+     }
+     
+     .ke-title-row {
+       display: flex;
+       align-items: center;
+       gap: 8px;
+     }
+     
+     .ke-icon {
+       width: 24px;
+       height: 24px;
+       fill: #667eea;
+       flex-shrink: 0;
+     }
+     
+     .ke-toggle-item.selected .ke-icon {
+       fill: white;
+     }
+     
+     .ke-toggle-title {
+       font-size: 1rem;
+       font-weight: 600;
+       margin: 0;
+     }
+     
+     .ke-quantity {
+       font-size: 0.8rem;
+       color: #6c757d;
+       font-weight: 500;
+     }
+     
+     .ke-toggle-item.selected .ke-quantity {
+       color: rgba(255, 255, 255, 0.8);
+     }
+     
+     /* Progress Section Styles */
+     .progress-section {
+       background: #f8f9fa;
+       border-radius: 12px;
+       padding: 20px;
+       margin-bottom: 20px;
+     }
+     
+     .progress-title {
+       color: #667eea;
+       font-weight: 600;
+       margin-bottom: 15px;
+       text-align: center;
+       font-size: 1.1rem;
+     }
+     
+     .progress-bar {
+       height: 8px;
+       background: #e9ecef;
+       border-radius: 4px;
+       overflow: hidden;
+       margin-bottom: 15px;
+     }
+     
+     .progress-fill {
+       height: 100%;
+       background: linear-gradient(90deg, #667eea, #764ba2);
+       border-radius: 4px;
+       transition: width 0.3s ease;
+     }
+     
+     .progress-stats {
+       display: grid;
+       grid-template-columns: 1fr 1fr;
+       gap: 15px;
+     }
+     
+     .stat-item {
+       background: white;
+       border-radius: 8px;
+       padding: 15px;
+       text-align: center;
+       border: 1px solid #e9ecef;
+     }
+     
+     .stat-value {
+       font-size: 1.5rem;
+       font-weight: 700;
+       color: #667eea;
+       margin-bottom: 5px;
+     }
+     
+     .ke-stat-label {
+       color: #6c757d;
+       font-size: 0.8rem;
+       font-weight: 500;
+     }
+     
+     /* Summary Section Styles */
+     .summary-section {
+       background: #f8f9fa;
+       border-radius: 12px;
+       padding: 20px;
+       margin-bottom: 20px;
+     }
+     
+     .summary-title {
+       color: #667eea;
+       font-weight: 600;
+       margin-bottom: 15px;
+       text-align: center;
+       font-size: 1.1rem;
+     }
+     
+     .summary-grid {
+       display: grid;
+       grid-template-columns: 1fr 1fr;
+       gap: 15px;
+       margin-bottom: 20px;
+     }
+     
+     .summary-card {
+       background: white;
+       border-radius: 8px;
+       padding: 15px;
+       text-align: center;
+       border: 1px solid #e9ecef;
+     }
+     
+     .summary-value {
+       font-size: 1.4rem;
+       font-weight: 700;
+       color: #667eea;
+       margin-bottom: 5px;
+     }
+     
+     .summary-label {
+       color: #6c757d;
+       font-size: 0.8rem;
+       font-weight: 500;
+     }
+     
+     /* Action Buttons Styles */
+     .action-buttons {
+       display: flex;
+       flex-direction: column;
+       gap: 10px;
+     }
+     
+     .btn-ke {
+       padding: 10px 16px;
+       border-radius: 6px;
+       font-weight: 600;
+       border: none;
+       transition: all 0.3s ease;
+       display: inline-flex;
+       align-items: center;
+       justify-content: center;
+       gap: 6px;
+       font-size: 0.9rem;
+       cursor: pointer;
+     }
+     
+     .btn-ke-success {
+       background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+       color: white;
+     }
+     
+     .btn-ke-success:hover {
+       transform: translateY(-2px);
+       box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+     }
+     
+     .btn-ke-outline {
+       border: 2px solid #6c757d;
+       color: #6c757d;
+       background: transparent;
+     }
+     
+     .btn-ke-outline:hover {
+       background: #6c757d;
+       color: white;
+     }
+     
+     /* Bulk Controls Styles */
+     .bulk-controls {
+       display: flex;
+       flex-direction: column;
+       gap: 10px;
+       margin-bottom: 20px;
+     }
+     
+     .form-check-ke {
+       margin: 0;
+     }
+     
+     .form-check-label-ke {
+       font-weight: 500;
+       color: #495057;
+     }
   </style>
 
 </head>
@@ -438,10 +877,10 @@
           <div>
             <h1>
               <i class="bi bi-bullseye me-2"></i>
-              Công đoạn Xả
+              Công đoạn Xén
             </h1>
 
-            <p class="mb-0">Xả giấy cuộn - Quản lý chi tiết sản xuất</p>
+            <p class="mb-0">Xén giấy - Quản lý chi tiết sản xuất</p>
           </div>
           
           <div class="user-controls">
@@ -2570,6 +3009,9 @@
         
         // Initialize multi-select for workers
         initializeWorkerMultiSelect(order);
+        
+        // Initialize quantity OK table
+        initializeQuantityOKTable();
 
         // Active tab "Số lượng" nếu đã có thời gian bắt đầu
         if (getOrderField(order, 'start_time')) {
@@ -2827,14 +3269,123 @@
                             <span class="info-label">Trạng thái máy</span>
                             <span class="info-value">${getOrderField(order, 'status') === 'in_progress' ? 'Hoạt động tốt' : 'Chờ'}</span>
                         </div>
+                        
+                        <!-- Phần chọn kệ - Áp dụng từ demo-ke-sidebar.html -->
+                        <div class="ke-selection-section" style="margin-top: 25px; padding-top: 25px; border-top: 2px solid #e9ecef;">
+                            <h6 style="color: #667eea; font-weight: 600; margin-bottom: 20px; text-align: center;">
+                                <i class="bi bi-toggle-on me-2"></i>Chọn Kệ Sản Xuất
+                            </h6>
+                            
+                            <!-- Progress Section -->
+                            <div class="progress-section">
+                                <h6 class="progress-title">Tiến độ chọn kệ</h6>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                                </div>
+                                <div class="progress-stats">
+                                    <div class="stat-item">
+                                        <div class="stat-value" id="selectedCount">0</div>
+                                                                            <div class="ke-stat-label">Đã chọn</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="totalCount">0</div>
+                                    <div class="ke-stat-label">Tổng số</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Bulk Controls -->
+                            <div class="bulk-controls">
+                                <div class="form-check-ke">
+                                    <input class="form-check-input" type="checkbox" id="selectAllKe" onchange="toggleSelectAllKe(this)">
+                                    <label class="form-check-label-ke" for="selectAllKe">Chọn tất cả kệ</label>
+                                </div>
+                            </div>
+                            
+                            <!-- Kệ Toggle Grid -->
+                            <div class="ke-toggle-grid" id="keToggleGrid">
+                                <!-- Kệ toggle items will be generated here -->
+                            </div>
+                            
+                            <!-- Summary Section -->
+                            <div class="summary-section" id="summarySection" style="display: none;">
+                                <h6 class="summary-title">Tóm tắt thông tin</h6>
+                                
+                                <div class="summary-grid">
+                                    <div class="summary-card">
+                                        <div class="summary-value" id="totalKe">0</div>
+                                        <div class="summary-label">Tổng số kệ</div>
+                                    </div>
+                                    <div class="summary-card">
+                                        <div class="summary-value" id="selectedKe">0</div>
+                                        <div class="summary-label">Kệ đã chọn</div>
+                                    </div>
+                                    <div class="summary-card">
+                                        <div class="summary-value" id="totalQuantity">0</div>
+                                        <div class="summary-label">Tổng số lượng</div>
+                                    </div>
+                                    <div class="summary-card">
+                                        <div class="summary-value" id="completionRate">0%</div>
+                                        <div class="summary-label">Hoàn thành</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="action-buttons">
+                                    <button class="btn-ke btn-ke-success" onclick="startAllKe()">
+                                        <i class="bi bi-play-circle"></i>Bắt đầu tất cả
+                                    </button>
+                                    <button class="btn-ke btn-ke-outline" onclick="resetAllKe()">
+                                        <i class="bi bi-arrow-clockwise"></i>Làm lại
+                                    </button>
+                                    <button class="btn-ke btn-ke-success" onclick="saveKeDataToUI()" style="margin-top: 10px;">
+                                        <i class="bi bi-save"></i>Lưu dữ liệu kệ
+                                    </button>
+                                    <button class="btn-ke btn-ke-outline" onclick="loadKeDataFromUI()" style="margin-top: 5px;">
+                                        <i class="bi bi-download"></i>Tải dữ liệu kệ
+                                    </button>
+                                    <button class="btn-ke btn-ke-outline" onclick="deleteKeDataFromUI()" style="margin-top: 5px; background: #dc3545; border-color: #dc3545; color: white;">
+                                        <i class="bi bi-trash"></i>Xóa dữ liệu kệ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Quantity Tab -->
                     <div id="quantity-panel" class="tab-panel">
+                        <!-- Quantity OK Table -->
+                        <div class="quantity-table mb-3">
+                            <div class="table-header">
+                                <h6><i class="bi bi-list-check me-2"></i>Bảng nhập theo kệ</h6>
+                                <div class="table-actions">
+                                    <button class="btn-add-row" onclick="addQuantityOKRow()">
+                                        <i class="bi bi-plus-circle"></i>
+                                        Thêm kệ
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 50px;">#</th>
+                                            <th style="width: 150px;">Kệ</th>
+                                            <th style="width: 120px;">Số lượng</th>
+                                            <th style="width: 100px;">Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="quantityOKTableBody">
+                                        <!-- Rows will be generated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Summary OK Quantity -->
                         <div class="quantity-grid mb-3">
                             <div class="quantity-card success">
-                                <div class="quantity-label">Số lượng OK</div>
-                                <input type="number" class="quantity-input" id="goodQty" value="0">
+                                <div class="quantity-label">Tổng số lượng OK</div>
+                                <input type="number" class="quantity-input" id="goodQty" value="0" readonly>
                             </div>
                             <div class="quantity-card danger">
                                 <div class="quantity-label">Số lượng NG</div>
@@ -2997,6 +3548,202 @@
     }
 
     /**
+     * =================================================================
+     * QUANTITY OK TABLE FUNCTIONS - HÀM XỬ LÝ BẢNG NHẬP SỐ LƯỢNG OK THEO KỆ
+     * =================================================================
+     */
+    
+    // Global variables for quantity OK table
+    let quantityOKRowCounter = 0;
+    let keRowBaseIndex = 0; // số kệ đã có từ dữ liệu đã lưu
+    
+    /**
+     * Initialize quantity OK table when order details are shown
+     */
+    async function initializeQuantityOKTable() {
+        quantityOKRowCounter = 0;
+        
+        const tableBody = document.getElementById('quantityOKTableBody');
+        if (tableBody) {
+            tableBody.innerHTML = '';
+            await computeKeRowBaseIndex();
+            // Thêm 3 dòng mặc định bắt đầu từ kệ tiếp theo
+            // for (let i = 0; i < 3; i++) {
+            //     addQuantityOKRow();
+            // }
+        }
+        
+        updateTotalOKQuantity();
+    }
+
+    async function computeKeRowBaseIndex() {
+        keRowBaseIndex = 0;
+        try {
+            if (!currentEditingOrder) return;
+            const resp = await fetch(`${API_BASE_URL}/data/production_orders/${currentEditingOrder.id}/handover_json/${STAGE_CONFIG.KEY}`);
+            if (!resp.ok) return;
+            const data = await resp.json();
+            let raw = data && data.data ? data.data : null;
+            if (!raw) return;
+            if (typeof raw === 'string') {
+                try { raw = JSON.parse(raw); } catch (_) { return; }
+            }
+            const recordsKey = `${STAGE_CONFIG.KEY}_ke_records`;
+            const idKey = `${STAGE_CONFIG.KEY}_ke_id`;
+            const records = raw[recordsKey] || [];
+            if (!Array.isArray(records) || records.length === 0) return;
+            let maxIdx = 0;
+            records.forEach(rec => {
+                const val = rec[idKey] || '';
+                const m = typeof val === 'string' ? val.match(/(\d+)/) : null;
+                const num = m ? parseInt(m[1]) : 0;
+                if (!isNaN(num)) maxIdx = Math.max(maxIdx, num);
+            });
+            keRowBaseIndex = maxIdx;
+        } catch (e) {
+            keRowBaseIndex = 0;
+        }
+    }
+    
+    /**
+     * Add new row to quantity OK table
+     */
+    function addQuantityOKRow() {
+        quantityOKRowCounter++;
+        const tableBody = document.getElementById('quantityOKTableBody');
+        
+        if (!tableBody) return;
+        
+        // Calculate the actual row number (1-based index)
+        const actualRowNumber = tableBody.children.length + 1;
+        
+        const row = document.createElement('tr');
+        row.id = `quantity-ok-row-${quantityOKRowCounter}`;
+        
+        const keNumber = keRowBaseIndex + actualRowNumber;
+        const keValue = `Kệ ${keNumber}`;
+        const keId = `ke_${keNumber}`;
+        
+        row.innerHTML = `
+            <td>${keNumber}</td>
+            <td>${keValue}</td>
+            <td style="display: none;">${keId}</td>
+            <td>
+                <input type="number" 
+                       class="quantity-input ok" 
+                       id="qty-ok-${quantityOKRowCounter}" 
+                       placeholder="0" 
+                       min="0" 
+                       onchange="updateTotalOKQuantity()"
+                       oninput="updateTotalOKQuantity()">
+            </td>
+            <td>
+                <button class="btn-remove-row" onclick="removeQuantityOKRow(${quantityOKRowCounter})">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        `;
+        
+        tableBody.appendChild(row);
+    }
+    
+    /**
+     * Remove row from quantity OK table
+     */
+    function removeQuantityOKRow(rowId) {
+        const row = document.getElementById(`quantity-ok-row-${rowId}`);
+        if (row) {
+            row.remove();
+            
+            // Update row numbers and ke names after removal
+            updateRowNumbers();
+            
+            updateTotalOKQuantity();
+        }
+    }
+    
+    /**
+     * Update row numbers and ke names after row removal
+     */
+    function updateRowNumbers() {
+        const tableBody = document.getElementById('quantityOKTableBody');
+        if (!tableBody) return;
+        
+        const rows = tableBody.querySelectorAll('tr');
+        rows.forEach((row, index) => {
+            const rowNumber = index + 1;
+            const keNumber = keRowBaseIndex + rowNumber;
+            const keName = `Kệ ${keNumber}`;
+            
+            // Update the first cell (row number)
+            const firstCell = row.cells[0];
+            if (firstCell) {
+                firstCell.textContent = keNumber;
+            }
+            
+            // Update the second cell (ke name)
+            const secondCell = row.cells[1];
+            if (secondCell) {
+                secondCell.textContent = keName;
+            }
+        });
+    }
+    
+    /**
+     * Update total OK quantity from table
+     */
+    function updateTotalOKQuantity() {
+        let totalOK = 0;
+        
+        const rows = document.querySelectorAll('#quantityOKTableBody tr');
+        rows.forEach(row => {
+            const rowId = row.id.replace('quantity-ok-row-', '');
+            const okValue = parseInt(document.getElementById(`qty-ok-${rowId}`)?.value) || 0;
+            totalOK += okValue;
+        });
+        
+        // Update the total OK input
+        const goodQtyInput = document.getElementById('goodQty');
+        if (goodQtyInput) {
+            goodQtyInput.value = totalOK;
+        }
+        
+        // Update handover quantity (default to OK quantity)
+        const handoverQtyInput = document.getElementById('handoverQty');
+        if (handoverQtyInput) {
+            handoverQtyInput.value = totalOK;
+        }
+        
+        // Update total quantity display
+        updateTotalQuantityDisplay();
+    }
+    
+    /**
+     * Collect quantity OK table data
+     */
+    function collectQuantityOKTableData() {
+        const data = [];
+        const rows = document.querySelectorAll('#quantityOKTableBody tr');
+        
+        rows.forEach((row, index) => {
+            const rowId = row.id.replace('quantity-ok-row-', '');
+            const okValue = parseInt(document.getElementById(`qty-ok-${rowId}`)?.value) || 0;
+            const keValue = row.cells[1].textContent;
+            const keId = row.cells[2].textContent; // Lấy ke_id từ cell ẩn
+            
+            if (okValue > 0) {
+                data.push({
+                    row_id: keId.replace('ke_', ''), // Lấy số từ ke_id
+                    ke: keValue,
+                    ok_quantity: okValue
+                });
+            }
+        });
+        
+        return data;
+    }
+
+    /**
      * Xác định ca làm việc theo thời gian hiện tại
      */
     function getCurrentShift() {
@@ -3038,7 +3785,9 @@
     function updateTotalQuantityDisplay() {
         if (!currentEditingOrder) return;
         
-        const goodQty = parseInt(getElementValue('goodQty')) || 0;
+        // Get total OK from table
+        const okTableData = collectQuantityOKTableData();
+        const goodQty = okTableData.reduce((sum, row) => sum + row.ok_quantity, 0);
         const ngQty = parseInt(getElementValue('ngQty')) || 0;
         const ngStartEndQty = parseInt(getElementValue('ngStartEndQty')) || 0;
         const returnQty = parseInt(getElementValue('returnQty')) || 0;
@@ -3096,20 +3845,25 @@
      * @returns {object} - Dữ liệu form đã được validate
      */
     function getFormData() {
+        // Collect data from OK table
+        const okTableData = collectQuantityOKTableData();
+        const totalOK = okTableData.reduce((sum, row) => sum + row.ok_quantity, 0);
+        
         const formData = {
             worker: getElementValue('worker') || '',
             shift: getElementValue('shift') || '',
             machine: getElementValue('machine') || '',
-            goodQty: parseInt(getElementValue('goodQty')) || 0,
+            goodQty: totalOK,
             ngQty: parseInt(getElementValue('ngQty')) || 0,
             ngStartEndQty: parseInt(getElementValue('ngStartEndQty')) || 0,
             returnQty: parseInt(getElementValue('returnQty')) || 0,
-            handoverQty: parseInt(getElementValue('handoverQty')) || 0,
+            handoverQty: parseInt(getElementValue('handoverQty')) || totalOK,
             qualityRating: getElementValue('qualityRating') || '',
             qualityCheck: getElementValue('qualityCheck') || '',
             note: getElementValue('note') || '',
             improvement: getElementValue('improvement') || '',
-            tags: getElementValue('tags') || ''
+            tags: getElementValue('tags') || '',
+            okTableData: okTableData
         };
 
         return formData;
@@ -3978,6 +4732,101 @@
             
             if (updateResponse.ok) {
                 
+                // LƯU DỮ LIỆU JSON KỆ VÀO DATABASE
+                try {
+                    // Thu thập dữ liệu từ bảng kệ
+                    const keTableData = collectQuantityOKTableData();
+                    
+                    if (keTableData.length > 0) {
+                        // Lấy dữ liệu kệ cũ từ database
+                        let existingKeData = null;
+                        try {
+                            const existingResp = await fetch(`${API_BASE_URL}/data/production_orders/${order.id}/handover_json/${STAGE_CONFIG.KEY}`);
+                            if (existingResp.ok) {
+                                const existingData = await existingResp.json();
+                                let raw = existingData && existingData.data ? existingData.data : null;
+                                if (raw && typeof raw === 'string') {
+                                    try { raw = JSON.parse(raw); } catch (_) { }
+                                }
+                                if (raw) {
+                                    existingKeData = raw;
+                                }
+                            }
+                        } catch (e) {
+                            console.log('ℹ️ Không có dữ liệu kệ cũ hoặc lỗi khi đọc:', e);
+                        }
+                        
+                        // Tạo cấu trúc JSON kệ với key được prefix bởi {stage}
+                        const stagePrefix = STAGE_CONFIG.KEY + '_';
+                        const keRecordsKey = stagePrefix + 'ke_records';
+                        const metadataKey = stagePrefix + 'metadata';
+                        const nextStage = (order && (order.next_stage || getNextStageFromWorkflow(order.workflow_definition, STAGE_CONFIG.KEY))) || '';
+                        const nextstagePrefix = nextStage ? (nextStage + '_') : 'next_';
+                        
+                        // Gộp dữ liệu kệ cũ và mới
+                        let allKeRecords = [];
+                        
+                        // Thêm dữ liệu kệ cũ nếu có
+                        if (existingKeData && existingKeData[keRecordsKey]) {
+                            allKeRecords = [...existingKeData[keRecordsKey]];
+                        }
+                        
+                        // Thêm dữ liệu kệ mới
+                        const newKeRecords = keTableData.map(row => ({
+                            [stagePrefix + 'ke_id']: `ke_${row.row_id}`,
+                            [stagePrefix + 'ke_name']: row.ke,
+                            [stagePrefix + 'status']: 'completed',
+                            [stagePrefix + 'quantity']: row.ok_quantity,
+                            [stagePrefix + 'shift']: shift,
+                            [stagePrefix + 'operator']: workerName,
+                            [stagePrefix + 'handover_time']: new Date().toISOString(),
+                            [stagePrefix + 'notes']: `Bàn giao từ ca ${shift} - ${workerName}`,
+                            [nextstagePrefix + 'status']: 'waiting'
+                        }));
+                        
+                        allKeRecords = [...allKeRecords, ...newKeRecords];
+                        
+                        const keDataJSON = {
+                            [keRecordsKey]: allKeRecords,
+                            [metadataKey]: {
+                                [stagePrefix + 'total_ke']: allKeRecords.length,
+                                [stagePrefix + 'total_quantity']: allKeRecords.reduce((s, r) => s + (r[stagePrefix + 'quantity'] || 0), 0),
+                                [stagePrefix + 'handover_quantity']: allKeRecords.reduce((s, r) => s + (r[stagePrefix + 'quantity'] || 0), 0),
+                                [stagePrefix + 'last_updated']: new Date().toISOString()
+                            }
+                        };
+                        
+                        console.log('📦 [handoverShift] Dữ liệu JSON kệ để lưu:', keDataJSON);
+                        
+                        // Lưu vào cột {stage}_handover_quantity_json của production_orders
+                        const saveKeResponse = await fetch(`${API_BASE_URL}/data/production_orders/${order.id}/save_ke_json`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                stage: STAGE_CONFIG.KEY,
+                                ke_data_json: keDataJSON,
+                                production_order: order.production_order
+                            })
+                        });
+                        
+                        if (saveKeResponse.ok) {
+                            const saveKeResult = await saveKeResponse.json();
+                            console.log('✅ [handoverShift] Đã lưu JSON kệ thành công:', saveKeResult);
+                            
+                            // Không cần gọi endpoint cập nhật riêng nữa (đã lưu trực tiếp bằng save_ke_json)
+                        } else {
+                            const saveKeError = await saveKeResponse.json();
+                            console.warn('⚠️ [handoverShift] Lỗi khi lưu JSON kệ:', saveKeError);
+                        }
+                    } else {
+                        console.log('ℹ️ [handoverShift] Không có dữ liệu kệ để lưu');
+                    }
+                } catch (keError) {
+                    console.warn('⚠️ [handoverShift] Lỗi khi xử lý JSON kệ:', keError);
+                }
+                
                 // Kiểm tra logic status: nếu tổng số lượng nhập bằng số lượng còn sản xuất còn lại thì status=handed_over
                 try {
                     // Log thông tin order trước khi xử lý
@@ -4276,6 +5125,10 @@
     window.switchTab = switchTab;
     window.resetForm = resetForm;
     // window.pauseProduction = pauseProduction;
+    
+    // Quantity OK table functions
+    window.addQuantityOKRow = addQuantityOKRow;
+    window.removeQuantityOKRow = removeQuantityOKRow;
 
     
 
@@ -5183,7 +6036,686 @@
         });
     }
     
+    // JavaScript cho phần chọn kệ - Áp dụng từ demo-ke-sidebar.html
+    const keData = {};
+    let selectedKe = 0;
+    const totalKe = 12;
+    
+    // Dữ liệu mẫu cho khâu trước bàn giao
+    const previousProcessData = {
+        1: { name: "Cắt", quantity: 150 },
+        2: { name: "Hàn", quantity: 200 },
+        3: { name: "Mài", quantity: 180 },
+        4: { name: "Sơn", quantity: 120 },
+        5: { name: "Đóng gói", quantity: 250 },
+        6: { name: "Kiểm tra", quantity: 95 },
+        7: { name: "Lắp ráp", quantity: 175 },
+        8: { name: "Hoàn thiện", quantity: 130 },
+        9: { name: "Đánh bóng", quantity: 110 },
+        10: { name: "Bảo quản", quantity: 160 },
+        11: { name: "Kiểm định", quantity: 85 },
+        12: { name: "Xuất kho", quantity: 220 }
+    };
+    
+    function createKeToggleItem(keNumber) {
+        const processData = previousProcessData[keNumber];
+        return `
+            <div class="ke-toggle-item" id="ke-${keNumber}" onclick="toggleKe(${keNumber})">
+                <div class="ke-toggle-header">
+                    <div class="ke-info">
+                        <div class="ke-title-row">
+                            <svg class="ke-icon" viewBox="0 0 224 96.06" xmlns="http://www.w3.org/2000/svg">
+                                <polygon class="cls-1" points="224 48.06 224 96.06 192 96.06 192 64.06 128 64.06 128 96.06 96 96.06 96 64.06 32 64.06 32 96.06 0 96.06 0 48.06 224 48.06"/>
+                                <polygon class="cls-1" points="97 .06 88 40.06 48 40.06 72 .06 97 .06"/>
+                                <polygon class="cls-1" points="152 .06 176 40.06 136 40.06 127 .06 152 .06"/>
+                                <path class="cls-1" d="M67,.06c.73.64-3.45,6.24-4.18,7.32-7.49,11.06-15.25,22.04-23.32,32.68H1C14.27,25.89,29.07,13.08,43.5.06h23.5Z"/>
+                                <path class="cls-1" d="M223,40.06h-38.5c-8.07-10.64-15.83-21.63-23.32-32.68-1.49-2.2-3.71-4.71-4.18-7.32h23.5c14.43,13.02,29.23,25.83,42.5,40Z"/>
+                                <polygon class="cls-1" points="96 40.06 102.58 0 121.95 .11 128 40.06 96 40.06"/>
+                            </svg>
+                            <h6 class="ke-toggle-title">Kệ ${keNumber}</h6>
+                        </div>
+                        <div class="ke-quantity">Số lượng: ${processData.quantity} tờ</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function toggleKe(keNumber) {
+        const item = document.getElementById(`ke-${keNumber}`);
+        const isSelected = item.classList.contains('selected');
+        
+        if (isSelected) {
+            item.classList.remove('selected');
+            selectedKe--;
+            delete keData[keNumber];
+        } else {
+            item.classList.add('selected');
+            selectedKe++;
+            
+            // Lưu thông tin kệ được chọn
+            keData[keNumber] = {
+                process: previousProcessData[keNumber],
+                status: 'selected'
+            };
+        }
+        
+        updateProgress();
+        updateSummary();
+    }
+    
+    function updateProgress() {
+        const progress = (selectedKe / totalKe) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+        document.getElementById('selectedCount').textContent = selectedKe;
+        document.getElementById('totalCount').textContent = totalKe;
+    }
+    
+    function updateSummary() {
+        const summarySection = document.getElementById('summarySection');
+        
+        if (selectedKe > 0) {
+            summarySection.style.display = 'block';
+            
+            // Calculate summary
+            let totalQuantity = 0;
+            Object.values(keData).forEach(data => {
+                totalQuantity += data.process.quantity;
+            });
+            
+            document.getElementById('totalKe').textContent = totalKe;
+            document.getElementById('selectedKe').textContent = selectedKe;
+            document.getElementById('totalQuantity').textContent = totalQuantity.toLocaleString();
+            document.getElementById('completionRate').textContent = Math.round((selectedKe / totalKe) * 100) + '%';
+        } else {
+            summarySection.style.display = 'none';
+        }
+    }
+    
+    function toggleSelectAllKe(master) {
+        const items = document.querySelectorAll('.ke-toggle-item');
+        
+        items.forEach((item, index) => {
+            if (master.checked) {
+                item.classList.add('selected');
+                selectedKe++;
+                
+                keData[index + 1] = {
+                    process: previousProcessData[index + 1],
+                    status: 'selected'
+                };
+            } else {
+                item.classList.remove('selected');
+                selectedKe--;
+                delete keData[index + 1];
+            }
+        });
+        
+        updateProgress();
+        updateSummary();
+    }
+    
+    function startAllKe() {
+        if (selectedKe === 0) return;
+        alert(`Đã bắt đầu ${selectedKe} kệ được chọn!`);
+    }
+    
+    function resetAllKe() {
+        if (selectedKe === 0) return;
+        
+        const items = document.querySelectorAll('.ke-toggle-item.selected');
+        items.forEach(item => item.classList.remove('selected'));
+        
+        selectedKe = 0;
+        Object.keys(keData).forEach(key => delete keData[key]);
+        
+        updateProgress();
+        updateSummary();
+    }
+    
+    // Initialize ke toggle grid
+    function initializeKeToggleGrid() {
+        const grid = document.getElementById('keToggleGrid');
+        if (grid) {
+            for (let i = 1; i <= totalKe; i++) {
+                grid.innerHTML += createKeToggleItem(i);
+            }
+            updateProgress();
+        }
+    }
+    
+    // Khởi tạo khi trang load xong
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(() => {
+            initializeKeToggleGrid();
+        }, 500);
+    });
+    
+    // Thêm event listener để khởi tạo lại khi chuyển tab
+    function initializeKeSelectionWhenTabActive() {
+        const infoPanel = document.getElementById('info-panel');
+        if (infoPanel && infoPanel.classList.contains('active')) {
+            setTimeout(() => {
+                initializeKeToggleGrid();
+                
+                // Tự động tải dữ liệu kệ đã lưu nếu có
+                if (currentEditingOrder) {
+                    loadSavedKeData();
+                }
+            }, 100);
+        }
+    }
+    
+    // Gọi function này khi chuyển tab
+    if (typeof switchTab === 'function') {
+        const originalSwitchTab = switchTab;
+        window.switchTab = function(tabName) {
+            originalSwitchTab(tabName);
+            if (tabName === 'info') {
+                initializeKeSelectionWhenTabActive();
+            }
+        };
+    }
+    
     // handleLogout đã được định nghĩa ở trên
+    
+    // ========================================
+    // FUNCTIONS RIÊNG CHO PHẦN CHỌN KỆ
+    // ========================================
+    
+    // Hàm lưu dữ liệu JSON kệ vào database
+    async function saveKeDataToDatabase(orderId, stage, keData, productionOrder) {
+      try {
+        const response = await fetch(`/data/production_orders/${orderId}/save_ke_json`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            stage: stage,
+            ke_data_json: keData,
+            production_order: productionOrder
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('✅ Đã lưu dữ liệu JSON kệ:', result);
+        return result;
+      } catch (error) {
+        console.error('❌ Lỗi lưu dữ liệu JSON kệ:', error);
+        throw error;
+      }
+    }
+
+    // Hàm lấy dữ liệu JSON kệ từ database
+    async function loadKeDataFromDatabase(orderId, stage) {
+      try {
+        const response = await fetch(`/data/production_orders/${orderId}/ke_json/${stage}`);
+        
+        if (!response.ok) {
+          if (response.status === 404) {
+            console.log('ℹ️ Chưa có dữ liệu JSON kệ cho công đoạn:', stage);
+            return null;
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('✅ Đã tải dữ liệu JSON kệ:', result);
+        return result.ke_data;
+      } catch (error) {
+        console.error('❌ Lỗi tải dữ liệu JSON kệ:', error);
+        return null;
+      }
+    }
+
+    // Hàm xóa dữ liệu JSON kệ từ database
+    async function deleteKeDataFromDatabase(orderId, stage) {
+      try {
+        const response = await fetch(`/data/production_orders/${orderId}/ke_json/${stage}`, {
+          method: 'DELETE'
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('✅ Đã xóa dữ liệu JSON kệ:', result);
+        return result;
+      } catch (error) {
+        console.error('❌ Lỗi xóa dữ liệu JSON kệ:', error);
+        throw error;
+      }
+    }
+
+    // Hàm tạo dữ liệu JSON kệ từ dữ liệu hiện tại
+    function createKeDataJSON() {
+      const keRecords = [];
+      let totalQuantity = 0;
+      let completedKe = 0;
+
+      // Lặp qua tất cả kệ đã chọn
+      Object.keys(keData).forEach(keId => {
+        const ke = keData[keId];
+        if (ke.selected) {
+          const keRecord = {
+            ke_id: keId,
+            ke_name: ke.name,
+            quantity: ke.quantity,
+            status: ke.status || 'selected',
+            shift: getCurrentShift(),
+            operator: getCurrentOperator(),
+            handover_time: ke.status === 'completed' ? new Date().toISOString() : null,
+            notes: ke.notes || ''
+          };
+          
+          keRecords.push(keRecord);
+          totalQuantity += ke.quantity;
+          if (ke.status === 'completed') {
+            completedKe++;
+          }
+        }
+      });
+
+      // Tạo metadata
+      const metadata = {
+        total_ke: keRecords.length,
+        total_quantity: totalQuantity,
+        completed_ke: completedKe,
+        handover_quantity: totalQuantity,
+        last_updated: new Date().toISOString()
+      };
+
+      return {
+        ke_records: keRecords,
+        metadata: metadata
+      };
+    }
+
+    // Hàm lấy ca làm việc hiện tại (có thể thay đổi theo logic của bạn)
+    function getCurrentShift() {
+      // TODO: Implement logic lấy ca hiện tại
+      return 'Ca 1';
+    }
+
+    // Hàm lấy người thực hiện hiện tại (có thể thay đổi theo logic của bạn)
+    function getCurrentOperator() {
+      // TODO: Implement logic lấy người thực hiện
+      return 'Nguyễn Văn A';
+    }
+
+    // Hàm khôi phục dữ liệu kệ từ JSON
+    function restoreKeDataFromJSON(jsonData) {
+      if (!jsonData || !jsonData.ke_records) {
+        console.log('ℹ️ Không có dữ liệu kệ để khôi phục');
+        return;
+      }
+
+      // Reset dữ liệu hiện tại
+      Object.keys(keData).forEach(key => delete keData[key]);
+      selectedKe = 0;
+      totalKe = 0;
+
+      // Khôi phục từ JSON
+      jsonData.ke_records.forEach(keRecord => {
+        keData[keRecord.ke_id] = {
+          name: keRecord.ke_name,
+          quantity: keRecord.quantity,
+          selected: true,
+          status: keRecord.status,
+          notes: keRecord.notes
+        };
+        
+        if (keRecord.status === 'completed') {
+          selectedKe++;
+        }
+        totalKe += keRecord.quantity;
+      });
+
+      // Cập nhật UI
+      updateProgress();
+      updateSummary();
+      console.log('✅ Đã khôi phục dữ liệu kệ từ JSON');
+    }
+    
+    // ========================================
+    // FUNCTIONS UI CHO PHẦN CHỌN KỆ
+    // ========================================
+    
+    // Hàm lưu dữ liệu kệ từ UI
+    async function saveKeDataToUI() {
+      if (!currentEditingOrder) {
+        alert('Vui lòng chọn một lệnh sản xuất trước!');
+        return;
+      }
+
+      if (selectedKe === 0) {
+        alert('Vui lòng chọn ít nhất một kệ trước khi lưu!');
+        return;
+      }
+
+      try {
+        // Hiển thị loading
+        showLoading('Đang lưu dữ liệu kệ...');
+        
+        // Tạo dữ liệu JSON từ dữ liệu hiện tại
+        const keDataJSON = createKeDataJSON();
+        
+        // Lưu vào database
+        const result = await saveKeDataToDatabase(
+          currentEditingOrder.id,
+          'xa', // Stage hiện tại (có thể thay đổi)
+          keDataJSON,
+          currentEditingOrder.production_order
+        );
+        
+        // Ẩn loading
+        hideLoading();
+        
+        // Hiển thị thông báo thành công
+        showSuccessMessage('Đã lưu dữ liệu kệ thành công!');
+        
+        console.log('✅ Dữ liệu kệ đã được lưu:', result);
+        
+      } catch (error) {
+        // Ẩn loading
+        hideLoading();
+        
+        // Hiển thị thông báo lỗi
+        showErrorMessage('Lỗi khi lưu dữ liệu kệ: ' + error.message);
+        
+        console.error('❌ Lỗi khi lưu dữ liệu kệ:', error);
+      }
+    }
+
+    // Hàm tải dữ liệu kệ từ UI
+    async function loadKeDataFromUI() {
+      if (!currentEditingOrder) {
+        alert('Vui lòng chọn một lệnh sản xuất trước!');
+        return;
+      }
+
+      try {
+        // Hiển thị loading
+        showLoading('Đang tải dữ liệu kệ...');
+        
+        // Tải dữ liệu từ database
+        const keDataJSON = await loadKeDataFromDatabase(
+          currentEditingOrder.id,
+          'xa' // Stage hiện tại (có thể thay đổi)
+        );
+        
+        // Ẩn loading
+        hideLoading();
+        
+        if (keDataJSON) {
+          // Khôi phục dữ liệu kệ từ JSON
+          restoreKeDataFromJSON(keDataJSON);
+          
+          // Hiển thị thông báo thành công
+          showSuccessMessage('Đã tải dữ liệu kệ thành công!');
+          
+          console.log('✅ Dữ liệu kệ đã được tải:', keDataJSON);
+        } else {
+          // Hiển thị thông báo không có dữ liệu
+          showInfoMessage('Chưa có dữ liệu kệ để tải!');
+        }
+        
+      } catch (error) {
+        // Ẩn loading
+        hideLoading();
+        
+        // Hiển thị thông báo lỗi
+        showErrorMessage('Lỗi khi tải dữ liệu kệ: ' + error.message);
+        
+        console.error('❌ Lỗi khi tải dữ liệu kệ:', error);
+      }
+    }
+
+    // Hàm xóa dữ liệu kệ từ UI
+    async function deleteKeDataFromUI() {
+      if (!currentEditingOrder) {
+        alert('Vui lòng chọn một lệnh sản xuất trước!');
+        return;
+      }
+
+      // Xác nhận xóa
+      if (!confirm('Bạn có chắc chắn muốn xóa dữ liệu kệ? Hành động này không thể hoàn tác!')) {
+        return;
+      }
+
+      try {
+        // Hiển thị loading
+        showLoading('Đang xóa dữ liệu kệ...');
+        
+        // Xóa dữ liệu từ database
+        const result = await deleteKeDataFromDatabase(
+          currentEditingOrder.id,
+          'xa' // Stage hiện tại (có thể thay đổi)
+        );
+        
+        // Ẩn loading
+        hideLoading();
+        
+        // Reset dữ liệu kệ hiện tại
+        resetAllKe();
+        
+        // Hiển thị thông báo thành công
+        showSuccessMessage('Đã xóa dữ liệu kệ thành công!');
+        
+        console.log('✅ Dữ liệu kệ đã được xóa:', result);
+        
+      } catch (error) {
+        // Ẩn loading
+        hideLoading();
+        
+        // Hiển thị thông báo lỗi
+        showErrorMessage('Lỗi khi xóa dữ liệu kệ: ' + error.message);
+        
+        console.error('❌ Lỗi khi xóa dữ liệu kệ:', error);
+      }
+    }
+
+    // Hàm hiển thị loading
+    function showLoading(message = 'Đang xử lý...') {
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      if (loadingOverlay) {
+        const loadingText = loadingOverlay.querySelector('.mt-2');
+        if (loadingText) {
+          loadingText.textContent = message;
+        }
+        loadingOverlay.style.display = 'flex';
+      }
+    }
+
+    // Hàm ẩn loading
+    function hideLoading() {
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      if (loadingOverlay) {
+        loadingOverlay.style.display = 'none';
+      }
+    }
+
+    // Hàm hiển thị thông báo thành công
+    function showSuccessMessage(message) {
+      // Tạo toast notification
+      const toast = document.createElement('div');
+      toast.className = 'alert alert-success alert-dismissible fade show position-fixed';
+      toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+      toast.innerHTML = `
+        <i class="bi bi-check-circle me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      
+      document.body.appendChild(toast);
+      
+      // Tự động ẩn sau 3 giây
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 3000);
+    }
+
+    // Hàm hiển thị thông báo lỗi
+    function showErrorMessage(message) {
+      // Tạo toast notification
+      const toast = document.createElement('div');
+      toast.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+      toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+      toast.innerHTML = `
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      
+      document.body.appendChild(toast);
+      
+      // Tự động ẩn sau 5 giây
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 5000);
+    }
+
+    // Hàm hiển thị thông báo thông tin
+    function showInfoMessage(message) {
+      // Tạo toast notification
+      const toast = document.createElement('div');
+      toast.className = 'alert alert-info alert-dismissible fade show position-fixed';
+      toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+      toast.innerHTML = `
+        <i class="bi bi-info-circle me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      
+      document.body.appendChild(toast);
+      
+      // Tự động ẩn sau 3 giây
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 3000);
+    }
+    
+    // ========================================
+    // FUNCTIONS HIỂN THỊ DỮ LIỆU KỆ ĐÃ LƯU
+    // ========================================
+    
+    // Hàm tải dữ liệu kệ đã lưu từ database
+    async function loadSavedKeData() {
+      if (!currentEditingOrder) {
+        console.log('ℹ️ Không có lệnh sản xuất nào đang được chỉnh sửa');
+        return;
+      }
+      
+      try {
+        showLoading('Đang tải dữ liệu kệ...');
+        
+        // Sử dụng API mới từ production_orders
+        const response = await fetch(`${API_BASE_URL}/data/production_orders/${currentEditingOrder.id}/handover_json/${STAGE_CONFIG.KEY}`);
+        
+        if (response.ok) {
+          const result = await response.json();
+          
+          if (result.success && result.data.ke_data_json) {
+            displaySavedKeData(result.data.ke_data_json);
+            document.getElementById('savedKeSection').style.display = 'block';
+            console.log('✅ Đã tải dữ liệu kệ từ production_orders:', result.data);
+          } else {
+            console.log('ℹ️ Không có dữ liệu kệ đã lưu');
+            document.getElementById('savedKeSection').style.display = 'none';
+          }
+        } else if (response.status === 404) {
+          console.log('ℹ️ Chưa có dữ liệu JSON kệ cho công đoạn:', STAGE_CONFIG.KEY);
+          document.getElementById('savedKeSection').style.display = 'none';
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Lỗi khi tải dữ liệu kệ');
+        }
+      } catch (error) {
+        console.error('❌ Lỗi khi tải dữ liệu kệ:', error);
+        showNotification('Lỗi khi tải dữ liệu kệ: ' + error.message, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+    
+    // Hàm hiển thị dữ liệu kệ đã lưu
+    function displaySavedKeData(keData) {
+      const contentElement = document.getElementById('savedKeContent');
+      if (!contentElement) return;
+      
+      if (!keData.ke_records || keData.ke_records.length === 0) {
+        contentElement.innerHTML = '<p class="text-muted text-center">Không có dữ liệu kệ nào</p>';
+        return;
+      }
+      
+      const keItemsHTML = keData.ke_records.map(ke => `
+        <div class="saved-ke-item">
+          <div class="saved-ke-info">
+            <div class="saved-ke-name">${ke.ke_name}</div>
+            <div class="saved-ke-details">
+              <i class="bi bi-person me-1"></i>${ke.operator || 'N/A'} | 
+              <i class="bi bi-clock me-1"></i>${ke.shift || 'N/A'} | 
+              <i class="bi bi-calendar me-1"></i>${formatDateTime(ke.handover_time) || 'N/A'}
+            </div>
+            ${ke.notes ? `<div class="saved-ke-details mt-1"><i class="bi bi-chat-text me-1"></i>${ke.notes}</div>` : ''}
+          </div>
+          <div class="saved-ke-quantity">${ke.quantity}</div>
+        </div>
+      `).join('');
+      
+      contentElement.innerHTML = keItemsHTML;
+    }
+    
+    // Hàm xóa dữ liệu kệ đã lưu
+    async function clearSavedKeData() {
+      if (!currentEditingOrder) {
+        showNotification('Không có lệnh sản xuất nào đang được chỉnh sửa', 'warning');
+        return;
+      }
+      
+      const confirmed = confirm(`Xác nhận xóa dữ liệu kệ đã lưu cho lệnh ${currentEditingOrder.production_order}?\n\nDữ liệu này sẽ bị xóa vĩnh viễn!`);
+      
+      if (!confirmed) return;
+      
+      try {
+        showLoading('Đang xóa dữ liệu kệ...');
+        
+        // Sử dụng API mới từ production_orders
+        const response = await fetch(`${API_BASE_URL}/data/production_orders/${currentEditingOrder.id}/handover_json/${STAGE_CONFIG.KEY}`, {
+          method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Lỗi khi xóa dữ liệu kệ');
+        }
+        
+        const result = await response.json();
+        console.log('✅ Đã xóa dữ liệu kệ từ production_orders:', result);
+        
+        // Ẩn section và hiển thị thông báo
+        document.getElementById('savedKeSection').style.display = 'none';
+        showNotification('✅ Đã xóa dữ liệu kệ thành công!', 'success');
+        
+      } catch (error) {
+        console.error('❌ Lỗi khi xóa dữ liệu kệ:', error);
+        showNotification('Lỗi khi xóa dữ liệu kệ: ' + error.message, 'error');
+      } finally {
+        hideLoading();
+      }
+    }
   </script>
 
   <!-- Details Panel - Will be generated dynamically -->

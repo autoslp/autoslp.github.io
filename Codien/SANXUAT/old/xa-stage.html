@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Công đoạn ${STAGE_CONFIG.NAME} - Carton Manager</title>
+  <title>Công đoạn xả - Carton Manager</title>
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -38,32 +38,393 @@
   <script src="../js/auth.js"></script>
   <!-- Login Popup Component -->
   <script src="../js/login-popup.js"></script>
+
+  <!-- Custom CSS for Shifts Tab -->
   <style>
-    /* Machine-specific tab colors */
-    #xa1-tab.active {
-        border-bottom-color: #dc3545;
-        color: #dc3545;
+    /* Shifts Tab Styles */
+    .shifts-container {
+      padding: 0;
     }
     
-    #xa2-tab.active {
-        border-bottom-color: #fd7e14;
-        color: #fd7e14;
+    .shifts-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e9ecef;
     }
     
-    #xa3-tab.active {
-        border-bottom-color: #6f42c1;
-        color: #6f42c1;
+    .shifts-header h6 {
+      margin: 0;
+      color: #495057;
+      font-weight: 600;
     }
     
-    #all-tab.active {
-        border-bottom-color: #6c757d;
-        color: #6c757d;
+    .shifts-loading {
+      display: flex;
+      align-items: center;
+      color: #6c757d;
+      font-size: 0.875rem;
+    }
+    
+    .shifts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
 
+    .shifts-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
 
+    .stat-card {
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+    }
+
+    .stat-number {
+      font-size: 24px;
+      font-weight: 700;
+      color: #2563eb;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .shift-item {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shift-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      border-color: #2563eb;
+    }
+
+    .shift-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: #2563eb;
+    }
+    
+    .shift-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    .shift-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .shift-title i {
+      color: #2563eb;
+      font-size: 16px;
+    }
+    
+    .shift-status {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .shift-status.completed {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+    
+    .shift-status.in_progress {
+      background: #fef3c7;
+      color: #ca8a04;
+    }
+    
+    .shift-status.waiting {
+      background: #e0e7ff;
+      color: #2563eb;
+    }
+    
+    .shift-status.paused {
+      background: #fecaca;
+      color: #dc2626;
+    }
+    
+    .shift-status.handed_over {
+      background: #cffafe;
+      color: #0891b2;
+    }
+    
+    .shift-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    
+    .shift-detail {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .shift-detail-label {
+      font-size: 12px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+    
+    .shift-detail-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+    
+    .shift-times {
+      display: flex;
+      gap: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .shift-times span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .shift-times i {
+      font-size: 14px;
+    }
+
+    .shift-progress {
+      margin-top: 12px;
+      padding: 12px;
+      background: #f8fafc;
+      border-radius: 8px;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #16a34a, #2563eb);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      font-size: 12px;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    .shift-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .btn-action {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-view {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-view:hover {
+      background: #1d4ed8;
+      color: white;
+    }
+
+    .btn-edit {
+      background: #ca8a04;
+      color: white;
+    }
+
+    .btn-edit:hover {
+      background: #a16207;
+      color: white;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: #6b7280;
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-state h5 {
+      margin-bottom: 8px;
+      color: #1f2937;
+    }
+
+    .empty-state p {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .shifts-stats {
+        grid-template-columns: 1fr;
+      }
+      
+      .shift-details {
+        grid-template-columns: 1fr;
+      }
+      
+      .shift-times {
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+    
+    .shift-summary {
+      background: #e9ecef;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .shift-summary h6 {
+      margin-bottom: 0.75rem;
+      color: #495057;
+      font-weight: 600;
+    }
+    
+    .summary-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 0.75rem;
+    }
+    
+    .summary-stat {
+      text-align: center;
+      padding: 0.5rem;
+      background: white;
+      border-radius: 4px;
+    }
+    
+    .summary-stat-value {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #495057;
+    }
+    
+    .summary-stat-label {
+      font-size: 0.75rem;
+      color: #6c757d;
+      margin-top: 0.25rem;
+    }
+    
+    .no-shifts {
+      text-align: center;
+      padding: 2rem;
+      color: #6c757d;
+    }
+    
+    .no-shifts i {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    
+    .shifts-container {
+      min-height: 200px;
+      border: 1px solid #ddd;
+      padding: 15px;
+      background: #fff;
+    }
+    
+    /* Button styles for shift handover */
+    .btn-info-custom {
+      background: linear-gradient(135deg, #17a2b8, #138496);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 120px;
+      justify-content: center;
+    }
+    
+    .btn-info-custom:hover {
+      background: linear-gradient(135deg, #138496, #117a8b);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
+    }
+    
+    .btn-info-custom:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(23, 162, 184, 0.3);
+    }
   </style>
+
 </head>
-<body data-stage="${STAGE_CONFIG.KEY}">
+<body data-stage="xa">
   <!-- Sidebar will be generated by JavaScript -->
 
   <!-- Main Content -->
@@ -76,9 +437,10 @@
         <div class="d-flex justify-content-between align-items-center">
           <div>
             <h1>
-              <i class="bi bi-bullseye me-2 text-primary"></i>
-              Công đoạn xả
+              <i class="bi bi-bullseye me-2"></i>
+              Công đoạn Xả
             </h1>
+
             <p class="mb-0">Xả giấy cuộn - Quản lý chi tiết sản xuất</p>
           </div>
           
@@ -133,6 +495,9 @@
             <button class="btn btn-primary me-2" onclick="refreshData()">
               <i class="bi bi-arrow-clockwise me-1"></i>Làm mới
             </button>
+            <button class="btn btn-outline-primary me-2" onclick="loadDataWithDateFilter()">
+              <i class="bi bi-calendar-range me-1"></i>Tải theo ngày
+            </button>
           </div>
         </div>
         
@@ -153,11 +518,17 @@
               <div class="row g-3">
                 <div class="col-md-3">
                   <label class="form-label fw-bold">
-                    <i class="bi bi-calendar me-1"></i>Ngày sản xuất:
+                    <i class="bi bi-calendar me-1"></i>Từ ngày:
                   </label>
-                  <input type="date" class="form-control" id="dateFilter">
+                  <input type="date" class="form-control" id="fromDateFilter" placeholder="Chọn ngày bắt đầu">
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
+                  <label class="form-label fw-bold">
+                    <i class="bi bi-calendar me-1"></i>Đến ngày:
+                  </label>
+                  <input type="date" class="form-control" id="toDateFilter" placeholder="Chọn ngày kết thúc">
+                </div>
+                <!-- <div class="col-md-2">
                   <label class="form-label fw-bold">
                     <i class="bi bi-clock me-1"></i>Ca:
                   </label>
@@ -169,8 +540,8 @@
                     <option value="Kíp 1">Kíp 1</option>
                     <option value="Kíp 2">Kíp 2</option>
                   </select>
-                </div>
-                <div class="col-md-2">
+                </div> -->
+                <!-- <div class="col-md-2">
                   <label class="form-label fw-bold">
                     <i class="bi bi-gear me-1"></i>Máy:
                   </label>
@@ -180,7 +551,7 @@
                     <option value="Xả 2">Xả 2</option>
                     <option value="Xả 3">Xả 3</option>
                   </select>
-                </div>
+                </div> -->
                 <div class="col-md-5">
                   <label class="form-label fw-bold">
                     <i class="bi bi-search me-1"></i>Tìm kiếm:
@@ -275,15 +646,17 @@
      */
     async function loadMachineStatus() {
         try {
+            console.log('🔍 Loading machine status from API...');
             const response = await fetch(`${API_BASE_URL}/data/production_machines`);
             if (response.ok) {
                 machineStatusData = await response.json();
+                console.log('✅ Machine status loaded:', machineStatusData);
             } else {
-                console.error('Lỗi khi tải dữ liệu máy:', response.status);
+                console.error('❌ Lỗi khi tải dữ liệu máy:', response.status);
                 machineStatusData = [];
             }
         } catch (error) {
-            console.error('Lỗi khi tải dữ liệu máy:', error);
+            console.error('❌ Lỗi khi tải dữ liệu máy:', error);
             machineStatusData = [];
         }
     }
@@ -344,6 +717,8 @@
         
         return null;
     }
+
+
 
     /**
      * Kiểm tra xem lệnh có đang chạy không
@@ -423,6 +798,129 @@
 
 
     /**
+     * Cache key cho filter ngày
+     */
+    const DATE_FILTER_CACHE_KEY = `date_filter_${STAGE_CONFIG.KEY}`;
+    
+    /**
+     * Lưu giá trị filter ngày vào cache
+     */
+    function saveDateFilterToCache() {
+        const fromDateInput = document.getElementById('fromDateFilter');
+        const toDateInput = document.getElementById('toDateFilter');
+        
+        if (fromDateInput && toDateInput) {
+            const cacheData = {
+                fromDate: fromDateInput.value,
+                toDate: toDateInput.value,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(DATE_FILTER_CACHE_KEY, JSON.stringify(cacheData));
+        }
+    }
+    
+    /**
+     * Khôi phục giá trị filter ngày từ cache
+     */
+    function loadDateFilterFromCache() {
+        const fromDateInput = document.getElementById('fromDateFilter');
+        const toDateInput = document.getElementById('toDateFilter');
+        
+        if (!fromDateInput || !toDateInput) return false;
+        
+        try {
+            const cachedData = localStorage.getItem(DATE_FILTER_CACHE_KEY);
+            if (cachedData) {
+                const data = JSON.parse(cachedData);
+                
+                // Kiểm tra cache có hợp lệ không (không quá 7 ngày)
+                const cacheAge = Date.now() - data.timestamp;
+                const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 ngày
+                
+                if (cacheAge < maxAge && data.fromDate && data.toDate) {
+                    fromDateInput.value = data.fromDate;
+                    toDateInput.value = data.toDate;
+                    return true;
+                }
+            }
+        } catch (error) {
+            console.error('Lỗi khi load cache filter ngày:', error);
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Set giá trị mặc định cho filter ngày
+     */
+    function setDefaultDateFilter() {
+        const fromDateInput = document.getElementById('fromDateFilter');
+        const toDateInput = document.getElementById('toDateFilter');
+        
+        if (fromDateInput && toDateInput) {
+            // Thử load từ cache trước
+            const cacheLoaded = loadDateFilterFromCache();
+            
+            // Nếu không có cache, set giá trị mặc định
+            if (!cacheLoaded) {
+                const today = new Date();
+                const oneWeekAgo = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+                
+                fromDateInput.value = oneWeekAgo.toISOString().split('T')[0];
+                toDateInput.value = today.toISOString().split('T')[0];
+            }
+        }
+    }
+    
+    /**
+     * Reset filter ngày về giá trị mặc định và xóa cache
+     */
+    function resetDateFilter() {
+        const fromDateInput = document.getElementById('fromDateFilter');
+        const toDateInput = document.getElementById('toDateFilter');
+        
+        if (fromDateInput && toDateInput) {
+            // Xóa cache
+            localStorage.removeItem(DATE_FILTER_CACHE_KEY);
+            
+            // Set giá trị mặc định
+            const today = new Date();
+            const oneWeekAgo = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+            
+            fromDateInput.value = oneWeekAgo.toISOString().split('T')[0];
+            toDateInput.value = today.toISOString().split('T')[0];
+            
+            // Reload dữ liệu
+            refreshData();
+            
+            showNotification('Đã reset filter ngày về mặc định', 'info');
+        }
+    }
+
+    /**
+     * Tải dữ liệu với filter ngày cụ thể
+     */
+    async function loadDataWithDateFilter() {
+        const fromDateFilter = document.getElementById('fromDateFilter')?.value;
+        const toDateFilter = document.getElementById('toDateFilter')?.value;
+        
+        if (!fromDateFilter || !toDateFilter) {
+            showNotification('Vui lòng chọn cả ngày bắt đầu và ngày kết thúc', 'warning');
+            return;
+        }
+        
+        if (fromDateFilter > toDateFilter) {
+            showNotification('Ngày bắt đầu không thể lớn hơn ngày kết thúc', 'warning');
+            return;
+        }
+        
+        showLoading('Đang tải dữ liệu theo khoảng ngày...');
+        await loadOrdersData();
+        hideLoading();
+        showNotification(`Đã tải dữ liệu từ ${fromDateFilter} đến ${toDateFilter}`, 'success');
+    }
+
+    /**
      * Tải dữ liệu lệnh sản xuất từ API
      */
     async function loadOrdersData() {
@@ -430,59 +928,75 @@
         try {
             // Load dữ liệu máy trước
             await loadMachineStatus();
-            // Tối ưu: Thêm pagination để load nhanh hơn
-            const pageSize = 500; // Load 500 records mỗi lần
-            let allData = [];
-            let page = 1;
-            let hasMore = true;
+            // Load dữ liệu theo ngày từ filter hoặc mặc định 30 ngày trước
+            const fromDateFilter = document.getElementById('fromDateFilter')?.value;
+            const toDateFilter = document.getElementById('toDateFilter')?.value;
             
-            while (hasMore) {
-                const url = `${API_BASE_URL}/data/production_orders/optimized?stage=${STAGE_CONFIG.KEY}&page=${page}&limit=${pageSize}&days_back=300`;
+            // Thêm event listener cho filter ngày
+            const fromDateInput = document.getElementById('fromDateFilter');
+            const toDateInput = document.getElementById('toDateFilter');
+            if (fromDateInput && toDateInput) {
+                // Set giá trị mặc định: từ 1 tuần trước đến hôm nay
+                if (!fromDateInput.value && !toDateInput.value) {
+                    const today = new Date();
+                    const oneWeekAgo = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+                    fromDateInput.value = oneWeekAgo.toISOString().split('T')[0];
+                    toDateInput.value = today.toISOString().split('T')[0];
+                }
                 
-                // Tối ưu: Giảm timeout và retry cho load nhanh hơn
-                const fastOptions = {
-                    timeout: 5000, // Giảm timeout xuống 5s
-                    maxRetries: 2   // Giảm retry xuống 2 lần
-                };
-                
-                // Gọi API với timeout ngắn hơn
-                const response = await fetchWithRetry(url, {}, fastOptions.maxRetries);
-                const apiData = await response.json();
-                
-                // Kiểm tra dữ liệu raw từ API
-        
-                if (apiData.length > 0) {
-                    // Log các mẫu để kiểm tra start_time
-                    apiData.slice(0, 3).forEach((record, idx) => {
-                        // Sample data logging removed
-                    });
+                fromDateInput.addEventListener('change', () => {
+                    // Lưu cache khi thay đổi ngày
+                    saveDateFilterToCache();
                     
-                    // Đếm số bản ghi có start_time
-                    const recordsWithStartTime = apiData.filter(r => getOrderField(r, 'start_time')).length;
-                }
-                
-                if (!Array.isArray(apiData) || apiData.length === 0) {
-                    hasMore = false;
-                    break;
-                }
-                
-                allData = allData.concat(apiData);
-                
-                // Nếu ít hơn pageSize, đã hết dữ liệu
-                if (apiData.length < pageSize) {
-                    hasMore = false;
-                }
-                
-                page++;
-                
-                // Giới hạn tối đa 3 pages để tránh load quá nhiều
-                if (page > 3) {
-                    hasMore = false;
-                }
+                    if (fromDateInput.value && toDateInput.value) {
+                        refreshData(); // Reload dữ liệu khi có đủ cả 2 ngày
+                    }
+                });
+                toDateInput.addEventListener('change', () => {
+                    // Lưu cache khi thay đổi ngày
+                    saveDateFilterToCache();
+                    
+                    if (fromDateInput.value && toDateInput.value) {
+                        refreshData(); // Reload dữ liệu khi có đủ cả 2 ngày
+                    }
+                });
             }
+            
+            let fromDate, toDate;
+            if (fromDateFilter && toDateFilter) {
+                // Sử dụng ngày từ filter
+                fromDate = fromDateFilter;
+                toDate = toDateFilter;
+            } else {
+                // Mặc định 1 tuần trước đến hiện tại
+                const today = new Date();
+                const oneWeekAgo = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+                fromDate = oneWeekAgo.toISOString().split('T')[0];
+                toDate = today.toISOString().split('T')[0];
+            }
+            
+            // Sử dụng date range thay vì limit để tránh quá tải
+            const url = `${API_BASE_URL}/data/production_orders?stage=${STAGE_CONFIG.KEY}&from_date=${fromDate}&to_date=${toDate}`;
+            
+            // Gọi API để lấy tất cả dữ liệu
+            const response = await fetchWithRetry(url, {}, 3);
+            const apiData = await response.json();
+            
+            // Kiểm tra dữ liệu raw từ API
+            if (apiData.length > 0) {
+                // Log các mẫu để kiểm tra start_time
+                apiData.slice(0, 3).forEach((record, idx) => {
+                    // Sample data logging removed
+                });
+                
+                // Đếm số bản ghi có start_time
+                const recordsWithStartTime = apiData.filter(r => getOrderField(r, 'start_time')).length;
+            }
+            
+            const allData = Array.isArray(apiData) ? apiData : [];
             ordersData = transformApiData(allData);
             
-            // Kiểm tra dữ liệu sau khi transform
+            // Kiểm tra dữ liệu sau khi transform và lọc
             if (ordersData.length > 0) {
                 // Log các mẫu để kiểm tra start_time
                 ordersData.slice(0, 3).forEach((record, idx) => {
@@ -571,6 +1085,28 @@
             assigned_machine: order.assigned_machine || '', // Thêm trường assigned_machine
             workflow_definition: workflowDef,
             next_stage: nextStage,
+            previous_stage: getPreviousStageFromWorkflow(workflowDef, STAGE_CONFIG.KEY),
+            
+            // Dữ liệu từ stage trước
+            previous_stage_good_quantity: getPreviousStageFromWorkflow(workflowDef, STAGE_CONFIG.KEY) ? (order[`${getPreviousStageFromWorkflow(workflowDef, STAGE_CONFIG.KEY)}_good_quantity`] || 0) : 0,
+            previous_stage_ng_quantity: getPreviousStageFromWorkflow(workflowDef, STAGE_CONFIG.KEY) ? (order[`${getPreviousStageFromWorkflow(workflowDef, STAGE_CONFIG.KEY)}_ng_quantity`] || 0) : 0,
+            previous_stage_handover_quantity: getPreviousStageFromWorkflow(workflowDef, STAGE_CONFIG.KEY) ? (order[`${getPreviousStageFromWorkflow(workflowDef, STAGE_CONFIG.KEY)}_handover_quantity`] || 0) : 0,
+            previous_stage_status: getPreviousStageFromWorkflow(workflowDef, STAGE_CONFIG.KEY) ? (order[`${getPreviousStageFromWorkflow(workflowDef, STAGE_CONFIG.KEY)}_status`] || 'waiting') : null,
+            previous_stage_worker_name: getPreviousStageFromWorkflow(workflowDef, STAGE_CONFIG.KEY) ? (order[`${getPreviousStageFromWorkflow(workflowDef, STAGE_CONFIG.KEY)}_worker_name`] || '') : '',
+            previous_stage_machine_name: getPreviousStageFromWorkflow(workflowDef, STAGE_CONFIG.KEY) ? (order[`${getPreviousStageFromWorkflow(workflowDef, STAGE_CONFIG.KEY)}_machine_name`] || '') : '',
+            previous_stage_start_time: getPreviousStageFromWorkflow(workflowDef, STAGE_CONFIG.KEY) ? (order[`${getPreviousStageFromWorkflow(workflowDef, STAGE_CONFIG.KEY)}_start_time`] || null) : null,
+            previous_stage_end_time: getPreviousStageFromWorkflow(workflowDef, STAGE_CONFIG.KEY) ? (order[`${getPreviousStageFromWorkflow(workflowDef, STAGE_CONFIG.KEY)}_end_time`] || null) : null,
+            
+            // Dữ liệu từ stage tiếp theo
+            next_stage_good_quantity: nextStage ? (order[`${nextStage}_good_quantity`] || 0) : 0,
+            next_stage_ng_quantity: nextStage ? (order[`${nextStage}_ng_quantity`] || 0) : 0,
+            next_stage_handover_quantity: nextStage ? (order[`${nextStage}_handover_quantity`] || 0) : 0,
+            next_stage_status: nextStage ? (order[`${nextStage}_status`] || 'waiting') : null,
+            next_stage_worker_name: nextStage ? (order[`${nextStage}_worker_name`] || '') : '',
+            next_stage_machine_name: nextStage ? (order[`${nextStage}_machine_name`] || '') : '',
+            next_stage_start_time: nextStage ? (order[`${nextStage}_start_time`] || null) : null,
+            next_stage_end_time: nextStage ? (order[`${nextStage}_end_time`] || null) : null,
+            
             created_at: order.created_at,
             updated_at: order.updated_at
         };
@@ -693,6 +1229,9 @@
         try {
             showLoading('Đang tải dữ liệu...');
             
+            // Set giá trị mặc định cho filter ngày
+            setDefaultDateFilter();
+            
             // Tải dữ liệu từ API
             await loadOrdersData();
             await loadMachineStatus();
@@ -762,26 +1301,46 @@
             machine.stage_machine && machine.stage_machine.includes(`Stage_${STAGE_CONFIG.KEY}`)
         );
         
-        // Phân loại dữ liệu theo máy (chỉ lệnh chưa bàn giao)
+        // Phân loại dữ liệu theo máy (hiển thị tất cả lệnh chưa bàn giao, kể cả chưa sẵn sàng)
         const machineOrders = {};
         MStageMachines.forEach(machine => {
             const machineName = machine.machine_name;
             machineOrders[machineName] = ordersData.filter(order => {
                 const assignedMachine = order.assigned_machine || '';
-                return assignedMachine.includes(machineName) && getOrderField(order, 'status') !== 'handed_over';
+                const inputQuantity = getInputQuantityFromPreviousStage(order);
+                
+                // Tính tổng số lượng bàn giao và input
+                const previousStageHandover = order.previous_stage_handover_quantity || 0;
+                const currentStageHandover = getOrderField(order, 'handover_quantity') || 0;
+                const currentStageInput = getOrderField(order, 'input_quantity') || 0;
+                
+ 
+                
+                return assignedMachine.includes(machineName);
             });
         });
         
         // Render từng tab máy
         MStageMachines.forEach(machine => {
             const machineName = machine.machine_name;
-            const machineId = machineName.toLowerCase().replace(/\s+/g, '-');
+            const machineId = `machine-${machineName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
             const tableBodyId = `${machineId}TableBody`;
             renderTabTable(tableBodyId, machineOrders[machineName] || []);
         });
         
-        // Render tab "Tất cả" (chỉ lệnh chưa bàn giao)
-        const activeOrders = ordersData.filter(order => getOrderField(order, 'status') !== 'handed_over');
+        // Render tab "Tất cả" (hiển thị tất cả lệnh, kể cả đã hoàn thành)
+        const activeOrders = ordersData.filter(order => {
+            const inputQuantity = getInputQuantityFromPreviousStage(order);
+            
+            // Tính tổng số lượng bàn giao và input
+            const previousStageHandover = order.previous_stage_handover_quantity || 0;
+            const currentStageHandover = getOrderField(order, 'handover_quantity') || 0;
+            const currentStageInput = getOrderField(order, 'input_quantity') || 0;
+            
+
+            
+            return true; // Hiển thị tất cả lệnh
+        });
         renderTabTable('allTableBody', activeOrders);
         
         // Cập nhật số lượng cho các tab
@@ -819,19 +1378,27 @@
             return;
         }
 
-        // Sắp xếp orders: lệnh đang chạy lên đầu, sau đó theo thời gian bắt đầu
+        // Sắp xếp orders: lệnh sẵn sàng lên đầu, sau đó lệnh bị disable, cuối cùng theo thời gian bắt đầu
         const sortedOrders = [...orders].sort((a, b) => {
             // Kiểm tra lệnh nào đang chạy
             const aIsRunning = isOrderRunning(a).isRunning;
             const bIsRunning = isOrderRunning(b).isRunning;
             
-            // Nếu một lệnh đang chạy và lệnh kia không, ưu tiên lệnh đang chạy
+            // Kiểm tra lệnh nào sẵn sàng (không bị disable)
+            const aIsReady = isPreviousStageReady(a) && getOrderMachine(a);
+            const bIsReady = isPreviousStageReady(b) && getOrderMachine(b);
+            
+            // Ưu tiên 1: Lệnh đang chạy
             if (aIsRunning && !bIsRunning) return -1;
             if (!aIsRunning && bIsRunning) return 1;
             
-            // Nếu cả hai đều đang chạy hoặc không chạy, sắp xếp theo thời gian bắt đầu
-                    const aStartTime = getOrderField(a, 'start_time') ? new Date(getOrderField(a, 'start_time')).getTime() : 0;
-        const bStartTime = getOrderField(b, 'start_time') ? new Date(getOrderField(b, 'start_time')).getTime() : 0;
+            // Ưu tiên 2: Lệnh sẵn sàng (không bị disable) lên đầu
+            if (aIsReady && !bIsReady) return -1;
+            if (!aIsReady && bIsReady) return 1;
+            
+            // Ưu tiên 3: Nếu cả hai đều sẵn sàng hoặc đều không sẵn sàng, sắp xếp theo thời gian bắt đầu
+            const aStartTime = getOrderField(a, 'start_time') ? new Date(getOrderField(a, 'start_time')).getTime() : 0;
+            const bStartTime = getOrderField(b, 'start_time') ? new Date(getOrderField(b, 'start_time')).getTime() : 0;
             
             // Lệnh bắt đầu sớm hơn lên đầu (thời gian lớn hơn = mới hơn)
             return bStartTime - aStartTime;
@@ -872,7 +1439,7 @@
         // Cập nhật số lượng cho từng máy
         stageMachines.forEach(machine => {
             const machineName = machine.machine_name;
-            const machineId = machineName.toLowerCase().replace(/\s+/g, '-');
+            const machineId = `machine-${machineName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
             const countElement = document.getElementById(`${machineId}-count`);
             if (countElement) {
                 const orderCount = machineOrders[machineName] ? machineOrders[machineName].length : 0;
@@ -883,14 +1450,25 @@
         // Cập nhật số lượng cho tab "Tất cả" (chỉ lệnh chưa bàn giao)
         const allCountElement = document.getElementById('all-count');
         if (allCountElement) {
-            const activeOrders = ordersData.filter(order => getOrderField(order, 'status') !== 'handed_over');
+            const activeOrders = ordersData.filter(order => {
+                const inputQuantity = getInputQuantityFromPreviousStage(order);
+                return inputQuantity > 0;
+            });
             allCountElement.textContent = activeOrders.length;
         }
         
         // Cập nhật số lượng cho tab "Báo cáo"
-        const handedOverOrders = ordersData.filter(order => 
-            getOrderField(order, 'status') === 'handed_over'
-        );
+        const handedOverOrders = ordersData.filter(order => {
+            const inputQuantity = getInputQuantityFromPreviousStage(order);
+            
+            // Tính tổng số lượng bàn giao và input
+            const previousStageHandover = order.previous_stage_handover_quantity || 0;
+            const currentStageHandover = getOrderField(order, 'handover_quantity') || 0;
+            const currentStageInput = getOrderField(order, 'input_quantity') || 0;
+
+            
+            return inputQuantity <= 0 && previousStageHandover > 0;
+        });
         updateReportCount(handedOverOrders.length);
     }
 
@@ -967,6 +1545,9 @@
         const machineTabsContainer = document.getElementById('machineTabs');
         const tabContentContainer = document.getElementById('machineTabContent');
         
+        console.log('🔍 Creating dynamic tabs for stage:', STAGE_CONFIG.KEY);
+        console.log('🔍 Available machines:', machineStatusData);
+        
         // Lưu tab "Báo cáo" nếu có
         const reportTab = machineTabsContainer.querySelector('#report-tab');
         const reportContent = tabContentContainer.querySelector('#report-content');
@@ -980,10 +1561,13 @@
             machine.stage_machine && machine.stage_machine.includes(`Stage_${STAGE_CONFIG.KEY}`)
         );
         
+        console.log('🔍 Filtered machines for stage:', MStageMachines);
+        
         // Tạo tab cho từng máy ${STAGE_CONFIG.NAME}
         MStageMachines.forEach((machine, index) => {
             const machineName = machine.machine_name;
-            const machineId = machineName.toLowerCase().replace(/\s+/g, '-');
+            // Tạo ID an toàn cho CSS selector (không bắt đầu bằng số)
+            const machineId = `machine-${machineName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
             const tabId = `${machineId}-tab`;
             const contentId = `${machineId}-content`;
             
@@ -1190,7 +1774,10 @@
      */
     function updateTabBasedOnMachineFilter() {
         const machineFilter = document.getElementById('machineFilter');
-        if (!machineFilter || !machineFilter.value) return;
+        if (!machineFilter) {
+            return;
+        }
+        if (!machineFilter.value) return;
         
         const machineValue = machineFilter.value;
         let targetTabId = 'all-tab';
@@ -1203,7 +1790,7 @@
         // Kiểm tra máy được chọn và chuyển đến tab tương ứng
         for (const machine of MStageMachines) {
             if (machineValue.includes(machine.machine_name)) {
-                const machineId = machine.machine_name.toLowerCase().replace(/\s+/g, '-');
+                const machineId = `machine-${machine.machine_name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
                 targetTabId = `${machineId}-tab`;
                 break;
             }
@@ -1251,7 +1838,16 @@
             return order.sheet_count || order.quantity || 0;
         }
 
-        // Tạo tên field dựa trên stage
+        // Sử dụng dữ liệu đã được transform sẵn từ previous_stage_handover_quantity
+        if (order.previous_stage_handover_quantity && order.previous_stage_handover_quantity > 0) {
+            return order.previous_stage_handover_quantity;
+        }
+        
+        if (order.previous_stage_good_quantity && order.previous_stage_good_quantity > 0) {
+            return order.previous_stage_good_quantity;
+        }
+
+        // Fallback về cách cũ nếu dữ liệu transform chưa có
         const handoverField = `${previousStage}_handover_quantity`;
         const goodField = `${previousStage}_good_quantity`;
         
@@ -1304,6 +1900,30 @@
             machines.some(machine => machine.includes(stageMachine.machine_name))
         );
     }
+    
+    /**
+     * Kiểm tra xem stage trước đã hoàn thành và sẵn sàng cho stage hiện tại chưa
+     * @param {object} order - Lệnh sản xuất
+     * @returns {boolean} - true nếu stage trước đã hoàn thành hoặc không có stage trước
+     */
+    function isPreviousStageReady(order) {
+        if (!order.previous_stage) {
+            return true; // Không có stage trước = sẵn sàng
+        }
+        
+        const previousStageStatus = order.previous_stage_status;
+        const currentStageStatus = getOrderField(order, 'status');
+        
+        // Nếu stage trước chưa hoàn thành và stage hiện tại chưa bắt đầu
+        if (previousStageStatus && 
+            previousStageStatus !== 'completed' && 
+            previousStageStatus !== 'handed_over' && 
+            currentStageStatus === 'waiting') {
+            return false; // Stage trước chưa sẵn sàng
+        }
+        
+        return true; // Stage trước đã sẵn sàng
+    }
 
     /**
      * Tạo một dòng trong bảng cho một lệnh sản xuất
@@ -1322,28 +1942,41 @@
         let isDisabled = false;
         let displayReason = '';
         
+        // Kiểm tra stage trước đã sẵn sàng chưa
+        const isPreviousReady = isPreviousStageReady(order);
+        
         if (!orderMachine) {
             // Lệnh không được gán cho máy nào → bị mờ
             isDisabled = true;
             displayReason = `Lệnh không được gán cho máy ${STAGE_CONFIG.NAME}`;
         } else {
-            // Kiểm tra trạng thái máy được gán
-            const machineStatus = checkMachineStatus(orderMachine);
-            
-            if (!machineStatus.isRunning) {
-                // Máy đang trống → có thể bắt đầu
-                isDisabled = false;
-                displayReason = `Máy ${orderMachine} đang trống`;
+            // Kiểm tra số lượng cần sản xuất
+            const inputQuantity = getInputQuantityFromPreviousStage(order);
+            if (inputQuantity <= 0) {
+                // Không có số lượng từ stage trước → bị mờ
+                isDisabled = true;
+                const previousStage = order.previous_stage;
+                const previousStageName = previousStage ? getStageDisplayName(previousStage) : 'Công đoạn trước';
+                displayReason = `Chờ ${previousStageName} cung cấp số lượng`;
             } else {
-                // Máy đang chạy
-                if (machineStatus.runningOrder && machineStatus.runningOrder.current_order_id == order.id) {
-                    // Máy đang chạy chính lệnh này → hiển thị bình thường
+                // Kiểm tra trạng thái máy được gán
+                const machineStatus = checkMachineStatus(orderMachine);
+                
+                if (!machineStatus.isRunning) {
+                    // Máy đang trống → có thể bắt đầu
                     isDisabled = false;
-                    displayReason = `Lệnh hiện tại của máy ${orderMachine}`;
+                    displayReason = `Máy ${orderMachine} đang trống`;
                 } else {
-                    // Máy đang chạy lệnh khác → bị mờ
-                    isDisabled = true;
-                    displayReason = `Máy ${orderMachine} đang sản xuất lệnh ${machineStatus.runningOrder ? machineStatus.runningOrder.current_order_code : 'N/A'}`;
+                    // Máy đang chạy
+                    if (machineStatus.runningOrder && machineStatus.runningOrder.current_order_id == order.id) {
+                        // Máy đang chạy chính lệnh này → hiển thị bình thường
+                        isDisabled = false;
+                        displayReason = `Lệnh hiện tại của máy ${orderMachine}`;
+                    } else {
+                        // Máy đang chạy lệnh khác → bị mờ
+                        isDisabled = true;
+                        displayReason = `Máy ${orderMachine} đang sản xuất lệnh ${machineStatus.runningOrder ? machineStatus.runningOrder.current_order_code : 'N/A'}`;
+                    }
                 }
             }
         }
@@ -1553,7 +2186,7 @@
             await loadOrdersData();
             renderOrdersTable();
             updateStatistics();
-            showNotification('Đã làm mới dữ liệu thành công', 'info');
+            // showNotification('Đã làm mới dữ liệu thành công', 'info');
         } catch (error) {
 
             showNotification('Lỗi làm mới dữ liệu: ' + error.message, 'error');
@@ -1900,6 +2533,9 @@
         // Update current editing order
         currentEditingOrder = order;
         
+        // Kiểm tra shift hiện tại để lấy start_time từ bảng production_orders_shift
+        checkCurrentShiftStatus();
+        
         // Chi tiết log để debug thông tin thời gian
 
         // Cập nhật mã lệnh trong tiêu đề
@@ -1955,18 +2591,18 @@
         }
 
         // Bắt đầu timer nếu đã có thời gian bắt đầu và chưa kết thúc
-        if (getOrderField(order, 'start_time') && !getOrderField(order, 'end_time')) {
+        if (window.currentShiftStartTime && !getOrderField(order, 'end_time')) {
             setTimeout(() => {
                 startProductionTimer();
             }, 100);
-        } else if (getOrderField(order, 'start_time') && getOrderField(order, 'end_time')) {
+        } else if (window.currentShiftStartTime && getOrderField(order, 'end_time')) {
             // Nếu đã kết thúc, hiển thị thời gian cố định
             setTimeout(() => {
                 const statusTimeElement = document.getElementById('statusTime');
                 const runningTimeInfoElement = document.getElementById('runningTimeInfo');
                 
                 if (statusTimeElement) {
-                    const fixedTime = calculateWorkTime(getOrderField(order, 'start_time'), getOrderField(order, 'end_time'));
+                    const fixedTime = calculateWorkTime(window.currentShiftStartTime, getOrderField(order, 'end_time'));
                     statusTimeElement.textContent = `Thời gian: ${fixedTime}`;
                 }
                 
@@ -1988,29 +2624,76 @@
                 });
             }
             
-            // Thêm event listeners cho validation real-time
-            const quantityInputs = ['goodQty', 'ngQty', 'ngStartEndQty', 'returnQty'];
-            quantityInputs.forEach(inputId => {
-                const input = document.getElementById(inputId);
-                if (input) {
-                    input.addEventListener('input', updateTotalQuantityDisplay);
-                    input.addEventListener('blur', updateTotalQuantityDisplay);
-                }
+                    // Thêm event listeners cho validation real-time
+        const quantityInputs = ['goodQty', 'ngQty', 'ngStartEndQty', 'returnQty'];
+        quantityInputs.forEach(inputId => {
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.addEventListener('input', updateTotalQuantityDisplay);
+                input.addEventListener('blur', updateTotalQuantityDisplay);
+                input.addEventListener('input', updateStatisticsDisplay);
+                input.addEventListener('blur', updateStatisticsDisplay);
+            }
+        });
+        
+        // Khởi tạo hiển thị tổng số lượng và thống kê
+        updateTotalQuantityDisplay();
+        updateStatisticsDisplay();
+        
+        // Tự động đề xuất ca làm việc hiện tại
+        const shiftSelect = document.getElementById('shift');
+        if (shiftSelect) {
+            const currentShift = getCurrentShift();
+            shiftSelect.value = currentShift;
+        }
+        
+        // Reset form để nhập dữ liệu mới (không load từ database)
+        // resetProductionForm();
+        
+        // Load số lượng còn lại
+        loadRemainingQuantity();
+        
+        // Kiểm tra trạng thái shift hiện tại
+        checkCurrentShiftStatus();
+        }, 150);
+    }
+
+    /**
+     * Tính số lượng cần sản xuất còn lại
+     * = Số lượng từ công đoạn trước - (Tổng số lượng bàn giao + NG của các ca đã làm)
+     */
+    async function getRemainingQuantity(order) {
+        try {
+            // Lấy số lượng từ công đoạn trước
+            const inputQuantity = getInputQuantityFromPreviousStage(order);
+            
+            // Lấy tổng số lượng bàn giao và NG của các ca đã làm
+            const shiftsResponse = await fetch(`${API_BASE_URL}/data/production_orders/${order.id}/shifts?stage=${STAGE_CONFIG.KEY}`);
+            const shiftsData = await shiftsResponse.json();
+            
+            let totalHandoverQuantity = 0;
+            let totalNgQuantity = 0;
+            if (shiftsData.shifts && Array.isArray(shiftsData.shifts)) {
+                shiftsData.shifts.forEach(shift => {
+                    totalHandoverQuantity += (parseInt(shift.handover_quantity) || 0);
+                    totalNgQuantity += (parseInt(shift.ng_quantity) || 0);
+                });
+            }
+            
+            // Số lượng còn lại = Input từ công đoạn trước - (Bàn giao + NG của các ca trước)
+            const remainingQuantity = Math.max(0, inputQuantity - totalHandoverQuantity - totalNgQuantity);
+            console.log('📊 Số lượng còn lại:', {
+                inputQuantity,
+                totalHandoverQuantity,
+                totalNgQuantity,
+                remainingQuantity
             });
             
-            // Khởi tạo hiển thị tổng số lượng
-            updateTotalQuantityDisplay();
-            
-            // Tự động đề xuất ca làm việc hiện tại nếu chưa có ca được chọn
-            const shiftSelect = document.getElementById('shift');
-            if (shiftSelect && !shiftSelect.value) {
-                const currentShift = getCurrentShift();
-                shiftSelect.value = currentShift;
-                
-                // Hiển thị thông báo đề xuất
-                showNotification(`💡 Đã tự động đề xuất ca làm việc: ${currentShift}`, 'info');
-            }
-        }, 150);
+            return remainingQuantity;
+        } catch (error) {
+            console.error('❌ Lỗi tính số lượng còn lại:', error);
+            return getInputQuantityFromPreviousStage(order); // Fallback
+        }
     }
 
     /**
@@ -2038,11 +2721,11 @@
             statusText = 'Chưa bắt đầu';
         }
 
-        // Calculate statistics
-        const totalProduced = (parseInt(getOrderField(order, 'good_quantity') || 0) + parseInt(getOrderField(order, 'ng_quantity') || 0));
+        // Calculate statistics - không sử dụng dữ liệu từ database
+        const totalProduced = 0; // Sẽ được tính từ form nhập liệu
         const inputQuantity = getInputQuantityFromPreviousStage(order);
-        const efficiency = inputQuantity > 0 ? Math.round((totalProduced / inputQuantity) * 100) : 0;
-        const ngRate = totalProduced ? Math.round((parseInt(getOrderField(order, 'ng_quantity') || 0) / totalProduced) * 100) : 0;
+        const efficiency = 0; // Sẽ được tính từ form nhập liệu
+        const ngRate = 0; // Sẽ được tính từ form nhập liệu
 
         return `
             <div class="sidebar-header">
@@ -2063,10 +2746,12 @@
                         <div class="tab-icon"><i class="bi bi-calculator-fill"></i></div>
                         <div>Số lượng</div>
                     </button>
-                    <button class="tab-btn" onclick="switchTab('quality')">
-                        <div class="tab-icon"><i class="bi bi-star-fill"></i></div>
-                        <div>Chất lượng</div>
+      
+                    <button class="tab-btn" onclick="switchTab('shifts')">
+                        <div class="tab-icon"><i class="bi bi-clock-history"></i></div>
+                        <div>Thông tin ca</div>
                     </button>
+                    
                     <button class="tab-btn" onclick="switchTab('notes')">
                         <div class="tab-icon"><i class="bi bi-chat-text-fill"></i></div>
                         <div>Ghi chú</div>
@@ -2127,7 +2812,7 @@
 
                         <div class="info-row">
                             <span class="info-label">Thời gian bắt đầu</span>
-                            <span class="info-value">${getOrderField(order, 'start_time') ? formatDateTime(getOrderField(order, 'start_time')) : '--'}</span>
+                            <span class="info-value" id="startTimeInfo">${window.currentShiftStartTime ? formatDateTime(window.currentShiftStartTime) : '--'}</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Thời gian kết thúc</span>
@@ -2135,8 +2820,8 @@
                         </div>
                         <div class="info-row">
                             <span class="info-label">Thời gian chạy</span>
-                                                        <span class="info-value" id="runningTimeInfo">${getOrderField(order, 'start_time') ?
-                                (getOrderField(order, 'end_time') ? calculateWorkTime(getOrderField(order, 'start_time'), getOrderField(order, 'end_time')) : 'Đang tính...') : '--'}</span>
+                            <span class="info-value" id="runningTimeInfo">${window.currentShiftStartTime ?
+                                (getOrderField(order, 'end_time') ? calculateWorkTime(window.currentShiftStartTime, getOrderField(order, 'end_time')) : 'Đang tính...') : '--'}</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Trạng thái máy</span>
@@ -2149,22 +2834,22 @@
                         <div class="quantity-grid mb-3">
                             <div class="quantity-card success">
                                 <div class="quantity-label">Số lượng OK</div>
-                                <input type="number" class="quantity-input" id="goodQty" value="${getOrderField(order, 'good_quantity') || 0}">
+                                <input type="number" class="quantity-input" id="goodQty" value="0">
                             </div>
                             <div class="quantity-card danger">
                                 <div class="quantity-label">Số lượng NG</div>
-                                <input type="number" class="quantity-input" id="ngQty" value="${getOrderField(order, 'ng_quantity') || 0}">
+                                <input type="number" class="quantity-input" id="ngQty" value="0">
                             </div>
                         </div>
 
                         <div class="quantity-grid mb-3">
                             <div class="quantity-card ">
                                 <div class="quantity-label">NG đầu/cuối</div>
-                                <input type="number" class="quantity-input" id="ngStartEndQty" value="${getOrderField(order, 'ng_start_end_quantity') || 0}">
+                                <input type="number" class="quantity-input" id="ngStartEndQty" value="0">
                             </div>
                             <div class="quantity-card ">
                                 <div class="quantity-label">Số lượng trả</div>
-                                <input type="number" class="quantity-input" id="returnQty" value="${getOrderField(order, 'return_quantity') || 0}">
+                                <input type="number" class="quantity-input" id="returnQty" value="0">
                             </div>
                         </div>
 
@@ -2174,97 +2859,56 @@
                                 <i class="bi bi-arrow-right-circle"></i>
                                 Số lượng chuyển giao
                             </label>
-                            <input type="number" class="form-control-custom" id="handoverQty" value="${getOrderField(order, 'handover_quantity') || 0}" style="font-size: 1.1rem; font-weight: 600; color: var(--primary-blue);">
+                            <input type="number" class="form-control-custom" id="handoverQty" value="0" style="font-size: 1.1rem; font-weight: 600; color: var(--primary-blue);">
                         </div>
 
                         <div class="info-row" style="background: linear-gradient(135deg, #e3f2fd, #e3f2fd); border-radius: 8px; padding: 12px; margin: 10px 0; ">
                             <span class="info-label" style="font-weight: 600; color: #1976d2;">📥 Số lượng cần sản xuất</span>
-                            <span class="info-value" style="font-weight: 700; font-size: 1.1rem; color: #1565c0;">${getInputQuantityFromPreviousStage(order)} tờ giấy</span>
+                            <span class="info-value" id="remainingQuantityDisplay" style="font-weight: 700; font-size: 1.1rem; color: #1565c0;">Đang tính...</span>
                         </div>
                         <div class="info-row" style="background: linear-gradient(135deg, #fff3cd, #fff3cd); border-radius: 8px; padding: 12px; margin: 10px 0; ">
                             <span class="info-label" style="font-weight: 600; color: #856404;">📊 Tổng số lượng đã nhập</span>
-                            <span class="info-value" id="totalQuantityDisplay" style="font-weight: 700; font-size: 1.1rem; color: #856404;">0 / ${getInputQuantityFromPreviousStage(order)}</span>
+                            <span class="info-value" id="totalQuantityDisplay" style="font-weight: 700; font-size: 1.1rem; color: #856404;">0 / 0</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Tổng sản xuất</span>
-                            <span class="info-value">${totalProduced} sản phẩm</span>
+                            <span class="info-value" id="totalProducedValue">0 sản phẩm</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Hiệu suất</span>
-                            <span class="info-value">${efficiency}%</span>
+                            <span class="info-value" id="efficiencyValue">0%</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Tỷ lệ NG</span>
-                            <span class="info-value">${ngRate}%</span>
+                            <span class="info-value" id="ngRateValue">0%</span>
                         </div>
                     </div>
 
-                    <!-- Quality Tab -->
-                    <div id="quality-panel" class="tab-panel">
-                        <div class="form-group">
-                            <label class="form-label">
-                                <i class="bi bi-star"></i>
-                                Đánh giá chất lượng
-                            </label>
-                            <select class="form-control-custom" id="qualityRating">
-                                <option value="">Chọn đánh giá</option>
-                                <option value="A+" ${order.quality_rating === 'A+' ? 'selected' : ''}>Xuất sắc (A+)</option>
-                                <option value="A" ${order.quality_rating === 'A' ? 'selected' : ''}>Tốt (A)</option>
-                                <option value="B+" ${order.quality_rating === 'B+' ? 'selected' : ''}>Khá (B+)</option>
-                                <option value="B" ${order.quality_rating === 'B' ? 'selected' : ''}>Trung bình (B)</option>
-                                <option value="C" ${order.quality_rating === 'C' ? 'selected' : ''}>Yếu (C)</option>
-                            </select>
-                        </div>
+                 
 
-                        <div class="form-group">
-                            <label class="form-label">
-                                <i class="bi bi-shield-check"></i>
-                                Kiểm tra chất lượng
-                            </label>
-                            <select class="form-control-custom" id="qualityCheck">
-                                <option value="">Chọn kết quả</option>
-                                <option value="pass" ${order.quality_check === 'pass' ? 'selected' : ''}>Đạt tiêu chuẩn</option>
-                                <option value="improve" ${order.quality_check === 'improve' ? 'selected' : ''}>Cần cải thiện</option>
-                                <option value="fail" ${order.quality_check === 'fail' ? 'selected' : ''}>Không đạt</option>
-                            </select>
-                        </div>
+                    
 
-                        <div class="form-group checkbox-group">
-                            <div class="checkbox-container">
-                                <div class="checkbox-item">
-                                    <input type="checkbox" id="issueMachine" class="checkbox-input">
-                                    <label for="issueMachine" class="checkbox-label">Lỗi máy móc</label>
-                                </div>
-                                <div class="checkbox-item">
-                                    <input type="checkbox" id="issueMaterial" class="checkbox-input">
-                                    <label for="issueMaterial" class="checkbox-label">Nguyên liệu kém chất lượng</label>
-                                </div>
-                                <div class="checkbox-item">
-                                    <input type="checkbox" id="issueProcess" class="checkbox-input">
-                                    <label for="issueProcess" class="checkbox-label">Lỗi quy trình</label>
-                                </div>
-                                <div class="checkbox-item">
-                                    <input type="checkbox" id="issueOther" class="checkbox-input">
-                                    <label for="issueOther" class="checkbox-label">Khác</label>
+                    <!-- Shifts Tab -->
+                    <div id="shifts-panel" class="tab-panel">
+                
+                            <div class="shifts-header">
+                                <h6><i class="bi bi-clock-history me-2"></i>Lịch sử ca làm việc</h6>
+                                <div class="shifts-loading" id="shiftsLoading" style="display: none;">
+                                    <div class="spinner-border spinner-border-sm" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <span class="ms-2">Đang tải...</span>
                                 </div>
                             </div>
-                            <label class="form-label">
-                                <i class="bi bi-exclamation-triangle"></i>
-                                Vấn đề gặp phải
-                            </label>
+                            
+                            <div class="shifts-list" id="shiftsList">
+                                <!-- Shifts will be loaded here -->
+                            </div>
                         </div>
+                  
+                </div>
 
-                        <div class="info-row">
-                            <span class="info-label">Tỷ lệ đạt chuẩn</span>
-                            <span class="info-value">${100 - ngRate}%</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Mức độ hài lòng</span>
-                            <span class="info-value">⭐⭐⭐⭐⭐</span>
-                        </div>
-                    </div>
-
-                    <!-- Notes Tab -->
+                <!-- Notes Tab -->
                     <div id="notes-panel" class="tab-panel">
                         <div class="form-group">
                             <label class="form-label">
@@ -2294,7 +2938,6 @@
                             <input type="text" class="form-control-custom" id="tags" value="${order.tags || ''}" placeholder="Nhập các tag, cách nhau bởi dấu phẩy">
                         </div>
                     </div>
-                </div>
 
                 <!-- Production Controls -->
                 <div class="production-controls">
@@ -2304,29 +2947,21 @@
                             <i class="bi bi-${getOrderField(order, 'status') === 'in_progress' ? 'play-circle-fill text-success' : 'stop-circle-fill text-danger'}"></i>
                             <span id="productionStatusText">${statusText}</span>
                         </div>
-                        <div class="status-time" id="statusTime">Thời gian: ${getOrderField(order, 'start_time') && getOrderField(order, 'status') === 'in_progress' ? 'Đang tính...' : '00:00:00'}</div>
+                        <div class="status-time" id="statusTime">Thời gian: </div>
                     </div>
 
                     <!-- Control Buttons -->
                     <div class="control-row">
-                        <button class="btn-custom btn-success-custom" id="startBtn" onclick="startProduction()" ${getOrderField(order, 'status') === 'completed' || getOrderField(order, 'status') === 'handed_over' ? 'disabled' : ''} style="${!getOrderField(order, 'start_time') ? 'display: flex;' : 'display: none;'}">
+                        <button class="btn-custom btn-success-custom" id="startBtn" onclick="startProduction()">
                             <i class="bi bi-play-fill"></i>
                             Bắt đầu
                         </button>
-                          <!--  <button class="btn-custom btn-danger-custom" id="stopBtn" onclick="endProduction()" ${getOrderField(order, 'status') === 'not_started' || getOrderField(order, 'status') === 'handed_over' ? 'disabled' : ''} style="${getOrderField(order, 'start_time') && !getOrderField(order, 'end_time') ? 'display: flex;' : 'display: none;'}">
-                            <i class="bi bi-stop-fill"></i>
-                            Kết thúc
-                        </button> -->
-                        <button class="btn-custom btn-warning-custom" id="stopAndHandoverBtn" onclick="endProductionAndHandover()" ${getOrderField(order, 'status') === 'not_started' || getOrderField(order, 'status') === 'handed_over' ? 'disabled' : ''} style="${getOrderField(order, 'start_time') && !getOrderField(order, 'end_time') ? 'display: flex;' : 'display: none;'}">
-                            <i class="bi bi-clipboard2-check-fill"></i>
-                        Bàn giao sang ${nextStageName}
+         
+                        <button class="btn-custom btn-info-custom" id="handoverShiftBtn" onclick="handoverShift()" ${getOrderField(order, 'status') === 'not_started' || getOrderField(order, 'status') === 'handed_over' ? 'disabled' : ''} style="${getOrderField(order, 'start_time') && !getOrderField(order, 'end_time') ? 'display: flex;' : 'display: none;'}">
+                            <i class="bi bi-clock-history"></i>
+                            Bàn giao ca
                         </button>
 
-                        
-                        <button class="btn-custom btn-primary-custom" id="handoverBtn" onclick="sendStageHandoverWebhook()" style="${getOrderField(order, 'start_time') && getOrderField(order, 'end_time') && getOrderField(order, 'status') !== 'handed_over' ? 'display: flex;' : 'display: none;'}">
-                            <i class="bi clipboard2-check-fill"></i>
-                            Bàn giao
-                            </button>
                           <button class="btn-custom btn-secondary-custom" id="resetBtn" onclick="resetProduction()" style="${getOrderField(order, 'start_time') && getOrderField(order, 'status') === 'in_progress' ? 'display: flex;    max-width: 100px;' : 'display: none;'}">
                             <i class="bi bi-arrow-clockwise"></i>
                             Hủy làm
@@ -2409,18 +3044,29 @@
         const returnQty = parseInt(getElementValue('returnQty')) || 0;
         
         const totalEntered = goodQty + ngQty + ngStartEndQty + returnQty;
-        const inputQuantity = getInputQuantityFromPreviousStage(currentEditingOrder);
+        
+        // Lấy số lượng còn lại từ element hiển thị
+        const remainingQuantityDisplay = document.getElementById('remainingQuantityDisplay');
+        let remainingQuantity = 0;
+        
+        if (remainingQuantityDisplay && remainingQuantityDisplay.textContent) {
+            const text = remainingQuantityDisplay.textContent;
+            const match = text.match(/(\d+)/);
+            if (match) {
+                remainingQuantity = parseInt(match[1]);
+            }
+        }
         
         // Cập nhật hiển thị tổng số lượng
         const totalDisplay = document.getElementById('totalQuantityDisplay');
         if (totalDisplay) {
-            totalDisplay.textContent = `${totalEntered} / ${inputQuantity}`;
+            totalDisplay.textContent = `${totalEntered} / ${remainingQuantity}`;
             
             // Thay đổi màu sắc dựa trên validation
-            if (totalEntered > inputQuantity) {
+            if (totalEntered > remainingQuantity) {
                 totalDisplay.style.color = '#dc3545'; // Đỏ
                 totalDisplay.style.fontWeight = 'bold';
-            } else if (totalEntered === inputQuantity) {
+            } else if (totalEntered === remainingQuantity) {
                 totalDisplay.style.color = '#28a745'; // Xanh lá
                 totalDisplay.style.fontWeight = 'bold';
             } else {
@@ -2434,7 +3080,7 @@
         inputs.forEach(inputId => {
             const input = document.getElementById(inputId);
             if (input) {
-                if (totalEntered > inputQuantity) {
+                if (totalEntered > remainingQuantity) {
                     input.style.color = '#ff3030';
                     // input.style.backgroundColor = '#fff5f5';
                 } else {
@@ -2518,6 +3164,7 @@
 
     // Production control functions
     async function startProduction() {
+
         const order = currentEditingOrder;
         if (!order) {
             showNotification('Lỗi: Không xác định được lệnh sản xuất', 'error');
@@ -2525,7 +3172,8 @@
         }
         
         try {
-            showLoading('Đang bắt đầu sản xuất...');
+    
+            showLoading('Đang bắt đầu ca làm việc...');
             
             // Lấy thông tin từ form trong sidebar
             const formData = getFormData();
@@ -2543,53 +3191,122 @@
                 return;
             }
             
-            // Hiển thị thông báo xác nhận máy sẽ được sử dụng
-            showNotification(`ℹ️ Sẽ bắt đầu sản xuất trên máy: ${assignedMachine}`, 'info');
-            
             // Validation cơ bản
             if (!formData.worker || !formData.worker.trim()) {
                 showNotification('⚠️ Vui lòng nhập tên thợ phụ trách trong phần "Thông tin sản xuất"', 'warning');
                 return;
             }
             
-            // Chuẩn bị dữ liệu gửi lên API
-            const startData = {
-                stage: STAGE_CONFIG.KEY,
+            // Lấy số ca tiếp theo
+            const shiftsResponse = await fetch(`${API_BASE_URL}/data/production_orders/${order.id}/shifts?stage=${STAGE_CONFIG.KEY}`);
+            const shiftsData = await shiftsResponse.json();
+            
+            const nextShiftNumber = shiftsData.shifts && shiftsData.shifts.length > 0
+                ? Math.max(...shiftsData.shifts.map(s => s.shift_number)) + 1
+                : 1;
+            
+            const now = new Date();
+            const shiftDate = now.toISOString().split('T')[0];
+            
+            const mysqlDateTime = formatDateTimeForMySQL(now);
+            
+            // Tạo ca làm việc mới với status 'in_progress'
+            const createShiftData = {
+                production_order_id: order.id,
                 production_order: order.production_order,
+                stage: STAGE_CONFIG.KEY,
+                shift_number: nextShiftNumber,
+                shift_name: formData.shift,
+                shift_date: shiftDate,
                 worker_name: formData.worker,
-                machine_name: assignedMachine, // Sử dụng máy được gán thực tế
-                shift: formData.shift,
-                [getFieldName('input_quantity')]: getInputQuantityFromPreviousStage(order), // Lấy từ stage trước
-                notes: formData.note || `Bắt đầu sản xuất công đoạn ${STAGE_CONFIG.NAME}`
+                machine_name: assignedMachine,
+                start_time: mysqlDateTime,
+                end_time: null,
+                work_duration_minutes: 0,
+                good_quantity: 0,
+                ng_quantity: 0,
+                ng_start_end_quantity: 0,
+                return_quantity: 0,
+                output_quantity: 0,
+                handover_quantity: 0,
+                efficiency_percent: 0,
+                quality_score: 0,
+                handover_person: '',
+                receiver_person: '',
+                ng_reason: '',
+                quality_notes: '',
+                is_overtime: 0,
+                overtime_hours: 0,
+                is_night_shift: 0,
+                break_duration_minutes: 0,
+                status: 'in_progress',
+                notes: formData.note || `Bắt đầu ca làm việc ${formData.shift}`
             };
             
-            // Gửi request đến API start_production
-            const response = await fetch(`${API_BASE_URL}/data/production_orders/${order.id}/start_production`, {
+            // Tạo shift mới
+            const response = await fetch(`${API_BASE_URL}/data/production_orders_shift`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(startData)
+                body: JSON.stringify(createShiftData)
             });
             
             const result = await response.json();
             
             if (response.ok) {
-                showNotification('✅ Đã bắt đầu sản xuất thành công!', 'success');
+    
+                showNotification('✅ Đã bắt đầu ca làm việc thành công!', 'success');
                 
-                // Nếu API trả về thông tin thời gian bắt đầu, cập nhật vào đối tượng hiện tại
-                if (result.start_time || result[getFieldName('start_time')]) {
-                    setOrderField(currentEditingOrder, 'start_time', result.start_time || result[getFieldName('start_time')]);
-                } else {
-                    // Nếu API không trả về thời gian bắt đầu, dùng thời gian hiện tại
-                    setOrderField(currentEditingOrder, 'start_time', new Date().toISOString());
+                // Lưu ID và thời gian bắt đầu của shift hiện tại để sử dụng khi bàn giao
+                window.currentShiftId = result.shift_id;
+                window.currentShiftStartTime = mysqlDateTime;
+
+                
+                // Cập nhật trạng thái production_orders với stage_status = 'in_progress'
+                try {
+                    const orderUpdateData = {
+                        status: 'in_progress',
+                        [`${STAGE_CONFIG.KEY}_status`]: 'in_progress',
+                        [`${STAGE_CONFIG.KEY}_worker_name`]: formData.worker,
+                        [`${STAGE_CONFIG.KEY}_machine_name`]: assignedMachine,
+                        [`${STAGE_CONFIG.KEY}_start_time`]: mysqlDateTime
+                    };
+                    
+
+                    
+                    const updateOrderResponse = await fetch(`${API_BASE_URL}/data/production_orders/${order.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(orderUpdateData)
+                    });
+                    
+                    if (updateOrderResponse.ok) {
+                        // console.log('✅ Production order status updated successfully');
+                    } else {
+                        const updateError = await updateOrderResponse.json();
+                        console.warn('⚠️ Failed to update production order status:', updateError);
+                    }
+                } catch (updateError) {
+                    console.warn('⚠️ Error updating production order status:', updateError);
+                    // Không throw error vì đây không phải lỗi nghiêm trọng
                 }
                 
-                // Cập nhật UI ngay lập tức để hiển thị thời gian bắt đầu
+                // Cập nhật UI để hiển thị thời gian bắt đầu
                 const startTimeElement = document.querySelector('.detail-section .alert .row .col-6:first-child span');
                 if (startTimeElement) {
-                    startTimeElement.textContent = formatDateTime(getOrderField(currentEditingOrder, 'start_time'));
+                    startTimeElement.textContent = formatDateTime(new Date(mysqlDateTime));
                     startTimeElement.classList.add('text-primary');
+                }
+                
+                // Cập nhật thời gian bắt đầu trong sidebar
+                const startTimeInfo = document.getElementById('startTimeInfo');
+                if (startTimeInfo) {
+                    // Hiển thị thời gian đã được định dạng
+                    startTimeInfo.textContent = formatDateTime(mysqlDateTime);
+
                 }
                 
                 // Hiển thị đồng hồ thời gian
@@ -2614,6 +3331,33 @@
                     startProductionTimer();
                 }
                 
+                // Cập nhật trạng thái nút
+                const startBtn = document.getElementById('startBtn');
+                const handoverBtn = document.getElementById('handoverShiftBtn');
+                const stopAndHandoverBtn = document.getElementById('stopAndHandoverBtn');
+                const resetBtn = document.getElementById('resetBtn');
+                
+                // Ẩn nút bắt đầu, hiển thị các nút khác
+                if (startBtn) {
+                    startBtn.style.display = 'none';
+                    startBtn.disabled = true;
+                }
+                
+                if (handoverBtn) {
+                    handoverBtn.style.display = 'flex';
+                    handoverBtn.disabled = false;
+                }
+                
+                if (stopAndHandoverBtn) {
+                    stopAndHandoverBtn.style.display = 'flex';
+                    stopAndHandoverBtn.disabled = false;
+                }
+                
+                if (resetBtn) {
+                    resetBtn.style.display = 'flex';
+                    resetBtn.disabled = false;
+                }
+                
                 // Refresh dữ liệu từ API
                 await refreshData();
                 
@@ -2624,204 +3368,14 @@
             }
             
         } catch (error) {
-
+            console.error('❌ Lỗi trong startProduction:', error);
+            console.error('❌ Error stack:', error.stack);
             showNotification('Lỗi khi bắt đầu sản xuất: ' + error.message, 'error');
         } finally {
             hideLoading();
         }
     }
     
-    async function endProduction() {
-        const order = currentEditingOrder;
-        if (!order) {
-            showNotification('Lỗi: Không xác định được lệnh sản xuất', 'error');
-            return;
-        }
-        
-        try {
-            showLoading('Đang kết thúc sản xuất...');
-            
-            // Lấy thông tin từ form trong sidebar
-            const formData = getFormData();
-            
-            // Lấy máy được gán thực tế cho lệnh này
-            const assignedMachine = getOrderMachine(order);
-            if (!assignedMachine) {
-                showNotification('⚠️ Lệnh này không được gán cho máy Xả nào', 'warning');
-                return;
-            }
-            
-            // Validation cơ bản
-            if (!formData.worker || !formData.worker.trim()) {
-                showNotification('⚠️ Vui lòng nhập tên thợ phụ trách trong phần "Thông tin sản xuất"', 'warning');
-                return;
-            }
-            
-            if (formData.goodQty <= 0) {
-                showNotification('⚠️ Vui lòng nhập số lượng sản xuất (OK hoặc NG)', 'warning');
-                return;
-            }
-            
-            // Validate tổng số lượng không vượt quá số lượng đầu vào
-            if (!validateTotalQuantity(order, formData.goodQty, formData.ngQty, formData.ngStartEndQty, formData.returnQty)) {
-                return;
-            }
-            
-            // Hiển thị thông báo xác nhận máy sẽ được sử dụng
-            showNotification(`ℹ️ Sẽ kết thúc sản xuất trên máy: ${assignedMachine}`, 'info');
-            
-            // Chuẩn bị dữ liệu gửi lên API
-            const endData = {
-                stage: STAGE_CONFIG.KEY,
-                production_order: order.production_order,
-                worker_name: formData.worker,
-                machine_name: assignedMachine, // Sử dụng máy được gán thực tế
-                shift: formData.shift,
-                notes: formData.note || `Kết thúc sản xuất từ giao diện ${STAGE_CONFIG.NAME}`,
-                good_quantity: formData.goodQty,
-                ng_quantity: formData.ngQty,
-                handover_quantity: formData.handoverQty
-            };
-            
-            // Gửi request đến API end_production
-            const response = await fetch(`${API_BASE_URL}/data/production_orders/${order.id}/end_production`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(endData)
-            });
-            
-            const result = await response.json();
-            
-            if (response.ok) {
-                // Dừng timer khi kết thúc sản xuất
-                stopProductionTimer();
-                
-                showNotification('✅ Đã kết thúc sản xuất thành công!', 'success');
-                
-                // Cập nhật dữ liệu local nếu cần
-                if (result.end_time) {
-                    setOrderField(currentEditingOrder, 'end_time', result.end_time);
-                }
-                
-                await refreshData();
-                
-                // Refresh sidebar content
-                showOrderDetails(order.id);
-            } else {
-                throw new Error(`API error: ${response.status} - ${result.message || result.error || 'Unknown error'}`);
-            }
-            
-        } catch (error) {
-            showNotification('Lỗi khi kết thúc sản xuất: ' + error.message, 'error');
-        } finally {
-            hideLoading();
-        }
-    }
-
-    /**
-     * Kết thúc sản xuất và bàn giao ngay lập tức
-     */
-    async function endProductionAndHandover() {
-        const order = currentEditingOrder;
-        if (!order) {
-            showNotification('Lỗi: Không xác định được lệnh sản xuất', 'error');
-            return;
-        }
-        
-        try {
-            showLoading('Đang kết thúc sản xuất và bàn giao...');
-            
-            // Lấy thông tin từ form trong sidebar
-            const formData = getFormData();
-            const goodQuantity = parseInt(getElementValue('goodQty')) || 0;
-            const ngQuantity = parseInt(getElementValue('ngQty')) || 0;
-            const handoverQuantity = parseInt(getElementValue('handoverQty')) || 0;
-            // Lấy máy được gán thực tế cho lệnh này
-            const assignedMachine = getOrderMachine(order);
-            if (!assignedMachine) {
-                showNotification(`⚠️ Lệnh này không được gán cho máy ${STAGE_CONFIG.NAME} nào`, 'warning');
-                return;
-            }
-            
-            // Validation cơ bản
-            if (!formData.worker || !formData.worker.trim()) {
-                showNotification('⚠️ Vui lòng nhập tên thợ phụ trách trong phần "Thông tin sản xuất"', 'warning');
-                return;
-            }
-            
-            if (formData.goodQty <= 0) {
-                showNotification('⚠️ Vui lòng nhập số lượng sản xuất (OK hoặc NG)', 'warning');
-                return;
-            }
-            
-            if (handoverQuantity > goodQuantity) {
-                showNotification('Số lượng chuyển giao không thể lớn hơn số lượng OK', 'error');
-                return;
-            }
-            // Validate tổng số lượng không vượt quá số lượng đầu vào
-            if (!validateTotalQuantity(order, formData.goodQty, formData.ngQty, formData.ngStartEndQty, formData.returnQty)) {
-                return;
-            }
-            
-
-            // Hiển thị thông báo xác nhận
-            showNotification(`ℹ️ Sẽ kết thúc sản xuất và bàn giao ngay lập tức`, 'info');
-            
-            // Chuẩn bị dữ liệu gửi lên API
-            const endData = {
-                stage: STAGE_CONFIG.KEY,
-                production_order: order.production_order,
-                worker_name: formData.worker,
-                machine_name: assignedMachine,
-                shift: formData.shift,
-                notes: formData.note || `Kết thúc sản xuất và bàn giao từ giao diện ${STAGE_CONFIG.NAME}`,
-                good_quantity: formData.goodQty,
-                ng_quantity: formData.ngQty,
-                handover_quantity: formData.handoverQty
-            };
-            
-            // Gửi request đến API end_production
-            const response = await fetch(`${API_BASE_URL}/data/production_orders/${order.id}/end_production`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(endData)
-            });
-            
-            const result = await response.json();
-            
-            if (response.ok) {
-                // Dừng timer khi kết thúc sản xuất
-                stopProductionTimer();
-                
-                showNotification('✅ Đã kết thúc sản xuất thành công!', 'success');
-                
-                // Cập nhật dữ liệu local nếu cần
-                if (result.end_time) {
-                    setOrderField(currentEditingOrder, 'end_time', result.end_time);
-                }
-                
-                // Bàn giao ngay lập tức
-                await sendStageHandoverWebhook();
-                
-                await refreshData();
-                
-                // Refresh sidebar content
-                showOrderDetails(order.id);
-            } else {
-                throw new Error(`API error: ${response.status} - ${result.message || result.error || 'Unknown error'}`);
-            }
-            
-        } catch (error) {
-            showNotification('Lỗi khi kết thúc sản xuất và bàn giao: ' + error.message, 'error');
-        } finally {
-            hideLoading();
-        }
-    }
-
 
 
 
@@ -2932,57 +3486,96 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
     // Utility functions for time display
     function formatDateTime(dateString) {
         if (!dateString) return 'N/A';
-        const date = new Date(dateString);
+    
+    try {
+        // Xóa Z để JS không coi là UTC
+        const localDateString = dateString.replace('Z', '');
+        const date = new Date(localDateString);
+
         return date.toLocaleString('vi-VN', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
             hour: '2-digit',
             minute: '2-digit',
-            second: '2-digit'
+            second: '2-digit',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
         });
+    } catch (error) {
+        console.error('Error formatting date:', error);
+        return 'Error';
+    }
     }
     
-
-    
-
+ 
     
     function formatDateTimeForInput(dateString) {
         if (!dateString) return '';
-        const date = new Date(dateString);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        return `${year}-${month}-${day}T${hours}:${minutes}`;
+        
+        try {
+            const date = new Date(dateString);
+            
+            // Kiểm tra date có hợp lệ không
+            if (isNaN(date.getTime())) {
+                console.error('Invalid date in formatDateTimeForInput:', dateString);
+                return '';
+            }
+            
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        } catch (error) {
+            console.error('Error in formatDateTimeForInput:', error);
+            return '';
+        }
     }
     
     function calculateWorkTime(startTime, endTime) {
         if (!startTime || !endTime) return 'N/A';
         
-        const start = new Date(startTime);
-        const end = new Date(endTime);
-        const diffMs = end - start;
-        
-        const hours = Math.floor(diffMs / (1000 * 60 * 60));
-        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
-        
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        try {
+            const start = new Date(startTime);
+            const end = new Date(endTime);
+            
+            // Kiểm tra nếu date không hợp lệ
+            if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+                console.error('Invalid date in calculateWorkTime:', { startTime, endTime });
+                return 'Invalid date';
+            }
+            
+            const diffMs = end - start;
+            
+            // Xử lý trường hợp thời gian âm
+            if (diffMs < 0) {
+                console.warn('Negative time difference in calculateWorkTime:', { startTime, endTime, diffMs });
+                return '00:00:00';
+            }
+
+            const hours = Math.floor(diffMs / (1000 * 60 * 60));
+            const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+            
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        } catch (error) {
+            console.error('Error calculating work time:', error);
+            return 'Error';
+        }
+    }
+
+    // Format datetime cho MySQL (YYYY-MM-DD HH:mm:ss)
+    function formatDateTimeForMySQL(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     }
 
     // Biến để lưu trữ ID của timer
@@ -2998,13 +3591,527 @@
      * Switch between tabs in the sidebar
      */
     function switchTab(tabName) {
+
+        
         // Remove active class from all tabs and panels in sidebar only
         document.querySelectorAll('.details-panel .tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.details-panel .tab-panel').forEach(panel => panel.classList.remove('active'));
         
         // Add active class to clicked tab and corresponding panel
-        event.target.closest('.tab-btn').classList.add('active');
-        document.getElementById(tabName + '-panel').classList.add('active');
+        const clickedTab = event.target.closest('.tab-btn');
+        if (clickedTab) {
+            clickedTab.classList.add('active');
+        }
+        
+        const targetPanel = document.getElementById(tabName + '-panel');
+        if (targetPanel) {
+            targetPanel.classList.add('active');
+    
+        } else {
+            console.error('❌ Panel not found:', tabName + '-panel');
+        }
+        
+        // Load shifts data if switching to shifts tab
+        if (tabName === 'shifts' && currentEditingOrder) {
+            loadShiftsData(currentEditingOrder.id);
+        }
+    }
+
+    /**
+     * Load shifts data for an order
+     */
+    async function loadShiftsData(orderId) {
+        const shiftsList = document.getElementById('shiftsList');
+        const shiftsLoading = document.getElementById('shiftsLoading');
+        
+        if (!shiftsList || !shiftsLoading) {
+            console.error('Shifts elements not found');
+            return;
+        }
+        
+
+        
+        try {
+            // Show loading
+            shiftsLoading.style.display = 'flex';
+            shiftsList.innerHTML = '';
+            
+            const apiUrl = `${API_BASE_URL}/data/production_orders/${orderId}/shifts?stage=${STAGE_CONFIG.KEY}`;
+
+            
+            // Fetch shifts data
+            const response = await fetch(apiUrl);
+
+            
+            const data = await response.json();
+                        if (response.ok) {
+                
+                renderShiftsList(data.shifts);
+            } else {
+                console.error('❌ API error:', response.status, data);
+                throw new Error(data.error || 'Failed to load shifts data');
+            }
+        } catch (error) {
+            console.error('💥 Error loading shifts data:', error);
+            console.error('💥 Error stack:', error.stack);
+            shiftsList.innerHTML = `
+                <div class="empty-state">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <h5>Không thể tải dữ liệu ca làm việc</h5>
+                    <p>${error.message}</p>
+                </div>
+            `;
+        } finally {
+            shiftsLoading.style.display = 'none';
+        }
+    }
+    
+    /**
+     * Render shifts list
+     */
+    function renderShiftsList(shifts) {
+        const shiftsList = document.getElementById('shiftsList');
+        
+        if (!shiftsList) {
+            console.error('❌ Shifts list element not found!');
+            return;
+        }
+        
+        if (!shifts || shifts.length === 0) {
+            shiftsList.innerHTML = `
+                <div class="empty-state">
+                    <i class="bi bi-clock-history"></i>
+                    <h5>Chưa có ca làm việc nào</h5>
+                    <p>Ca làm việc sẽ được tạo khi bắt đầu sản xuất</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Tính toán thống kê
+        const completedShifts = shifts.filter(s => s.status === 'completed').length;
+        const inProgressShifts = shifts.filter(s => s.status === 'in_progress').length;
+        const pendingShifts = shifts.filter(s => s.status === 'pending').length;
+        const totalQuantity = shifts.reduce((sum, s) => sum + (parseInt(s.handover_quantity) || 0), 0);
+
+        // Tạo HTML cho thống kê
+        const statsHtml = `
+            <div class="shifts-stats">
+                <div class="stat-card">
+                    <div class="stat-number">${completedShifts}</div>
+                    <div class="stat-label">Đã hoàn thành</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${inProgressShifts}</div>
+                    <div class="stat-label">Đang chạy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${pendingShifts}</div>
+                    <div class="stat-label">Chờ bắt đầu</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalQuantity.toLocaleString()}</div>
+                    <div class="stat-label">Tổng sản lượng</div>
+                </div>
+            </div>
+        `;
+        
+        const shiftsHtml = shifts.map(shift => {
+            const statusClass = getShiftStatusClass(shift.status);
+            const statusText = getShiftStatusText(shift.status);
+            const startTime = shift.start_time ? formatDateTime(shift.start_time) : '--';
+            const endTime = shift.end_time ? formatDateTime(shift.end_time) : '--';
+            const workDuration = shift.work_duration_minutes ? `${shift.work_duration_minutes} phút` : '--';
+            const efficiency = shift.efficiency_percent && !isNaN(shift.efficiency_percent) ? 
+                `${parseFloat(shift.efficiency_percent).toFixed(1)}%` : '--';
+            
+            // Tính toán progress cho ca đang chạy
+            let progressHtml = '';
+            if (shift.status === 'in_progress' && shift.start_time) {
+                const start = new Date(shift.start_time);
+                const now = new Date();
+                const totalDuration = 8 * 60; // 8 giờ = 480 phút
+                const elapsed = Math.floor((now - start) / (1000 * 60));
+                const progress = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
+                const remaining = Math.max(0, totalDuration - elapsed);
+                const remainingHours = Math.floor(remaining / 60);
+                const remainingMinutes = remaining % 60;
+                
+                progressHtml = `
+                    <div class="shift-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progress}%"></div>
+                        </div>
+                        <div class="progress-text">${progress.toFixed(0)}% hoàn thành - Còn ${remainingHours} giờ ${remainingMinutes} phút</div>
+                    </div>
+                `;
+            }
+            
+            return `
+                <div class="shift-item">
+                    <div class="shift-header">
+                        <div class="shift-title">
+                            <i class="bi bi-clock"></i>
+                            ${shift.shift_name || `Ca ${shift.shift_number}`}
+                        </div>
+                        <span class="shift-status ${statusClass}">${statusText}</span>
+                    </div>
+                    
+                    <div class="shift-details">
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thợ phụ trách</div>
+                            <div class="shift-detail-value">${shift.worker_name || '--'}</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Máy sản xuất</div>
+                            <div class="shift-detail-value">${shift.machine_name || '--'}</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng OK</div>
+                            <div class="shift-detail-value">${shift.handover_quantity || 0}</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Số lượng NG</div>
+                            <div class="shift-detail-value">${(parseInt(shift.ng_quantity) || 0) + (parseInt(shift.ng_start_end_quantity) || 0)}</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Hiệu suất</div>
+                            <div class="shift-detail-value">${efficiency}</div>
+                        </div>
+                        <div class="shift-detail">
+                            <div class="shift-detail-label">Thời gian làm việc</div>
+                            <div class="shift-detail-value">${workDuration}</div>
+                        </div>
+                    </div>
+
+                    ${progressHtml}
+                    
+                    <div class="shift-times">
+                        <span><i class="bi bi-play-circle"></i>Bắt đầu: ${startTime}</span>
+                        <span><i class="bi bi-stop-circle"></i>Kết thúc: ${endTime}</span>
+                    </div>
+
+                    <div class="shift-actions">
+                        <a href="#" class="btn-action btn-view" onclick="viewShiftDetails('${shift.id}')">
+                            <i class="bi bi-eye"></i>Xem chi tiết
+                        </a>
+                        ${shift.status === 'in_progress' ? `
+                            <a href="#" class="btn-action btn-edit" onclick="editShift('${shift.id}')">
+                                <i class="bi bi-pencil"></i>Chỉnh sửa
+                            </a>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        shiftsList.innerHTML = statsHtml + shiftsHtml;
+    }
+    
+
+    
+    /**
+     * Get shift status class for CSS
+     */
+    function getShiftStatusClass(status) {
+        switch (status) {
+            case 'completed': return 'completed';
+            case 'in_progress': return 'in_progress';
+            case 'waiting': return 'waiting';
+            case 'paused': return 'paused';
+            case 'handed_over': return 'handed_over';
+            default: return 'waiting';
+        }
+    }
+    
+    /**
+     * Get shift status text
+     */
+    function getShiftStatusText(status) {
+        switch (status) {
+            case 'completed': return 'Hoàn thành';
+            case 'in_progress': return 'Đang làm';
+            case 'waiting': return 'Chờ';
+            case 'paused': return 'Tạm dừng';
+            case 'handed_over': return 'Đã bàn giao';
+            default: return 'Chờ';
+        }
+    }
+
+    /**
+     * View shift details
+     */
+    function viewShiftDetails(shiftId) {
+        console.log('🔍 Viewing shift details for:', shiftId);
+        // TODO: Implement shift details view
+        showNotification('Tính năng xem chi tiết ca làm việc đang được phát triển', 'info');
+    }
+
+    /**
+     * Edit shift
+     */
+    function editShift(shiftId) {
+        console.log('✏️ Editing shift:', shiftId);
+        // TODO: Implement shift editing
+        showNotification('Tính năng chỉnh sửa ca làm việc đang được phát triển', 'info');
+    }
+
+    /**
+     * Bàn giao ca làm việc
+     */
+    async function handoverShift() {
+        const order = currentEditingOrder;
+        
+        if (!order) {
+            showNotification('Lỗi: Không xác định được lệnh sản xuất', 'error');
+            return;
+        }
+        
+        // Kiểm tra có shift đang chạy không
+        if (!window.currentShiftId) {
+            showNotification('⚠️ Không có ca làm việc nào đang chạy. Vui lòng bắt đầu ca trước khi bàn giao.', 'warning');
+            return;
+        }
+        
+        // Lấy thông tin từ form trong sidebar
+        const formData = getFormData();
+        const goodQuantity = formData.goodQty;
+        const ngQuantity = formData.ngQty;
+        const ngStartEndQuantity = formData.ngStartEndQty;
+        const returnQuantity = formData.returnQty;
+        const handoverQuantity = formData.handoverQty;
+        const workerName = formData.worker;
+        const shift = formData.shift || getCurrentShift();
+        const notes = formData.note;
+        
+        // Lấy máy được gán thực tế cho lệnh này
+        const assignedMachine = getOrderMachine(order);
+        if (!assignedMachine) {
+            showNotification(`⚠️ Lệnh này không được gán cho máy ${STAGE_CONFIG.NAME} nào`, 'warning');
+            return;
+        }
+        
+        // Validation cơ bản
+        if (!workerName || !workerName.trim()) {
+            showNotification('⚠️ Vui lòng nhập tên thợ phụ trách trong phần "Thông tin sản xuất"', 'warning');
+            return;
+        }
+        
+        if (goodQuantity <= 0) {
+            showNotification('⚠️ Vui lòng nhập số lượng sản xuất (OK hoặc NG)', 'warning');
+            return;
+        }
+        
+        if (handoverQuantity > goodQuantity) {
+            showNotification('Số lượng chuyển giao không thể lớn hơn số lượng OK', 'error');
+            return;
+        }
+        
+        // Validate tổng số lượng không vượt quá số lượng đầu vào
+        if (!validateTotalQuantity(order, goodQuantity, ngQuantity, ngStartEndQuantity, returnQuantity)) {
+            return;
+        }
+        
+        // Hiển thị dialog xác nhận
+        const confirmed = confirm(`📋 Xác nhận bàn giao ca làm việc?\n\n` +
+            `Lệnh sản xuất: ${order.production_order}\n` +
+            `Thợ phụ trách: ${workerName}\n` +
+            `Ca làm việc: ${shift}\n\n` +
+            `Số lượng:\n` +
+            `• OK: ${goodQuantity}\n` +
+            `• NG: ${ngQuantity}\n` +
+            `• NG đầu/cuối: ${ngStartEndQuantity}\n` +
+            `• Trả: ${returnQuantity}\n` +
+            `• Bàn giao: ${handoverQuantity}\n\n` +
+            `Thông tin này sẽ được lưu vào lịch sử ca làm việc.`);
+        
+        if (!confirmed) {
+            return;
+        }
+        
+        try {
+            showLoading('Đang bàn giao ca làm việc...');
+            
+            const now = new Date();
+            const outputQuantity = goodQuantity + ngQuantity + ngStartEndQuantity + returnQuantity;
+            const efficiencyPercent = outputQuantity > 0 ? (goodQuantity / outputQuantity) * 100 : 0;
+            
+            const mysqlDateTime = formatDateTimeForMySQL(now);
+            
+
+            
+            // Tính thời gian làm việc (work_duration_minutes)
+            let workDurationMinutes = 0;
+            if (window.currentShiftStartTime) {
+                const startTime = new Date(window.currentShiftStartTime);
+                const endTime = new Date(mysqlDateTime);
+                workDurationMinutes = Math.round((endTime - startTime) / (1000 * 60));
+            }
+            
+            // Cập nhật shift hiện tại với thông tin bàn giao
+            const updateData = {
+                end_time: mysqlDateTime,
+                work_duration_minutes: workDurationMinutes,
+                good_quantity: goodQuantity,
+                ng_quantity: ngQuantity,
+                ng_start_end_quantity: ngStartEndQuantity,
+                return_quantity: returnQuantity,
+                output_quantity: outputQuantity,
+                handover_quantity: handoverQuantity,
+                efficiency_percent: efficiencyPercent,
+                handover_person: workerName,
+                machine_name: assignedMachine,
+                status: 'completed',
+                notes: notes
+            };
+            
+        
+            const updateResponse = await fetch(`${API_BASE_URL}/data/production_orders_shift/${window.currentShiftId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updateData)
+            });
+            
+            const updateResult = await updateResponse.json();
+            
+            if (updateResponse.ok) {
+                
+                // Kiểm tra logic status: nếu tổng số lượng nhập bằng số lượng còn sản xuất còn lại thì status=handed_over
+                try {
+                    // Log thông tin order trước khi xử lý
+                    console.log('🔍 [handoverShift] Thông tin order trước khi xử lý:', {
+                        orderId: order.id,
+                        orderCode: order.production_order,
+                        nextStage: order.next_stage,
+                        currentStageStatus: order[`${STAGE_CONFIG.KEY}_status`],
+                        allStageFields: Object.keys(order).filter(key => key.includes('_status'))
+                    });
+                    
+                    const inputQuantity = getInputQuantityFromPreviousStage(order);
+                    const remainingQuantity = await getRemainingQuantity(order);
+              
+                    
+                    // Nếu số lượng còn lại sau ca này = 0, thì status = 'handed_over'
+                    const newStatus = remainingQuantity <= 0 ? 'handed_over' : 'waiting';
+                    
+                    // Xác định công đoạn tiếp theo
+                    const nextStage = order.next_stage;
+                    
+                    const orderUpdateData = {
+                        status: remainingQuantity <= 0 ? 'Hoàn thành' : 'Đang sản xuất',
+                        [`${STAGE_CONFIG.KEY}_status`]: newStatus
+                    };
+                    
+                    // Log thông tin trước khi cập nhật
+                    console.log('🔍 [handoverShift] Thông tin trước khi cập nhật:', {
+                        orderId: order.id,
+                        orderCode: order.production_order,
+                        nextStage: nextStage,
+                        handoverQuantity: handoverQuantity,
+                        handoverQty: handoverQty,
+                        newStatus: newStatus,
+                        remainingQuantity: remainingQuantity,
+                        currentStage: STAGE_CONFIG.KEY
+                    });
+                    
+                    // Nếu có công đoạn tiếp theo và có số lượng bàn giao, cập nhật trạng thái công đoạn tiếp theo thành 'waiting'
+                    if (nextStage && handoverQuantity > 0) {
+                        orderUpdateData[`${nextStage}_status`] = 'waiting';
+                        console.log(`🔄 [handoverShift] Cập nhật trạng thái công đoạn tiếp theo ${nextStage} thành 'waiting'`);
+                    } else {
+                        console.log(`⚠️ [handoverShift] Không cập nhật trạng thái công đoạn tiếp theo:`, {
+                            hasNextStage: !!nextStage,
+                            hasHandoverQty: handoverQuantity > 0,
+                            nextStage: nextStage,
+                            handoverQuantity: handoverQuantity
+                        });
+                    }
+                    
+                    console.log('📤 [handoverShift] Dữ liệu gửi lên API:', orderUpdateData);
+                    
+                    const updateOrderResponse = await fetch(`${API_BASE_URL}/data/production_orders/${order.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(orderUpdateData)
+                    });
+                    
+                    if (updateOrderResponse.ok) {
+                        const updateResult = await updateOrderResponse.json();
+                        console.log(`✅ [handoverShift] Production order status updated successfully:`, {
+                            mainStatus: orderUpdateData.status,
+                            stageStatus: newStatus,
+                            nextStage: nextStage ? nextStage + ' -> waiting' : 'N/A',
+                            apiResponse: updateResult,
+                            updatedFields: updateResult.updated_fields || []
+                        });
+                        
+                        // Kiểm tra xem có cập nhật trạng thái công đoạn tiếp theo không
+                        if (nextStage && updateResult.updated_fields) {
+                            const nextStageField = `${nextStage}_status`;
+                            const hasNextStageUpdate = updateResult.updated_fields.includes(nextStageField);
+                            console.log(`🔍 [handoverShift] Kiểm tra cập nhật trạng thái công đoạn tiếp theo:`, {
+                                nextStageField: nextStageField,
+                                hasNextStageUpdate: hasNextStageUpdate,
+                                allUpdatedFields: updateResult.updated_fields
+                            });
+                        }
+                    } else {
+                        const updateError = await updateOrderResponse.json();
+                        console.warn('⚠️ [handoverShift] Failed to update production order status after handover:', updateError);
+                    }
+                } catch (updateError) {
+                    console.warn('⚠️ Error updating production order status after handover:', updateError);
+                    // Không throw error vì đây không phải lỗi nghiêm trọng
+                }
+                
+                showNotification('✅ Đã bàn giao ca làm việc thành công!', 'success');
+            } else {
+                console.error('❌ Update shift failed:', updateResult);
+                throw new Error(`Cập nhật ca: ${updateResult.error || 'Unknown error'}`);
+            }
+            
+            // Reset form số lượng
+            setElementValue('goodQty', '0');
+            setElementValue('ngQty', '0');
+            setElementValue('ngStartEndQty', '0');
+            setElementValue('returnQty', '0');
+            setElementValue('handoverQty', '0');
+            
+            // Enable nút "Bắt đầu", disable nút "Bàn giao ca"
+            const startBtn = document.querySelector('button[onclick="startProduction()"]');
+            const handoverBtn = document.querySelector('button[onclick="handoverShift()"]');
+            if (startBtn) startBtn.disabled = false;
+            if (handoverBtn) handoverBtn.disabled = true;
+            
+            // Dừng timer
+            stopProductionTimer();
+            
+            // Cập nhật dữ liệu local
+            await refreshData();
+            
+            // Refresh sidebar content
+            showOrderDetails(order.id);
+            
+            // Chuyển sang tab "Thông tin ca" để xem kết quả
+            setTimeout(() => {
+                const shiftsTab = document.querySelector('.details-panel .tab-btn[onclick*="shifts"]');
+                if (shiftsTab) {
+                    shiftsTab.click();
+                }
+            }, 500);
+            
+                        } catch (error) {
+                    console.error('💥 Error in handoverShift:', error);
+                    console.error('💥 Error stack:', error.stack);
+                    console.error('💥 Error message:', error.message);
+                    showNotification('Lỗi khi bàn giao ca làm việc: ' + error.message, 'error');
+                } finally {
+            hideLoading();
+        }
     }
 
     /**
@@ -3028,110 +4135,40 @@
         showNotification('Đã reset form thành công!', 'success');
     }
 
-    /**
-     * Execute handover - Complete production and handover to next stage
-     */
-    async function executeHandover() {
-        const order = currentEditingOrder;
-        if (!order) {
-            showNotification('Lỗi: Không xác định được lệnh sản xuất', 'error');
-            return;
-        }
-        
-        try {
-            // Lấy dữ liệu từ form
-            const goodQuantity = parseInt(document.getElementById('goodQty')?.value) || 0;
-            const ngQuantity = parseInt(document.getElementById('ngQty')?.value) || 0;
-            const handoverQuantity = parseInt(document.getElementById('handoverQty')?.value) || 0;
-            const workerName = document.getElementById('worker')?.value || '';
-            const machine = document.getElementById('machine')?.value || '';
-            const shift = document.getElementById('shift')?.value || '';
-            const notes = document.getElementById('note')?.value || '';
-            
-            // Validation
-            if (!workerName.trim()) {
-                showNotification('⚠️ Vui lòng nhập tên thợ phụ trách', 'warning');
-                return;
-            }
-            
-            if (goodQuantity + ngQuantity === 0) {
-                showNotification('Tổng số lượng sản xuất phải lớn hơn 0', 'error');
-                return;
-            }
-            
-            if (handoverQuantity <= 0) {
-                showNotification('Số lượng chuyển giao phải lớn hơn 0', 'error');
-                return;
-            }
-            
-            if (handoverQuantity > goodQuantity) {
-                showNotification('Số lượng chuyển giao không thể lớn hơn số lượng OK', 'error');
-                return;
-            }
-            
-            showLoading('Đang xử lý chuyển giao...');
-            
-            // Chuẩn bị dữ liệu
-            const completeData = {
-                stage: STAGE_CONFIG.KEY,
-                output_quantity: goodQuantity + ngQuantity,
-                good_quantity: goodQuantity,
-                ng_quantity: ngQuantity,
-                worker_name: workerName,
-                machine_name: machine,
-                shift: shift,
-                notes: notes,
-                handover_quantity: handoverQuantity,
-                next_stage: order.next_stage
-            };
-            
-            // Gửi API
-            const response = await fetch(`${API_BASE_URL}/data/production_orders/${order.id}/complete_production`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(completeData)
-            });
-            
-            const result = await response.json();
-            
-            if (response.ok) {
-                const nextStageName = getStageDisplayName(order.next_stage) || 'HOÀN THÀNH';
-                showNotification(
-                    `✅ Đã hoàn thành và chuyển giao ${handoverQuantity} sản phẩm cho công đoạn ${nextStageName}!`,
-                    'success'
-                );
-                
-                // Refresh và đóng sidebar
-                await refreshData();
-                closeDetailsPanel();
-            } else {
-                throw new Error(result.message || result.error || 'Unknown error');
-            }
-            
-        } catch (error) {
-            showNotification('Lỗi khi xử lý chuyển giao: ' + error.message, 'error');
-        } finally {
-            hideLoading();
-        }
-    }
-
 
     
     // Hàm tính thời gian đang chạy (từ thời điểm bắt đầu đến hiện tại)
     function calculateRunningTime(startTime, endTime) {
-        if (!startTime) return 'N/A';
+
         
-        const start = new Date(startTime);
-        const end = endTime ? new Date(endTime) : new Date();
-        const diffMs = end - start;
-        
-        const hours = Math.floor(diffMs / (1000 * 60 * 60));
-        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
-        
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        try {
+            // Parse thời gian bắt đầu
+            const start = new Date(startTime);
+            // Sử dụng thời gian hiện tại và chuyển về múi giờ local
+            const end = endTime ? new Date(endTime) : new Date();
+            
+            // Thêm 7 giờ vào end time để chuyển về múi giờ Việt Nam
+            const endLocal = new Date(end.getTime() + (7 * 60 * 60 * 1000));
+          
+            
+            // Kiểm tra nếu date không hợp lệ
+            if (isNaN(start.getTime()) || isNaN(endLocal.getTime())) {
+                console.error('❌ Invalid date in calculateRunningTime:', { startTime, endTime });
+                return 'Invalid date';
+            }
+            
+            const diffMs = endLocal.getTime() - start.getTime();
+            
+            const hours = Math.floor(diffMs / (1000 * 60 * 60));
+            const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+            
+            const result = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            return result;
+        } catch (error) {
+            return 'Error';
+        }
     }
     
     // Hàm cập nhật thời gian chạy trong giao diện
@@ -3143,8 +4180,12 @@
         // Fallback cho element cũ nếu còn tồn tại
         const timerElement = document.getElementById('productionRunningTime');
         
-        if (currentEditingOrder && getOrderField(currentEditingOrder, 'start_time')) {
-            const time = calculateRunningTime(getOrderField(currentEditingOrder, 'start_time'), getOrderField(currentEditingOrder, 'end_time'));
+        if (window.currentShiftStartTime) {
+            // Tính thời gian chạy từ thời điểm bắt đầu đến hiện tại (hoặc thời điểm kết thúc nếu có)
+            const endTime = getOrderField(currentEditingOrder, 'end_time');
+            const time = calculateRunningTime(window.currentShiftStartTime, endTime);
+            
+  
             
             // Cập nhật timer trong sidebar mới (production status)
             if (statusTimeElement) {
@@ -3152,7 +4193,8 @@
             }
             
             // Cập nhật thời gian chạy trong tab thông tin
-            if (runningTimeInfoElement && !getOrderField(currentEditingOrder, 'end_time')) {
+            if (runningTimeInfoElement) {
+                // Luôn cập nhật, không quan tâm có end_time hay không
                 runningTimeInfoElement.textContent = time;
             }
             
@@ -3166,6 +4208,8 @@
                 timerElement.textContent = time;
             }
         } else {
+            console.warn('⚠️ Không có thời gian bắt đầu (window.currentShiftStartTime)');
+            
             // Nếu chưa bắt đầu hoặc không có thời gian
             if (statusTimeElement) {
                 statusTimeElement.textContent = 'Thời gian: 00:00:00';
@@ -3186,12 +4230,13 @@
         
         // Log order information for debugging
         if (currentEditingOrder) {
-            // Current order timing info logging removed
+            
         }
         
         // Bắt đầu timer mới, cập nhật mỗi giây
         updateRunningTimer();
         productionTimerId = setInterval(updateRunningTimer, 1000);
+
     }
     
     // Hàm dừng timer
@@ -3223,10 +4268,9 @@
     // Details panel functions
     window.showOrderDetails = showOrderDetails;
     window.closeDetailsPanel = closeDetailsPanel;
-    window.executeHandover = executeHandover;
-    window.sendStageHandoverWebhook = sendStageHandoverWebhook;
+
     window.startProduction = startProduction;
-    window.endProduction = endProduction;
+    // window.endProduction = endProduction;
 
     // Tab switching functions
     window.switchTab = switchTab;
@@ -3237,48 +4281,6 @@
 
 
 
-
-
-    // Add click outside listener to close details panel
-    document.addEventListener('click', function(e) {
-        const detailsPanel = document.getElementById('detailsPanel');
-        
-        // Kiểm tra xem click có phải vào table row không
-        const clickedRow = e.target.closest('tr.order-row');
-        if (clickedRow) {
-            // Nếu click vào table row, không đóng panel
-            return;
-        }
-        
-        // Kiểm tra xem click có phải vào tab content không
-        const clickedTabContent = e.target.closest('.tab-content');
-        if (clickedTabContent) {
-            // Nếu click vào tab content, không đóng panel
-            return;
-        }
-        
-        // Kiểm tra xem click có phải vào tab navigation không
-        const clickedTabNav = e.target.closest('#machineTabs');
-        if (clickedTabNav) {
-            // Nếu click vào tab navigation, không đóng panel
-            return;
-        }
-        
-        // Kiểm tra xem click có phải vào table container không
-        const tableContainer = document.querySelector('.table-container');
-        const tabContent = document.querySelector('.tab-content');
-        
-
-        
-        // If details panel is open and click is outside table and details panel
-        if (detailsPanel.classList.contains('show') && 
-            !detailsPanel.contains(e.target) && 
-            !(tableContainer && tableContainer.contains(e.target)) &&
-            !(tabContent && tabContent.contains(e.target))) {
-    
-            closeDetailsPanel();
-        }
-    });
 
     /**
      * =================================================================
@@ -3313,10 +4315,18 @@
         try {
             showLoading('Đang tải dữ liệu báo cáo...');
             
-                    // Lọc các lệnh đã bàn giao (status = 'handed_over')
-        const handedOverOrders = ordersData.filter(order => 
-            getOrderField(order, 'status') === 'handed_over'
-        );  
+                    // Lọc các lệnh đã hoàn thành (số lượng cần sản xuất = 0) và đã được bàn giao từ công đoạn trước
+        const handedOverOrders = ordersData.filter(order => {
+            const inputQuantity = getInputQuantityFromPreviousStage(order);
+            
+            // Tính tổng số lượng bàn giao và input
+            const previousStageHandover = order.previous_stage_handover_quantity || 0;
+            const currentStageHandover = getOrderField(order, 'handover_quantity') || 0;
+            const currentStageInput = getOrderField(order, 'input_quantity') || 0;
+            
+  
+            return inputQuantity <= 0 && previousStageHandover > 0;
+        });  
         
             
             // Render bảng báo cáo
@@ -3495,38 +4505,32 @@
      * Áp dụng các bộ lọc
      */
     function applyFilters() {
-        const dateFilter = document.getElementById('dateFilter').value;
-        const shiftFilter = document.getElementById('shiftFilter').value;
-        const machineFilter = document.getElementById('machineFilter').value;
-        const searchInput = document.getElementById('searchInput').value.toLowerCase();
-
-
+        const fromDateFilter = document.getElementById('fromDateFilter')?.value || '';
+        const toDateFilter = document.getElementById('toDateFilter')?.value || '';
+        const searchInput = document.getElementById('searchInput')?.value?.toLowerCase() || '';
 
         // Lọc dữ liệu
+        let filteredCount = 0;
         filteredOrdersData = originalOrdersData.filter(order => {
-            // Lọc theo ngày sản xuất
-            if (dateFilter) {
-                const orderDate = getOrderField(order, 'production_date');
-                if (!orderDate || orderDate !== dateFilter) {
+            // Lọc theo khoảng ngày sản xuất
+            if (fromDateFilter && toDateFilter) {
+                const orderDate = order.deployment_date || order.created_at;
+                if (!orderDate || orderDate < fromDateFilter || orderDate > toDateFilter) {
+                    return false;
+                }
+            } else if (fromDateFilter) {
+                const orderDate = order.deployment_date || order.created_at;
+                if (!orderDate || orderDate < fromDateFilter) {
+                    return false;
+                }
+            } else if (toDateFilter) {
+                const orderDate = order.deployment_date || order.created_at;
+                if (!orderDate || orderDate > toDateFilter) {
                     return false;
                 }
             }
 
-            // Lọc theo ca
-            if (shiftFilter) {
-                const orderShift = getOrderField(order, 'shift');
-                if (!orderShift || orderShift !== shiftFilter) {
-                    return false;
-                }
-            }
 
-            // Lọc theo máy
-            if (machineFilter) {
-                const assignedMachine = order.assigned_machine || '';
-                if (!assignedMachine.includes(machineFilter)) {
-                    return false;
-                }
-            }
 
             // Lọc theo tìm kiếm
             if (searchInput) {
@@ -3545,6 +4549,19 @@
                 }
             }
 
+            // ✅ KIỂM TRA STAGE TRƯỚC ĐÃ HOÀN THÀNH HAY CHƯA (TẠM THỜI DISABLE)
+            /*
+            if (!isPreviousStageReady(order)) {
+                console.log(`Order ${order.id} filtered out by previous stage not ready:`, {
+                    previous_stage: order.previous_stage,
+                    previous_stage_status: order.previous_stage_status,
+                    current_status: getOrderField(order, 'status')
+                });
+                return false; // Ẩn lệnh này vì stage trước chưa xong
+            }
+            */
+
+            filteredCount++;
             return true;
         });
 
@@ -3569,10 +4586,16 @@
      * Xóa tất cả bộ lọc
      */
     function clearFilters() {
-        document.getElementById('dateFilter').value = '';
-        document.getElementById('shiftFilter').value = '';
-        document.getElementById('machineFilter').value = '';
-        document.getElementById('searchInput').value = '';
+        const fromDateFilter = document.getElementById('fromDateFilter');
+        const toDateFilter = document.getElementById('toDateFilter');
+        const searchInput = document.getElementById('searchInput');
+        
+        if (fromDateFilter) fromDateFilter.value = '';
+        if (toDateFilter) toDateFilter.value = '';
+        if (searchInput) searchInput.value = '';
+
+        // Xóa cache filter ngày khi clear
+        localStorage.removeItem(DATE_FILTER_CACHE_KEY);
 
         // Khôi phục dữ liệu gốc
         ordersData = [...originalOrdersData];
@@ -3610,22 +4633,15 @@
      * Tự động lọc khi thay đổi bộ lọc
      */
     function setupFilterChangeListeners() {
-        const dateFilter = document.getElementById('dateFilter');
-        const shiftFilter = document.getElementById('shiftFilter');
-        const machineFilter = document.getElementById('machineFilter');
+        // Chỉ setup listener cho các element thực sự tồn tại
+        const fromDateFilter = document.getElementById('fromDateFilter');
+        const toDateFilter = document.getElementById('toDateFilter');
 
-        if (dateFilter) {
-            dateFilter.addEventListener('change', applyFilters);
+        if (fromDateFilter) {
+            fromDateFilter.addEventListener('change', applyFilters);
         }
-        if (shiftFilter) {
-            shiftFilter.addEventListener('change', applyFilters);
-        }
-        if (machineFilter) {
-            machineFilter.addEventListener('change', function() {
-                applyFilters();
-                // Tự động chuyển tab khi chọn máy cụ thể
-                updateTabBasedOnMachineFilter();
-            });
+        if (toDateFilter) {
+            toDateFilter.addEventListener('change', applyFilters);
         }
     }
 
@@ -3634,7 +4650,9 @@
      */
     function updateMachineFilterOptions() {
         const machineFilter = document.getElementById('machineFilter');
-        if (!machineFilter) return;
+        if (!machineFilter) {
+            return;
+        }
 
         // Lọc các máy thuộc Stage_${STAGE_CONFIG.KEY} từ dữ liệu máy
         const MStageMachines = machineStatusData.filter(machine => 
@@ -3653,106 +4671,270 @@
         });
     }
 
-    // Thêm hàm mới để gửi dữ liệu chuyển giao qua webhook n8n
-    async function sendStageHandoverWebhook() {
-        const order = currentEditingOrder;
-        if (!order) {
-            showNotification('Lỗi: Không xác định được lệnh sản xuất', 'error');
-            return;
-        }
-        
+
+    /**
+     * Tính số lượng cần sản xuất còn lại
+     * = Số lượng từ công đoạn trước - (Tổng số lượng bàn giao + NG của các ca đã làm)
+     */
+    async function getRemainingQuantity(order) {
         try {
-            // Lấy dữ liệu đầu vào
-            const goodQuantity = parseInt(getElementValue('goodQty')) || 0;
-            const ngQuantity = parseInt(getElementValue('ngQty')) || 0;
-            const handoverQuantity = parseInt(getElementValue('handoverQty')) || 0;
+            // Lấy số lượng từ công đoạn trước
+            const inputQuantity = getInputQuantityFromPreviousStage(order);
             
-            // Validation cơ bản
-            if (goodQuantity + ngQuantity <= 0) {
-                showNotification('Tổng số lượng phải lớn hơn 0', 'error');
-                return;
+            // Lấy tổng số lượng bàn giao của các ca đã làm
+            const shiftsResponse = await fetch(`${API_BASE_URL}/data/production_orders/${order.id}/shifts?stage=${STAGE_CONFIG.KEY}`);
+            const shiftsData = await shiftsResponse.json();
+            
+            let totalHandoverQuantity = 0;
+            let totalNgQuantity = 0;
+            if (shiftsData.shifts && Array.isArray(shiftsData.shifts)) {
+                shiftsData.shifts.forEach(shift => {
+                    totalHandoverQuantity += (parseInt(shift.handover_quantity) || 0);
+                    totalNgQuantity += (parseInt(shift.ng_quantity) || 0);
+                });
             }
             
-            if (handoverQuantity <= 0) {
-                showNotification('Số lượng chuyển giao phải lớn hơn 0', 'error');
-                return;
-            }
+            const remainingQuantity = Math.max(0, inputQuantity - totalHandoverQuantity - totalNgQuantity);
             
-            if (handoverQuantity > goodQuantity) {
-                showNotification('Số lượng chuyển giao không thể lớn hơn số lượng OK', 'error');
-                return;
-            }
-            
-            // Lấy thêm dữ liệu NG đầu/cuối và trả
-            const ngStartEndQty = parseInt(getElementValue('ngStartEndQty')) || 0;
-            const returnQty = parseInt(getElementValue('returnQty')) || 0;
-            
-            // Validate tổng số lượng không vượt quá số lượng đầu vào
-            if (!validateTotalQuantity(order, goodQuantity, ngQuantity, ngStartEndQty, returnQty)) {
-                return;
-            }
-            
-            const nextStage = order.next_stage;
-            if (!nextStage) {
-                showNotification('Không xác định được công đoạn tiếp theo', 'error');
-                return;
-            }
-            
-            // Hiển thị loading
-            showLoading('Đang gửi dữ liệu qua webhook n8n...');
-            
-            // Tạo dữ liệu webhook
-            const webhookData = {
-                order_id: order.id,
-                production_order: order.production_order,
-                stage: STAGE_CONFIG.KEY,
-                next_stage: nextStage,
-                workflow_definition: order.workflow_definition,
-                good_quantity: goodQuantity,
-                ng_quantity: ngQuantity,
-                handover_quantity: handoverQuantity,
-                timestamp: new Date().toISOString()
-            };
-            
-
-            
-            // Gửi webhook
-            const response = await fetch(`${WEBHOOK_BASE_URL}/production`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    action: `${STAGE_CONFIG.KEY}_handover`,
-                    data: webhookData,
-                    source: `${STAGE_CONFIG.KEY}_stage_frontend`,
-                    timestamp: new Date().toISOString()
-                })
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Webhook failed with status: ${response.status}`);
-            }
-            
-            const result = await response.json();
-            
-                        // Thông báo thành công
-            const nextStageName = getStageDisplayName(nextStage);
-            showNotification(`✅ Đã chuyển giao ${formatNumber(handoverQuantity)} sản phẩm sang công đoạn ${nextStageName}!`, 'success');
-            
-            // Reload trang để cập nhật dữ liệu
-            setTimeout(() => {
-                location.reload();
-            }, 100);
-            
+            return remainingQuantity;
         } catch (error) {
-
-            showNotification('Lỗi khi gửi dữ liệu: ' + error.message, 'error');
-        } finally {
-            hideLoading();
+            console.error('❌ Lỗi tính số lượng còn lại:', error);
+            return getInputQuantityFromPreviousStage(order); // Fallback
         }
     }
 
+    /**
+     * Load và hiển thị số lượng còn lại
+     */
+    async function loadRemainingQuantity() {
+        if (!currentEditingOrder) return;
+        
+        try {
+            const remainingQuantity = await getRemainingQuantity(currentEditingOrder);
+            
+            // Cập nhật hiển thị số lượng còn lại
+            const remainingQuantityDisplay = document.getElementById('remainingQuantityDisplay');
+            if (remainingQuantityDisplay) {
+                remainingQuantityDisplay.textContent = `${remainingQuantity} tờ giấy`;
+            }
+            
+            // Cập nhật hiển thị tổng số lượng đã nhập
+            const totalQuantityDisplay = document.getElementById('totalQuantityDisplay');
+            if (totalQuantityDisplay) {
+                const currentTotal = parseInt(getElementValue('goodQty') || 0) + 
+                                   parseInt(getElementValue('ngQty') || 0) + 
+                                   parseInt(getElementValue('ngStartEndQty') || 0) + 
+                                   parseInt(getElementValue('returnQty') || 0);
+                totalQuantityDisplay.textContent = `${currentTotal} / ${remainingQuantity}`;
+            }
+            
+        } catch (error) {
+            console.error('❌ Lỗi load số lượng còn lại:', error);
+        }
+    }
+
+    /**
+     * Cập nhật hiển thị thống kê real-time
+     */
+    function updateStatisticsDisplay() {
+        const goodQty = parseInt(getElementValue('goodQty')) || 0;
+        const ngQty = parseInt(getElementValue('ngQty')) || 0;
+        const ngStartEndQty = parseInt(getElementValue('ngStartEndQty')) || 0;
+        const returnQty = parseInt(getElementValue('returnQty')) || 0;
+        
+        const totalProduced = goodQty + ngQty + ngStartEndQty + returnQty;
+        const inputQuantity = getInputQuantityFromPreviousStage(currentEditingOrder);
+        const efficiency = inputQuantity > 0 ? Math.round((totalProduced / inputQuantity) * 100) : 0;
+        const ngRate = totalProduced > 0 ? Math.round(((ngQty + ngStartEndQty) / totalProduced) * 100) : 0;
+        
+        // Cập nhật hiển thị thống kê
+        const totalProducedElement = document.getElementById('totalProducedValue');
+        const efficiencyElement = document.getElementById('efficiencyValue');
+        const ngRateElement = document.getElementById('ngRateValue');
+        
+        if (totalProducedElement) {
+            totalProducedElement.textContent = `${totalProduced} sản phẩm`;
+        }
+        if (efficiencyElement) {
+            efficiencyElement.textContent = `${efficiency}%`;
+        }
+        if (ngRateElement) {
+            ngRateElement.textContent = `${ngRate}%`;
+        }
+        
+        // Cập nhật hiển thị tổng số lượng đã nhập
+        updateTotalQuantityDisplay();
+    }
+
+    /**
+     * Load và hiển thị số lượng còn lại
+     */
+    async function loadRemainingQuantity() {
+        if (!currentEditingOrder) return;
+        
+        try {
+            const remainingQuantity = await getRemainingQuantity(currentEditingOrder);
+            
+            // Cập nhật hiển thị số lượng còn lại
+            const remainingQuantityDisplay = document.getElementById('remainingQuantityDisplay');
+            if (remainingQuantityDisplay) {
+                remainingQuantityDisplay.textContent = `${remainingQuantity} tờ giấy`;
+            }
+            
+            // Cập nhật hiển thị tổng số lượng đã nhập
+            const totalQuantityDisplay = document.getElementById('totalQuantityDisplay');
+            if (totalQuantityDisplay) {
+                const currentTotal = parseInt(getElementValue('goodQty') || 0) + 
+                                   parseInt(getElementValue('ngQty') || 0) + 
+                                   parseInt(getElementValue('ngStartEndQty') || 0) + 
+                                   parseInt(getElementValue('returnQty') || 0);
+                totalQuantityDisplay.textContent = `${currentTotal} / ${remainingQuantity}`;
+            }
+            
+        } catch (error) {
+            console.error('❌ Lỗi load số lượng còn lại:', error);
+        }
+    }
+
+    /**
+     * Kiểm tra shift hiện tại và cập nhật trạng thái nút
+     */
+    async function checkCurrentShiftStatus() {
+        if (!currentEditingOrder) return;
+        
+        try {
+            const shiftsResponse = await fetch(`${API_BASE_URL}/data/production_orders/${currentEditingOrder.id}/shifts?stage=${STAGE_CONFIG.KEY}`);
+            const shiftsData = await shiftsResponse.json();
+            
+            // Tìm shift đang chạy (status = 'in_progress')
+            const currentShift = shiftsData.shifts?.find(shift => shift.status === 'in_progress');
+            
+            // Cập nhật trạng thái nút
+            const startBtn = document.getElementById('startBtn');
+            const handoverBtn = document.getElementById('handoverShiftBtn');
+            const stopAndHandoverBtn = document.getElementById('stopAndHandoverBtn');
+            const handoverBtn2 = document.getElementById('handoverBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            
+            if (currentShift) {
+                // Có shift đang chạy
+        
+                
+                // Cập nhật UI dựa trên trạng thái ca kíp
+                if (startBtn) {
+                    startBtn.style.display = 'none';
+                    startBtn.disabled = true;
+                }
+                
+                if (handoverBtn) {
+                    handoverBtn.style.display = 'flex';
+                    handoverBtn.disabled = false;
+                }
+                
+                if (stopAndHandoverBtn) {
+                    stopAndHandoverBtn.style.display = 'flex';
+                    stopAndHandoverBtn.disabled = false;
+                }
+                
+                if (resetBtn) {
+                    resetBtn.style.display = 'flex';
+                    resetBtn.disabled = false;
+                }
+                
+                // Lưu ID và thời gian bắt đầu của shift hiện tại
+                window.currentShiftId = currentShift.id;
+                window.currentShiftStartTime = currentShift.start_time;
+                
+                // Cập nhật hiển thị thời gian bắt đầu trong sidebar
+                const startTimeInfo = document.getElementById('startTimeInfo');
+                if (startTimeInfo) {
+                    // Hiển thị thời gian đã được định dạng
+                    startTimeInfo.textContent = formatDateTime(currentShift.start_time);
+    
+                }
+                
+                // Bắt đầu timer nếu chưa có
+                if (!productionTimerId) {
+                    startProductionTimer();
+                }
+                
+
+            } else {
+                // Không có shift đang chạy
+
+                
+                // Kiểm tra trạng thái lệnh để quyết định hiển thị nút bắt đầu
+                const orderStatus = getOrderField(currentEditingOrder, 'status');
+                
+                if (startBtn) {
+                    if (orderStatus === 'completed' || orderStatus === 'handed_over') {
+                        // Nếu lệnh đã hoàn thành hoặc đã bàn giao, ẩn nút bắt đầu
+                        startBtn.style.display = 'none';
+                        startBtn.disabled = true;
+        
+                    } else {
+                        // Nếu lệnh chưa hoàn thành, hiển thị nút bắt đầu
+                        startBtn.style.display = 'flex';
+                        startBtn.disabled = false;
+        
+                    }
+                }
+                
+                if (handoverBtn) {
+                    handoverBtn.style.display = 'none';
+                    handoverBtn.disabled = true;
+                }
+                
+                if (stopAndHandoverBtn) {
+                    stopAndHandoverBtn.style.display = 'none';
+                    stopAndHandoverBtn.disabled = true;
+                }
+                
+                if (resetBtn) {
+                    resetBtn.style.display = 'none';
+                    resetBtn.disabled = true;
+                }
+                
+                // Dừng timer
+                stopProductionTimer();
+                
+    
+            }
+            
+        } catch (error) {
+            console.error('❌ Lỗi kiểm tra trạng thái shift:', error);
+        }
+    }
+
+    /**
+     * Load và hiển thị số lượng còn lại
+     */
+    async function loadRemainingQuantity() {
+        if (!currentEditingOrder) return;
+        
+        try {
+            const remainingQuantity = await getRemainingQuantity(currentEditingOrder);
+            
+            // Cập nhật hiển thị số lượng còn lại
+            const remainingQuantityDisplay = document.getElementById('remainingQuantityDisplay');
+            if (remainingQuantityDisplay) {
+                remainingQuantityDisplay.textContent = `${remainingQuantity} tờ giấy`;
+            }
+            
+            // Cập nhật hiển thị tổng số lượng đã nhập
+            const totalQuantityDisplay = document.getElementById('totalQuantityDisplay');
+            if (totalQuantityDisplay) {
+                const currentTotal = parseInt(getElementValue('goodQty') || 0) + 
+                                   parseInt(getElementValue('ngQty') || 0) + 
+                                   parseInt(getElementValue('ngStartEndQty') || 0) + 
+                                   parseInt(getElementValue('returnQty') || 0);
+                totalQuantityDisplay.textContent = `${currentTotal} / ${remainingQuantity}`;
+            }
+            
+        } catch (error) {
+            console.error('❌ Lỗi load số lượng còn lại:', error);
+        }
+    }
   </script>
   
   <!-- User Info Update Script -->
@@ -3861,29 +5043,38 @@
         
         // Đề xuất user đăng nhập hiện tại
         function suggestCurrentUser() {
-            if (selectedWorkerList.length === 0 && typeof auth !== 'undefined') {
+            
+            if (typeof auth !== 'undefined') {
                 const currentUser = auth.getUser();
+                // console.log('👤 Current user:', currentUser);
+                
                 if (currentUser && currentUser.full_name) {
+
+                    
                     // Tìm user trong danh sách available workers
                     const userWorkerName = availableWorkers.find(worker => 
                         worker.includes(currentUser.full_name) || 
                         worker.includes(currentUser.ma_nhan_vien)
                     );
-                    if (userWorkerName) {
+                    
+                    
+                    if (userWorkerName && selectedWorkerList.length === 0) {
                         selectedWorkerList = [userWorkerName];
                         renderSelectedWorkers();
                         updateWorkerInput();
+                
+                    } else if (selectedWorkerList.length > 0) {
+                    } else {
                     }
+                } else {
                 }
+            } else {
             }
         }
         
         let selectedWorkerList = [];
         
-        // Parse existing workers from order data
-        if (getOrderField(order, 'worker_name')) {
-            selectedWorkerList = getOrderField(order, 'worker_name').split(',').map(w => w.trim()).filter(w => w);
-        }
+        // Không load dữ liệu từ database, chỉ để trống để nhập mới
         
         // Render selected workers
         function renderSelectedWorkers() {
