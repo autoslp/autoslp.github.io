@@ -429,3 +429,99 @@ CREATE INDEX `idx_machine_date` ON `production_orders_shift` (`machine_name`, `s
 
 -- Index cho thống kê theo thời gian
 CREATE INDEX `idx_start_time_stage` ON `production_orders_shift` (`start_time`, `stage`); 
+
+-- Tạo DELIMITER để update trường {stage}_handover_quantity_json
+DELIMITER //
+
+-- Stored Procedure: Cập nhật dữ liệu JSON kệ vào production_orders
+CREATE PROCEDURE UpdateStageHandoverJSON(
+    IN p_order_id INT,
+    IN p_stage VARCHAR(50),
+    IN p_ke_data_json JSON
+)
+BEGIN
+    DECLARE v_column_name VARCHAR(100);
+    DECLARE v_sql TEXT;
+    
+    -- Tạo tên cột động: {stage}_handover_quantity_json
+    SET v_column_name = CONCAT(p_stage, '_handover_quantity_json');
+    
+    -- Tạo câu SQL động để update
+    SET v_sql = CONCAT('UPDATE production_orders SET ', v_column_name, ' = ? WHERE id = ?');
+    
+    -- Thực hiện update với prepared statement
+    SET @sql = v_sql;
+    SET @ke_data = p_ke_data_json;
+    SET @order_id = p_order_id;
+    
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING @ke_data, @order_id;
+    DEALLOCATE PREPARE stmt;
+    
+    -- Log kết quả
+    SELECT 
+        p_order_id as order_id,
+        p_stage as stage,
+        v_column_name as updated_column,
+        'JSON updated successfully' as message;
+        
+END //
+
+-- Stored Procedure: Lấy dữ liệu JSON kệ từ production_orders
+CREATE PROCEDURE GetStageHandoverJSON(
+    IN p_order_id INT,
+    IN p_stage VARCHAR(50)
+)
+BEGIN
+    DECLARE v_column_name VARCHAR(100);
+    DECLARE v_sql TEXT;
+    
+    -- Tạo tên cột động
+    SET v_column_name = CONCAT(p_stage, '_handover_quantity_json');
+    
+    -- Tạo câu SQL động để select
+    SET v_sql = CONCAT('SELECT id, production_order, ', v_column_name, ' as ke_data FROM production_orders WHERE id = ?');
+    
+    -- Thực hiện select với prepared statement
+    SET @sql = v_sql;
+    SET @order_id = p_order_id;
+    
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING @order_id;
+    DEALLOCATE PREPARE stmt;
+    
+END //
+
+-- Stored Procedure: Xóa dữ liệu JSON kệ (set về NULL)
+CREATE PROCEDURE ClearStageHandoverJSON(
+    IN p_order_id INT,
+    IN p_stage VARCHAR(50)
+)
+BEGIN
+    DECLARE v_column_name VARCHAR(100);
+    DECLARE v_sql TEXT;
+    
+    -- Tạo tên cột động
+    SET v_column_name = CONCAT(p_stage, '_handover_quantity_json');
+    
+    -- Tạo câu SQL động để set NULL
+    SET v_sql = CONCAT('UPDATE production_orders SET ', v_column_name, ' = NULL WHERE id = ?');
+    
+    -- Thực hiện update
+    SET @sql = v_sql;
+    SET @order_id = p_order_id;
+    
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt USING @order_id;
+    DEALLOCATE PREPARE stmt;
+    
+    -- Log kết quả
+    SELECT 
+        p_order_id as order_id,
+        p_stage as stage,
+        v_column_name as cleared_column,
+        'JSON cleared successfully' as message;
+        
+END //
+
+DELIMITER ; 

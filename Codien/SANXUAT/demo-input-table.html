@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Input Table OK/NG</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input[type="number"] {
+            width: 80px;
+            padding: 5px;
+            text-align: center;
+        }
+        .total-row {
+            background-color: #f9f9f9;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Bảng nhập số lượng OK/NG</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Số lượng OK</th>
+                    <th>Số lượng NG</th>
+                    <th>Tổng</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td><input type="number" class="ok-input" min="0" onchange="calculateTotal(this)"></td>
+                    <td><input type="number" class="ng-input" min="0" onchange="calculateTotal(this)"></td>
+                    <td class="row-total">0</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td><input type="number" class="ok-input" min="0" onchange="calculateTotal(this)"></td>
+                    <td><input type="number" class="ng-input" min="0" onchange="calculateTotal(this)"></td>
+                    <td class="row-total">0</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td><input type="number" class="ok-input" min="0" onchange="calculateTotal(this)"></td>
+                    <td><input type="number" class="ng-input" min="0" onchange="calculateTotal(this)"></td>
+                    <td class="row-total">0</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td><input type="number" class="ok-input" min="0" onchange="calculateTotal(this)"></td>
+                    <td><input type="number" class="ng-input" min="0" onchange="calculateTotal(this)"></td>
+                    <td class="row-total">0</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td><input type="number" class="ok-input" min="0" onchange="calculateTotal(this)"></td>
+                    <td><input type="number" class="ng-input" min="0" onchange="calculateTotal(this)"></td>
+                    <td class="row-total">0</td>
+                </tr>
+                <tr class="total-row">
+                    <td>Tổng cộng</td>
+                    <td id="total-ok">0</td>
+                    <td id="total-ng">0</td>
+                    <td id="total-all">0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function calculateTotal(input) {
+            const row = input.closest('tr');
+            const okInput = row.querySelector('.ok-input');
+            const ngInput = row.querySelector('.ng-input');
+            const rowTotal = row.querySelector('.row-total');
+
+            const okValue = okInput.value ? parseInt(okInput.value) : 0;
+            const ngValue = ngInput.value ? parseInt(ngInput.value) : 0;
+            
+            // Calculate row total
+            rowTotal.textContent = okValue + ngValue;
+
+            // Calculate grand totals
+            calculateGrandTotals();
+        }
+
+        function calculateGrandTotals() {
+            let totalOK = 0;
+            let totalNG = 0;
+
+            document.querySelectorAll('.ok-input').forEach(input => {
+                totalOK += input.value ? parseInt(input.value) : 0;
+            });
+
+            document.querySelectorAll('.ng-input').forEach(input => {
+                totalNG += input.value ? parseInt(input.value) : 0;
+            });
+
+            document.getElementById('total-ok').textContent = totalOK;
+            document.getElementById('total-ng').textContent = totalNG;
+            document.getElementById('total-all').textContent = totalOK + totalNG;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo - Nhập số lượng theo dòng</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin: 20px;
+            overflow: hidden;
+        }
+        
+        .header-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header-section h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .header-section p {
+            margin: 10px 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .content-section {
+            padding: 30px;
+        }
+        
+        .order-info {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .order-info h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 120px;
+        }
+        
+        .info-value {
+            color: #212529;
+            font-weight: 500;
+        }
+        
+        .quantity-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+        
+        .table-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        
+        .table-header h3 {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-add-row {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-add-row:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-1px);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .quantity-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .quantity-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .quantity-table td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+        
+        .quantity-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .quantity-input {
+            width: 100px;
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .quantity-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .quantity-input.ok {
+            border-color: #28a745;
+            color: #28a745;
+        }
+        
+        .quantity-input.ng {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+        
+        .btn-remove-row {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-remove-row:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+        
+        .summary-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-section h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .summary-card.total {
+            border-color: #667eea;
+        }
+        
+        .summary-card.ok {
+            border-color: #28a745;
+        }
+        
+        .summary-card.ng {
+            border-color: #dc3545;
+        }
+        
+        .summary-card.remaining {
+            border-color: #ffc107;
+        }
+        
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .summary-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .summary-card.total .summary-value {
+            color: #667eea;
+        }
+        
+        .summary-card.ok .summary-value {
+            color: #28a745;
+        }
+        
+        .summary-card.ng .summary-value {
+            color: #dc3545;
+        }
+        
+        .summary-card.remaining .summary-value {
+            color: #ffc107;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-success-custom {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-success-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+        
+        .btn-secondary-custom {
+            background: #6c757d;
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-secondary-custom:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .validation-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .validation-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .validation-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .validation-message.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 10px;
+            }
+            
+            .header-section {
+                padding: 20px;
+            }
+            
+            .header-section h1 {
+                font-size: 2rem;
+            }
+            
+            .content-section {
+                padding: 20px;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn-add-row {
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header Section -->
+        <div class="header-section">
+            <h1><i class="bi bi-table me-3"></i>Demo Nhập Số Lượng Theo Dòng</h1>
+            <p>Quản lý số lượng OK và NG cho từng lệnh sản xuất</p>
+        </div>
+        
+        <!-- Content Section -->
+        <div class="content-section">
+            <!-- Order Information -->
+            <div class="order-info">
+                <h3><i class="bi bi-info-circle me-2"></i>Thông tin lệnh sản xuất</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Mã lệnh:</span>
+                        <span class="info-value">LSX-2024-001</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Sản phẩm:</span>
+                        <span class="info-value">Hộp giấy carton 3 lớp</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Số lượng kế hoạch:</span>
+                        <span class="info-value">1,000 tờ</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Số lượng còn lại:</span>
+                        <span class="info-value" id="remainingQuantity">1,000 tờ</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Validation Message -->
+            <div id="validationMessage" class="validation-message"></div>
+            
+            <!-- Quantity Input Table -->
+            <div class="quantity-table">
+                <div class="table-header">
+                    <h3><i class="bi bi-list-check me-2"></i>Bảng nhập số lượng</h3>
+                    <div class="table-actions">
+                        <button class="btn-add-row" onclick="addRow()">
+                            <i class="bi bi-plus-circle"></i>
+                            Thêm dòng
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">#</th>
+                                <th style="width: 150px;">Thời gian</th>
+                                <th style="width: 120px;">Số lượng OK</th>
+                                <th style="width: 120px;">Số lượng NG</th>
+                                <th style="width: 120px;">Tổng dòng</th>
+                                <th style="width: 100px;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quantityTableBody">
+                            <!-- Rows will be generated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Summary Section -->
+            <div class="summary-section">
+                <h3><i class="bi bi-calculator me-2"></i>Tổng kết</h3>
+                <div class="summary-grid">
+                    <div class="summary-card total">
+                        <div class="summary-value" id="totalQuantity">0</div>
+                        <div class="summary-label">Tổng đã nhập</div>
+                    </div>
+                    <div class="summary-card ok">
+                        <div class="summary-value" id="totalOK">0</div>
+                        <div class="summary-label">Tổng OK</div>
+                    </div>
+                    <div class="summary-card ng">
+                        <div class="summary-value" id="totalNG">0</div>
+                        <div class="summary-label">Tổng NG</div>
+                    </div>
+                    <div class="summary-card remaining">
+                        <div class="summary-value" id="summaryRemaining">1,000</div>
+                        <div class="summary-label">Còn lại</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn-primary-custom" onclick="saveData()">
+                    <i class="bi bi-save"></i>
+                    Lưu dữ liệu
+                </button>
+                <button class="btn-success-custom" onclick="completeOrder()">
+                    <i class="bi bi-check-circle"></i>
+                    Hoàn thành lệnh
+                </button>
+                <button class="btn-secondary-custom" onclick="resetTable()">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    Làm mới
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let rowCounter = 0;
+        const maxQuantity = 1000; // Số lượng kế hoạch
+        let currentTotal = 0;
+        
+        // Initialize table with 5 demo rows
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTable();
+            updateSummary();
+        });
+        
+        // Initialize table with demo data
+        function initializeTable() {
+            const tableBody = document.getElementById('quantityTableBody');
+            tableBody.innerHTML = '';
+            
+            // Add 5 demo rows
+            for (let i = 0; i < 5; i++) {
+                addRow();
+            }
+        }
+        
+        // Add new row
+        function addRow() {
+            rowCounter++;
+            const tableBody = document.getElementById('quantityTableBody');
+            
+            const row = document.createElement('tr');
+            row.id = `row-${rowCounter}`;
+            
+            const currentTime = new Date().toLocaleTimeString('vi-VN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            row.innerHTML = `
+                <td>${rowCounter}</td>
+                <td>${currentTime}</td>
+                <td>
+                    <input type="number" 
+                           class="quantity-input ok" 
+                           id="ok-${rowCounter}" 
+                           placeholder="0" 
+                           min="0" 
+                           max="${maxQuantity}"
+                           onchange="updateRowTotal(${rowCounter})"
+                           oninput="updateRowTotal(${rowCounter})">
+                </td>
+                <td>
+                    <input type="number" 
+                           class="quantity-input ng" 
+                           id="ng-${rowCounter}" 
+                           placeholder="0" 
+                           min="0" 
+                           max="${maxQuantity}"
+                           onchange="updateRowTotal(${rowCounter})"
+                           oninput="updateRowTotal(${rowCounter})">
+                </td>
+                <td>
+                    <span id="row-total-${rowCounter}" class="fw-bold">0</span>
+                </td>
+                <td>
+                    <button class="btn-remove-row" onclick="removeRow(${rowCounter})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            `;
+            
+            tableBody.appendChild(row);
+        }
+        
+        // Remove row
+        function removeRow(rowId) {
+            const row = document.getElementById(`row-${rowId}`);
+            if (row) {
+                // Subtract row total from current total before removing
+                const rowTotal = parseInt(document.getElementById(`row-total-${rowId}`).textContent) || 0;
+                currentTotal -= rowTotal;
+                
+                row.remove();
+                updateSummary();
+                updateValidation();
+            }
+        }
+        
+        // Update row total
+        function updateRowTotal(rowId) {
+            const okInput = document.getElementById(`ok-${rowId}`);
+            const ngInput = document.getElementById(`ng-${rowId}`);
+            const rowTotalSpan = document.getElementById(`row-total-${rowId}`);
+            
+            const okValue = parseInt(okInput.value) || 0;
+            const ngValue = parseInt(ngInput.value) || 0;
+            const rowTotal = okValue + ngValue;
+            
+            rowTotalSpan.textContent = rowTotal;
+            
+            // Update current total
+            updateCurrentTotal();
+        }
+        
+        // Update current total
+        function updateCurrentTotal() {
+            currentTotal = 0;
+            const rows = document.querySelectorAll('#quantityTableBody tr');
+            
+            rows.forEach(row => {
+                const rowId = row.id.replace('row-', '');
+                const rowTotal = parseInt(document.getElementById(`row-total-${rowId}`).textContent) || 0;
+                currentTotal += rowTotal;
+            });
+            
+            updateSummary();
+            updateValidation();
+        }
+        
+        // Update summary
+        function updateSummary() {
+            let totalOK = 0;
+            let totalNG = 0;
+            
+            const rows = document.querySelectorAll('#quantityTableBody tr');
+            rows.forEach(row => {
+                const rowId = row.id.replace('row-', '');
+                const okValue = parseInt(document.getElementById(`ok-${rowId}`).value) || 0;
+                const ngValue = parseInt(document.getElementById(`ng-${rowId}`).value) || 0;
+                
+                totalOK += okValue;
+                totalNG += ngValue;
+            });
+            
+            const remaining = Math.max(0, maxQuantity - currentTotal);
+            
+            document.getElementById('totalQuantity').textContent = currentTotal.toLocaleString();
+            document.getElementById('totalOK').textContent = totalOK.toLocaleString();
+            document.getElementById('totalNG').textContent = totalNG.toLocaleString();
+            document.getElementById('summaryRemaining').textContent = remaining.toLocaleString();
+            document.getElementById('remainingQuantity').textContent = remaining.toLocaleString() + ' tờ';
+            
+            // Update colors based on remaining quantity
+            const remainingElement = document.getElementById('summaryRemaining');
+            if (remaining === 0) {
+                remainingElement.style.color = '#28a745';
+            } else if (remaining < 100) {
+                remainingElement.style.color = '#ffc107';
+            } else {
+                remainingElement.style.color = '#ffc107';
+            }
+        }
+        
+        // Update validation
+        function updateValidation() {
+            const validationMessage = document.getElementById('validationMessage');
+            
+            if (currentTotal > maxQuantity) {
+                showValidationMessage('error', `⚠️ Tổng số lượng (${currentTotal}) vượt quá kế hoạch (${maxQuantity})!`);
+            } else if (currentTotal === maxQuantity) {
+                showValidationMessage('success', `✅ Đã nhập đủ số lượng kế hoạch (${maxQuantity})`);
+            } else if (currentTotal > 0) {
+                const remaining = maxQuantity - currentTotal;
+                showValidationMessage('warning', `📊 Đã nhập ${currentTotal}/${maxQuantity} (còn lại: ${remaining})`);
+            } else {
+                hideValidationMessage();
+            }
+        }
+        
+        // Show validation message
+        function showValidationMessage(type, message) {
+            const validationMessage = document.getElementById('validationMessage');
+            validationMessage.className = `validation-message ${type}`;
+            validationMessage.innerHTML = `<i class="bi bi-${type === 'error' ? 'exclamation-triangle' : type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>${message}`;
+            validationMessage.style.display = 'block';
+        }
+        
+        // Hide validation message
+        function hideValidationMessage() {
+            const validationMessage = document.getElementById('validationMessage');
+            validationMessage.style.display = 'none';
+        }
+        
+        // Save data
+        function saveData() {
+            const data = collectTableData();
+            
+            if (data.length === 0) {
+                showValidationMessage('error', '⚠️ Chưa có dữ liệu để lưu!');
+                return;
+            }
+            
+            if (currentTotal > maxQuantity) {
+                showValidationMessage('error', '⚠️ Không thể lưu: Tổng số lượng vượt quá kế hoạch!');
+                return;
+            }
+            
+            // Simulate saving to database
+            console.log('Saving data:', data);
+            
+            showValidationMessage('success', `✅ Đã lưu ${data.length} dòng dữ liệu thành công!`);
+            
+            // Show data in console for demo
+            setTimeout(() => {
+                alert(`Dữ liệu đã lưu:\n\n${JSON.stringify(data, null, 2)}`);
+            }, 1000);
+        }
+        
+        // Complete order
+        function completeOrder() {
+            if (currentTotal < maxQuantity) {
+                showValidationMessage('error', `⚠️ Chưa thể hoàn thành: Còn thiếu ${maxQuantity - currentTotal} tờ!`);
+                return;
+            }
+            
+            const confirmed = confirm(`✅ Xác nhận hoàn thành lệnh sản xuất?\n\nTổng số lượng: ${currentTotal}\nSố lượng OK: ${document.getElementById('totalOK').textContent}\nSố lượng NG: ${document.getElementById('totalNG').textContent}`);
+            
+            if (confirmed) {
+                showValidationMessage('success', '🎉 Lệnh sản xuất đã hoàn thành thành công!');
+                
+                // Disable all inputs
+                document.querySelectorAll('.quantity-input').forEach(input => {
+                    input.disabled = true;
+                });
+                
+                document.querySelectorAll('.btn-remove-row').forEach(btn => {
+                    btn.disabled = true;
+                });
+            }
+        }
+        
+        // Reset table
+        function resetTable() {
+            const confirmed = confirm('⚠️ Xác nhận làm mới bảng? Tất cả dữ liệu sẽ bị xóa!');
+            
+            if (confirmed) {
+                rowCounter = 0;
+                currentTotal = 0;
+                initializeTable();
+                updateSummary();
+                hideValidationMessage();
+                
+                // Re-enable all inputs
+                document.querySelectorAll('.quantity-input').forEach(input => {
+                    input.disabled = false;
+                });
+                
+                document.querySelectorAll('.btn-remove-row').forEach(btn => {
+                    btn.disabled = false;
+                });
+            }
+        }
+        
+        // Collect table data
+        function collectTableData() {
+            const data = [];
+            const rows = document.querySelectorAll('#quantityTableBody tr');
+            
+            rows.forEach(row => {
+                const rowId = row.id.replace('row-', '');
+                const okValue = parseInt(document.getElementById(`ok-${rowId}`).value) || 0;
+                const ngValue = parseInt(document.getElementById(`ng-${rowId}`).value) || 0;
+                const time = row.cells[1].textContent;
+                
+                if (okValue > 0 || ngValue > 0) {
+                    data.push({
+                        row_id: rowId,
+                        timestamp: time,
+                        ok_quantity: okValue,
+                        ng_quantity: ngValue,
+                        total_quantity: okValue + ngValue
+                    });
+                }
+            });
+            
+            return data;
+        }
+        
+        // Export functions for global access
+        window.addRow = addRow;
+        window.removeRow = removeRow;
+        window.updateRowTotal = updateRowTotal;
+        window.saveData = saveData;
+        window.completeOrder = completeOrder;
+        window.resetTable = resetTable;
+    </script>
+</body>
+</html> 
