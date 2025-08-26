@@ -3714,18 +3714,18 @@ app.post('/data/production_orders/:id/save_ke_json', (req, res) => {
   });
 });
 
-// API LẤY DỮ LIỆU JSON KỆ TỪ PRODUCTION_ORDERS
-app.get('/data/production_orders/:id/ke_json/:stage', (req, res) => {
-  const orderId = req.params.id;
-  const stage = req.params.stage;
+        // API LẤY DỮ LIỆU JSON KỆ TỪ PRODUCTION_ORDERS
+        app.get('/data/production_orders/:id/ke_json/:stage', (req, res) => {
+          const orderId = req.params.id;
+          const stage = req.params.stage;
 
-  // Lấy dữ liệu từ trường {stage}_handover_quantity_json
-  const columnName = `${stage}_handover_quantity_json`;
-  const query = `
-    SELECT id, production_order, ${columnName} as ke_data_json
-    FROM production_orders 
-    WHERE id = ?
-  `;
+          // Lấy dữ liệu từ trường {stage}_input_quantity_json
+          const columnName = `${stage}_input_quantity_json`;
+          const query = `
+            SELECT id, production_order, ${columnName} as ke_data_json
+            FROM production_orders 
+            WHERE id = ?
+          `;
 
   db.query(query, [orderId], (err, results) => {
     if (err) {
@@ -3863,8 +3863,8 @@ app.post('/data/production_orders/:id/update_handover_json', (req, res) => {
     });
   }
 
-  // Tạo tên cột động: {stage}_handover_quantity_json
-  const columnName = `${stage}_handover_quantity_json`;
+  // Tạo tên cột động: {stage}_input_quantity_json
+  const columnName = `${stage}_input_quantity_json`;
   
   // Tạo câu SQL động để update
   const updateQuery = `UPDATE production_orders SET ${columnName} = ? WHERE id = ?`;
@@ -3912,14 +3912,14 @@ app.post('/data/production_orders/:id/update_handover_json', (req, res) => {
 // Helper: resolve stage to column name (avoid SQL injection)
 function resolveHandoverColumn(stage) {
 	const mapping = {
-		xa: 'xa_handover_quantity_json',
-		xen: 'xen_handover_quantity_json',
-		in_offset: 'in_offset_handover_quantity_json'
+		xa: 'xa_input_quantity_json',
+		xen: 'xen_input_quantity_json',
+		in_offset: 'in_offset_input_quantity_json'
 	};
 	return mapping[stage] || null;
 }
 
-// GET: read {stage}_handover_quantity_json directly from production_orders (no stored procedure)
+// GET: read {stage}_input_quantity_json directly from production_orders (no stored procedure)
 app.get('/data/production_orders/:id/handover_json/:stage', (req, res) => {
 	const orderId = req.params.id;
 	const stage = req.params.stage;
@@ -3947,7 +3947,7 @@ app.get('/data/production_orders/:id/handover_json/:stage', (req, res) => {
 	});
 });
 
-// DELETE: clear {stage}_handover_quantity_json (set NULL) directly in production_orders (no stored procedure)
+// DELETE: clear {stage}_input_quantity_json (set NULL) directly in production_orders (no stored procedure)
 app.delete('/data/production_orders/:id/handover_json/:stage', (req, res) => {
 	const orderId = req.params.id;
 	const stage = req.params.stage;
@@ -3972,6 +3972,17 @@ app.delete('/data/production_orders/:id/handover_json/:stage', (req, res) => {
 		});
 	});
 });
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4109,9 +4120,9 @@ app.get('/debug/production_orders/:id/all_json', (req, res) => {
     const query = `
         SELECT 
             id, production_order,
-            xa_input_quantity_json, xa_handover_quantity_json,
-            xen_input_quantity_json, xen_handover_quantity_json,
-            in_offset_input_quantity_json, in_offset_handover_quantity_json
+            xa_input_quantity_json,
+            xen_input_quantity_json,
+            in_offset_input_quantity_json
         FROM production_orders 
         WHERE id = ?
     `;
@@ -4153,15 +4164,6 @@ app.get('/debug/production_orders/:id/all_json', (req, res) => {
 });
 
 // ...existing code...
-
-
-
-
-
-
-
-
-
 
 
 
