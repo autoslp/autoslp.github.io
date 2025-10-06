@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Nhập Xuất Tồn - Google Sheets</title>
+     <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <!-- Chart.js (không sử dụng) -->
+    <style>
+        :root { --aside-w: 72px; }
+        body { background-color: #f7f9fc; }
+        .hidden{display:none}
+        .app { display: grid; grid-template-columns: var(--aside-w) 1fr; min-height: 100vh; }
+        .aside { background: #ffffff; border-right: 1px solid #eef1f6; padding-top: 16px; }
+        .aside .nav-icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; color:#6b7280; margin: 10px auto; cursor: pointer; }
+        .aside .nav-icon.active, .aside .nav-icon:hover { background:#eef6ff; color:#0d6efd; }
+        .topbar { background:#ffffff; border-bottom:1px solid #eef1f6; }
+        .hero-card, .kpi-card, .panel { border: 0; border-radius: 16px; box-shadow: 0 2px 12px rgba(15,23,42,0.06); }
+        .metric { font-weight: 700; font-size: 1.25rem; }
+        .muted { color:#6b7280; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="aside d-flex flex-column align-items-center">
+            <div class="nav-icon active" title="Dashboard"><i class="bi bi-columns-gap"></i></div>
+            <div class="nav-icon" title="Orders"><i class="bi bi-bag"></i></div>
+            <div class="nav-icon" title="Customers"><i class="bi bi-people"></i></div>
+            <div class="nav-icon" title="Reports"><i class="bi bi-graph-up"></i></div>
+            <div class="mt-auto mb-3 nav-icon" title="Settings"><i class="bi bi-gear"></i></div>
+        </aside>
+
+        <!-- Main -->
+        <main class="main bg-light">
+            <!-- Topbar -->
+            <div class="topbar px-3 py-2 d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <button id="loadDataBtn" class="btn btn-primary"><i class="bi bi-arrow-repeat me-1"></i>Tải dữ liệu</button>
+                    <button id="refreshBtn" class="btn btn-outline-secondary">Làm mới</button>
+                    <div class="vr d-none d-md-block"></div>
+                    <div class="input-group input-group-sm" style="max-width: 220px;">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input id="filterPO" type="text" class="form-control" placeholder="Lọc PO...">
+                    </div>
+                    <div class="input-group input-group-sm" style="max-width: 260px;">
+                        <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                        <input id="startDate" type="date" class="form-control">
+                        <input id="endDate" type="date" class="form-control">
+                    </div>
+                    <button id="clearFilterBtn" class="btn btn-sm btn-outline-secondary">Xóa lọc</button>
+                    <button id="exportCsvBtn" class="btn btn-sm btn-success"><i class="bi bi-file-earmark-arrow-down me-1"></i>Export CSV</button>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-bell"></i>
+                    <i class="bi bi-person-circle fs-4"></i>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="container-fluid py-3">
+                <!-- Hero card -->
+                <div class="card hero-card mb-3">
+                    <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
+                        <div>
+                            <h5 class="mb-1">Chúc mừng bạn!</h5>
+                            <div class="muted">Bạn đã hoàn thành báo cáo tồn kho hôm nay</div>
+                            <div id="status" class="alert alert-warning mt-3 hidden">Đang tải...</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="muted small">Cập nhật gần nhất</div>
+                            <div class="fw-semibold" id="lastUpdated">--:--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI row -->
+                <div id="summaryCards" class="row g-3 hidden">
+                    <div class="col-12 col-md-4">
+                        <div class="card kpi-card">
+                            <div class="card-body">
+                                <div class="muted small">Tổng Nhập Kho</div>
+                                <div class="metric" id="totalNhap">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="card kpi-card">
+                            <div class="card-body">
+                                <div class="muted small">Tổng SL Triển Khai</div>
+                                <div class="metric" id="totalXuat">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="card kpi-card">
+                            <div class="card-body">
+                                <div class="muted small">Tổng SL Sản Xuất</div>
+                                <div class="metric" id="totalTon">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table panel -->
+                <div id="tableContainer" class="card panel mt-3 hidden">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table id="dataTable" class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>PO</th>
+                                        <th>Lệnh Sản Xuất</th>
+                                        <th>SL Cần Triển Khai</th>
+                                        <th>SL Sản Xuất</th>
+                                        <th>NHẬP KHO</th>
+                                        <th>Ngày Xuống Lệnh</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Không cần Google API Scripts nữa vì sử dụng fetch trực tiếp -->
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoA6DQD1Cj6j6c6b9l+8nt1pV0r1jDD6whzFZC+NcIb2FG+" crossorigin="anonymous"></script>
+    <!-- Chart.js (không sử dụng, giữ guard nếu sau dùng) -->
+    <script>
+      if (typeof Chart === 'undefined') {
+        console.warn('Chart.js not found from custom CDN, attempting fallback...');
+        var s = document.createElement('script');
+        s.src = 'https://api.autoslp.com/js/chart.js';
+        document.head.appendChild(s);
+      }
+    </script>
+
+    <script>
+        // Cấu hình Google API
+        const GOOGLE_API_KEY = 'AIzaSyC1Rsi6v-NoDqTFVDzB_YVCP0g1aHyvMME';
+        // Sheet ID của bạn (sẽ được cập nhật sau khi tạo Data Bridge Sheet)
+        const SPREADSHEET_ID = '1UuIKiW0soNDv2U08HMhiuTn_Kxrzxlj_Z7GXK7ZM6Ic';
+
+        // DOM Elements
+        const loadDataBtn = document.getElementById('loadDataBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const status = document.getElementById('status');
+        const summaryCards = document.getElementById('summaryCards');
+        const tableContainer = document.getElementById('tableContainer');
+        const tableBody = document.getElementById('tableBody');
+        const totalNhap = document.getElementById('totalNhap');
+        const totalXuat = document.getElementById('totalXuat');
+        const totalTon = document.getElementById('totalTon');
+
+        // Khởi tạo ứng dụng
+        function initializeApp() {
+            showStatus('Sẵn sàng tải dữ liệu!', 'success');
+        }
+
+        // Tải dữ liệu từ Google Sheets (Data Bridge Sheet)
+        async function loadData() {
+            showStatus('Đang tải dữ liệu...', 'loading');
+            
+            try {
+                // Sử dụng API trực tiếp với sheet của bạn
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/4.%20Nhập%20Xuất%20Tồn!A8:AI?key=${GOOGLE_API_KEY}`;
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data.values || data.values.length === 0) {
+                    showStatus('Không có dữ liệu trong sheet!', 'error');
+                    return;
+                }
+
+                // Xử lý dữ liệu
+                processData(data.values);
+                showStatus(`Đã tải thành công ${data.values.length - 1} dòng dữ liệu!`, 'success');
+                
+            } catch (error) {
+                console.error('Lỗi khi tải dữ liệu:', error);
+                showStatus('Lỗi khi tải dữ liệu: ' + error.message, 'error');
+            }
+        }
+
+        // Xử lý dữ liệu theo cấu trúc mới - gộp theo PO
+        function processData(values) {
+            console.log('Dữ liệu nhận được:', values);
+            
+            // Dữ liệu từ dòng A8:AI (dòng đầu tiên là header)
+            const data = values.slice(1); // Bỏ qua dòng header
+            
+            // Object để gộp dữ liệu theo PO
+            const groupedData = {};
+            
+            data.forEach((row, index) => {
+                if (row.length < 35) return; // Bỏ qua dòng không đủ cột (cần đến cột AI)
+                
+                // Mapping theo yêu cầu mới:
+                const po = row[34] || '';                    // AI (Số PO)
+                const lenhSanXuat = row[0] || '';            // A (Lệnh sản xuất)
+                const soLuongCanTrienKhai = parseFloat(row[5]) || 0;  // F (SL triển khai)
+                const soLuongSanXuat = parseFloat(row[6]) || 0;       // G (SL Cần SX)
+                const nhapKho = parseFloat(row[14]) || 0;             // O (NHẬP KHO)
+                const ngayXuongLenh = row[26] || '';         // AA (Ngày xuống lệnh)
+                
+                // Nếu PO chưa tồn tại, tạo mới
+                if (!groupedData[po]) {
+                    groupedData[po] = {
+                        po: po,
+                        lenhSanXuat: [],
+                        soLuongCanTrienKhai: 0,
+                        soLuongSanXuat: 0,
+                        nhapKho: 0,
+                        ngayXuongLenh: ngayXuongLenh
+                    };
+                }
+                
+                // Gộp dữ liệu
+                groupedData[po].lenhSanXuat.push(lenhSanXuat);
+                groupedData[po].soLuongCanTrienKhai += soLuongCanTrienKhai;
+                groupedData[po].soLuongSanXuat += soLuongSanXuat;
+                groupedData[po].nhapKho += nhapKho;
+            });
+            
+            // Chuyển đổi object thành array và sắp xếp
+            let processedData = Object.values(groupedData).filter(item => item.po !== '');
+            
+            let totalNhapValue = 0;
+            let totalXuatValue = 0;
+            let totalTonValue = 0;
+            
+            // Xóa dữ liệu cũ
+            tableBody.innerHTML = '';
+            
+            const poFilter = (document.getElementById('filterPO')?.value || '').trim().toLowerCase();
+            const startDate = document.getElementById('startDate')?.value;
+            const endDate = document.getElementById('endDate')?.value;
+
+            // Lọc theo PO và khoảng ngày
+            if (poFilter) {
+                processedData = processedData.filter(i => (i.po || '').toLowerCase().includes(poFilter));
+            }
+            if (startDate) {
+                processedData = processedData.filter(i => !i.ngayXuongLenh || i.ngayXuongLenh >= startDate);
+            }
+            if (endDate) {
+                processedData = processedData.filter(i => !i.ngayXuongLenh || i.ngayXuongLenh <= endDate);
+            }
+
+            processedData.forEach((item, index) => {
+                // Tính tổng cho summary
+                totalNhapValue += item.nhapKho;
+                totalXuatValue += item.soLuongCanTrienKhai;
+                totalTonValue += item.soLuongSanXuat;
+                
+                // Tạo dòng bảng
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${item.po}</td>
+                    <td>${item.lenhSanXuat.join('<br>')}</td>
+                    <td>${item.soLuongCanTrienKhai.toLocaleString()}</td>
+                    <td>${item.soLuongSanXuat.toLocaleString()}</td>
+                    <td>${item.nhapKho.toLocaleString()}</td>
+                    <td>${item.ngayXuongLenh}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+            
+            // Cập nhật tổng kết
+            totalNhap.textContent = totalNhapValue.toLocaleString();
+            totalXuat.textContent = totalXuatValue.toLocaleString();
+            totalTon.textContent = totalTonValue.toLocaleString();
+            
+            // Hiển thị dữ liệu
+            summaryCards.classList.remove('hidden');
+            tableContainer.classList.remove('hidden');
+            const lastUpdatedEl = document.getElementById('lastUpdated');
+            if (lastUpdatedEl) lastUpdatedEl.textContent = new Date().toLocaleString();
+        }
+
+        // Hiển thị trạng thái
+        function showStatus(message, type) {
+            status.textContent = message;
+            const map = { loading: 'alert-warning', success: 'alert-success', error: 'alert-danger' };
+            status.className = `alert ${map[type] || 'alert-info'}`;
+            status.classList.remove('hidden');
+        }
+
+        // Lọc nhanh và Export CSV
+        document.addEventListener('input', (e) => {
+            if (e.target && (e.target.id === 'filterPO' || e.target.id === 'startDate' || e.target.id === 'endDate')) {
+                // render lại dựa trên dữ liệu lần tải gần nhất
+                // Đơn giản: gọi loadData() lại (có thể cải thiện bằng cache)
+                loadData();
+            }
+        });
+        document.getElementById('clearFilterBtn')?.addEventListener('click', () => {
+            const f = document.getElementById('filterPO');
+            const s = document.getElementById('startDate');
+            const e = document.getElementById('endDate');
+            if (f) f.value = '';
+            if (s) s.value = '';
+            if (e) e.value = '';
+            loadData();
+        });
+
+        document.getElementById('exportCsvBtn')?.addEventListener('click', () => {
+            const rows = [];
+            const header = ['STT','PO','Lệnh Sản Xuất','SL Cần Triển Khai','SL Sản Xuất','NHẬP KHO','Ngày Xuống Lệnh'];
+            rows.push(header.join(','));
+            const trs = document.querySelectorAll('#tableBody tr');
+            trs.forEach(tr => {
+                const tds = Array.from(tr.querySelectorAll('td')).map(td => '"' + td.innerText.replace(/"/g,'""') + '"');
+                rows.push(tds.join(','));
+            });
+            const blob = new Blob([rows.join('\n')], {type: 'text/csv;charset=utf-8;'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'bao_cao_po.csv';
+            document.body.appendChild(a); a.click(); a.remove();
+            URL.revokeObjectURL(url);
+        });
+
+        // Event Listeners
+        loadDataBtn.addEventListener('click', loadData);
+        refreshBtn.addEventListener('click', loadData);
+
+        // Khởi tạo ứng dụng khi trang load
+        window.addEventListener('load', initializeApp);
+    </script>
+</body>
+</html>
