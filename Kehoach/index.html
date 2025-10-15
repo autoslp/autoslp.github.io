@@ -585,7 +585,7 @@
                                         <th>Tỷ lệ nhập kho</th>
                                         <th>Tiến độ</th>
                                         <th>Đóng lệnh</th>
-                                        <th>Thời hạn</th>
+                                        <th>Cảnh báo</th>
                                     </tr>
                                 </thead>
                                 <tbody style="font-size: 12px;" id="tableBody"></tbody>
@@ -615,6 +615,8 @@
         const GOOGLE_API_KEY = 'AIzaSyC1Rsi6v-NoDqTFVDzB_YVCP0g1aHyvMME';
         // Sheet ID của bạn (sẽ được cập nhật sau khi tạo Data Bridge Sheet)
         const SPREADSHEET_ID = '1UuIKiW0soNDv2U08HMhiuTn_Kxrzxlj_Z7GXK7ZM6Ic';
+        // Webhook cấu hình
+        const WEBHOOK_URL = 'https://api.autoslp.com:5678/webhook-test/bao-cao-lenhsanxuat';
 
         // DOM Elements
         const loadDataBtn = document.getElementById('loadDataBtn');
@@ -627,6 +629,27 @@
         const totalTon = document.getElementById('totalTon');
         let autoRefreshTimer = null;
         let isLoading = false;
+
+        // Gửi webhook cho lần auto-refresh
+        function sendWebhook(data) {
+            try {
+                const payload = {
+                    event: 'auto-refresh',
+                    timestamp: new Date().toISOString(),
+                    ...((typeof data === 'object' && data) || {})
+                };
+                // Dùng no-cors để hạn chế lỗi CORS phía client
+                fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                    mode: 'no-cors',
+                    keepalive: true
+                }).catch(() => {});
+            } catch (err) {
+                // Bỏ qua lỗi webhook để không ảnh hưởng UI
+            }
+        }
 
         // Utils: parse and format dates
         function parseAnyDate(value) {
@@ -665,6 +688,14 @@
             if (isNaN(n)) return null;
             return n <= 1 ? n * 100 : n;
         }
+        // Parse số theo định dạng VN: chấm là hàng nghìn, phẩy là thập phân
+        function parseNumberVN(value) {
+            if (value === undefined || value === null || value === '') return 0;
+            if (typeof value === 'number') return value;
+            const s = String(value).toString().trim().replace(/\./g, '').replace(/,/g, '.');
+            const n = parseFloat(s);
+            return isNaN(n) ? 0 : n;
+        }
         function formatPercent(n) {
             if (n === null || n === undefined || isNaN(n)) return '';
             const v = Math.round(n * 10) / 10; // 1 decimal
@@ -687,7 +718,9 @@
             if (autoRefreshTimer) clearInterval(autoRefreshTimer);
             autoRefreshTimer = setInterval(() => {
                 loadData();
-            }, 50000);
+                // Gửi webhook mỗi lần auto-refresh
+                sendWebhook({ reason: 'interval-50s' });
+            }, 5000);
         }
 
         // Tải dữ liệu từ Google Sheets (Data Bridge Sheet)
@@ -724,14 +757,14 @@
         function processData(values) {
             console.log('Dữ liệu nhận được:', values);
             
-            // Dữ liệu từ dòng A8:AI (dòng đầu tiên là header)
+            // Dữ liệu từ dòng A8:AJ (dòng đầu tiên là header)
             const data = values.slice(1); // Bỏ qua dòng header
             
             // Object để gộp dữ liệu theo PO
             const groupedData = {};
             
             data.forEach((row, index) => {
-                if (row.length < 35) return; // Bỏ qua dòng không đủ cột (cần đến cột AI)
+                if (row.length < 36) return; // Bỏ qua dòng không đủ cột (cần đến cột AJ)
                 
                 // Mapping theo yêu cầu mới:
                 const po = row[34] || '';                    // AI (Số PO)
@@ -854,8 +887,13 @@
                 totalTonValue += item.soLuongSanXuat;
                 
                 // Chuẩn bị các giá trị trước khi đếm/trình bày
-                const progress = item.soLuongCanTrienKhai > 0 ? Math.min(100, Math.round((item.nhapKho / item.soLuongCanTrienKhai) * 100)) : 0;
-                const isClosed = progress >= 100;
+                const computedTyLe = item.soLuongSanXuat > 0 ? (item.nhapKho / item.soLuongSanXuat) * 100 : null; // Tỷ lệ nhập kho = Nhập kho / Sản xuất
+                const progress = (computedTyLe !== null && computedTyLe !== undefined)
+                    ? Math.max(0, Math.min(100, Math.round(computedTyLe)))
+                    : (item.soLuongCanTrienKhai > 0 ? Math.min(100, Math.round((item.nhapKho / item.soLuongCanTrienKhai) * 100)) : 0);
+                const isClosed = (computedTyLe !== null && computedTyLe !== undefined)
+                    ? (computedTyLe >= 100)
+                    : (progress >= 100);
 
                 // Đếm thống kê trạng thái
                 if (item.giaoISO) {
@@ -878,27 +916,27 @@
                 // Tạo dòng bảng
                 const tr = document.createElement('tr');
                 const barClass = progress >= 80 ? 'bar-success' : (progress >= 30 ? 'bar-warning' : 'bar-danger');
-                // Tính trạng thái thời hạn (không cảnh báo nếu đã Đóng lệnh) và không hiển thị ngày, chỉ biểu tượng
-                let thoiHanHtml = '';
-                if (item.giaoISO) {
-                    if (isClosed) {
-                        thoiHanHtml = '✅ OK';
+                // Cảnh báo (AQ): Đóng lệnh → OK; nếu chưa đóng và ngày giao hàng ≤2 → Báo động; ≤5 → Chú ý; còn lại OK
+                let canhBaoHtml = '';
+                if (isClosed) {
+                    canhBaoHtml = '✅ OK';
+                } else if (item.giaoISO) {
+                    const today = new Date();
+                    const todayISO = toISODate(today);
+                    const diffMs = (new Date(item.giaoISO + 'T00:00:00')) - (new Date(todayISO + 'T00:00:00'));
+                    const days = Math.round(diffMs / (24*60*60*1000));
+                    if (days <= 2) {
+                        canhBaoHtml = '🚨 Báo động';
+                    } else if (days <= 5) {
+                        canhBaoHtml = '⚠️ Chú ý';
                     } else {
-                        const today = new Date();
-                        const todayISO = toISODate(today);
-                        const diffMs = (new Date(item.giaoISO + 'T00:00:00')) - (new Date(todayISO + 'T00:00:00'));
-                        const days = Math.round(diffMs / (24*60*60*1000));
-                        if (days < 0) {
-                            thoiHanHtml = '❗Quá hạn';
-                        } else if (days < 2) {
-                            thoiHanHtml = '⚠️ Chú ý';
-                        } else {
-                            thoiHanHtml = '✅ OK';
-                        }
+                        canhBaoHtml = '✅ OK';
                     }
+                } else {
+                    canhBaoHtml = '✅ OK';
                 }
-                const tyLeNhapKhoTxt = formatPercent(item.tyLeNhapKho);
-                const tyLeNhapKhoHtml = item.tyLeNhapKho !== null && item.tyLeNhapKho >= 100 ? `<span class="text-good">${tyLeNhapKhoTxt}</span>` : `${tyLeNhapKhoTxt || ''}`;
+                const tyLeNhapKhoTxt = formatPercent(computedTyLe);
+                const tyLeNhapKhoHtml = computedTyLe !== null && computedTyLe >= 100 ? `<span class="text-good">${tyLeNhapKhoTxt}</span>` : `${tyLeNhapKhoTxt || ''}`;
                 const haoThucTe = item.haoPhiThucTe;
                 const haoChoPhep = item.haoPhiChoPhep;
                 const hpDotClass = (haoThucTe !== null && haoChoPhep !== null && haoThucTe > haoChoPhep) ? 'dot-red' : 'dot-green';
@@ -937,7 +975,7 @@
                         </div>
                     </td>
                     <td>${isClosed ? '<span style="font-weight: 300;font-size: 10px;width: 60px;text-align: center;}" class="pill pill-closed">Đóng lệnh</span>' : ''}</td>
-                    <td>${thoiHanHtml}</td>
+                    <td>${canhBaoHtml}</td>
                 `;
                 tableBody.appendChild(tr);
             });
@@ -1005,7 +1043,7 @@
 
         document.getElementById('exportCsvBtn')?.addEventListener('click', () => {
             const rows = [];
-            const header = ['STT','PO','Lệnh Sản Xuất','Thông tin','SL Cần Triển Khai','SL Sản Xuất','NHẬP KHO','Ngày Xuống/Giao','Tổng NG','Hao phí','Tỷ lệ nhập kho','Tiến độ','Đóng lệnh','Thời hạn'];
+            const header = ['STT','PO','Lệnh Sản Xuất','Thông tin','SL Cần Triển Khai','SL Sản Xuất','NHẬP KHO','Ngày Xuống/Giao','Tổng NG','Hao phí','Tỷ lệ nhập kho','Tiến độ','Đóng lệnh','Cảnh báo'];
             rows.push(header.join(','));
             const trs = document.querySelectorAll('#tableBody tr');
             trs.forEach(tr => {
