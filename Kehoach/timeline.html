@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timeline & Cảnh báo PO</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background:#f6f8fb; }
+    .card { border:0; border-radius:16px; box-shadow: 0 10px 30px rgba(15,23,42,0.04), 0 2px 8px rgba(15,23,42,0.06); }
+    .table thead th { font-size: 11px; color: #6b7280; }
+    .table tbody { font-size: 12px; }
+    .table td, .table th { padding: .5rem .25rem; }
+    .progress-mini { height:6px; background:#eef2f7; border-radius:8px; overflow:hidden; }
+    .bar-success { background:#19c2a0; }
+    .bar-warning { background:#f3ad2e; }
+    .bar-danger  { background:#f27b9b; }
+    .pill { display:inline-block; padding:.25rem .2rem; border-radius:999px;}
+    .pill-closed { background:#d1fae5; color:#0f766e; }
+    .dot { display:inline-block; width:8px; height:8px; border-radius:50%; }
+    .dot-red { background:#f27b9b; }
+    .dot-green { background:#19c2a0; }
+    .text-good { color:#19c2a0; }
+    .badge-soft { background:#eef6ff; color:#2b6ef2; }
+    .progress-mini { height:8px; background:#eef2f7; border-radius:8px; overflow:hidden; }
+    .timeline-grid { position: relative; overflow-x: auto; }
+    .gantt-row { min-width: 900px; }
+    .gantt-bar { height: 22px; border-radius: 8px; color:#fff; display:flex; align-items:center; padding:0 .5rem; font-size:12px; white-space:nowrap; }
+    .gantt-red { background:#ef476f; }
+    .gantt-blue { background:#4895ef; }
+    .gantt-green { background:#06d6a0; }
+    .gantt-purple { background:#9b5de5; }
+    /* Pretty pill-style tabs */
+    .pill-tabs { background:#ffffff; border-radius:999px; padding:6px; gap:8px; box-shadow: 0 8px 20px rgba(15,23,42,0.06); display:inline-flex; }
+    .pill-tabs .nav-link { border:0 !important; border-radius:999px; padding:.5rem 1rem; color:#111827; font-weight:600; }
+    .pill-tabs .nav-link.active { background:#e9f0ff; color:#1d4ed8; box-shadow: inset 0 2px 6px rgba(29,78,216,.12); }
+    .pill-tabs .nav-link:hover { background:#f3f6ff; color:#1d4ed8; }
+    .nav-tabs { border-bottom:0; }
+  </style>
+</head>
+<body>
+  <div class="container-fluid py-3">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h4 class="mb-0">Timeline & Cảnh báo PO</h4>
+      <div class="d-flex gap-2">
+        <input id="startDate" type="date" class="form-control form-control-sm" style="max-width: 160px;">
+        <input id="endDate" type="date" class="form-control form-control-sm" style="max-width: 160px;">
+        <button id="refreshBtn" class="btn btn-sm btn-primary">Làm mới</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header bg-white pb-0">
+        <div style="font-size: 22px;" class="d-flex flex-wrap gap-3 align-items-center mb-1">
+          <div class="small text-muted">Tổng hợp:</div>
+          <div class="small">Chú ý: <span class="badge bg-warning text-dark" id="sumAttention">0</span></div>
+          <div class="small">Báo động: <span class="badge bg-danger" id="sumAlert">0</span></div>
+          <div class="small">Vượt hao phí: <span class="badge bg-info text-dark" id="sumOverWaste">0</span></div>
+          <div class="small">Tất cả: <span class="badge bg-secondary" id="sumAll">0</span></div>
+        </div>
+        <div class="d-flex flex-column gap-1 small text-muted mb-2">
+          <div><span class="me-1">🚨</span><strong>Báo động</strong>: Lệnh chưa đóng, còn ≤ 2 ngày tới hạn giao.</div>
+          <div><span class="me-1">⚠️</span><strong>Chú ý</strong>: Lệnh chưa đóng, còn 3–5 ngày tới hạn giao.</div>
+          <div><span class="me-1">📉</span><strong>Vượt hao phí</strong>: Hao thực tế &gt; Hao cho phép.</div>
+          <div><span class="me-1">📋</span><strong>Tất cả</strong>: Hiển thị toàn bộ lệnh đang theo dõi.</div>
+          <div><span class="me-1">🗓️</span><em>Ghi chú</em>: So sánh hạn giao theo ngày so với hôm nay; bộ lọc khoảng ngày sử dụng <strong>Ngày xuống lệnh</strong>.</div>
+        </div>
+        <ul class="nav nav-tabs pill-tabs" id="poTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link fw-semibold active" id="tab-attention" data-bs-toggle="tab" data-bs-target="#pane-attention" type="button" role="tab" aria-controls="pane-attention" aria-selected="true">
+              <strong>Xem lệnh Chú ý</strong>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link fw-semibold" id="tab-alert" data-bs-toggle="tab" data-bs-target="#pane-alert" type="button" role="tab" aria-controls="pane-alert" aria-selected="false">
+              <strong>Xem lệnh Báo động</strong>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link fw-semibold" id="tab-overwaste" data-bs-toggle="tab" data-bs-target="#pane-overwaste" type="button" role="tab" aria-controls="pane-overwaste" aria-selected="false">
+              <strong>Xem lệnh Vượt hao phí</strong>
+            </button>
+          </li>
+        </ul>
+      </div>
+      <div class="card-body p-0">
+        <div class="tab-content">
+          <div class="tab-pane fade show active" id="pane-attention" role="tabpanel" aria-labelledby="tab-attention" tabindex="0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>STT</th>
+                    <th style="text-align:center;">PO</th>
+                    <th>Lệnh Sản Xuất</th>
+                    <th>Thông tin</th>
+                    <th>Triển Khai (pcs)</th>
+                    <th>Nhập Kho/Sản Xuất (pcs)</th>
+                    <th>Ngày Xuống/Giao</th>
+                    <th>Tổng NG</th>
+                    <th style="text-align:center;">Hao phí</th>
+                    <th>Tỷ lệ nhập kho</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyAttention"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="pane-alert" role="tabpanel" aria-labelledby="tab-alert" tabindex="0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>STT</th>
+                    <th style="text-align:center;">PO</th>
+                    <th>Lệnh Sản Xuất</th>
+                    <th>Thông tin</th>
+                    <th>Triển Khai (pcs)</th>
+                    <th>Nhập Kho/Sản Xuất (pcs)</th>
+                    <th>Ngày Xuống/Giao</th>
+                    <th>Tổng NG</th>
+                    <th style="text-align:center;">Hao phí</th>
+                    <th>Tỷ lệ nhập kho</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyAlert"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="pane-overwaste" role="tabpanel" aria-labelledby="tab-overwaste" tabindex="0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>STT</th>
+                    <th style="text-align:center;">PO</th>
+                    <th>Lệnh Sản Xuất</th>
+                    <th>Thông tin</th>
+                    <th>Triển Khai (pcs)</th>
+                    <th>Nhập Kho/Sản Xuất (pcs)</th>
+                    <th>Ngày Xuống/Giao</th>
+                    <th>Tổng NG</th>
+                    <th style="text-align:center;">Hao phí</th>
+                    <th>Tỷ lệ nhập kho</th>
+                    <th>Đóng lệnh</th>
+                    <th>Cảnh báo</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyOverWaste"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header bg-white"><strong>Timeline công việc (mẫu)</strong></div>
+      <div class="card-body">
+        <div class="timeline-grid">
+          <div class="row fw-semibold text-muted small px-2 pb-2">
+            <div class="col-2">Nhóm</div>
+            <div class="col-10">Thời gian</div>
+          </div>
+          <div class="gantt-row">
+            <div class="row align-items-center px-2 mb-2">
+              <div class="col-2 text-muted small">Lộ trình sản phẩm</div>
+              <div class="col-10">
+                <div class="gantt-bar gantt-red" style="width: 35%;">Show the client your portfolio</div>
+              </div>
+            </div>
+            <div class="row align-items-center px-2 mb-2">
+              <div class="col-2 text-muted small">Kinh doanh</div>
+              <div class="col-10">
+                <div class="gantt-bar gantt-blue" style="width: 50%;">Team progress report</div>
+              </div>
+            </div>
+            <div class="row align-items-center px-2 mb-2">
+              <div class="col-2 text-muted small">Marketing</div>
+              <div class="col-10">
+                <div class="gantt-bar gantt-purple" style="width: 60%;">Agree content delivery date</div>
+              </div>
+            </div>
+            <div class="row align-items-center px-2">
+              <div class="col-2 text-muted small">Feedback</div>
+              <div class="col-10">
+                <div class="gantt-bar gantt-green" style="width: 40%;">Get contact details</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const GOOGLE_API_KEY = 'AIzaSyC1Rsi6v-NoDqTFVDzB_YVCP0g1aHyvMME';
+    const SPREADSHEET_ID = '1UuIKiW0soNDv2U08HMhiuTn_Kxrzxlj_Z7GXK7ZM6Ic';
+
+    function toISODate(dateObj){ if(!(dateObj instanceof Date) || isNaN(dateObj)) return ''; const dd=String(dateObj.getDate()).padStart(2,'0'); const mm=String(dateObj.getMonth()+1).padStart(2,'0'); const yyyy=String(dateObj.getFullYear()); return `${yyyy}-${mm}-${dd}`; }
+    function parseAnyDate(value){ if(!value) return null; if(/^\d{4}-\d{2}-\d{2}$/.test(value)){const d=new Date(value+'T00:00:00'); return isNaN(d.getTime())?null:d;} if(/^\d{2}\/\d{2}\/\d{4}$/.test(value)){const [dd,mm,yyyy]=value.split('/').map(Number); const d=new Date(yyyy,mm-1,dd); return isNaN(d.getTime())?null:d;} const d=new Date(value); return isNaN(d.getTime())?null:d; }
+    function formatVN(dateObj){ if(!(dateObj instanceof Date) || isNaN(dateObj)) return ''; return dateObj.toLocaleDateString('vi-VN'); }
+    function parsePercentRawToNum(s){ if(!s) return null; const n = parseFloat(String(s).replace('%','').replace(',', '.')); return isNaN(n)?null:n; }
+    function formatPercent(n){ if(n===null||n===undefined||isNaN(n)) return ''; const v=Math.round(n*10)/10; return `${v}%`; }
+
+    async function loadData(){
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/4.%20Nhập%20Xuất%20Tồn!A8:AJ?key=${GOOGLE_API_KEY}`;
+      const res = await fetch(url);
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const json = await res.json();
+      if(!json.values || json.values.length===0) return;
+
+      const rows = json.values.slice(1);
+      const grouped = {};
+      rows.forEach(row=>{
+        if(row.length<36) return;
+        const po = row[34] || '';
+        if(!po) return;
+        const maCode = row[2] || '';
+        const tenSanPham = row[3] || '';
+        const lenh = row[0] || '';
+        const loai = (row[1]||'').trim();
+        const lenhHienThi = loai ? `${lenh} (${loai})` : `${lenh}`;
+        const khachHang = row[7] || '';
+        const soLuongSanXuat = parseFloat(row[6]) || 0;
+        const soLuongCanTrienKhai = parseFloat(row[5]) || 0;
+        const nhapKho = parseFloat(row[14]) || 0;
+        const tongNG = parseFloat(row[19]) || 0;
+        const giaoRaw = row[35] || '';
+        const giaoDate = parseAnyDate(giaoRaw);
+        const giaoISO = giaoDate ? toISODate(giaoDate) : '';
+        const ngayXuongRaw = row[26] || '';
+        const ngayDate = parseAnyDate(ngayXuongRaw);
+        const haoThucTe = row[20] || '';
+        const haoChoPhep = row[21] || '';
+        if(!grouped[po]) grouped[po] = { po, maCode, tenSanPham, khachHang, soLuongCanTrienKhai:0, soLuongSanXuat:0, nhapKho:0, tongNG:0, ngayDate, ngayISO: (ngayDate?toISODate(ngayDate):''), giaoISO, giaoDate, haoThucTe, haoChoPhep, lenhList: [] };
+        grouped[po].khachHang = grouped[po].khachHang || khachHang;
+        if(!grouped[po].maCode && maCode) grouped[po].maCode = maCode;
+        if(!grouped[po].tenSanPham && tenSanPham) grouped[po].tenSanPham = tenSanPham;
+        grouped[po].soLuongCanTrienKhai += soLuongCanTrienKhai;
+        grouped[po].soLuongSanXuat += soLuongSanXuat;
+        grouped[po].nhapKho += nhapKho;
+        grouped[po].tongNG += tongNG;
+        grouped[po].lenhList.push(lenhHienThi);
+        if(ngayDate && (!grouped[po].ngayDate || ngayDate < grouped[po].ngayDate)) { grouped[po].ngayDate = ngayDate; grouped[po].ngayISO = toISODate(ngayDate); }
+        if(giaoISO && (!grouped[po].giaoISO || giaoISO < grouped[po].giaoISO)) { grouped[po].giaoISO = giaoISO; grouped[po].giaoDate = giaoDate; }
+        if(haoThucTe) grouped[po].haoThucTe = haoThucTe;
+        if(haoChoPhep) grouped[po].haoChoPhep = haoChoPhep;
+      });
+
+      const items = Object.values(grouped);
+      renderTables(items);
+    }
+
+    function renderTables(items){
+      const start = document.getElementById('startDate')?.value;
+      const end = document.getElementById('endDate')?.value;
+      let data = items;
+      // Lọc theo NGÀY XUỐNG LỆNH (AA) thay vì ngày giao
+      if(start) data = data.filter(i => !i.ngayISO || i.ngayISO >= start);
+      if(end) data = data.filter(i => !i.ngayISO || i.ngayISO <= end);
+
+      const todayISO = toISODate(new Date());
+
+      const attention = [];
+      const alerting = [];
+      const overWaste = [];
+
+      data.forEach(i => {
+        const tyLe = i.soLuongSanXuat>0 ? Math.round((i.nhapKho/i.soLuongSanXuat)*100) : 0;
+        const isClosed = tyLe>=100;
+        if(!isClosed && i.giaoISO){
+          const diffMs = (new Date(i.giaoISO+'T00:00:00')) - (new Date(todayISO+'T00:00:00'));
+          const days = Math.round(diffMs / (24*60*60*1000));
+          if(days <= 2) {
+            alerting.push({...i, tyLe});
+          } else if(days > 2 && days <= 5) {
+            attention.push({...i, tyLe});
+          }
+        }
+        const haoTT = parsePercentRawToNum(i.haoThucTe);
+        const haoCP = parsePercentRawToNum(i.haoChoPhep);
+        if(haoTT>0 && haoCP>0 && haoTT>haoCP){ overWaste.push(i); }
+      });
+
+      const elCountAttention = document.getElementById('countAttention'); if (elCountAttention) elCountAttention.textContent = attention.length;
+      const elCountAlert = document.getElementById('countAlert'); if (elCountAlert) elCountAlert.textContent = alerting.length;
+      const elCountOverWaste = document.getElementById('countOverWaste'); if (elCountOverWaste) elCountOverWaste.textContent = overWaste.length;
+      // cập nhật tóm tắt trên header
+      const sumA = document.getElementById('sumAttention'); if(sumA) sumA.textContent = attention.length;
+      const sumB = document.getElementById('sumAlert'); if(sumB) sumB.textContent = alerting.length;
+      const sumC = document.getElementById('sumOverWaste'); if(sumC) sumC.textContent = overWaste.length;
+      const sumAll = document.getElementById('sumAll'); if(sumAll) sumAll.textContent = items.length;
+
+      const tbodyA = document.getElementById('tbodyAttention');
+      const tbodyB = document.getElementById('tbodyAlert');
+      const tbodyC = document.getElementById('tbodyOverWaste');
+
+      // Hàng rút gọn: không có Tiến độ/Đóng lệnh/Cảnh báo (dùng cho Chú ý & Báo động)
+      function buildRowSimple(item, idx){
+        const computedTyLe = item.soLuongSanXuat>0 ? (item.nhapKho/item.soLuongSanXuat)*100 : null;
+        const progress = (computedTyLe!==null&&computedTyLe!==undefined) ? Math.max(0, Math.min(100, Math.round(computedTyLe))) : 0;
+        const isClosed = (computedTyLe!==null&&computedTyLe!==undefined) ? (computedTyLe>=100) : (progress>=100);
+        let canhBaoHtml='';
+        if(isClosed){ canhBaoHtml='✅ OK'; }
+        else if(item.giaoISO){
+          const todayISO=toISODate(new Date());
+          const diffMs=(new Date(item.giaoISO+'T00:00:00'))-(new Date(todayISO+'T00:00:00'));
+          const days=Math.round(diffMs/(24*60*60*1000));
+          if(days<=2) canhBaoHtml='🚨 Báo động';
+          else if(days<=5) canhBaoHtml='⚠️ Chú ý';
+          else canhBaoHtml='✅ OK';
+        } else { canhBaoHtml='✅ OK'; }
+        const tyLeNhapKhoTxt = formatPercent(computedTyLe);
+        const tyLeNhapKhoHtml = (computedTyLe!==null && computedTyLe>=100) ? `<span class="text-good">${tyLeNhapKhoTxt}</span>` : `${tyLeNhapKhoTxt||''}`;
+        const haoThucTe = item.haoThucTe, haoChoPhep=item.haoChoPhep;
+        const haoThucTeNum = parsePercentRawToNum(haoThucTe); const haoChoPhepNum = parsePercentRawToNum(haoChoPhep);
+        const hpDotClass = (haoThucTeNum>0 && haoChoPhepNum>0 && haoThucTeNum>haoChoPhepNum) ? 'dot-red':'dot-green';
+        const haoPhiHtml = `<div><div><span class="dot ${hpDotClass}"></span> ${haoThucTe||''} <span class="text-muted small">(thực tế)</span></div><div>${haoChoPhep||''} <span class="text-muted small">(cho phép)</span></div></div>`;
+        const barClass = progress>=80 ? 'bar-success' : (progress>=30 ? 'bar-warning' : 'bar-danger');
+        const ngayXuongHtml = item.ngayDate ? formatVN(item.ngayDate) : '';
+        const ngayGiaoHtml = item.giaoDate ? formatVN(item.giaoDate) : '';
+        return `
+          <tr>
+            <td>${idx+1}</td>
+            <td><div class="fw-semibold">${item.po}</div><div style="font-size:8px;" class="text-muted">${item.maCode||''}</div></td>
+            <td>${(item.lenhList||[]).join('<br>')}</td>
+            <td><div class="fw-semibold">${item.tenSanPham||''}</div><div style="font-size:9px;" class="text-muted">${item.khachHang||''}</div></td>
+            <td>${(item.soLuongCanTrienKhai||0).toLocaleString()}</td>
+            <td><div class="fw-semibold">${(item.nhapKho||0).toLocaleString()} / ${(item.soLuongSanXuat||0).toLocaleString()}</div></td>
+            <td><div class="text-muted">${ngayXuongHtml}</div><div class="text-muted">${ngayGiaoHtml}</div></td>
+            <td>${(item.tongNG||0).toLocaleString()}</td>
+            <td>${haoPhiHtml}</td>
+            <td>${tyLeNhapKhoHtml}</td>
+          </tr>`;
+      }
+
+      // Hàng đầy đủ: có Tiến độ/Đóng lệnh/Cảnh báo (dùng cho Vượt hao phí)
+      function buildRowFull(item, idx){
+        const computedTyLe = item.soLuongSanXuat>0 ? (item.nhapKho/item.soLuongSanXuat)*100 : null;
+        const progress = (computedTyLe!==null&&computedTyLe!==undefined) ? Math.max(0, Math.min(100, Math.round(computedTyLe))) : 0;
+        const isClosed = (computedTyLe!==null&&computedTyLe!==undefined) ? (computedTyLe>=100) : (progress>=100);
+        let canhBaoHtml='';
+        if(isClosed){ canhBaoHtml='✅ OK'; }
+        else if(item.giaoISO){
+          const todayISO=toISODate(new Date());
+          const diffMs=(new Date(item.giaoISO+'T00:00:00'))-(new Date(todayISO+'T00:00:00'));
+          const days=Math.round(diffMs/(24*60*60*1000));
+          if(days<=2) canhBaoHtml='🚨 Báo động';
+          else if(days<=5) canhBaoHtml='⚠️ Chú ý';
+          else canhBaoHtml='✅ OK';
+        } else { canhBaoHtml='✅ OK'; }
+        const tyLeNhapKhoTxt = formatPercent(computedTyLe);
+        const tyLeNhapKhoHtml = (computedTyLe!==null && computedTyLe>=100) ? `<span class="text-good">${tyLeNhapKhoTxt}</span>` : `${tyLeNhapKhoTxt||''}`;
+        const haoThucTe = item.haoThucTe, haoChoPhep=item.haoChoPhep;
+        const haoThucTeNum = parsePercentRawToNum(haoThucTe); const haoChoPhepNum = parsePercentRawToNum(haoChoPhep);
+        const hpDotClass = (haoThucTeNum>0 && haoChoPhepNum>0 && haoThucTeNum>haoChoPhepNum) ? 'dot-red':'dot-green';
+        const haoPhiHtml = `<div><div><span class="dot ${hpDotClass}"></span> ${haoThucTe||''} <span class="text-muted small">(thực tế)</span></div><div>${haoChoPhep||''} <span class="text-muted small">(cho phép)</span></div></div>`;
+        const barClass = progress>=80 ? 'bar-success' : (progress>=30 ? 'bar-warning' : 'bar-danger');
+        const ngayXuongHtml = item.ngayDate ? formatVN(item.ngayDate) : '';
+        const ngayGiaoHtml = item.giaoDate ? formatVN(item.giaoDate) : '';
+        return `
+          <tr>
+            <td>${idx+1}</td>
+            <td><div class="fw-semibold">${item.po}</div><div style="font-size:8px;" class="text-muted">${item.maCode||''}</div></td>
+            <td>${(item.lenhList||[]).join('<br>')}</td>
+            <td><div class="fw-semibold">${item.tenSanPham||''}</div><div style="font-size:9px;" class="text-muted">${item.khachHang||''}</div></td>
+            <td>${(item.soLuongCanTrienKhai||0).toLocaleString()}</td>
+            <td><div class="fw-semibold">${(item.nhapKho||0).toLocaleString()} / ${(item.soLuongSanXuat||0).toLocaleString()}</div></td>
+            <td><div class="text-muted">${ngayXuongHtml}</div><div class="text-muted">${ngayGiaoHtml}</div></td>
+            <td>${(item.tongNG||0).toLocaleString()}</td>
+            <td>${haoPhiHtml}</td>
+            <td>${tyLeNhapKhoHtml}</td>
+            <td>${isClosed ? '<span style="font-weight:300;font-size:10px;width:60px;text-align:center;}" class="pill pill-closed">Đóng lệnh</span>' : ''}</td>
+            <td>${canhBaoHtml}</td>
+          </tr>`;
+      }
+
+      tbodyA.innerHTML = attention.map((r,idx)=>buildRowSimple(r,idx)).join('');
+      tbodyB.innerHTML = alerting.map((r,idx)=>buildRowSimple(r,idx)).join('');
+      tbodyC.innerHTML = overWaste.map((r,idx)=>buildRowFull(r,idx)).join('');
+    }
+
+    document.getElementById('refreshBtn').addEventListener('click', loadData);
+    window.addEventListener('load', () => {
+      const now = new Date();
+      const last30 = new Date(now); last30.setDate(now.getDate()-30);
+      document.getElementById('startDate').value = toISODate(last30);
+      document.getElementById('endDate').value = toISODate(now);
+      loadData();
+    });
+  </script>
+</body>
+</html>
+

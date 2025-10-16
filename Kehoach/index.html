@@ -78,21 +78,28 @@
         .table-hover tbody tr:hover { background: #f8fbff; }
         .table-responsive { border-radius: 12px; }
         .table thead { position: sticky; top: 0; z-index: 1; background: var(--card-bg); }
+        .table td, .table th { padding: .5rem .25rem; }
+        #dataTable th:nth-child(1),
+        #dataTable td:nth-child(1) { text-align: center;}
         /* PO column max width */
         #dataTable th:nth-child(2),
         #dataTable td:nth-child(2) { max-width:130px; width:130px; white-space: normal; word-break: break-word; }
         /* PO column max width */
         #dataTable th:nth-child(3),
-        #dataTable td:nth-child(3) { max-width:150px; width:150px; white-space: normal; word-break: break-word; }
+        #dataTable td:nth-child(3) { max-width:170px; width:170px; white-space: normal; word-break: break-word; font-size: 0.75rem; }
 
         #dataTable th:nth-child(4),
         #dataTable td:nth-child(4) { max-width:280px; width:280px; white-space: normal; word-break: break-word; }
         /* PO column max width */
+        #dataTable th:nth-child(9),
+        #dataTable td:nth-child(9) { max-width:130px; width:130px; white-space: normal; word-break: break-word; }
+
         #dataTable th:nth-child(10),
-        #dataTable td:nth-child(10) { max-width:120px; width:120px; white-space: normal; word-break: break-word; }
+        #dataTable td:nth-child(10) { max-width:80px; width:80px; white-space: normal; word-break: break-word; }
+
 
         #dataTable th:last-child,
-        #dataTable td:last-child { max-width:80px; width:80px; white-space: normal; word-break: break-word; }
+        #dataTable td:last-child { max-width:90px; width:90px; white-space: normal; word-break: break-word;text-align: center; }
 
 
         /* Buttons */
@@ -487,27 +494,35 @@
                   </div>
                 <!-- KPI row -->
                 <div id="summaryCards" class="container-fluid  row g-3 hidden">
-                    <div class="col-12 col-md-4">
-                        <div class="card kpi-card">
+                    <div class="col-12 col-md-3">
+                        <div class="card kpi-card align-items-center justify-content-between">
                             <div class="card-body">
                                 <div class="muted small">Tổng Nhập Kho</div>
                                 <div class="metric" id="totalNhap">0</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-md-4">
-                        <div class="card kpi-card">
+                    <div class="col-12 col-md-3">
+                        <div class="card kpi-card align-items-center justify-content-between">
                             <div class="card-body">
                                 <div class="muted small">Tổng SL Triển Khai</div>
                                 <div class="metric" id="totalXuat">0</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-md-4">
-                        <div class="card kpi-card">
+                    <div class="col-12 col-md-3">
+                        <div class="card kpi-card align-items-center justify-content-between">
                             <div class="card-body">
                                 <div class="muted small">Tổng SL Sản Xuất</div>
                                 <div class="metric" id="totalTon">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <div class="card kpi-card align-items-center justify-content-between">
+                            <div class="card-body">
+                                <div class="muted small">Tổng NG</div>
+                                <div class="metric" id="totalNG">0</div>
                             </div>
                         </div>
                     </div>
@@ -566,22 +581,19 @@
                                 <thead style="font-size: 12px!important;" class="table-light">
                                     <tr>
                                         <th>STT</th>
-                                        <th>PO</th>
+                                        <th style="text-align: center;">PO</th>
                                         <th>Lệnh Sản Xuất</th>
                                         <th>Thông tin</th>
                                         <th>Triển Khai
                                               (pcs)
                                         </th>
-                                        <th>Sản Xuất
-                                            (pcs)
-                                        </th>
-                                        <th>Nhập Kho
+                                        <th>Nhập Kho/Sản Xuất
                                             (pcs)
                                         </th>
                                         <th>Ngày
                                             Xuống/Giao</th>
                                         <th>Tổng NG</th>
-                                        <th>Hao phí</th>
+                                        <th style="text-align: center;">Hao phí</th>
                                         <th>Tỷ lệ nhập kho</th>
                                         <th>Tiến độ</th>
                                         <th>Đóng lệnh</th>
@@ -702,6 +714,46 @@
             return `${v}%`;
         }
 
+        // Function điều chỉnh font chữ cho loaiLenh dựa trên tên cụ thể
+        function formatLenhWithSmallFont(lenhSanXuat, loaiLenh) {
+            if (!lenhSanXuat) return '';
+            
+            if (loaiLenh) {
+                let fontSize = '0.5rem'; // mặc định
+                
+                // Set font size cụ thể cho từng loại lệnh
+                switch (loaiLenh) {
+                    case 'Mẫu kèm hàng':
+                        fontSize = '0.55rem';
+                        break;
+                    case 'Ghép PO':
+                        fontSize = '0.65rem';
+                        break;
+                    case 'Bù ghép':
+                        fontSize = '0.65rem';
+                        break;
+                    case 'Lắp ráp':
+                        fontSize = '0.65rem';
+                        break;
+                    case 'Bù':
+                        fontSize = '0.7rem';
+                        break;    
+                    default:
+                        // Nếu có loại lệnh khác, tính theo độ dài
+                        const totalLength = lenhSanXuat.length + loaiLenh.length + 3;
+                        if (totalLength > 25) {
+                            fontSize = '0.6rem';
+                        } else if (totalLength > 20) {
+                            fontSize = '0.65rem';
+                        }
+                }
+                
+                return `${lenhSanXuat} <span style="font-size: ${fontSize}; color: #6b7280;">(${loaiLenh})</span>`;
+            } else {
+                return lenhSanXuat;
+            }
+        }
+
         // Khởi tạo ứng dụng
         function initializeApp() {
             // Set default date range: last 30 days
@@ -778,8 +830,8 @@
                 const nhapKho = parseFloat(row[14]) || 0;             // O (NHẬP KHO)
                 const tongNG = parseFloat(row[19]) || 0;               // T (Tổng NG)
                 const tyLeNhapKhoVal = parsePercent(row[18]);         // S (Tỷ lệ nhập kho)
-                const haoPhiThucTeVal = parsePercent(row[20]);        // U (Hao phí thực tế)
-                const haoPhiChoPhepVal = parsePercent(row[21]);       // V (Hao phí cho phép)
+                const haoPhiThucTeVal = row[20] || '';        // U (Hao phí thực tế)
+                const haoPhiChoPhepVal = row[21] || '';       // V (Hao phí cho phép)
                 const ngayXuongLenhRaw = row[26] || '';      // AA (Ngày xuống lệnh)
                 const ngayGiaoHangRaw = row[35] || '';       // AJ (Ngày giao hàng)
                 const ngayDate = parseAnyDate(ngayXuongLenhRaw);
@@ -812,7 +864,7 @@
                 }
                 
                 // Gộp dữ liệu
-                const lenhHienThi = loaiLenh ? `${lenhSanXuat} ( ${loaiLenh} )` : `${lenhSanXuat}`;
+                const lenhHienThi = formatLenhWithSmallFont(lenhSanXuat, loaiLenh);
                 groupedData[po].lenhSanXuat.push(lenhHienThi);
                 // Cập nhật thông tin mô tả (giữ thông tin đầu tiên nếu đã có)
                 if (!groupedData[po].maCode && maCode) groupedData[po].maCode = maCode;
@@ -856,6 +908,7 @@
             let totalNhapValue = 0;
             let totalXuatValue = 0;
             let totalTonValue = 0;
+            let totalNGValue = 0;
             let countOverdue = 0;
             let countWarning = 0;
             let countOk = 0;
@@ -885,6 +938,7 @@
                 totalNhapValue += item.nhapKho;
                 totalXuatValue += item.soLuongCanTrienKhai;
                 totalTonValue += item.soLuongSanXuat;
+                totalNGValue += item.tongNG;
                 
                 // Chuẩn bị các giá trị trước khi đếm/trình bày
                 const computedTyLe = item.soLuongSanXuat > 0 ? (item.nhapKho / item.soLuongSanXuat) * 100 : null; // Tỷ lệ nhập kho = Nhập kho / Sản xuất
@@ -896,22 +950,46 @@
                     : (progress >= 100);
 
                 // Đếm thống kê trạng thái
-                if (item.giaoISO) {
+
+
+                // Chưa đóng: tất cả lệnh chưa đóng
+                if (!isClosed) {
+                    countOpen++;
+                }
+                
+                // Lệnh quá hạn: chưa đóng và có ngày giao hàng đã quá hạn
+                if (!isClosed && item.giaoISO) {
                     const todayISO = toISODate(new Date());
                     const diffMs = (new Date(item.giaoISO + 'T00:00:00')) - (new Date(todayISO + 'T00:00:00'));
                     const days = Math.round(diffMs / (24*60*60*1000));
-                    if (isClosed) {
-                        // closed
-                    } else if (days < 0) {
+                    
+                    if (days < 0) {
                         countOverdue++;
-                    } else if (days < 2) {
-                        countWarning++;
-                    } else {
-                        countOk++;
                     }
                 }
-                if (!isClosed) countOpen++;
-                if (item.haoPhiThucTe !== null && item.haoPhiChoPhep !== null && item.haoPhiThucTe > item.haoPhiChoPhep) countOverWaste++;
+                
+                // Lệnh OK: đã đóng hoặc chưa đóng nhưng còn thời gian
+                if (isClosed) {
+                    countOk++;
+                } else if (item.giaoISO) {
+                    const todayISO = toISODate(new Date());
+                    const diffMs = (new Date(item.giaoISO + 'T00:00:00')) - (new Date(todayISO + 'T00:00:00'));
+                    const days = Math.round(diffMs / (24*60*60*1000));
+                    
+                    if (days >= 0) {
+                        countOk++;
+                    }
+                } else {
+                    // Chưa có ngày giao hàng thì coi như OK
+                    countOk++;
+                }
+                
+                // Vượt hao phí: có dữ liệu hao phí và thực tế > cho phép
+                const haoThucTeForCount = parseFloat((item.haoPhiThucTe || '').replace(',', '.').replace('%', ''));
+                const haoChoPhepForCount = parseFloat((item.haoPhiChoPhep || '').replace(',', '.').replace('%', ''));
+                if (haoThucTeForCount > 0 && haoChoPhepForCount > 0 && haoThucTeForCount > haoChoPhepForCount) {
+                    countOverWaste++;
+                }
 
                 // Tạo dòng bảng
                 const tr = document.createElement('tr');
@@ -939,11 +1017,14 @@
                 const tyLeNhapKhoHtml = computedTyLe !== null && computedTyLe >= 100 ? `<span class="text-good">${tyLeNhapKhoTxt}</span>` : `${tyLeNhapKhoTxt || ''}`;
                 const haoThucTe = item.haoPhiThucTe;
                 const haoChoPhep = item.haoPhiChoPhep;
-                const hpDotClass = (haoThucTe !== null && haoChoPhep !== null && haoThucTe > haoChoPhep) ? 'dot-red' : 'dot-green';
+                // Chuyển đổi phần trăm thành số để so sánh
+                const haoThucTeForDisplay = parseFloat((haoThucTe || '').replace(',', '.').replace('%', ''));
+                const haoChoPhepForDisplay = parseFloat((haoChoPhep || '').replace(',', '.').replace('%', ''));
+                const hpDotClass = (haoThucTeForDisplay > 0 && haoChoPhepForDisplay > 0 && haoThucTeForDisplay > haoChoPhepForDisplay) ? 'dot-red' : 'dot-green';
                 const haoPhiHtml = `
                     <div>
-                        <div><span class="dot ${hpDotClass}"></span> ${formatPercent(haoThucTe) || ''} <span class="text-muted small">(thực tế)</span></div>
-                        <div>${formatPercent(haoChoPhep) || ''} <span class="text-muted small">(cho phép)</span></div>
+                        <div><span class="dot ${hpDotClass}"></span> ${haoThucTe || ''} <span class="text-muted small">(thực tế)</span></div>
+                        <div>${haoChoPhep || ''} <span class="text-muted small">(cho phép)</span></div>
                     </div>`;
                 tr.innerHTML = `
                     <td>${index + 1}</td>
@@ -957,8 +1038,9 @@
                         <div style="font-size: 9px;" class="text-muted">${item.khachHang || ''}</div>
                     </td>
                     <td>${item.soLuongCanTrienKhai.toLocaleString()}</td>
-                    <td>${item.soLuongSanXuat.toLocaleString()}</td>
-                    <td>${item.nhapKho.toLocaleString()}</td>
+                    <td> 
+                      <div class="fw-semibold">${item.nhapKho.toLocaleString()} / ${item.soLuongSanXuat.toLocaleString()}</div>
+                    </td>
                     <td>
                         <div class="text-muted">${item.ngayDisplay || ''}</div>
                         <div class="text-muted">${item.giaoDisplay || ''}</div>
@@ -984,6 +1066,8 @@
             totalNhap.textContent = totalNhapValue.toLocaleString();
             totalXuat.textContent = totalXuatValue.toLocaleString();
             totalTon.textContent = totalTonValue.toLocaleString();
+            const totalNG = document.getElementById('totalNG');
+            if (totalNG) totalNG.textContent = totalNGValue.toLocaleString();
             // Bind to dashboard cards
             const elDashTotalNhap = document.getElementById('dashTotalNhap');
             if (elDashTotalNhap) elDashTotalNhap.textContent = totalNhapValue.toLocaleString();
@@ -1043,7 +1127,7 @@
 
         document.getElementById('exportCsvBtn')?.addEventListener('click', () => {
             const rows = [];
-            const header = ['STT','PO','Lệnh Sản Xuất','Thông tin','SL Cần Triển Khai','SL Sản Xuất','NHẬP KHO','Ngày Xuống/Giao','Tổng NG','Hao phí','Tỷ lệ nhập kho','Tiến độ','Đóng lệnh','Cảnh báo'];
+            const header = ['STT','PO','Lệnh Sản Xuất','Thông tin','SL Cần Triển Khai','Nhập Kho/Sản Xuất','Ngày Xuống/Giao','Tổng NG','Hao phí','Tỷ lệ nhập kho','Tiến độ','Đóng lệnh','Cảnh báo'];
             rows.push(header.join(','));
             const trs = document.querySelectorAll('#tableBody tr');
             trs.forEach(tr => {

@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Sản Xuất - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2b6ef2;
+            --success: #16a34a;
+            --info: #0ea5e9;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --light: #f8fafc;
+            --dark: #1e293b;
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+            color: #0f172a;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(15,23,42,0.06), 0 2px 8px rgba(15,23,42,0.06);
+            transition: transform 0.2s ease-in-out;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .kpi-card { color: white; background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%); }
+        
+        .kpi-card.success { background: linear-gradient(135deg, var(--success) 0%, #22c55e 100%); }
+        .kpi-card.info    { background: linear-gradient(135deg, var(--info)    0%, #06b6d4 100%); }
+        .kpi-card.warning { background: linear-gradient(135deg, var(--warning) 0%, #fbbf24 100%); }
+        
+        .stat-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+        }
+        
+        .badge-success { background-color: #d1fae5; color: #065f46; }
+        .badge-warning { background-color: #fef3c7; color: #92400e; }
+        .badge-danger { background-color: #fee2e2; color: #991b1b; }
+        .badge-info { background-color: #dbeafe; color: #1e40af; }
+        
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+        }
+        
+        .icon-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: rgba(255,255,255,.2);
+            color: #fff;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+        
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h3 mb-1 text-dark">Báo Cáo Sản Xuất</h1>
+                        <p class="text-muted mb-0">Tổng quan hiệu suất sản xuất và quản lý lệnh</p>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" id="refreshBtn">
+                            <i class="fas fa-sync-alt me-2"></i>Làm Mới
+                        </button>
+                        <button class="btn btn-primary" id="exportBtn">
+                            <i class="fas fa-download me-2"></i>Xuất Báo Cáo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title text-white-50 mb-2">Tổng Nhập Kho</h6>
+                                <h2 class="mb-1 text-white" id="totalNhapKho">0</h2>
+                                <small class="text-white-50" id="nhapKhoChange">+0% so với tháng trước</small>
+                            </div>
+                            <div class="align-self-center">
+                                <div class="icon-circle">
+                                    <i class="fas fa-warehouse"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card kpi-card success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title text-white-50 mb-2">Tổng Sản Xuất</h6>
+                                <h2 class="mb-1 text-white" id="totalSanXuat">0</h2>
+                                <small class="text-white-50" id="sanXuatChange">+0% so với tháng trước</small>
+                            </div>
+                            <div class="align-self-center">
+                                <div class="icon-circle">
+                                    <i class="fas fa-cogs"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card kpi-card info">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title text-white-50 mb-2">Tỷ Lệ Hoàn Thành</h6>
+                                <h2 class="mb-1 text-white" id="tyLeHoanThanh">0%</h2>
+                                <small class="text-white-50" id="hoanThanhChange">+0% so với tháng trước</small>
+                            </div>
+                            <div class="align-self-center">
+                                <div class="icon-circle">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card kpi-card warning">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title text-white-50 mb-2">Tổng NG</h6>
+                                <h2 class="mb-1 text-white" id="totalNG">0</h2>
+                                <small class="text-white-50" id="ngChange">+0% so với tháng trước</small>
+                            </div>
+                            <div class="align-self-center">
+                                <div class="icon-circle">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Cards -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card border-0 bg-danger text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-exclamation-circle fa-2x mb-2"></i>
+                        <h4 class="mb-1" id="countOverdue">0</h4>
+                        <p class="mb-0">Lệnh Quá Hạn</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card border-0 bg-success text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-check-circle fa-2x mb-2"></i>
+                        <h4 class="mb-1" id="countOk">0</h4>
+                        <p class="mb-0">Lệnh OK</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card border-0 bg-warning text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-pie fa-2x mb-2"></i>
+                        <h4 class="mb-1" id="countOverWaste">0</h4>
+                        <p class="mb-0">Vượt Hao Phí</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card border-0 bg-info text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-clock fa-2x mb-2"></i>
+                        <h4 class="mb-1" id="countOpen">0</h4>
+                        <p class="mb-0">Chưa Đóng</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-lg-8 mb-3">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Xu Hướng Sản Xuất Theo Tháng</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="productionTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 mb-3">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Phân Bố Trạng Thái</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="statusDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tables Row -->
+        <div class="row mb-4">
+            <div class="col-lg-6 mb-3">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Top 10 PO Hiệu Suất Cao</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>PO</th>
+                                        <th>Sản Phẩm</th>
+                                        <th>Tỷ Lệ Hoàn Thành</th>
+                                        <th>Trạng Thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topPOsTable">
+                                    <tr>
+                                        <td colspan="4" class="text-center">
+                                            <div class="loading">
+                                                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 mb-3">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Cảnh Báo Lệnh</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>PO</th>
+                                        <th>Loại Cảnh Báo</th>
+                                        <th>Mức Độ</th>
+                                        <th>Hành Động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="alertsTable">
+                                    <tr>
+                                        <td colspan="4" class="text-center">
+                                            <div class="loading">
+                                                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Row -->
+        <div class="row">
+            <div class="col-lg-6 mb-3">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Hao Phí Theo Tháng</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="wasteChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 mb-3">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Thống Kê Theo Khách Hàng</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Khách Hàng</th>
+                                        <th>Số Lệnh</th>
+                                        <th>Tỷ Lệ Hoàn Thành</th>
+                                        <th>Đánh Giá</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customerStatsTable">
+                                    <tr>
+                                        <td colspan="4" class="text-center">
+                                            <div class="loading">
+                                                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Cấu hình Google API (sử dụng cùng config từ index.html)
+        const GOOGLE_API_KEY = 'AIzaSyC1Rsi6v-NoDqTFVDzB_YVCP0g1aHyvMME';
+        const SPREADSHEET_ID = '1UuIKiW0soNDv2U08HMhiuTn_Kxrzxlj_Z7GXK7ZM6Ic';
+        
+        // Biến global để lưu dữ liệu
+        let dashboardData = {
+            rawData: [],
+            processedData: [],
+            stats: {
+                totalNhap: 0,
+                totalXuat: 0,
+                totalTon: 0,
+                totalNG: 0,
+                countOverdue: 0,
+                countOk: 0,
+                countOverWaste: 0,
+                countOpen: 0
+            }
+        };
+        
+        // Charts instances
+        let productionTrendChart = null;
+        let statusDistributionChart = null;
+        let wasteChart = null;
+        
+        // Utility functions
+        function parseAnyDate(value) {
+            if (!value) return null;
+            if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                const d = new Date(value + 'T00:00:00');
+                return isNaN(d.getTime()) ? null : d;
+            }
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+                const [dd, mm, yyyy] = value.split('/').map(Number);
+                const d = new Date(yyyy, mm - 1, dd);
+                return isNaN(d.getTime()) ? null : d;
+            }
+            const d = new Date(value);
+            return isNaN(d.getTime()) ? null : d;
+        }
+        
+        function toISODate(dateObj) {
+            if (!(dateObj instanceof Date) || isNaN(dateObj)) return '';
+            const dd = String(dateObj.getDate()).padStart(2, '0');
+            const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const yyyy = String(dateObj.getFullYear());
+            return `${yyyy}-${mm}-${dd}`;
+        }
+        
+        function parsePercent(value) {
+            if (value === undefined || value === null || value === '') return null;
+            const cleaned = String(value).toString().replace('%','').replace(/\s+/g,'').replace(',', '.');
+            const n = parseFloat(cleaned);
+            if (isNaN(n)) return null;
+            return n <= 1 ? n * 100 : n;
+        }
+        
+        // Load data from Google Sheets
+        async function loadData() {
+            try {
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/4.%20Nhập%20Xuất%20Tồn!A8:AJ?key=${GOOGLE_API_KEY}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data.values || data.values.length === 0) return;
+                
+                dashboardData.rawData = data.values.slice(1); // Bỏ qua header
+                processData();
+                updateDashboard();
+                
+            } catch (error) {
+                console.error('Lỗi khi tải dữ liệu:', error);
+                showError('Không thể tải dữ liệu từ Google Sheets');
+            }
+        }
+        
+        // Process data similar to index.html
+        function processData() {
+            const groupedData = {};
+            
+            dashboardData.rawData.forEach((row) => {
+                if (row.length < 36) return;
+                
+                const po = row[34] || '';
+                const maCode = row[2] || '';
+                const tenSanPham = row[3] || '';
+                const khachHang = row[7] || '';
+                const lenhSanXuat = row[0] || '';
+                const loaiLenh = (row[1] || '').trim();
+                const soLuongCanTrienKhai = parseFloat(row[5]) || 0;
+                const soLuongSanXuat = parseFloat(row[6]) || 0;
+                const nhapKho = parseFloat(row[14]) || 0;
+                const tongNG = parseFloat(row[19]) || 0;
+                const tyLeNhapKhoVal = parsePercent(row[18]);
+                const haoPhiThucTeVal = row[20] || '';
+                const haoPhiChoPhepVal = row[21] || '';
+                const ngayXuongLenhRaw = row[26] || '';
+                const ngayGiaoHangRaw = row[35] || '';
+                const ngayDate = parseAnyDate(ngayXuongLenhRaw);
+                const ngayISO = ngayDate ? toISODate(ngayDate) : '';
+                const giaoDate = parseAnyDate(ngayGiaoHangRaw);
+                const giaoISO = giaoDate ? toISODate(giaoDate) : '';
+                
+                if (!groupedData[po]) {
+                    groupedData[po] = {
+                        po: po,
+                        maCode: maCode,
+                        tenSanPham: tenSanPham,
+                        khachHang: khachHang,
+                        soLuongCanTrienKhai: 0,
+                        soLuongSanXuat: 0,
+                        nhapKho: 0,
+                        tongNG: 0,
+                        ngayISO: ngayISO,
+                        giaoISO: giaoISO,
+                        haoPhiThucTe: haoPhiThucTeVal,
+                        haoPhiChoPhep: haoPhiChoPhepVal,
+                        tyLeNhapKho: tyLeNhapKhoVal
+                    };
+                }
+                
+                groupedData[po].soLuongCanTrienKhai += soLuongCanTrienKhai;
+                groupedData[po].soLuongSanXuat += soLuongSanXuat;
+                groupedData[po].nhapKho += nhapKho;
+                groupedData[po].tongNG += tongNG;
+            });
+            
+            dashboardData.processedData = Object.values(groupedData).filter(item => item.po !== '');
+            calculateStats();
+        }
+        
+        // Calculate statistics
+        function calculateStats() {
+            const stats = dashboardData.stats;
+            stats.totalNhap = 0;
+            stats.totalXuat = 0;
+            stats.totalTon = 0;
+            stats.totalNG = 0;
+            stats.countOverdue = 0;
+            stats.countOk = 0;
+            stats.countOverWaste = 0;
+            stats.countOpen = 0;
+            
+            dashboardData.processedData.forEach((item) => {
+                stats.totalNhap += item.nhapKho;
+                stats.totalXuat += item.soLuongCanTrienKhai;
+                stats.totalTon += item.soLuongSanXuat;
+                stats.totalNG += item.tongNG;
+                
+                const computedTyLe = item.soLuongSanXuat > 0 ? (item.nhapKho / item.soLuongSanXuat) * 100 : 0;
+                const isClosed = computedTyLe >= 100;
+                
+                if (!isClosed) {
+                    stats.countOpen++;
+                    
+                    if (item.giaoISO) {
+                        const todayISO = toISODate(new Date());
+                        const diffMs = (new Date(item.giaoISO + 'T00:00:00')) - (new Date(todayISO + 'T00:00:00'));
+                        const days = Math.round(diffMs / (24*60*60*1000));
+                        
+                        if (days < 0) {
+                            stats.countOverdue++;
+                        } else {
+                            stats.countOk++;
+                        }
+                    } else {
+                        stats.countOk++;
+                    }
+                } else {
+                    stats.countOk++;
+                }
+                
+                const haoThucTeNum = parseFloat((item.haoPhiThucTe || '').replace(',', '.').replace('%', ''));
+                const haoChoPhepNum = parseFloat((item.haoPhiChoPhep || '').replace(',', '.').replace('%', ''));
+                if (haoThucTeNum > 0 && haoChoPhepNum > 0 && haoThucTeNum > haoChoPhepNum) {
+                    stats.countOverWaste++;
+                }
+            });
+        }
+        
+        // Update dashboard UI
+        function updateDashboard() {
+            const stats = dashboardData.stats;
+            
+            // Update KPI cards
+            document.getElementById('totalNhapKho').textContent = stats.totalNhap.toLocaleString();
+            document.getElementById('totalSanXuat').textContent = stats.totalTon.toLocaleString();
+            document.getElementById('totalNG').textContent = stats.totalNG.toLocaleString();
+            
+            const tyLeHoanThanh = stats.totalTon > 0 ? Math.round((stats.totalNhap / stats.totalTon) * 100) : 0;
+            document.getElementById('tyLeHoanThanh').textContent = tyLeHoanThanh + '%';
+            
+            // Update status cards
+            document.getElementById('countOverdue').textContent = stats.countOverdue.toLocaleString();
+            document.getElementById('countOk').textContent = stats.countOk.toLocaleString();
+            document.getElementById('countOverWaste').textContent = stats.countOverWaste.toLocaleString();
+            document.getElementById('countOpen').textContent = stats.countOpen.toLocaleString();
+            
+            // Update tables
+            updateTopPOsTable();
+            updateAlertsTable();
+            updateCustomerStatsTable();
+            
+            // Update charts
+            updateCharts();
+        }
+        
+        // Update Top POs table
+        function updateTopPOsTable() {
+            const topPOs = dashboardData.processedData
+                .map(item => ({
+                    po: item.po,
+                    tenSanPham: item.tenSanPham,
+                    tyLe: item.soLuongSanXuat > 0 ? Math.round((item.nhapKho / item.soLuongSanXuat) * 100) : 0
+                }))
+                .sort((a, b) => b.tyLe - a.tyLe)
+                .slice(0, 10);
+            
+            const tbody = document.getElementById('topPOsTable');
+            tbody.innerHTML = '';
+            
+            topPOs.forEach(item => {
+                const tr = document.createElement('tr');
+                const statusBadge = item.tyLe >= 100 ? 'badge-success' : 
+                                   item.tyLe >= 80 ? 'badge-warning' : 'badge-danger';
+                const statusText = item.tyLe >= 100 ? 'Hoàn thành' : 
+                                  item.tyLe >= 80 ? 'Gần hoàn thành' : 'Chưa hoàn thành';
+                
+                tr.innerHTML = `
+                    <td><strong>${item.po}</strong></td>
+                    <td>${item.tenSanPham}</td>
+                    <td>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar ${item.tyLe >= 100 ? 'bg-success' : item.tyLe >= 80 ? 'bg-warning' : 'bg-danger'}" 
+                                 style="width: ${item.tyLe}%"></div>
+                        </div>
+                        <small class="text-muted">${item.tyLe}%</small>
+                    </td>
+                    <td><span class="stat-badge ${statusBadge}">${statusText}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // Update Alerts table
+        function updateAlertsTable() {
+            const alerts = [];
+            
+            dashboardData.processedData.forEach(item => {
+                const computedTyLe = item.soLuongSanXuat > 0 ? (item.nhapKho / item.soLuongSanXuat) * 100 : 0;
+                const isClosed = computedTyLe >= 100;
+                
+                if (!isClosed && item.giaoISO) {
+                    const todayISO = toISODate(new Date());
+                    const diffMs = (new Date(item.giaoISO + 'T00:00:00')) - (new Date(todayISO + 'T00:00:00'));
+                    const days = Math.round(diffMs / (24*60*60*1000));
+                    
+                    if (days < 0) {
+                        alerts.push({
+                            po: item.po,
+                            type: 'Quá hạn giao hàng',
+                            level: 'danger',
+                            action: 'Cần xử lý ngay'
+                        });
+                    } else if (days <= 2) {
+                        alerts.push({
+                            po: item.po,
+                            type: 'Sắp quá hạn',
+                            level: 'warning',
+                            action: 'Theo dõi chặt chẽ'
+                        });
+                    }
+                }
+                
+                const haoThucTeNum = parseFloat((item.haoPhiThucTe || '').replace(',', '.').replace('%', ''));
+                const haoChoPhepNum = parseFloat((item.haoPhiChoPhep || '').replace(',', '.').replace('%', ''));
+                if (haoThucTeNum > 0 && haoChoPhepNum > 0 && haoThucTeNum > haoChoPhepNum) {
+                    alerts.push({
+                        po: item.po,
+                        type: 'Vượt hao phí',
+                        level: 'warning',
+                        action: 'Kiểm tra quy trình'
+                    });
+                }
+            });
+            
+            const tbody = document.getElementById('alertsTable');
+            tbody.innerHTML = '';
+            
+            alerts.slice(0, 10).forEach(alert => {
+                const tr = document.createElement('tr');
+                const levelClass = alert.level === 'danger' ? 'badge-danger' : 'badge-warning';
+                
+                tr.innerHTML = `
+                    <td><strong>${alert.po}</strong></td>
+                    <td>${alert.type}</td>
+                    <td><span class="stat-badge ${levelClass}">${alert.level === 'danger' ? 'Cao' : 'Trung bình'}</span></td>
+                    <td><small class="text-muted">${alert.action}</small></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // Update Customer Stats table
+        function updateCustomerStatsTable() {
+            const customerStats = {};
+            
+            dashboardData.processedData.forEach(item => {
+                if (!customerStats[item.khachHang]) {
+                    customerStats[item.khachHang] = {
+                        name: item.khachHang,
+                        count: 0,
+                        totalTyLe: 0,
+                        totalOrders: 0
+                    };
+                }
+                
+                const tyLe = item.soLuongSanXuat > 0 ? (item.nhapKho / item.soLuongSanXuat) * 100 : 0;
+                customerStats[item.khachHang].count++;
+                customerStats[item.khachHang].totalTyLe += tyLe;
+                customerStats[item.khachHang].totalOrders++;
+            });
+            
+            const customerArray = Object.values(customerStats)
+                .map(customer => ({
+                    ...customer,
+                    avgTyLe: Math.round(customer.totalTyLe / customer.count)
+                }))
+                .sort((a, b) => b.avgTyLe - a.avgTyLe)
+                .slice(0, 10);
+            
+            const tbody = document.getElementById('customerStatsTable');
+            tbody.innerHTML = '';
+            
+            customerArray.forEach(customer => {
+                const tr = document.createElement('tr');
+                const rating = customer.avgTyLe >= 90 ? 'Tốt' : customer.avgTyLe >= 70 ? 'Khá' : 'Cần cải thiện';
+                const ratingClass = customer.avgTyLe >= 90 ? 'badge-success' : 
+                                   customer.avgTyLe >= 70 ? 'badge-warning' : 'badge-danger';
+                
+                tr.innerHTML = `
+                    <td><strong>${customer.name}</strong></td>
+                    <td>${customer.count}</td>
+                    <td>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar ${customer.avgTyLe >= 90 ? 'bg-success' : customer.avgTyLe >= 70 ? 'bg-warning' : 'bg-danger'}" 
+                                 style="width: ${customer.avgTyLe}%"></div>
+                        </div>
+                        <small class="text-muted">${customer.avgTyLe}%</small>
+                    </td>
+                    <td><span class="stat-badge ${ratingClass}">${rating}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // Update charts
+        function updateCharts() {
+            updateProductionTrendChart();
+            updateStatusDistributionChart();
+            updateWasteChart();
+        }
+        
+        // Production Trend Chart
+        function updateProductionTrendChart() {
+            const ctx = document.getElementById('productionTrendChart').getContext('2d');
+            
+            if (productionTrendChart) {
+                productionTrendChart.destroy();
+            }
+            
+            // Mock data for demonstration - in real app, you'd calculate monthly data
+            const months = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
+            const productionData = months.map(() => Math.floor(Math.random() * 1000) + 500);
+            const nhapKhoData = months.map(() => Math.floor(Math.random() * 800) + 400);
+            
+            productionTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Sản Xuất',
+                        data: productionData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Nhập Kho',
+                        data: nhapKhoData,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Status Distribution Chart
+        function updateStatusDistributionChart() {
+            const ctx = document.getElementById('statusDistributionChart').getContext('2d');
+            
+            if (statusDistributionChart) {
+                statusDistributionChart.destroy();
+            }
+            
+            const stats = dashboardData.stats;
+            
+            statusDistributionChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Lệnh OK', 'Lệnh Quá Hạn', 'Vượt Hao Phí', 'Chưa Đóng'],
+                    datasets: [{
+                        data: [stats.countOk, stats.countOverdue, stats.countOverWaste, stats.countOpen],
+                        backgroundColor: [
+                            '#10b981',
+                            '#ef4444',
+                            '#f59e0b',
+                            '#3b82f6'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Waste Chart
+        function updateWasteChart() {
+            const ctx = document.getElementById('wasteChart').getContext('2d');
+            
+            if (wasteChart) {
+                wasteChart.destroy();
+            }
+            
+            // Mock data for demonstration
+            const months = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
+            const wasteData = months.map(() => Math.floor(Math.random() * 20) + 5);
+            
+            wasteChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Hao Phí (%)',
+                        data: wasteData,
+                        backgroundColor: '#f59e0b',
+                        borderColor: '#d97706',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 30
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Show error message
+        function showError(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alertDiv);
+        }
+        
+        // Export functionality
+        function exportData() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                stats: dashboardData.stats,
+                topPOs: dashboardData.processedData
+                    .map(item => ({
+                        po: item.po,
+                        tenSanPham: item.tenSanPham,
+                        tyLe: item.soLuongSanXuat > 0 ? Math.round((item.nhapKho / item.soLuongSanXuat) * 100) : 0
+                    }))
+                    .sort((a, b) => b.tyLe - a.tyLe)
+                    .slice(0, 10)
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `bao-cao-san-xuat-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Event listeners
+        document.getElementById('refreshBtn').addEventListener('click', loadData);
+        document.getElementById('exportBtn').addEventListener('click', exportData);
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+        });
+    </script>
+</body>
+</html>
