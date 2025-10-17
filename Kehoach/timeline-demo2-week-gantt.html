@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo 2 - Gantt tuần</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#f6f8fb}
+    .g-head{display:flex;align-items:center;justify-content:space-between}
+    .g-grid{display:grid;grid-template-columns:260px repeat(7,1fr);border:1px solid #eef2f7;border-radius:12px;overflow:hidden;background:#fff}
+    .gh{background:#f8fafc;font-weight:600;font-size:12px;color:#6b7280;padding:8px;border-right:1px solid #eef2f7;text-align:center}
+    .rowg{display:grid;grid-template-columns:260px repeat(7,1fr)}
+    .label{padding:8px 10px;border-top:1px solid #eef2f7;border-right:1px solid #eef2f7;font-size:12px}
+    .cell{position:relative;height:36px;border-top:1px solid #eef2f7;border-right:1px solid #eef2f7}
+    .bar{position:absolute;top:6px;height:24px;border-radius:12px;display:flex;align-items:center;padding:0 8px;color:#111827;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .b-attn{background:#fff7e6;border:1px solid #fde6b1}
+    .b-alert{background:#ffe4e6;border:1px solid #f7b6bf}
+    .b-over{background:#e6f3ff;border:1px solid #bfd8ff}
+  </style>
+</head>
+<body class="p-3">
+  <div class="container-fluid">
+    <div class="g-head mb-2">
+      <h5 class="mb-0">Demo 2 - Gantt tuần (Ngày xuống → Ngày giao)</h5>
+      <div>
+        <button id="prev" class="btn btn-sm btn-outline-secondary">«</button>
+        <span id="title" class="mx-2 fw-semibold"></span>
+        <button id="next" class="btn btn-sm btn-outline-secondary">»</button>
+      </div>
+    </div>
+    <div id="grid" class="g-grid"></div>
+  </div>
+  <script>
+    const API='AIzaSyC1Rsi6v-NoDqTFVDzB_YVCP0g1aHyvMME';
+    const SID='1UuIKiW0soNDv2U08HMhiuTn_Kxrzxlj_Z7GXK7ZM6Ic';
+    const toISO=d=>{const dd=String(d.getDate()).padStart(2,'0'),mm=String(d.getMonth()+1).padStart(2,'0');return `${d.getFullYear()}-${mm}-${dd}`}
+    const pDate=v=>{if(!v) return null; if(/^\d{4}-\d{2}-\d{2}$/.test(v)){const d=new Date(v+'T00:00:00');return isNaN(d)?null:d} if(/^\d{2}\/\d{2}\/\d{4}$/.test(v)){const [d,m,y]=v.split('/').map(Number);const t=new Date(y,m-1,d);return isNaN(t)?null:t} const t=new Date(v);return isNaN(t)?null:t}
+    const pct=s=>{if(!s) return null; const n=parseFloat(String(s).replace('%','').replace(',','.')); return isNaN(n)?null:n}
+    function sow(d){const w=d.getDay();const diff=(w===0?6:w-1);const r=new Date(d);r.setDate(d.getDate()-diff);r.setHours(0,0,0,0);return r}
+    function add(d,n){const r=new Date(d); r.setDate(d.getDate()+n); return r}
+    let ref=sow(new Date()); let items=[];
+    async function load(){
+      const url=`https://sheets.googleapis.com/v4/spreadsheets/${SID}/values/4.%20Nhập%20Xuất%20Tồn!A8:AJ?key=${API}`;
+      const js=await (await fetch(url)).json(); if(!js.values) return [];
+      const map={}; js.values.slice(1).forEach(r=>{ if(r.length<36) return; const po=r[34]||''; if(!po) return; const lenh=r[0]||''; const loai=(r[1]||'').trim(); const title=loai?`${lenh} (${loai})`:lenh; const ten=r[3]||''; const s=pDate(r[26]||''); const e=pDate(r[35]||''); const tt=pct(r[20]); const cp=pct(r[21]); if(!map[po]) map[po]={po,ten,s,e,titles:[],tt,cp}; map[po].titles.push(title); if(s&&(!map[po].s||s<map[po].s)) map[po].s=s; if(e&&(!map[po].e||e<map[po].e)) map[po].e=e; });
+      items=Object.values(map); render();
+    }
+    function render(){
+      const grid=document.getElementById('grid'); grid.innerHTML='';
+      const title=document.getElementById('title'); title.textContent=toISO(ref)+' - '+toISO(add(ref,6));
+      const header=document.createElement('div'); header.className='rowg'; const lh=document.createElement('div'); lh.className='gh'; lh.style.textAlign='left'; lh.textContent='PO / Tên'; header.appendChild(lh); for(let i=0;i<7;i++){const d=add(ref,i); const h=document.createElement('div'); h.className='gh'; h.textContent=d.toLocaleDateString('vi-VN',{weekday:'short',day:'2-digit'}); header.appendChild(h)} grid.appendChild(header);
+      const todayISO=toISO(new Date());
+      items.forEach(it=>{
+        const row=document.createElement('div'); row.className='rowg';
+        const label=document.createElement('div'); label.className='label'; label.innerHTML=`<div class="fw-semibold">${it.po}</div><div class="text-muted" style="font-size:11px">${it.ten||''}</div>`; row.appendChild(label);
+        for(let i=0;i<7;i++){const c=document.createElement('div'); c.className='cell'; row.appendChild(c)}
+        if(it.s&&it.e){ const vs=ref, ve=add(ref,6); const bs=(it.s>vs?it.s:vs), be=(it.e<ve?it.e:ve); if(be>=vs&&bs<=ve){ const total=7*86400000, left=(bs-vs)/total*100, width=((be-bs)/total*100)||3; let cls='b-attn'; const days=(it.e?Math.round((new Date(toISO(it.e)+'T00:00:00')-new Date(todayISO+'T00:00:00'))/86400000):9999); if(it.tt>0&&it.cp>0&&it.tt>it.cp) cls='b-over'; else if(days<=2) cls='b-alert'; else if(days>2&&days<=5) cls='b-attn'; else cls='b-over'; const bar=document.createElement('div'); bar.className='bar '+cls; bar.style.left=left+'%'; bar.style.width=Math.max(3,width)+'%'; bar.textContent=(it.titles||[]).join('; '); row.children[1].appendChild(bar);} }
+        grid.appendChild(row);
+      })
+    }
+    document.getElementById('prev').addEventListener('click',()=>{ref=add(ref,-7);render()});
+    document.getElementById('next').addEventListener('click',()=>{ref=add(ref,7);render()});
+    load();
+  </script>
+</body>
+</html>
+

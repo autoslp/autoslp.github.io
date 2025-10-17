@@ -105,6 +105,9 @@
                         <p class="text-muted mb-0">Tổng quan hiệu suất sản xuất và quản lý lệnh</p>
                     </div>
                     <div class="btn-group">
+                        <button class="btn btn-outline-secondary" id="webhookBtn">
+                            <i class="fas fa-paper-plane me-2"></i>Gửi Webhook
+                        </button>
                         <button class="btn btn-outline-primary" id="refreshBtn">
                             <i class="fas fa-sync-alt me-2"></i>Làm Mới
                         </button>
@@ -920,9 +923,79 @@
             URL.revokeObjectURL(url);
         }
         
+        // Build payload and POST to webhook
+        async function sendWebhook() {
+            try {
+                if (!dashboardData.processedData || dashboardData.processedData.length === 0) {
+                    showError('Chưa có dữ liệu để gửi webhook');
+                    return;
+                }
+                const todayISO = toISODate(new Date());
+                const lists = { overdue: [], ok: [], overWaste: [], open: [] };
+                dashboardData.processedData.forEach(item => {
+                    const tyLe = item.soLuongSanXuat > 0 ? Math.round((item.nhapKho / item.soLuongSanXuat) * 100) : 0;
+                    const isClosed = tyLe >= 100;
+                    let days = null;
+                    if (item.giaoISO) {
+                        const diffMs = (new Date(item.giaoISO + 'T00:00:00')) - (new Date(todayISO + 'T00:00:00'));
+                        days = Math.round(diffMs / (24*60*60*1000));
+                    }
+                    const haoThucTeNum = parseFloat((item.haoPhiThucTe || '').replace(',', '.').replace('%', ''));
+                    const haoChoPhepNum = parseFloat((item.haoPhiChoPhep || '').replace(',', '.').replace('%', ''));
+                    const overWaste = (haoThucTeNum > 0 && haoChoPhepNum > 0 && haoThucTeNum > haoChoPhepNum);
+                    const entry = {
+                        po: item.po,
+                        tenSanPham: item.tenSanPham,
+                        ngayXuongLenh: item.ngayISO || '',
+                        ngayGiaoHang: item.giaoISO || '',
+                        tyLeNhapKho: tyLe,
+                        haoPhiThucTe: item.haoPhiThucTe || '',
+                        haoPhiChoPhep: item.haoPhiChoPhep || ''
+                    };
+                    if (!isClosed) {
+                        lists.open.push(entry);
+                        if (typeof days === 'number') {
+                            if (days < 0) lists.overdue.push(entry); else lists.ok.push(entry);
+                        } else {
+                            lists.ok.push(entry);
+                        }
+                    } else {
+                        lists.ok.push(entry);
+                    }
+                    if (overWaste) lists.overWaste.push(entry);
+                });
+                const payload = {
+                    timestamp: new Date().toISOString(),
+                    counts: {
+                        overdue: lists.overdue.length,
+                        ok: lists.ok.length,
+                        overWaste: lists.overWaste.length,
+                        open: lists.open.length
+                    },
+                    lists
+                };
+                const resp = await fetch('https://api.autoslp.com:5678/webhook-test/get-sum-info', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                    mode: 'cors'
+                });
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                const okDiv = document.createElement('div');
+                okDiv.className = 'alert alert-success alert-dismissible fade show position-fixed';
+                okDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+                okDiv.innerHTML = `Đã gửi webhook thành công <button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+                document.body.appendChild(okDiv);
+            } catch (e) {
+                console.error('Webhook error:', e);
+                showError('Gửi webhook thất bại: ' + (e && e.message ? e.message : 'Không rõ lỗi'));
+            }
+        }
+        
         // Event listeners
         document.getElementById('refreshBtn').addEventListener('click', loadData);
         document.getElementById('exportBtn').addEventListener('click', exportData);
+        document.getElementById('webhookBtn').addEventListener('click', sendWebhook);
         
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {

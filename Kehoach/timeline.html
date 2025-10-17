@@ -48,6 +48,7 @@
       <div class="d-flex gap-2">
         <input id="startDate" type="date" class="form-control form-control-sm" style="max-width: 160px;">
         <input id="endDate" type="date" class="form-control form-control-sm" style="max-width: 160px;">
+        <button id="webhookBtn" class="btn btn-sm btn-outline-secondary">Gửi Zalo</button>
         <button id="refreshBtn" class="btn btn-sm btn-primary">Làm mới</button>
       </div>
     </div>
@@ -254,6 +255,8 @@
       });
 
       const items = Object.values(grouped);
+      // Lưu nguồn dữ liệu đã nhóm để có thể áp dụng lại bộ lọc khi gửi webhook
+      window.timelineSource = items;
       renderTables(items);
     }
 
@@ -270,6 +273,7 @@
       const attention = [];
       const alerting = [];
       const overWaste = [];
+      const open = [];
 
       data.forEach(i => {
         const tyLe = i.soLuongSanXuat>0 ? Math.round((i.nhapKho/i.soLuongSanXuat)*100) : 0;
@@ -283,6 +287,7 @@
             attention.push({...i, tyLe});
           }
         }
+        if(!isClosed) open.push({...i, tyLe});
         const haoTT = parsePercentRawToNum(i.haoThucTe);
         const haoCP = parsePercentRawToNum(i.haoChoPhep);
         if(haoTT>0 && haoCP>0 && haoTT>haoCP){ overWaste.push(i); }
@@ -384,9 +389,94 @@
       tbodyA.innerHTML = attention.map((r,idx)=>buildRowSimple(r,idx)).join('');
       tbodyB.innerHTML = alerting.map((r,idx)=>buildRowSimple(r,idx)).join('');
       tbodyC.innerHTML = overWaste.map((r,idx)=>buildRowFull(r,idx)).join('');
+
+      // Lưu danh sách để gửi webhook
+      window.timelineLists = { attention, alerting, overWaste, open, all: data };
     }
 
     document.getElementById('refreshBtn').addEventListener('click', loadData);
+
+    async function sendWebhook() {
+      try {
+        // Dùng nguồn dữ liệu đã nhóm và áp dụng lại bộ lọc ngày hiện tại
+        const source = Array.isArray(window.timelineSource) && window.timelineSource.length
+          ? window.timelineSource
+          : (window.timelineLists && Array.isArray(window.timelineLists.all) ? window.timelineLists.all : []);
+        if (!source || source.length === 0) { showToast('Chưa có dữ liệu để gửi webhook'); return; }
+
+        const start = document.getElementById('startDate')?.value;
+        const end = document.getElementById('endDate')?.value;
+        let data = source.slice();
+        if(start) data = data.filter(i => !i.ngayISO || i.ngayISO >= start);
+        if(end) data = data.filter(i => !i.ngayISO || i.ngayISO <= end);
+
+        const todayISO = toISODate(new Date());
+        const attention = [], alerting = [], overWaste = [], open = [];
+        data.forEach(i => {
+          const tyLe = i.soLuongSanXuat>0 ? Math.round((i.nhapKho/i.soLuongSanXuat)*100) : 0;
+          const isClosed = tyLe>=100;
+          if(!isClosed && i.giaoISO){
+            const diffMs = (new Date(i.giaoISO+'T00:00:00')) - (new Date(todayISO+'T00:00:00'));
+            const days = Math.round(diffMs / (24*60*60*1000));
+            if(days <= 2) alerting.push({...i, tyLe});
+            else if(days > 2 && days <= 5) attention.push({...i, tyLe});
+          }
+          if(!isClosed) open.push({...i, tyLe});
+          const haoTT = parsePercentRawToNum(i.haoThucTe);
+          const haoCP = parsePercentRawToNum(i.haoChoPhep);
+          if(haoTT>0 && haoCP>0 && haoTT>haoCP) overWaste.push(i);
+        });
+
+        const toEntry = (item) => ({
+          po: item.po,
+          tenSanPham: item.tenSanPham,
+          ngayXuongLenh: item.ngayISO || '',
+          ngayGiaoHang: item.giaoISO || '',
+          tyLeNhapKho: (item.soLuongSanXuat>0)? Math.round((item.nhapKho/item.soLuongSanXuat)*100) : (typeof item.tyLe==='number'? Math.round(item.tyLe): 0),
+          haoPhiThucTe: item.haoThucTe || '',
+          haoPhiChoPhep: item.haoChoPhep || ''
+        });
+        const payload = {
+          timestamp: new Date().toISOString(),
+          filter: { startDate: start || '', endDate: end || '' },
+          counts: {
+            attention: attention.length,
+            alert: alerting.length,
+            overWaste: overWaste.length,
+            open: open.length,
+            all: data.length
+          },
+          lists: {
+            attention: attention.map(toEntry),
+            alert: alerting.map(toEntry),
+            overWaste: overWaste.map(toEntry),
+            open: open.map(toEntry),
+            all: data.map(toEntry)
+          }
+        };
+        const resp = await fetch('https://api.autoslp.com:5678/webhook-test/get-sum-info', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          mode: 'cors'
+        });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        showToast('Đã gửi webhook thành công', 'success');
+      } catch (e) {
+        console.error('Webhook error:', e);
+        showToast('Gửi webhook thất bại: ' + (e && e.message ? e.message : 'Không rõ lỗi'), 'danger');
+      }
+    }
+
+    function showToast(message, type='success'){
+      const div = document.createElement('div');
+      div.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+      div.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+      div.innerHTML = `${message} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+      document.body.appendChild(div);
+    }
+
+    document.getElementById('webhookBtn').addEventListener('click', sendWebhook);
     window.addEventListener('load', () => {
       const now = new Date();
       const last30 = new Date(now); last30.setDate(now.getDate()-30);
