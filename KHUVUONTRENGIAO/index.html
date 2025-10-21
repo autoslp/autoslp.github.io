@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khu Vườn Trên Giáo - Hoa Chậu & Cây Cảnh Mini</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #ffd700;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23e8f5e8" width="1200" height="600"/><circle fill="%23a8e6a3" cx="200" cy="150" r="80"/><circle fill="%23ffb3ba" cx="400" cy="200" r="60"/><circle fill="%23ffdfba" cx="600" cy="100" r="70"/><circle fill="%23bae1ff" cx="800" cy="180" r="50"/><circle fill="%23d4a5ff" cx="1000" cy="120" r="65"/></svg>');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: white;
+            margin-top: 70px;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .hero-content p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Services Section */
+        .services {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #2c3e50;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            border-radius: 2px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .service-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #f0f0f0;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #ff6b6b;
+        }
+
+        .service-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        /* Pricing Section */
+        .pricing {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .pricing-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .pricing-card.featured {
+            border: 3px solid #ff6b6b;
+            transform: scale(1.05);
+        }
+
+        .pricing-card.featured::before {
+            content: 'PHỔ BIẾN';
+            position: absolute;
+            top: 20px;
+            right: -30px;
+            background: #ff6b6b;
+            color: white;
+            padding: 5px 40px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transform: rotate(45deg);
+        }
+
+        .flower-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+        }
+
+        .price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ff6b6b;
+            margin: 1rem 0;
+        }
+
+        .price-unit {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        /* Gallery Section */
+        .gallery {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 3rem;
+        }
+
+        .gallery-item {
+            height: 250px;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .gallery-item .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,107,107,0.8), rgba(255,165,0,0.8));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .gallery-item:hover .overlay {
+            opacity: 1;
+        }
+
+        .gallery-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 250px;
+            font-size: 1.5rem;
+            color: #666;
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .contact-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        .contact-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .contact-item i {
+            font-size: 1.2rem;
+            margin-right: 1rem;
+            width: 20px;
+        }
+
+        .contact-form {
+            background: rgba(255,255,255,0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.9);
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .social-links {
+            margin: 1rem 0;
+        }
+
+        .social-links a {
+            color: white;
+            font-size: 1.5rem;
+            margin: 0 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: #ffd700;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-content p {
+                font-size: 1.1rem;
+            }
+
+            .contact-content {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-card.featured {
+                transform: none;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="container">
+            <a href="#" class="logo">🌿 Khu Vườn Trên Giáo</a>
+            <ul class="nav-links">
+                <li><a href="#home">Trang chủ</a></li>
+                <li><a href="#services">Dịch vụ</a></li>
+                <li><a href="#pricing">Báo giá</a></li>
+                <li><a href="#gallery">Hình ảnh</a></li>
+                <li><a href="#contact">Liên hệ</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content fade-in-up">
+                <h1>🌿 CHÀO MỪNG BẠN ĐẾN VỚI "KHU VƯỜN TRÊN GIÁO" 🌸</h1>
+                <p>Nơi những chậu hoa nhỏ mang theo niềm vui – sắc màu – và hơi thở thiên nhiên đến từng góc nhỏ trong ngôi nhà bạn 💚</p>
+                <a href="#pricing" class="cta-button">Xem Báo Giá Ngay</a>
+            </div>
+        </div>
+    </section>
+    <!-- Gallery Section -->
+    <section id="gallery" class="gallery">
+        <div class="container">
+            <h2 class="section-title">Hình Ảnh Sản Phẩm</h2>
+            <div class="gallery-grid" id="galleryGrid">
+                <!-- Images will be loaded dynamically -->
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <button id="refreshGallery" class="cta-button" style="background: linear-gradient(45deg, #667eea, #764ba2);">
+                    🔄 Xem Thêm Hình Ảnh
+                </button>
+            </div>
+        </div>
+    </section>
+    <!-- Services Section -->
+    <section id="services" class="services">
+        <div class="container">
+            <h2 class="section-title">Dịch Vụ Của Chúng Tôi</h2>
+            <div class="services-grid">
+                <div class="service-card fade-in-up">
+                    <div class="service-icon">🌹</div>
+                    <h3>Hoa Chậu - Hoa Hồng</h3>
+                    <p>Chuyên cung cấp các loại hoa hồng đa dạng, từ hoa hồng mini đến hoa hồng thân gỗ, được chăm sóc tỉ mỉ và đảm bảo chất lượng.</p>
+                </div>
+                <div class="service-card fade-in-up">
+                    <div class="service-icon">🌼</div>
+                    <h3>Cây Cảnh Mini</h3>
+                    <p>Hoa theo mùa và cây cảnh mini phù hợp cho không gian nhỏ, mang thiên nhiên vào từng góc nhà của bạn.</p>
+                </div>
+                <div class="service-card fade-in-up">
+                    <div class="service-icon">🌷</div>
+                    <h3>Phụ Kiện & Chậu Trồng</h3>
+                    <p>Chậu trồng độc đáo và phụ kiện chăm sóc cây, giúp bạn tạo nên không gian xanh hoàn hảo.</p>
+                </div>
+                <div class="service-card fade-in-up">
+                    <div class="service-icon">🌱</div>
+                    <h3>Tư Vấn Chăm Sóc</h3>
+                    <p>Tư vấn chăm sóc cây và phối chậu theo phong cách riêng, đảm bảo cây luôn tươi tốt và đẹp mắt.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <h2 class="section-title">Báo Giá Hoa & Cây Cảnh</h2>
+            
+            <!-- Hàng Bụi -->
+            <div class="pricing-category">
+                <h3 style="text-align: center; font-size: 2rem; margin: 3rem 0 2rem 0; color: #2c3e50;">🌸 HÀNG BỤI - 120.000 VND</h3>
+                <div class="pricing-grid">
+                    <div class="pricing-card fade-in-up">
+                        <div class="flower-image">❄️</div>
+                        <h3>Hoa SUMMER SNOW</h3>
+                        <p>Hoa bông chùm, đổi màu theo thời tiết</p>
+                        <div class="price">120.000 <span class="price-unit">VND</span></div>
+                        <ul style="text-align: left; margin-top: 1rem; font-size: 0.9rem;">
+                            <li>✓ Hè nắng: hoa màu trắng</li>
+                            <li>✓ Trời lạnh: hoa màu hồng</li>
+                            <li>✓ Khi tàn cánh khô không bị rụng</li>
+                        </ul>
+                    </div>
+                    <div class="pricing-card fade-in-up">
+                        <div class="flower-image">🌹</div>
+                        <h3>Hoa Mon</h3>
+                        <p>Hoa leo, bông màu hồng theo chùm</p>
+                        <div class="price">120.000 <span class="price-unit">VND</span></div>
+                        <ul style="text-align: left; margin-top: 1rem; font-size: 0.9rem;">
+                            <li>✓ Khả năng leo tốt</li>
+                            <li>✓ Chiều cao 2-3m</li>
+                            <li>✓ Càng uốn cong càng ra hoa nhiều</li>
+                        </ul>
+                    </div>
+                    <div class="pricing-card fade-in-up">
+                        <div class="flower-image">🌺</div>
+                        <h3>Hoa Kenlong</h3>
+                        <p>Bông to, khỏe, màu đỏ rực rỡ</p>
+                        <div class="price">120.000 <span class="price-unit">VND</span></div>
+                        <ul style="text-align: left; margin-top: 1rem; font-size: 0.9rem;">
+                            <li>✓ Bông to, khỏe mạnh</li>
+                            <li>✓ Màu đỏ đậm đà</li>
+                            <li>✓ Dễ chăm sóc</li>
+                        </ul>
+                    </div>
+                    <div class="pricing-card fade-in-up">
+                        <div class="flower-image">🌼</div>
+                        <h3>Hoa Lafon</h3>
+                        <p>Mùi hương thơm, "bình nước hoa di động"</p>
+                        <div class="price">120.000 <span class="price-unit">VND</span></div>
+                        <ul style="text-align: left; margin-top: 1rem; font-size: 0.9rem;">
+                            <li>✓ Mùi hương thơm ngát</li>
+                            <li>✓ Được mệnh danh "bình nước hoa di động"</li>
+                            <li>✓ Tạo không gian thơm mát</li>
+                        </ul>
+                    </div>
+                    <div class="pricing-card fade-in-up">
+                        <div class="flower-image">🌷</div>
+                        <h3>Hoa Tỉ Muội Sadet</h3>
+                        <p>Bông nhỏ cánh dày, độ bền cao</p>
+                        <div class="price">120.000 <span class="price-unit">VND</span></div>
+                        <ul style="text-align: left; margin-top: 1rem; font-size: 0.9rem;">
+                            <li>✓ Bông nhỏ cánh dày</li>
+                            <li>✓ Độ bền 7-15 ngày</li>
+                            <li>✓ Hoa bền, đẹp lâu</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hàng Tree -->
+            <div class="pricing-category">
+                <h3 style="text-align: center; font-size: 2rem; margin: 3rem 0 2rem 0; color: #2c3e50;">🌳 HÀNG TREE - 180.000 VND</h3>
+                <div class="pricing-grid">
+                    <div class="pricing-card fade-in-up">
+                        <div class="flower-image">❄️</div>
+                        <h3>Hoa SUMMER SNOW (Tree)</h3>
+                        <p>Phiên bản tree của Summer Snow</p>
+                        <div class="price">180.000 <span class="price-unit">VND</span></div>
+                        <ul style="text-align: left; margin-top: 1rem; font-size: 0.9rem;">
+                            <li>✓ Thân cây cao đẹp</li>
+                            <li>✓ Đổi màu theo thời tiết</li>
+                            <li>✓ Phù hợp trang trí sân vườn</li>
+                        </ul>
+                    </div>
+                    <div class="pricing-card fade-in-up">
+                        <div class="flower-image">🌹</div>
+                        <h3>Hoa Mon (Tree)</h3>
+                        <p>Phiên bản tree của Mon</p>
+                        <div class="price">180.000 <span class="price-unit">VND</span></div>
+                        <ul style="text-align: left; margin-top: 1rem; font-size: 0.9rem;">
+                            <li>✓ Thân cây leo đẹp</li>
+                            <li>✓ Bông hồng theo chùm</li>
+                            <li>✓ Dễ tạo dáng</li>
+                        </ul>
+                    </div>
+                    <div class="pricing-card fade-in-up">
+                        <div class="flower-image">🌺</div>
+                        <h3>Hoa Kenlong (Tree)</h3>
+                        <p>Phiên bản tree của Kenlong</p>
+                        <div class="price">180.000 <span class="price-unit">VND</span></div>
+                        <ul style="text-align: left; margin-top: 1rem; font-size: 0.9rem;">
+                            <li>✓ Thân cây khỏe mạnh</li>
+                            <li>✓ Bông đỏ to đẹp</li>
+                            <li>✓ Tạo điểm nhấn cho khu vườn</li>
+                        </ul>
+                    </div>
+                    <div class="pricing-card fade-in-up">
+                        <div class="flower-image">🌼</div>
+                        <h3>Hoa Lafon (Tree)</h3>
+                        <p>Phiên bản tree của Lafon</p>
+                        <div class="price">180.000 <span class="price-unit">VND</span></div>
+                        <ul style="text-align: left; margin-top: 1rem; font-size: 0.9rem;">
+                            <li>✓ Thân cây thơm ngát</li>
+                            <li>✓ "Bình nước hoa di động"</li>
+                            <li>✓ Tạo không gian thơm mát</li>
+                        </ul>
+                    </div>
+                    <div class="pricing-card fade-in-up">
+                        <div class="flower-image">🌷</div>
+                        <h3>Hoa Tỉ Muội Sadet (Tree)</h3>
+                        <p>Phiên bản tree của Tỉ Muội Sadet</p>
+                        <div class="price">180.000 <span class="price-unit">VND</span></div>
+                        <ul style="text-align: left; margin-top: 1rem; font-size: 0.9rem;">
+                            <li>✓ Thân cây đẹp</li>
+                            <li>✓ Bông bền 7-15 ngày</li>
+                            <li>✓ Phù hợp trang trí</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trên Chậu -->
+            <div class="pricing-category">
+                <h3 style="text-align: center; font-size: 2rem; margin: 3rem 0 2rem 0; color: #2c3e50;">🏺 TRÊN CHẬU - 600.000 VND</h3>
+                <div class="pricing-grid">
+                    <div class="pricing-card featured fade-in-up">
+                        <div class="flower-image">❄️</div>
+                        <h3>Hoa SUMMER SNOW (Chậu)</h3>
+                        <p>Hàng bụi trên chậu đẹp</p>
+                        <div class="price">600.000 <span class="price-unit">VND</span></div>
+                        <ul style="text-align: left; margin-top: 1rem; font-size: 0.9rem;">
+                            <li>✓ Chậu trang trí cao cấp</li>
+                            <li>✓ Đất dinh dưỡng chuyên dụng</li>
+                            <li>✓ Sẵn sàng trang trí</li>
+                        </ul>
+                    </div>
+                    <div class="pricing-card featured fade-in-up">
+                        <div class="flower-image">🌹</div>
+                        <h3>Hoa Mon (Chậu)</h3>
+                        <p>Hàng bụi trên chậu đẹp</p>
+                        <div class="price">600.000 <span class="price-unit">VND</span></div>
+                        <ul style="text-align: left; margin-top: 1rem; font-size: 0.9rem;">
+                            <li>✓ Chậu trang trí cao cấp</li>
+                            <li>✓ Đất dinh dưỡng chuyên dụng</li>
+                            <li>✓ Sẵn sàng trang trí</li>
+                        </ul>
+                    </div>
+                    <div class="pricing-card featured fade-in-up">
+                        <div class="flower-image">🌺</div>
+                        <h3>Hoa Kenlong (Chậu)</h3>
+                        <p>Hàng bụi trên chậu đẹp</p>
+                        <div class="price">600.000 <span class="price-unit">VND</span></div>
+                        <ul style="text-align: left; margin-top: 1rem; font-size: 0.9rem;">
+                            <li>✓ Chậu trang trí cao cấp</li>
+                            <li>✓ Đất dinh dưỡng chuyên dụng</li>
+                            <li>✓ Sẵn sàng trang trí</li>
+                        </ul>
+                    </div>
+                    <div class="pricing-card featured fade-in-up">
+                        <div class="flower-image">🌼</div>
+                        <h3>Hoa Lafon (Chậu)</h3>
+                        <p>Hàng bụi trên chậu đẹp</p>
+                        <div class="price">600.000 <span class="price-unit">VND</span></div>
+                        <ul style="text-align: left; margin-top: 1rem; font-size: 0.9rem;">
+                            <li>✓ Chậu trang trí cao cấp</li>
+                            <li>✓ Đất dinh dưỡng chuyên dụng</li>
+                            <li>✓ Sẵn sàng trang trí</li>
+                        </ul>
+                    </div>
+                    <div class="pricing-card featured fade-in-up">
+                        <div class="flower-image">🌷</div>
+                        <h3>Hoa Tỉ Muội Sadet (Chậu)</h3>
+                        <p>Hàng bụi trên chậu đẹp</p>
+                        <div class="price">600.000 <span class="price-unit">VND</span></div>
+                        <ul style="text-align: left; margin-top: 1rem; font-size: 0.9rem;">
+                            <li>✓ Chậu trang trí cao cấp</li>
+                            <li>✓ Đất dinh dưỡng chuyên dụng</li>
+                            <li>✓ Sẵn sàng trang trí</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2 class="section-title" style="color: white;">Liên Hệ Với Chúng Tôi</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h3>Thông Tin Liên Hệ</h3>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>📍 Khu Vườn Trên Giáo - Nâng niu từng cánh hoa, gửi gắm yêu thương xanh</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span>📞 Hotline: 096 292 06 38</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>✉️ Email: khuvuontrengiao@gmail.com</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fab fa-facebook"></i>
+                        <span>📘 Facebook: Khu Vườn Trên Giáo</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fab fa-instagram"></i>
+                        <span>📷 Instagram: @khuvuontrengiao</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-clock"></i>
+                        <span>🕒 Giờ mở cửa: 8:00 - 18:00 (T2-T7)</span>
+                    </div>
+                </div>
+                <div class="contact-form">
+                    <h3>Gửi Tin Nhắn</h3>
+                    <form>
+                        <div class="form-group">
+                            <label for="name">Họ và tên:</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Số điện thoại:</label>
+                            <input type="tel" id="phone" name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" id="email" name="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Tin nhắn:</label>
+                            <textarea id="message" name="message" placeholder="Bạn muốn tư vấn về loại hoa nào?"></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn">Gửi Tin Nhắn</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <h3>🌿 Khu Vườn Trên Giáo 🌸</h3>
+            <p>Nâng niu từng cánh hoa, gửi gắm yêu thương xanh</p>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-tiktok"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+            <p>&copy; 2024 Khu Vườn Trên Giáo. Tất cả quyền được bảo lưu.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in-up');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all service cards and pricing cards
+        document.querySelectorAll('.service-card, .pricing-card, .gallery-item').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Form submission
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể. 🌸');
+        });
+
+        // Gallery functionality
+        const imageBaseUrl = 'https://bangbaogiahoakvtg.github.io/imgs/';
+        const imageExtensions = ['.jpg'];
+        let usedImages = new Set();
+        let allImages = [];
+
+        // Generate random image names (assuming images are named with numbers or common patterns)
+        function generateImageUrls() {
+            const images = [];
+            
+            // Try different naming patterns
+            const patterns = [
+                'img1', 'img2', 'img3', 'img4'
+                
+            ];
+
+            patterns.forEach(pattern => {
+                imageExtensions.forEach(ext => {
+                    images.push(imageBaseUrl + pattern + ext);
+                });
+            });
+
+            return images;
+        }
+
+        function loadRandomImages() {
+            const galleryGrid = document.getElementById('galleryGrid');
+            galleryGrid.innerHTML = '<div class="gallery-loading">🔄 Đang tải hình ảnh...</div>';
+
+            // Generate all possible image URLs
+            if (allImages.length === 0) {
+                allImages = generateImageUrls();
+            }
+
+            // Shuffle and get 8 random images
+            const shuffled = [...allImages].sort(() => 0.5 - Math.random());
+            const selectedImages = shuffled.slice(0, 8);
+
+            // Clear previous images
+            usedImages.clear();
+
+            // Load images
+            let loadedCount = 0;
+            const totalImages = selectedImages.length;
+
+            selectedImages.forEach((imageUrl, index) => {
+                const img = new Image();
+                img.onload = function() {
+                    loadedCount++;
+                    if (loadedCount === totalImages) {
+                        displayImages(selectedImages);
+                    }
+                };
+                img.onerror = function() {
+                    loadedCount++;
+                    if (loadedCount === totalImages) {
+                        displayImages(selectedImages);
+                    }
+                };
+                img.src = imageUrl;
+            });
+        }
+
+        function displayImages(imageUrls) {
+            const galleryGrid = document.getElementById('galleryGrid');
+            galleryGrid.innerHTML = '';
+
+            imageUrls.forEach((imageUrl, index) => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item fade-in-up';
+                galleryItem.style.animationDelay = `${index * 0.1}s`;
+
+                galleryItem.innerHTML = `
+                    <img src="${imageUrl}" alt="Hoa Khu Vườn Trên Giáo ${index + 1}" loading="lazy">
+                    <div class="overlay">
+                        <span>🌸 Xem Chi Tiết</span>
+                    </div>
+                `;
+
+                // Add click event for image preview
+                galleryItem.addEventListener('click', function() {
+                    openImageModal(imageUrl);
+                });
+
+                galleryGrid.appendChild(galleryItem);
+            });
+        }
+
+        function openImageModal(imageUrl) {
+            // Create modal
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                cursor: pointer;
+            `;
+
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.style.cssText = `
+                max-width: 90%;
+                max-height: 90%;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            `;
+
+            modal.appendChild(img);
+            document.body.appendChild(modal);
+
+            // Close modal on click
+            modal.addEventListener('click', function() {
+                document.body.removeChild(modal);
+            });
+        }
+
+        // Load images on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRandomImages();
+        });
+
+        // Refresh gallery button
+        document.getElementById('refreshGallery').addEventListener('click', function() {
+            loadRandomImages();
+        });
+    </script>
+</body>
+</html>
