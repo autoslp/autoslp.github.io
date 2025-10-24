@@ -13,7 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --aside-w: 74px;
+            --aside-w: 44px;
             --bg: #f5f7fb;
             --card-bg: #ffffff;
             --border: #eef1f6;
@@ -323,6 +323,138 @@
             color: #6b7280;
             font-size: 0.875rem;
             margin-left: 4px;
+        }
+        
+        /* Update modal styles */
+        .update-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        
+        .update-modal.show {
+            display: flex;
+        }
+        
+        .update-modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .update-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .update-modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .update-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 4px;
+        }
+        
+        .update-modal-close:hover {
+            color: #374151;
+        }
+        
+        .update-form-group {
+            margin-bottom: 16px;
+        }
+        
+        .update-form-label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+        
+        .update-form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+        
+        .update-form-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .update-form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .update-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .update-btn-primary {
+            background: #2563eb;
+            color: white;
+            border: none;
+        }
+        
+        .update-btn-primary:hover {
+            background: #1d4ed8;
+        }
+        
+        .update-btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+        
+        .update-btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        .update-icon {
+            color: #6b7280;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .update-icon:hover {
+            color: #2563eb;
+            background: #eef6ff;
         }
     </style>
 </head>
@@ -648,6 +780,7 @@
                                         <th>Tiến độ</th>
                                         <th>Đóng lệnh</th>
                                         <th>Cảnh báo</th>
+                                        <th style="text-align: center;">Cập nhật</th>
                                     </tr>
                                 </thead>
                                 <tbody style="font-size: 12px;" id="tableBody"></tbody>
@@ -828,6 +961,9 @@
             
             // Thiết lập autocomplete cho khách hàng
             setupKhachHangAutocomplete();
+            
+            // Thiết lập event listeners cho update modal
+            setupUpdateModalListeners();
         }
 
         // Tải dữ liệu từ Google Sheets (Data Bridge Sheet)
@@ -877,6 +1013,15 @@
                 // Mapping theo yêu cầu mới:
                 const po = row[34] || '';                    // AI (Số PO)
                 const maCode = row[2] || '';                 // C (Mã code SP)
+                
+                // Chỉ xử lý các lệnh có mã code bắt đầu bằng SLM, XK-SLM, XK-SLG
+                const maCodeTrimmed = maCode.trim();
+                const isValidCode = maCodeTrimmed.startsWith('SLM') || 
+                                   maCodeTrimmed.startsWith('STG') ||
+                                   maCodeTrimmed.startsWith('XK-SLM') || 
+                                   maCodeTrimmed.startsWith('XK-SLG');
+                
+                if (!isValidCode) return; // Bỏ qua các lệnh không có mã code hợp lệ
                 const tenSanPham = row[3] || '';             // D (Tên sản phẩm)
                 const khachHang = row[7] || '';              // H (Khách hàng)
                 const lenhSanXuat = row[0] || '';            // A (Lệnh sản xuất)
@@ -927,7 +1072,12 @@
                 if (!groupedData[po].tenSanPham && tenSanPham) groupedData[po].tenSanPham = tenSanPham;
                 if (!groupedData[po].khachHang && khachHang) groupedData[po].khachHang = khachHang;
                 groupedData[po].soLuongCanTrienKhai += soLuongCanTrienKhai;
-                groupedData[po].soLuongSanXuat += soLuongSanXuat;
+                
+                // TH1: Không tính số lượng sản xuất cho lệnh "Bù" hoặc "Bù ghép"
+                if (loaiLenh !== 'Bù' && loaiLenh !== 'Bù ghép') {
+                    groupedData[po].soLuongSanXuat += soLuongSanXuat;
+                }
+                
                 groupedData[po].nhapKho += nhapKho;
                 groupedData[po].tongNG += tongNG;
                 // Giữ ngày sớm nhất nếu có nhiều bản ghi
@@ -1144,6 +1294,9 @@
                     </td>
                     <td>${isClosed ? '<span style="font-weight: 300;font-size: 10px;width: 60px;text-align: center;}" class="pill pill-closed">Đóng lệnh</span>' : ''}</td>
                     <td>${canhBaoHtml}</td>
+                    <td style="text-align: center;">
+                        <i class="bi bi-calendar-date update-icon" onclick="openUpdateModal('${item.po}', '${item.lenhSanXuat.join(', ')}', '${item.khachHang}', '${item.giaoDisplay || ''}', '${item.giaoISO || ''}')" title="Cập nhật ngày giao hàng"></i>
+                    </td>
                 `;
                 tableBody.appendChild(tr);
             });
@@ -1229,7 +1382,7 @@
 
         document.getElementById('exportCsvBtn')?.addEventListener('click', () => {
             const rows = [];
-            const header = ['STT','PO','Lệnh Sản Xuất','Thông tin','SL Cần Triển Khai','Nhập Kho/Sản Xuất','Ngày Xuống/Giao','Tổng NG','Hao phí','Tỷ lệ nhập kho','Tiến độ','Đóng lệnh','Cảnh báo'];
+            const header = ['STT','PO','Lệnh Sản Xuất','Thông tin','SL Cần Triển Khai','Nhập Kho/Sản Xuất','Ngày Xuống/Giao','Tổng NG','Hao phí','Tỷ lệ nhập kho','Tiến độ','Đóng lệnh','Cảnh báo','Cập nhật'];
             rows.push(header.join(','));
             const trs = document.querySelectorAll('#tableBody tr');
             trs.forEach(tr => {
@@ -1358,8 +1511,114 @@
             }
         });
 
+        // Update modal functions
+        function openUpdateModal(po, lenhSanXuat, khachHang, ngayGiaoHienTai, ngayGiaoISO) {
+            document.getElementById('updatePO').value = po;
+            document.getElementById('updateLenhSanXuat').value = lenhSanXuat;
+            document.getElementById('updateKhachHang').value = khachHang;
+            document.getElementById('updateNgayGiaoHienTai').value = ngayGiaoHienTai || 'Chưa có';
+            document.getElementById('updateNgayGiaoMoi').value = ngayGiaoISO || '';
+            document.getElementById('updateModal').classList.add('show');
+        }
+
+        function closeUpdateModal() {
+            document.getElementById('updateModal').classList.remove('show');
+            document.getElementById('updateForm').reset();
+        }
+
+        // Setup update modal event listeners after DOM is loaded
+        function setupUpdateModalListeners() {
+            const updateForm = document.getElementById('updateForm');
+            const updateModal = document.getElementById('updateModal');
+            
+            if (updateForm) {
+                updateForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const po = document.getElementById('updatePO').value;
+                    const ngayGiaoMoi = document.getElementById('updateNgayGiaoMoi').value;
+                    
+                    if (!ngayGiaoMoi) {
+                        alert('Vui lòng chọn ngày giao hàng mới');
+                        return;
+                    }
+
+                    try {
+                        // Gửi webhook để cập nhật ngày giao hàng
+                        const response = await fetch('https://api.autoslp.com:5678/webhook-test/update-ngay-giao-hang', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                po: po,
+                                ngayGiaoHang: ngayGiaoMoi,
+                                timestamp: new Date().toISOString()
+                            })
+                        });
+
+                        if (response.ok) {
+                            alert('Cập nhật ngày giao hàng thành công!');
+                            closeUpdateModal();
+                            // Tải lại dữ liệu để cập nhật hiển thị
+                            loadData();
+                        } else {
+                            alert('Có lỗi xảy ra khi cập nhật. Vui lòng thử lại.');
+                        }
+                    } catch (error) {
+                        console.error('Lỗi khi cập nhật:', error);
+                        alert('Có lỗi xảy ra khi cập nhật. Vui lòng thử lại.');
+                    }
+                });
+            }
+            
+            if (updateModal) {
+                updateModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeUpdateModal();
+                    }
+                });
+            }
+        }
+
         // Khởi tạo ứng dụng khi trang load
         window.addEventListener('load', initializeApp);
     </script>
+
+    <!-- Update Modal -->
+    <div id="updateModal" class="update-modal">
+        <div class="update-modal-content">
+            <div class="update-modal-header">
+                <h3 class="update-modal-title">Cập nhật ngày giao hàng</h3>
+                <button class="update-modal-close" onclick="closeUpdateModal()">&times;</button>
+            </div>
+            <form id="updateForm">
+                <div class="update-form-group">
+                    <label class="update-form-label">PO:</label>
+                    <input type="text" id="updatePO" class="update-form-input" readonly>
+                </div>
+                <div class="update-form-group">
+                    <label class="update-form-label">Lệnh sản xuất:</label>
+                    <input type="text" id="updateLenhSanXuat" class="update-form-input" readonly>
+                </div>
+                <div class="update-form-group">
+                    <label class="update-form-label">Khách hàng:</label>
+                    <input type="text" id="updateKhachHang" class="update-form-input" readonly>
+                </div>
+                <div class="update-form-group">
+                    <label class="update-form-label">Ngày giao hàng hiện tại:</label>
+                    <input type="text" id="updateNgayGiaoHienTai" class="update-form-input" readonly>
+                </div>
+                <div class="update-form-group">
+                    <label class="update-form-label">Ngày giao hàng mới:</label>
+                    <input type="date" id="updateNgayGiaoMoi" class="update-form-input" required>
+                </div>
+                <div class="update-form-actions">
+                    <button type="button" class="update-btn update-btn-secondary" onclick="closeUpdateModal()">Hủy</button>
+                    <button type="submit" class="update-btn update-btn-primary">Cập nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
